@@ -1,0 +1,7 @@
+STEP 1 - openssl genrsa -out pyiconic-key.pem 2048
+
+
+STEP 2 - openssl rsa -in pyiconic-key.pem -pubout -outform DER -out pyiconic-pub.der
+
+
+STEP 3 - python package-extension.py
