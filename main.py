@@ -328,6 +328,9 @@ class DownloadManagerUI(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui_settings = SettingsWindow(self)
+        # Now safely connect signal
+        self.ui.table.itemSelectionChanged.connect(self.update_toolbar_buttons_for_selection)
+
         
 
         self.setStyleSheet("""
@@ -545,7 +548,7 @@ class DownloadManagerUI(QMainWindow):
         self.current_language = config.lang
         self.apply_language(self.current_language)
         self.setup_context_menu_actions()
-
+        
     
 
     def resource_path2(self, relative_path):
@@ -697,6 +700,176 @@ class DownloadManagerUI(QMainWindow):
         # widgets.detailedEventsLabel.setText(self.tr("Detailed events"))
         # widgets.clearButton.setText(self.tr("Clear"))
         # widgets.tableWidget.setHorizontalHeaderLabels([("ID"), self.tr("Name"), self.tr("Progress"), self.tr("Speed"), self.tr("Left"), self.tr("Done"), self.tr("Size"), self.tr("Status"), "I"])
+
+
+    
+    def toolbar_buttons_state(self, status: str) -> dict:
+        status_map = {
+            config.Status.completed: {
+                "Resume": False,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.cancelled: {
+                "Resume": True,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.error: { 
+                "Resume": True,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.paused: {
+                "Resume": True,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },  
+            config.Status.failed: {
+                "Resume": True,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            }, 
+            config.Status.deleted: {
+                "Resume": False,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.scheduled: {
+                "Resume": False,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.downloading: {
+                "Resume": False,
+                "Pause": True,
+                "Delete": False,
+                "Delete All": False,
+                "Refresh": False,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": True,
+            },
+            config.Status.pending: {
+                "Resume": False,
+                "Pause": True,
+                "Delete": False,
+                "Delete All": False,
+                "Refresh": False,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+            config.Status.merging_audio: {
+                "Resume": False,
+                "Pause": False,
+                "Delete": False,
+                "Delete All": False,
+                "Refresh": False,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+            },
+        }
+
+        return status_map.get(status, {})
+
+
+
+    def update_toolbar_buttons_for_selection(self):
+        selected_rows = widgets.table.selectionModel().selectedRows()
+
+        if not selected_rows:
+            # Enable only global buttons
+            for key in widgets.toolbar_buttons:
+                widgets.toolbar_buttons[key].setEnabled(key in {
+                    "Stop All", "Resume All", "Settings", "Schedule All"
+                })
+            return
+
+        selected_ids = [
+            widgets.table.item(row.row(), 0).data(Qt.UserRole)
+            for row in selected_rows
+        ]
+
+        selected_items = [d for d in self.d_list if d.id in selected_ids]
+        if not selected_items:
+            return
+
+        # Combine all button states across selected items
+        combined_states = self.toolbar_buttons_state(selected_items[0].status).copy()
+
+        for d in selected_items[1:]:
+            state = self.toolbar_buttons_state(d.status)
+            for key in combined_states:
+                combined_states[key] = combined_states[key] and state.get(key, False)
+
+        for key, enabled in combined_states.items():
+            if key in widgets.toolbar_buttons:
+                widgets.toolbar_buttons[key].setEnabled(enabled)
+
+
+
+
+
+
+    
+
 
 
 
@@ -1018,6 +1191,7 @@ class DownloadManagerUI(QMainWindow):
                     self.settings_folder()
                 elif key == 'check_browser_queue':
                     self.check_browser_queue()
+                
                 # elif key == 'monitor_clip':
                 #     self.monitor_clip()
                 # elif key == 'show_download_win':
@@ -1072,7 +1246,7 @@ class DownloadManagerUI(QMainWindow):
         self.queue_update('pending_jobs', None)
         self.queue_update('settings_folder', None)
         self.queue_update('check_browser_queue', None)
-
+        
         # self.queue_update('monitor_clip', None)
         # self.queue_update('show_download_win', None)
         # self.queue_update('auto_close_win', None)
@@ -1879,6 +2053,8 @@ class DownloadManagerUI(QMainWindow):
             id_item.setData(Qt.UserRole, d.id)
             id_item.setFlags(id_item.flags() & ~QtCore.Qt.ItemIsEditable)
             widgets.table.setItem(row, 0, id_item)
+            
+
 
             # All other columns
             for col, key in enumerate(self.d_headers[1:], 1):
@@ -1895,6 +2071,9 @@ class DownloadManagerUI(QMainWindow):
                 widgets.table.setItem(row, col, item)
                 
 
+                
+
+    
 
 
     def update_table_progress(self):
@@ -1908,7 +2087,11 @@ class DownloadManagerUI(QMainWindow):
                 d = next((x for x in self.d_list if x.id == download_id), None)
                 if not d:
                     continue
+                
 
+               
+
+                
                 progress_widget = widgets.table.cellWidget(row, 2)
                 # if isinstance(progress_widget, QProgressBar):
                 #     if d.progress is not None:
@@ -1953,61 +2136,15 @@ class DownloadManagerUI(QMainWindow):
                             }}
                         """)
                     
-                    
+                
+
+                
 
             except Exception as e:
                 log(f"Error updating progress bar at row {row}: {e}")
 
     
-    # def populate_table(self):
-    #     for row, d in enumerate(reversed(self.d_list)):
-    #         if row >= widgets.table.rowCount():  # Check if we need to insert a new row
-                
-    #             widgets.table.insertRow(row)
-            
-    #         # Set the ID column
-    #         # id_item = QTableWidgetItem(str(len(self.d_list) - row))
-    #         id_item = QTableWidgetItem(str(len(self.d_list) - row))
-    #         id_item.setData(Qt.UserRole, d.id)
-
-
-    #         # Make the ID column non-editable
-    #         id_item.setFlags(id_item.flags() & ~QtCore.Qt.ItemIsEditable)
-    #         widgets.table.setItem(row, 0, id_item)  # First column is ID
-            
-    #         # Fill the remaining columns based on the d_headers
-    #         for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
-    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
-    #             item = QTableWidgetItem(cell_value)
-    #             # Make the item non-editable
-    #             item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-    #             widgets.table.setItem(row, col, item)
-
-    # def update_table_progress(self):
-    #     for row in range(widgets.table.rowCount()):
-    #         try:
-    #             # d_index = len(self.d_list) - 1 - row  # reversed index for latest-first display
-    #             # d = self.d_list[d_index]
-
-    #             id_item = widgets.table.item(row, 0)
-    #             if not id_item:
-    #                 continue
-
-    #             download_id = id_item.data(Qt.UserRole)
-    #             d = next((x for x in self.d_list if x.id == download_id), None)
-    #             if not d:
-    #                 continue
-
-
-    #             progress_widget = widgets.table.cellWidget(row, 2)
-    #             if isinstance(progress_widget, QProgressBar):
-    #                 if d.progress is not None:
-    #                     progress_widget.setValue(int(d.progress))
-    #                     progress_widget.setFormat(f"{int(d.progress)}%")
-    #         except Exception as e:
-    #             log(f"Error updating progress bar at row {row}: {e}")
-
-
+    
     
 
     # Clear Log
@@ -2476,16 +2613,6 @@ class DownloadManagerUI(QMainWindow):
             "properties": True,  # always enabled
         }
 
-    # def update_context_menu_actions_state(self, d):
-    #     if d.status == "completed":
-    #         self.action_watch_downloading.setEnabled(False)
-    #         self.action_schedule_download.setEnabled(False)
-    #         self.action_cancel_schedule.setEnabled(False)
-    #     else:
-    #         self.action_watch_downloading.setEnabled(True)
-    #         self.action_schedule_download.setEnabled(True)
-    #         self.action_cancel_schedule.setEnabled(True)
-
 
     def update_context_menu_actions_state(self, d):
         states = self.context_menu_actions_state(d.status)
@@ -2525,60 +2652,7 @@ class DownloadManagerUI(QMainWindow):
         context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
 
 
-    # def show_table_context_menu(self, pos: QPoint):
-    #     # Get the position of the click (row)
-    #     index = widgets.table.indexAt(pos)
-    #     if not index.isValid():
-    #         return  # No valid cell clicked
-
-    #     # Check if the cell contains data
-    #     cell_data = widgets.table.item(index.row(), index.column())
-    #     if cell_data is None or cell_data.text().strip() == "":
-    #         return  # Cell is empty, don't show context menu
-
-    #     # Create the context menu
-    #     context_menu = QMenu(widgets.table)
-
-    #     # Create 
-    #     icon_path_1 = os.path.join(os.path.dirname(__file__), "icons", "cil-file.png")
-    #     action_open_file = QAction(QIcon(icon_path_1), self.tr('Open File'), context_menu)
-    #     icon_path_2 = os.path.join(os.path.dirname(__file__), "icons", "cil-folder.png")
-    #     action_open_location = QAction(QIcon(icon_path_2), self.tr('Open File Location'), context_menu)
-    #     icon_path_3 = os.path.join(os.path.dirname(__file__), "icons", "cil-media-play.png")
-    #     action_watch_downloading = QAction(QIcon(icon_path_3), self.tr('Watch while downloading'), context_menu)
-    #     icon_path_4 = os.path.join(os.path.dirname(__file__), "icons", "cil-clock.png")
-    #     action_schedule_download = QAction(QIcon(icon_path_4), self.tr('Schedule download'), context_menu)
-    #     icon_path_5 = os.path.join(os.path.dirname(__file__), "icons", "cil-x.png")
-    #     action_cancel_schedule = QAction(QIcon(icon_path_5), self.tr('Cancel schedule!'), context_menu)
-    #     icon_path_6 = os.path.join(os.path.dirname(__file__), "icons", "cil-info.png")
-    #     action_file_properties = QAction(QIcon(icon_path_6), self.tr('File Properties'), context_menu)
-
-
-        
-
-
-    #     # Add actions to the context menu
-    #     context_menu.addAction(action_open_file)
-    #     context_menu.addAction(action_open_location)
-    #     context_menu.addAction(action_watch_downloading)
-    #     context_menu.addAction(action_schedule_download)
-    #     context_menu.addAction(action_cancel_schedule)
-    #     context_menu.addAction(action_file_properties)
-
-    #     # Connect actions to methods
-    #     action_open_file.triggered.connect(self.open_item)
-    #     action_open_location.triggered.connect(self.open_file_location)
-    #     action_watch_downloading.triggered.connect(self.watch_downloading)
-    #     action_schedule_download.triggered.connect(self.schedule_download)
-    #     action_cancel_schedule.triggered.connect(self.cancel_schedule)
-    #     action_file_properties.triggered.connect(self.file_properties)
-
-        
-    #     # action_view_details.triggered.connect(self.view_details)
-        
-
-    #     # Show the context menu at the cursor position
-    #     context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
+    
 
     def open_item(self):
         selected_row = widgets.table.currentRow()

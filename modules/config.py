@@ -17,7 +17,7 @@ from .version import __version__
 
 
 # CONSTANTS
-APP_NAME = 'Dynamite DM'
+APP_NAME = 'OmniPull'
 APP_VERSION = __version__ 
 APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'

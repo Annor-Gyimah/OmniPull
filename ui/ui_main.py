@@ -607,7 +607,6 @@ class Ui_MainWindow(object):
         icon_map = {
             "Resume": "icons/play.svg",
             "Pause": "icons/pause.svg",
-            "Stop": "icons/stop.svg",
             "Stop All": "icons/stop_all.svg",
             "Delete": "icons/trash.svg",
             "Delete All": "icons/multi_trash.svg",
@@ -616,9 +615,7 @@ class Ui_MainWindow(object):
             "Schedule All": "icons/sche.png",
             "Settings": "icons/setting.svg",
             "Download Window": "icons/d_window.png",
-            "Stop Queue": "icons/delete_all.svg",
-            "Grabber": "icons/delete_all.svg",
-            "Tell a Friend": "icons/delete_all.svg"
+            
         }
 
         for label, icon_path in icon_map.items():

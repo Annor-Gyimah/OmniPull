@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (
     QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
-    QFrame, QGraphicsBlurEffect
+    QFrame, QGraphicsBlurEffect, QWidget, QSizePolicy,
 )
-from PySide6.QtGui import QPixmap, QCursor
+from PySide6.QtGui import QPixmap, QCursor, QIcon
 from PySide6.QtCore import Qt
 import webbrowser
-
+import os
+from modules import config
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -87,11 +88,11 @@ class AboutDialog(QDialog):
         logo.setPixmap(pix)
         logo.setAlignment(Qt.AlignCenter)
 
-        title = QLabel("PyIconic Downloader")
+        title = QLabel(f"{config.APP_NAME}")
         title.setObjectName("Title")
         title.setAlignment(Qt.AlignCenter)
 
-        version = QLabel("Version 1.5.4")
+        version = QLabel(F"{config.APP_VERSION}")
         version.setAlignment(Qt.AlignCenter)
 
         tagline = QLabel("Developed with ❤️ for you")
@@ -120,25 +121,76 @@ class AboutDialog(QDialog):
 
         # === RIGHT SIDE ===
         right_layout = QVBoxLayout()
-        right_layout.setSpacing(16)
+        right_layout.setSpacing(10)
         right_layout.setAlignment(Qt.AlignTop)
 
-        def make_btn(text, url):
-            btn = QPushButton(text)
-            btn.setCursor(QCursor(Qt.PointingHandCursor))
-            btn.clicked.connect(lambda: webbrowser.open(url))
-            btn.setMinimumHeight(56)
-            return btn
+        # Main Labels (Styled like informative lines)
+        label1 = QLabel("OmniPull")
+        label1.setObjectName("Title")
 
-        btn1 = make_btn("💖  This is a free & Open Source software\n     See the Source Code", "https://github.com/your-repo")
-        btn2 = make_btn("🛠️  Powered by Open Source Software\n     View the Open-Source licenses", "https://github.com/your-repo/blob/main/LICENSE")
-        btn3 = make_btn("🌍  Localized by Translators\n     Meet the Translators", "https://github.com/your-repo#translations")
+        label2 = QLabel("ODM is a python open source Internet Download Manager with multi-connections,\nhigh speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.")
+        label2.setWordWrap(True)
 
-        right_layout.addWidget(btn1)
-        right_layout.addWidget(btn2)
-        right_layout.addWidget(btn3)
+        label3 = QLabel("GPL v2 License")
+        label4 = QLabel("Created by: Emmanuel Gyimah Annor")
+        label5 = QLabel("Inspiration")
+        label6 = QLabel("PyIDM - by Mahmoud Elshahat")
+
+        # Icon bar (5 icons)
+        icon_bar = QHBoxLayout()
+        icon_bar.setSpacing(12)
+
+        icon_map = {
+            "github": "icons/github.png",
+            "telegram": "icons/telegram.png",
+            "browser": "icons/browser.png"
+
+        }
+
+        for label, icon in icon_map.items():
+            btn = QPushButton(icon)
+            btn.setFixedSize(34, 34)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: rgba(40, 60, 50, 0.3);
+                    color: white;
+                    border: 1px solid rgba(0, 255, 180, 0.1);
+                    border-radius: 8px;
+                    font-size: 16px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(0, 255, 180, 0.2);
+                }
+            """)
+            if os.path.exists(icon):
+                btn.setIcon(QIcon(icon))
+            icon_bar.addWidget(btn)
+
+        # Add widgets to layout
+        right_layout.addWidget(label1)
+        right_layout.addWidget(label2)
+        right_layout.addSpacing(6)
+        right_layout.addWidget(label3)
+        right_layout.addWidget(label4)
+        right_layout.addWidget(label5)
+        right_layout.addWidget(label6)
+        right_layout.addStretch()
+        right_layout.addLayout(icon_bar)
+
 
         # === Compose Main Layout ===
-        main_layout.addLayout(left_layout, 2)
+        # Container wrappers for control over layout behavior
+        left_container = QWidget()
+        left_container.setLayout(left_layout)
+        left_container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        left_container.setMinimumWidth(260)  # Keeps left compact
+
+        right_container = QWidget()
+        right_container.setLayout(right_layout)
+        right_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Add to main layout with stretch ratios
+        main_layout.addWidget(left_container, 2)
         main_layout.addWidget(divider)
-        main_layout.addLayout(right_layout, 3)
+        main_layout.addWidget(right_container, 4)
+
