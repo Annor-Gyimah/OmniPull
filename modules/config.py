@@ -140,3 +140,5 @@ class Status:
     scheduled = 'scheduled'
     failed = "failed"
     deleted = "deleted"
+    queued = "queued"
+

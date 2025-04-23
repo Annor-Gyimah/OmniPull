@@ -4,475 +4,498 @@
 <context>
     <name>DownloadManagerUI</name>
     <message>
-        <location filename="../../main.py" line="621"/>
+        <location filename="../../main.py" line="646"/>
         <source>Retry</source>
         <translation type="unfinished">重试</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="622"/>
+        <location filename="../../main.py" line="647"/>
         <source>Open</source>
         <translation type="unfinished">打开</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="623"/>
+        <location filename="../../main.py" line="648"/>
         <source>CHOOSE FOLDER</source>
         <translation type="unfinished">选择文件夹</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="624"/>
+        <location filename="../../main.py" line="649"/>
         <source>FILENAME</source>
         <translation type="unfinished">文件名</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="625"/>
+        <location filename="../../main.py" line="650"/>
         <source>Place download link here</source>
         <translation type="unfinished">在此处放置下载链接</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="626"/>
+        <location filename="../../main.py" line="651"/>
         <source>Filename goes here</source>
         <translation type="unfinished">文件名在此处</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="627"/>
+        <location filename="../../main.py" line="652"/>
         <source>Playlist</source>
         <translation type="unfinished">播放列表</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="628"/>
-        <location filename="../../main.py" line="1629"/>
+        <location filename="../../main.py" line="653"/>
+        <location filename="../../main.py" line="1857"/>
+        <location filename="../../main.py" line="1947"/>
         <source>Download</source>
         <translation type="unfinished">下载</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="629"/>
+        <location filename="../../main.py" line="654"/>
         <source>Size:</source>
         <translation type="unfinished">大小：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="630"/>
-        <location filename="../../main.py" line="2237"/>
+        <location filename="../../main.py" line="655"/>
+        <location filename="../../main.py" line="2776"/>
         <source>Type:</source>
         <translation type="unfinished">类型：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="631"/>
-        <location filename="../../main.py" line="2238"/>
+        <location filename="../../main.py" line="656"/>
+        <location filename="../../main.py" line="2777"/>
         <source>Protocol:</source>
         <translation type="unfinished">协议：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="632"/>
-        <location filename="../../main.py" line="2236"/>
+        <location filename="../../main.py" line="657"/>
+        <location filename="../../main.py" line="2775"/>
         <source>Resumable:</source>
         <translation type="unfinished">可恢复：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="656"/>
-        <source>Monitor Copied Urls</source>
-        <translation type="unfinished">监视已复制的URL</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">常规</translation>
-    </message>
-    <message>
-        <source>Updates</source>
-        <translation type="obsolete">更新</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1097"/>
+        <location filename="../../main.py" line="1310"/>
         <source>Folder Error</source>
         <translation type="unfinished">文件夹错误</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1105"/>
+        <location filename="../../main.py" line="1318"/>
         <source>destination folder</source>
         <translation type="unfinished">目标文件夹</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1106"/>
+        <location filename="../../main.py" line="1319"/>
         <source>does not exist</source>
         <translation type="unfinished">不存在</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1106"/>
+        <location filename="../../main.py" line="1319"/>
         <source>Please enter a valid folder name</source>
         <translation type="unfinished">请输入有效的文件夹名称</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1111"/>
+        <location filename="../../main.py" line="1324"/>
         <source>you don&apos;t have enough permission for destination folder</source>
         <translation type="unfinished">您没有足够的权限访问目标文件夹</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1116"/>
+        <location filename="../../main.py" line="1329"/>
         <source>problem in destination folder</source>
         <translation type="unfinished">目标文件夹出现问题</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1120"/>
-        <location filename="../../main.py" line="1263"/>
+        <location filename="../../main.py" line="1333"/>
+        <location filename="../../main.py" line="1517"/>
         <source>Download Error</source>
         <translation type="unfinished">下载错误</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1120"/>
+        <location filename="../../main.py" line="1333"/>
         <source>File name is invalid. Please enter a valid filename</source>
         <translation type="unfinished">文件名无效。请输入有效的文件名</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1126"/>
-        <source>File with the same name already exist in</source>
-        <translation type="unfinished">同名文件已存在于</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1127"/>
-        <source>Do you want to overwrite file?</source>
-        <translation type="unfinished">是否覆盖文件？</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1127"/>
+        <location filename="../../main.py" line="1358"/>
         <source>File Overwrite</source>
         <translation type="unfinished">文件覆盖</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1153"/>
+        <location filename="../../main.py" line="1393"/>
         <source>File with the same name:</source>
         <translation type="unfinished">相同名称的文件：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1154"/>
+        <location filename="../../main.py" line="1394"/>
         <source>already exists in download list</source>
         <translation type="unfinished">已经存在于下载列表中</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1155"/>
+        <location filename="../../main.py" line="1395"/>
         <source>Do you want to resume this file?</source>
         <translation type="unfinished">您要恢复此文件吗？</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1156"/>
+        <location filename="../../main.py" line="1396"/>
         <source>Resume ==&gt; continue if it has been partially downloaded ...</source>
         <translation type="unfinished">恢复 ==&gt; 如果已部分下载，则继续下载...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1157"/>
+        <location filename="../../main.py" line="1397"/>
         <source>Overwrite ==&gt; delete old downloads and overwrite existing item... </source>
         <translation type="unfinished">覆盖 ==&gt; 删除旧下载并覆盖现有项目...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1158"/>
+        <location filename="../../main.py" line="1398"/>
         <source>Note: if you need a fresh download, you have to change file name </source>
         <translation type="unfinished">注意：如果需要重新下载，您必须更改文件名</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1159"/>
+        <location filename="../../main.py" line="1399"/>
         <source>or target folder, or delete the same entry from the download list.</source>
         <translation type="unfinished">或更改目标文件夹，或从下载列表中删除相同的条目。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1169"/>
+        <location filename="../../main.py" line="1410"/>
         <source>File Already Exists</source>
         <translation type="unfinished">文件已存在</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1173"/>
+        <location filename="../../main.py" line="1414"/>
         <source>Resume</source>
         <translation type="unfinished">继续</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1174"/>
+        <location filename="../../main.py" line="1364"/>
+        <location filename="../../main.py" line="1415"/>
         <source>Overwrite</source>
         <translation type="unfinished">覆盖</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1175"/>
-        <location filename="../../main.py" line="1538"/>
-        <location filename="../../main.py" line="1630"/>
-        <location filename="../../main.py" line="2556"/>
+        <location filename="../../main.py" line="1354"/>
+        <source>File with the same name already exists in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1357"/>
+        <source>Do you want to overwrite the file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1365"/>
+        <location filename="../../main.py" line="1416"/>
+        <location filename="../../main.py" line="1858"/>
+        <location filename="../../main.py" line="1948"/>
+        <location filename="../../main.py" line="3183"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1265"/>
+        <location filename="../../main.py" line="1519"/>
         <source>Nothing to download</source>
         <translation type="unfinished">没有要下载的内容</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1266"/>
+        <location filename="../../main.py" line="1520"/>
         <source>It might be a web page or an invalid URL link. Check your link or click &quot;Retry&quot;.</source>
         <translation type="unfinished">这可能是一个网页或无效的URL链接。检查您的链接或点击“重试”。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Play Download</source>
-        <translation type="unfinished">播放并下载</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Please check the url</source>
-        <translation type="unfinished">请检查URL</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Playlist is empty, nothing to download :</source>
-        <translation type="unfinished">播放列表为空，没有内容可下载：</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1480"/>
+        <location filename="../../main.py" line="1708"/>
+        <location filename="../../main.py" line="1720"/>
         <source>Playlist Download</source>
         <translation type="unfinished">播放列表下载</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1490"/>
+        <location filename="../../main.py" line="1709"/>
+        <source>Please check the URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1711"/>
+        <source>Playlist is empty, nothing to download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1799"/>
         <source>Select All</source>
         <translation type="unfinished">全选</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1493"/>
-        <source>Choose quality for all videos:</source>
-        <translation type="unfinished">选择所有视频的质量：</translation>
+        <location filename="../../main.py" line="1803"/>
+        <source>Apply to all:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1537"/>
-        <source>OK</source>
-        <translation type="unfinished">确定</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1600"/>
-        <location filename="../../main.py" line="1661"/>
+        <location filename="../../main.py" line="1918"/>
+        <location filename="../../main.py" line="1979"/>
         <source>FFmpeg is missing</source>
         <translation type="unfinished">缺少FFmpeg</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1606"/>
+        <location filename="../../main.py" line="1924"/>
         <source>&quot;ffmpeg&quot; is missing!! and needs to be downloaded:</source>
         <translation type="unfinished">缺少“ffmpeg”!! 需要下载：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1610"/>
+        <location filename="../../main.py" line="1928"/>
         <source>Recommended:</source>
         <translation type="unfinished">推荐：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1611"/>
+        <location filename="../../main.py" line="1929"/>
         <source>Local folder:</source>
         <translation type="unfinished">本地文件夹：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1658"/>
+        <location filename="../../main.py" line="1976"/>
         <source>&quot;ffmpeg&quot; is required to merge an audio stream with your video.</source>
         <translation type="unfinished">合并音频流与视频时需要“ffmpeg”。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1658"/>
+        <location filename="../../main.py" line="1976"/>
         <source>Executable must be found at</source>
         <translation type="unfinished">可执行文件必须位于</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1659"/>
+        <location filename="../../main.py" line="1977"/>
         <source>folder or add the ffmpeg path to system PATH.</source>
         <translation type="unfinished">文件夹中，或者将ffmpeg路径添加到系统PATH中。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1660"/>
+        <location filename="../../main.py" line="1978"/>
         <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install ffmpeg&apos; on Linux or &apos;brew install ffmpeg&apos; on MacOS.</source>
         <translation type="unfinished">请在Linux上执行“sudo apt-get update”和“sudo apt-get install ffmpeg”，或在MacOS上执行“brew install ffmpeg”。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1893"/>
-        <location filename="../../main.py" line="1924"/>
-        <location filename="../../main.py" line="1977"/>
-        <location filename="../../main.py" line="2020"/>
-        <location filename="../../main.py" line="2039"/>
-        <location filename="../../main.py" line="2294"/>
+        <location filename="../../main.py" line="2375"/>
+        <location filename="../../main.py" line="2406"/>
+        <location filename="../../main.py" line="2460"/>
+        <location filename="../../main.py" line="2500"/>
+        <location filename="../../main.py" line="2519"/>
+        <location filename="../../main.py" line="2835"/>
+        <location filename="../../main.py" line="3114"/>
         <source>Error</source>
         <translation type="unfinished">错误</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1893"/>
-        <location filename="../../main.py" line="2020"/>
-        <location filename="../../main.py" line="2039"/>
+        <location filename="../../main.py" line="2375"/>
+        <location filename="../../main.py" line="2500"/>
+        <location filename="../../main.py" line="2519"/>
+        <location filename="../../main.py" line="3114"/>
         <source>No download item selected</source>
         <translation type="unfinished">未选择下载项目</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1924"/>
-        <location filename="../../main.py" line="1977"/>
+        <location filename="../../main.py" line="2406"/>
+        <location filename="../../main.py" line="2462"/>
         <source>Can&apos;t delete items while downloading. Stop or cancel all downloads first!</source>
         <translation type="unfinished">下载时无法删除项目。请先停止或取消所有下载！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1928"/>
-        <location filename="../../main.py" line="2148"/>
+        <location filename="../../main.py" line="2410"/>
+        <location filename="../../main.py" line="2687"/>
         <source>Warning!!!</source>
         <translation type="unfinished">警告！！！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1929"/>
+        <location filename="../../main.py" line="2411"/>
         <source>Are you sure you want to delete these items?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1933"/>
+        <location filename="../../main.py" line="2415"/>
         <source>Delete files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1963"/>
+        <location filename="../../main.py" line="2445"/>
         <source>File:</source>
         <translation type="unfinished">文件：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1964"/>
+        <location filename="../../main.py" line="2446"/>
         <source>has been deleted.</source>
         <translation type="unfinished">已删除。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1981"/>
+        <location filename="../../main.py" line="2467"/>
         <source>Delete all items and their progress temp files</source>
         <translation type="unfinished">删除所有项目及其进度临时文件</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1982"/>
+        <location filename="../../main.py" line="2468"/>
         <source>Type the word &apos;delete&apos; and hit OK to proceed.</source>
         <translation type="unfinished">输入“delete”并点击确定以继续。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1983"/>
+        <location filename="../../main.py" line="2472"/>
         <source>Warning!!</source>
         <translation type="unfinished">警告！！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2098"/>
+        <location filename="../../main.py" line="2565"/>
+        <source>No Downloads to Schedule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2566"/>
+        <source>No valid downloads found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2568"/>
+        <source>There are currently no downloads with status &apos;Pending&apos; or &apos;Cancelled&apos; that can be scheduled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2572"/>
+        <source>Download scheduled for...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2584"/>
+        <source>Schedule Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2591"/>
         <source>Open File</source>
         <translation type="unfinished">打开文件</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2100"/>
+        <location filename="../../main.py" line="2592"/>
         <source>Open File Location</source>
         <translation type="unfinished">打开文件位置</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2102"/>
+        <location filename="../../main.py" line="2593"/>
         <source>Watch while downloading</source>
         <translation type="unfinished">边下载边观看</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2104"/>
+        <location filename="../../main.py" line="2594"/>
         <source>Schedule download</source>
         <translation type="unfinished">计划下载</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2106"/>
+        <location filename="../../main.py" line="2595"/>
         <source>Cancel schedule!</source>
         <translation type="unfinished">取消计划！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2108"/>
-        <location filename="../../main.py" line="2250"/>
+        <location filename="../../main.py" line="2596"/>
+        <location filename="../../main.py" line="2789"/>
         <source>File Properties</source>
         <translation type="unfinished">文件属性</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2148"/>
+        <location filename="../../main.py" line="2687"/>
         <source>This download is not yet completed</source>
         <translation type="unfinished">此下载尚未完成</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2231"/>
+        <location filename="../../main.py" line="2770"/>
         <source>Name:</source>
         <translation type="unfinished">名称：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2232"/>
+        <location filename="../../main.py" line="2771"/>
         <source>Folder:</source>
         <translation type="unfinished">文件夹：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2233"/>
+        <location filename="../../main.py" line="2772"/>
         <source>Progress:</source>
         <translation type="unfinished">进度：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2234"/>
+        <location filename="../../main.py" line="2773"/>
         <source>Total size:</source>
         <translation type="unfinished">总大小：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2235"/>
+        <location filename="../../main.py" line="2774"/>
         <source>Status:</source>
         <translation type="unfinished">状态：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2240"/>
+        <location filename="../../main.py" line="2779"/>
         <source>Webpage url:</source>
         <translation type="unfinished">网页URL：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2293"/>
+        <location filename="../../main.py" line="2834"/>
         <source>Error while creating global settings folder</source>
         <translation type="unfinished">创建全局设置文件夹时出错</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2294"/>
+        <location filename="../../main.py" line="2835"/>
         <source>Local folder will be used instead</source>
         <translation type="unfinished">将使用本地文件夹</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2517"/>
+        <location filename="../../main.py" line="3120"/>
+        <source>To open download window offline</source>
+        <translation type="unfinished">要离线打开下载窗口</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3121"/>
+        <source>go to setting tab, then uncheck auto close download window</source>
+        <translation type="unfinished">转到设置选项卡，然后取消勾选自动关闭下载窗口</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3121"/>
+        <source>Information</source>
+        <translation type="unfinished">信息</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3144"/>
         <source>Current version: </source>
         <translation type="unfinished">当前版本：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2518"/>
+        <location filename="../../main.py" line="3145"/>
         <source>Server version: </source>
         <translation type="unfinished">服务器版本：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2519"/>
-        <location filename="../../main.py" line="2527"/>
+        <location filename="../../main.py" line="3146"/>
+        <location filename="../../main.py" line="3154"/>
         <source>App Update</source>
         <translation type="unfinished">应用更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2520"/>
+        <location filename="../../main.py" line="3147"/>
         <source>App is up-to-date</source>
         <translation type="unfinished">应用已是最新版本</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2525"/>
+        <location filename="../../main.py" line="3152"/>
         <source>Couldn&apos;t check for update</source>
         <translation type="unfinished">无法检查更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2526"/>
+        <location filename="../../main.py" line="3153"/>
         <source>Check your internet connection</source>
         <translation type="unfinished">检查您的互联网连接</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2536"/>
+        <location filename="../../main.py" line="3163"/>
         <source>Update Application</source>
         <translation type="unfinished">更新应用</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2543"/>
+        <location filename="../../main.py" line="3170"/>
         <source>New version available:</source>
         <translation type="unfinished">新版本可用：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2555"/>
+        <location filename="../../main.py" line="3182"/>
         <source>Update</source>
         <translation type="unfinished">更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2588"/>
+        <location filename="../../main.py" line="3215"/>
         <source>Update scheduled to run on the next reboot.</source>
         <translation type="unfinished">更新已安排在下次重启时运行。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2588"/>
+        <location filename="../../main.py" line="3215"/>
         <source>Please you can reboot now to install updates.</source>
         <translation type="unfinished">请您现在重启以安装更新。</translation>
     </message>
@@ -480,628 +503,159 @@
 <context>
     <name>DownloadWindow</name>
     <message>
-        <location filename="../../main.py" line="2888"/>
+        <location filename="../../main.py" line="3536"/>
         <source>Done</source>
         <translation>完成</translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>LINK</source>
-        <translation type="vanished">链接</translation>
-    </message>
-    <message>
-        <source>Retry</source>
-        <translation type="vanished">重试</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="vanished">打开</translation>
-    </message>
-    <message>
-        <source>CHOOSE FOLDER</source>
-        <translation type="vanished">选择文件夹</translation>
-    </message>
-    <message>
-        <source>FILENAME</source>
-        <translation type="vanished">文件名</translation>
-    </message>
-    <message>
-        <source>Place download link here</source>
-        <translation type="vanished">在此处放置下载链接</translation>
-    </message>
-    <message>
-        <source>Filename goes here</source>
-        <translation type="vanished">文件名在此处</translation>
-    </message>
-    <message>
-        <source>Playlist</source>
-        <translation type="vanished">播放列表</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="vanished">下载</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="vanished">大小：</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="vanished">类型：</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="vanished">协议：</translation>
-    </message>
-    <message>
-        <source>Resumable:</source>
-        <translation type="vanished">可恢复：</translation>
-    </message>
-    <message>
-        <source>Resume</source>
-        <translation type="vanished">继续</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation type="vanished">暂停</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">取消</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">刷新</translation>
-    </message>
-    <message>
-        <source>D. Window</source>
-        <translation type="vanished">下载窗口</translation>
-    </message>
-    <message>
-        <source>Resume All</source>
-        <translation type="vanished">全部继续</translation>
-    </message>
-    <message>
-        <source>Stop All</source>
-        <translation type="vanished">停止所有</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">删除</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="vanished">删除所有</translation>
-    </message>
-    <message>
-        <source>Schedule All</source>
-        <translation type="vanished">安排所有</translation>
-    </message>
-    <message>
-        <source>Home</source>
-        <translation type="vanished">主页</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation type="vanished">下载</translation>
-    </message>
-    <message>
-        <source>Logs</source>
-        <translation type="vanished">日志</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">隐藏</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="vanished">关于</translation>
-    </message>
-    <message>
-        <source>English</source>
-        <translation type="vanished">英语</translation>
-    </message>
-    <message>
-        <source>Spanish</source>
-        <translation type="vanished">西班牙语</translation>
-    </message>
-    <message>
-        <source>French</source>
-        <translation type="vanished">法语</translation>
-    </message>
-    <message>
-        <source>Japanese</source>
-        <translation type="vanished">日语</translation>
-    </message>
-    <message>
-        <source>Chinese</source>
-        <translation type="vanished">中文</translation>
-    </message>
-    <message>
-        <source>Korean</source>
-        <translation type="vanished">韩语</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="vanished">常规</translation>
-    </message>
-    <message>
-        <source>Choose Language:</source>
-        <translation type="vanished">选择语言：</translation>
-    </message>
-    <message>
-        <source>Choose Setting:</source>
-        <translation type="vanished">选择设置：</translation>
-    </message>
-    <message>
-        <source>Monitor Copied Urls</source>
-        <translation type="vanished">监视已复制的URL</translation>
-    </message>
-    <message>
-        <source>Show Download Window</source>
-        <translation type="vanished">显示下载窗口</translation>
-    </message>
-    <message>
-        <source>Auto close DL Window</source>
-        <translation type="vanished">自动关闭下载窗口</translation>
-    </message>
-    <message>
-        <source>Show Thumbnail</source>
-        <translation type="vanished">显示缩略图</translation>
-    </message>
-    <message>
-        <source>On Startup</source>
-        <translation type="vanished">启动时</translation>
-    </message>
-    <message>
-        <source>Segment</source>
-        <translation type="vanished">分段</translation>
-    </message>
-    <message>
-        <source>Connection / Network</source>
-        <translation type="vanished">连接 / 网络</translation>
-    </message>
-    <message>
-        <source>Speed Limit</source>
-        <translation type="vanished">速度限制</translation>
-    </message>
-    <message>
-        <source>Max Concurrent</source>
-        <translation type="vanished">最大并发</translation>
-    </message>
-    <message>
-        <source>Downloads:</source>
-        <translation type="vanished">下载：</translation>
-    </message>
-    <message>
-        <source>Max Connection</source>
-        <translation type="vanished">最大连接</translation>
-    </message>
-    <message>
-        <source>Settings:</source>
-        <translation type="vanished">设置：</translation>
-    </message>
-    <message>
-        <source>Proxy</source>
-        <translation type="vanished">代理</translation>
-    </message>
-    <message>
-        <source>Enter Proxy IP or Domain</source>
-        <translation type="vanished">输入代理IP或域名</translation>
-    </message>
-    <message>
-        <source>Updates</source>
-        <translation type="vanished">更新</translation>
-    </message>
-    <message>
-        <source>Check for update every:</source>
-        <translation type="vanished">每隔检查更新：</translation>
-    </message>
-    <message>
-        <source>Check for update</source>
-        <translation type="vanished">检查更新</translation>
-    </message>
-    <message>
-        <source>Log Level</source>
-        <translation type="vanished">日志级别</translation>
-    </message>
-    <message>
-        <source>Detailed events</source>
-        <translation type="vanished">详细事件</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="vanished">清除</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">进度</translation>
-    </message>
-    <message>
-        <source>Speed</source>
-        <translation type="vanished">速度</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">剩余</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">完成</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">大小</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">状态</translation>
-    </message>
-    <message>
-        <source>Confirm Exit</source>
-        <translation type="vanished">确认退出</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to close the application?</source>
-        <translation type="vanished">您确定要关闭应用程序吗？</translation>
-    </message>
-    <message>
-        <source>Folder Error</source>
-        <translation type="vanished">文件夹错误</translation>
-    </message>
-    <message>
-        <source>destination folder</source>
-        <translation type="vanished">目标文件夹</translation>
-    </message>
-    <message>
-        <source>does not exist</source>
-        <translation type="vanished">不存在</translation>
-    </message>
-    <message>
-        <source>Please enter a valid folder name</source>
-        <translation type="vanished">请输入有效的文件夹名称</translation>
-    </message>
-    <message>
-        <source>you don&apos;t have enough permission for destination folder</source>
-        <translation type="vanished">您没有足够的权限访问目标文件夹</translation>
-    </message>
-    <message>
-        <source>problem in destination folder</source>
-        <translation type="vanished">目标文件夹出现问题</translation>
-    </message>
-    <message>
-        <source>Download Error</source>
-        <translation type="vanished">下载错误</translation>
-    </message>
-    <message>
-        <source>File name is invalid. Please enter a valid filename</source>
-        <translation type="vanished">文件名无效。请输入有效的文件名</translation>
-    </message>
-    <message>
-        <source>File with the same name already exist in</source>
-        <translation type="vanished">同名文件已存在于</translation>
-    </message>
-    <message>
-        <source>Do you want to overwrite file?</source>
-        <translation type="vanished">是否覆盖文件？</translation>
-    </message>
-    <message>
-        <source>File Overwrite</source>
-        <translation type="vanished">文件覆盖</translation>
-    </message>
-    <message>
-        <source>File with the same name:</source>
-        <translation type="vanished">相同名称的文件：</translation>
-    </message>
-    <message>
-        <source>already exists in download list</source>
-        <translation type="vanished">已经存在于下载列表中</translation>
-    </message>
-    <message>
-        <source>Do you want to resume this file?</source>
-        <translation type="vanished">您要恢复此文件吗？</translation>
-    </message>
-    <message>
-        <source>Resume ==&gt; continue if it has been partially downloaded ...</source>
-        <translation type="vanished">恢复 ==&gt; 如果已部分下载，则继续下载...</translation>
-    </message>
-    <message>
-        <source>Overwrite ==&gt; delete old downloads and overwrite existing item... </source>
-        <translation type="vanished">覆盖 ==&gt; 删除旧下载并覆盖现有项目...</translation>
-    </message>
-    <message>
-        <source>Note: if you need a fresh download, you have to change file name </source>
-        <translation type="vanished">注意：如果需要重新下载，您必须更改文件名</translation>
-    </message>
-    <message>
-        <source>or target folder, or delete the same entry from the download list.</source>
-        <translation type="vanished">或更改目标文件夹，或从下载列表中删除相同的条目。</translation>
-    </message>
-    <message>
-        <source>File Already Exists</source>
-        <translation type="vanished">文件已存在</translation>
-    </message>
-    <message>
-        <source>Overwrite</source>
-        <translation type="vanished">覆盖</translation>
-    </message>
-    <message>
-        <source>Nothing to download</source>
-        <translation type="vanished">没有要下载的内容</translation>
-    </message>
-    <message>
-        <source>It might be a web page or an invalid URL link. Check your link or click &quot;Retry&quot;.</source>
-        <translation type="vanished">这可能是一个网页或无效的URL链接。检查您的链接或点击“重试”。</translation>
-    </message>
-    <message>
-        <source>Play Download</source>
-        <translation type="vanished">播放并下载</translation>
-    </message>
-    <message>
-        <source>Please check the url</source>
-        <translation type="vanished">请检查URL</translation>
-    </message>
-    <message>
-        <source>Playlist is empty, nothing to download :</source>
-        <translation type="vanished">播放列表为空，没有内容可下载：</translation>
-    </message>
-    <message>
-        <source>Playlist Download</source>
-        <translation type="vanished">播放列表下载</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation type="vanished">全选</translation>
-    </message>
-    <message>
-        <source>Choose quality for all videos:</source>
-        <translation type="vanished">选择所有视频的质量：</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">确定</translation>
-    </message>
-    <message>
-        <source>FFmpeg is missing</source>
-        <translation type="vanished">缺少FFmpeg</translation>
-    </message>
-    <message>
-        <source>&quot;ffmpeg&quot; is missing!! and needs to be downloaded:</source>
-        <translation type="vanished">缺少“ffmpeg”!! 需要下载：</translation>
-    </message>
-    <message>
-        <source>Recommended:</source>
-        <translation type="vanished">推荐：</translation>
-    </message>
-    <message>
-        <source>Local folder:</source>
-        <translation type="vanished">本地文件夹：</translation>
-    </message>
-    <message>
-        <source>&quot;ffmpeg&quot; is required to merge an audio stream with your video.</source>
-        <translation type="vanished">合并音频流与视频时需要“ffmpeg”。</translation>
-    </message>
-    <message>
-        <source>Executable must be found at</source>
-        <translation type="vanished">可执行文件必须位于</translation>
-    </message>
-    <message>
-        <source>folder or add the ffmpeg path to system PATH.</source>
-        <translation type="vanished">文件夹中，或者将ffmpeg路径添加到系统PATH中。</translation>
-    </message>
-    <message>
-        <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install ffmpeg&apos; on Linux or &apos;brew install ffmpeg&apos; on MacOS.</source>
-        <translation type="vanished">请在Linux上执行“sudo apt-get update”和“sudo apt-get install ffmpeg”，或在MacOS上执行“brew install ffmpeg”。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">错误</translation>
-    </message>
-    <message>
-        <source>No download item selected</source>
-        <translation type="vanished">未选择下载项目</translation>
-    </message>
-    <message>
-        <source>No Internet</source>
-        <translation type="vanished">没有互联网</translation>
-    </message>
-    <message>
-        <source>Please check your internet connection and try again</source>
-        <translation type="vanished">请检查您的互联网连接并重试</translation>
-    </message>
-    <message>
-        <source>To open download window offline</source>
-        <translation type="vanished">要离线打开下载窗口</translation>
-    </message>
-    <message>
-        <source>go to setting tab, then uncheck auto close download window</source>
-        <translation type="vanished">转到设置选项卡，然后取消勾选自动关闭下载窗口</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">信息</translation>
-    </message>
-    <message>
-        <source>Can&apos;t delete items while downloading. Stop or cancel all downloads first!</source>
-        <translation type="vanished">下载时无法删除项目。请先停止或取消所有下载！</translation>
-    </message>
-    <message>
-        <source>Warning!!!</source>
-        <translation type="vanished">警告！！！</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete</source>
-        <translation type="vanished">您确定要删除</translation>
-    </message>
-    <message>
-        <source>Delete file?</source>
-        <translation type="vanished">删除文件？</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="vanished">文件：</translation>
-    </message>
-    <message>
-        <source>has been deleted.</source>
-        <translation type="vanished">已删除。</translation>
-    </message>
-    <message>
-        <source>Delete all items and their progress temp files</source>
-        <translation type="vanished">删除所有项目及其进度临时文件</translation>
-    </message>
-    <message>
-        <source>Type the word &apos;delete&apos; and hit OK to proceed.</source>
-        <translation type="vanished">输入“delete”并点击确定以继续。</translation>
-    </message>
-    <message>
-        <source>Warning!!</source>
-        <translation type="vanished">警告！！</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="vanished">打开文件</translation>
-    </message>
-    <message>
-        <source>Open File Location</source>
-        <translation type="vanished">打开文件位置</translation>
-    </message>
-    <message>
-        <source>Watch while downloading</source>
-        <translation type="vanished">边下载边观看</translation>
-    </message>
-    <message>
-        <source>Schedule download</source>
-        <translation type="vanished">计划下载</translation>
-    </message>
-    <message>
-        <source>Cancel schedule!</source>
-        <translation type="vanished">取消计划！</translation>
-    </message>
-    <message>
-        <source>File Properties</source>
-        <translation type="vanished">文件属性</translation>
-    </message>
-    <message>
-        <source>This download is not yet completed</source>
-        <translation type="vanished">此下载尚未完成</translation>
-    </message>
-    <message>
-        <source>Download Item: </source>
-        <translation type="vanished">下载项：</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">名称：</translation>
-    </message>
-    <message>
-        <source>Folder:</source>
-        <translation type="vanished">文件夹：</translation>
-    </message>
-    <message>
-        <source>Progress:</source>
-        <translation type="vanished">进度：</translation>
-    </message>
-    <message>
-        <source>Total size:</source>
-        <translation type="vanished">总大小：</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation type="vanished">状态：</translation>
-    </message>
-    <message>
-        <source>Webpage url:</source>
-        <translation type="vanished">网页URL：</translation>
-    </message>
-    <message>
-        <source>Error while creating global settings folder</source>
-        <translation type="vanished">创建全局设置文件夹时出错</translation>
-    </message>
-    <message>
-        <source>Local folder will be used instead</source>
-        <translation type="vanished">将使用本地文件夹</translation>
-    </message>
-    <message>
-        <source>Current version: </source>
-        <translation type="vanished">当前版本：</translation>
-    </message>
-    <message>
-        <source>Server version: </source>
-        <translation type="vanished">服务器版本：</translation>
-    </message>
-    <message>
-        <source>App Update</source>
-        <translation type="vanished">应用更新</translation>
-    </message>
-    <message>
-        <source>App is up-to-date</source>
-        <translation type="vanished">应用已是最新版本</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t check for update</source>
-        <translation type="vanished">无法检查更新</translation>
-    </message>
-    <message>
-        <source>Check your internet connection</source>
-        <translation type="vanished">检查您的互联网连接</translation>
-    </message>
-    <message>
-        <source>Update Application</source>
-        <translation type="vanished">更新应用</translation>
-    </message>
-    <message>
-        <source>New version available:</source>
-        <translation type="vanished">新版本可用：</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="vanished">更新</translation>
-    </message>
-    <message>
-        <source>Update scheduled to run on the next reboot.</source>
-        <translation type="vanished">更新已安排在下次重启时运行。</translation>
-    </message>
-    <message>
-        <source>Please you can reboot now to install updates.</source>
-        <translation type="vanished">请您现在重启以安装更新。</translation>
     </message>
 </context>
 <context>
     <name>ScheduleDialog</name>
     <message>
         <source>Scheduling Download Item</source>
-        <translation type="vanished">安排下载项</translation>
+        <translation type="vanished">正在安排下载项</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2628"/>
+        <location filename="../../main.py" line="3259"/>
         <source>Schedule Download</source>
-        <translation type="unfinished"></translation>
+        <translation>安排下载</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2686"/>
+        <location filename="../../main.py" line="3329"/>
         <source>Hours:</source>
         <translation>小时：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2692"/>
+        <location filename="../../main.py" line="3335"/>
         <source>Minutes:</source>
         <translation>分钟：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2711"/>
+        <location filename="../../main.py" line="3354"/>
         <source>Ok</source>
         <translation>确定</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2715"/>
+        <location filename="../../main.py" line="3358"/>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWindow</name>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="500"/>
+        <source>Monitor Copied URLs</source>
+        <translation>监控复制的链接</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="490"/>
+        <source>Settings</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="495"/>
+        <source>General</source>
+        <translation>常规</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="496"/>
+        <source>Connection</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="497"/>
+        <source>Browser</source>
+        <translation>浏览器</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="498"/>
+        <source>Updates</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="501"/>
+        <source>Show Download Window</source>
+        <translation>显示下载窗口</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="502"/>
+        <source>Auto Close DL Window</source>
+        <translation>自动关闭下载窗口</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="503"/>
+        <source>Show Thumbnail</source>
+        <translation>显示缩略图</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="504"/>
+        <source>On Startup</source>
+        <translation>启动时</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="506"/>
+        <source>KB</source>
+        <translation>KB</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="507"/>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="510"/>
+        <source>Speed Limit</source>
+        <translation>速度限制</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="511"/>
+        <source>Proxy</source>
+        <translation>代理</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="512"/>
+        <source>Enter a proxy address and select its type. Example: 127.0.0.1:8080</source>
+        <translation>输入代理地址并选择类型。例如：127.0.0.1:8080</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="513"/>
+        <source>Retry failed scheduled downloads</source>
+        <translation>重试失败的计划下载</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="516"/>
+        <source>Max Concurrent Downloads:</source>
+        <translation>最大并行下载数：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="517"/>
+        <source>Max Connection Settings:</source>
+        <translation>最大连接数设置：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="520"/>
+        <source>Check for update</source>
+        <translation>检查更新</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="521"/>
+        <source>Check for update every (days):</source>
+        <translation>每隔（天）检查更新：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="524"/>
+        <source>Choose Language:</source>
+        <translation>选择语言：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="525"/>
+        <source>Choose Setting:</source>
+        <translation>选择设置：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="526"/>
+        <source>Segment:</source>
+        <translation>分段</translation>
     </message>
 </context>
 <context>

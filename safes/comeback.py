@@ -608,3 +608,317 @@
 
     #     # Show the context menu at the cursor position
     #     context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
+
+
+
+
+# def check_scheduled(self):
+    #     now = time.localtime()
+
+    #     for d in self.d_list:
+    #         if d.status == config.Status.scheduled and getattr(d, "sched", None):
+    #             if (d.sched[0], d.sched[1]) == (now.tm_hour, now.tm_min):
+    #                 log(f"Scheduled time matched for {d.name}, attempting download...")
+
+    #                 result = self.start_download(d, silent=True)
+
+    #                 # Retry condition: download failed or was cancelled
+    #                 if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
+    #                     log(f"Scheduled download failed for {d.name}.")
+
+    #                     if config.retry_scheduled_enabled:
+    #                         d.schedule_retries = getattr(d, "schedule_retries", 0)
+
+    #                         if d.schedule_retries < config.retry_scheduled_max_tries:
+    #                             d.schedule_retries += 1
+
+    #                             # Add retry interval
+    #                             from datetime import datetime, timedelta
+    #                             retry_time = datetime.now() + timedelta(
+    #                                 minutes=config.retry_scheduled_interval_mins)
+    #                             d.sched = (retry_time.hour, retry_time.minute)
+    #                             d.status = config.Status.scheduled
+    #                             log(f"Retrying {d.name} at {d.sched[0]}:{d.sched[1]} [Attempt {d.schedule_retries}]")
+    #                         else:
+    #                             d.status = config.Status.failed
+    #                             log(f"{d.name} has reached max retries.")
+    #                     else:
+    #                         d.status = config.Status.failed
+
+    #     self.queue_update("populate_table", None)
+
+
+
+# def resume_btn(self):
+    #     selected_row = widgets.table.currentRow()
+    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
+    #         self.show_warning(self.tr("Error"), self.tr("No download item selected"))
+    #         return
+
+    #     d_index = len(self.d_list) - 1 - selected_row
+    #     d = self.d_list[d_index]
+
+    #     self.start_download(d, silent=True)
+
+
+
+ # def resume_all_downloads(self):
+    #     # change status of all non completed items to pending
+    #     for d in self.d_list:
+    #         if d.status == config.Status.cancelled:
+    #             self.start_download(d, silent=True)
+
+
+
+
+
+
+# def update_param(self):
+    #     # do some parameter updates
+    #     stream = self.selected_stream
+    #     self.name = self.title + '.' + stream.extension
+    #     self.eff_url = stream.url
+    #     self.type = stream.mediatype
+    #     self.size = stream.size
+    #     self.fragment_base_url = stream.fragment_base_url
+    #     self.fragments = stream.fragments
+    #     self.protocol = stream.protocol
+    #     self.format_id = stream.format_id
+    #     self.manifest_url = stream.manifest_url
+
+    #     #print(f"This is the PROTOCOL: {self.protocol}")
+
+    #     # Filter audio streams based on extension compatibility
+    #     audio_streams = [audio for audio in self.audio_streams.values()
+    #                     if audio.extension == stream.extension or
+    #                     (audio.extension == 'm4a' and stream.extension == 'mp4')]
+
+    #     if not audio_streams:  # Ensure there are available audio streams
+    #         log("No suitable audio stream found!")
+    #         return
+
+    #     # Select an audio to embed if our stream is DASH video
+    #     if stream.mediatype == 'dash' and self.protocol.startswith('http'):
+    #         if len(audio_streams) > 2:
+    #             audio_stream = audio_streams[2]
+    #         else:
+    #             audio_stream = audio_streams[3]  # Fallback to first available
+    #     else:
+    #         # If protocol is 'm3u8_native' or other formats
+    #         audio_stream = audio_streams[0]
+
+    #     print(audio_stream)
+    #     self.audio_stream = audio_stream
+    #     self.audio_url = audio_stream.url
+    #     self.audio_size = audio_stream.size
+    #     self.audio_fragment_base_url = audio_stream.fragment_base_url
+    #     self.audio_fragments = audio_stream.fragments
+    #     self.audio_format_id = audio_stream.format_id
+
+    
+
+    # def update_param(self):
+    #     # do some parameter updates
+    #     stream = self.selected_stream
+    #     self.name = self.title + '.' + stream.extension
+    #     self.eff_url = stream.url
+    #     self.type = stream.mediatype
+    #     self.size = stream.size
+    #     self.fragment_base_url = stream.fragment_base_url
+    #     self.fragments = stream.fragments
+    #     self.protocol = stream.protocol
+    #     self.format_id = stream.format_id
+    #     self.manifest_url = stream.manifest_url
+
+    #     print(f"This is the PROTOCOL: {self.protocol}")
+
+    #     # select an audio to embed if our stream is dash video
+    #     if stream.mediatype == 'dash' and self.protocol == 'https':
+    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
+    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][2]
+    #         print(audio_stream)
+    #         self.audio_stream = audio_stream
+    #         self.audio_url = audio_stream.url
+    #         self.audio_size = audio_stream.size
+    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
+    #         self.audio_fragments = audio_stream.fragments
+    #         self.audio_format_id = audio_stream.format_id
+    #     else:
+    #         #self.protocol == 'm3u8_native
+    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
+    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
+    #         print(audio_stream)
+    #         self.audio_stream = audio_stream
+    #         self.audio_url = audio_stream.url
+    #         self.audio_size = audio_stream.size
+    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
+    #         self.audio_fragments = audio_stream.fragments
+    #         self.audio_format_id = audio_stream.format_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def update_table_progress(self):
+#         for row in range(widgets.table.rowCount()):
+#             try:
+#                 id_item = widgets.table.item(row, 0)
+#                 if not id_item:
+#                     continue
+
+#                 download_id = id_item.data(Qt.UserRole)
+#                 d = next((x for x in self.d_list if x.id == download_id), None)
+#                 if not d:
+#                     continue
+                
+
+               
+
+                
+#                 progress_widget = widgets.table.cellWidget(row, 2)
+#                 if isinstance(progress_widget, QProgressBar):
+#                     # Add tracking if missing
+#                     if not hasattr(progress_widget, 'last_status'):
+#                         progress_widget.last_status = None
+
+#                     # Always update progress if downloading
+#                     if d.status == config.Status.downloading:
+#                         progress_widget.setValue(int(d.progress))
+#                         progress_widget.setFormat(f"{int(d.progress)}%")
+#                         color = "#2962FF"
+                        
+#                         progress_widget.setStyleSheet(f"""
+#                             QProgressBar {{
+#                                 background-color: #2a2a2a;
+#                                 border: 1px solid #444;
+#                                 border-radius: 4px;
+#                                 text-align: center;
+#                                 color: white;
+#                             }}
+#                             QProgressBar::chunk {{
+#                                 background-color: {color};
+#                                 border-radius: 4px;
+#                             }}
+#                         """)
+#                         progress_widget.last_status = d.status  # still update status cache
+
+#                     # For other statuses, only update when changed
+#                     elif d.status != progress_widget.last_status:
+#                         if d.status == config.Status.queued:
+#                             progress_widget.setValue(0)
+#                             progress_widget.setFormat("Queued")
+#                             color = "#9C27B0"
+#                         elif d.status == config.Status.completed:
+#                             progress_widget.setValue(100)
+#                             progress_widget.setFormat("100%")
+#                             color = "#00C853"
+#                         elif d.status == config.Status.cancelled:
+#                             progress_widget.setValue(d.progress)
+#                             # progress_widget.setFormat("Cancelled")
+#                             color = "#D32F2F"
+#                         elif d.status == config.Status.error:
+#                             progress_widget.setValue(0)
+#                             progress_widget.setFormat("Error")
+#                             color = "#9E9E9E"
+#                         elif d.status == config.Status.pending:
+#                             progress_widget.setValue(d.progress)
+#                             # progress_widget.setFormat("Pending")
+#                             color = "#FDD835"
+#                         elif d.status == config.Status.scheduled:
+#                             # progress_widget.setValue(0)
+#                             # progress_widget.setFormat("Scheduled")
+#                             color = "#F7DC6F"
+#                         elif d.status == config.Status.deleted:
+#                             progress_widget.setValue(d.progress)
+#                             # progress_widget.setFormat("Deleted")
+#                             color = "#9C27B0"
+#                         elif d.status == config.Status.merging_audio:
+#                             progress_widget.setValue(d.progress)
+#                             color = "#FF9800"
+#                         else:
+#                             progress_widget.setValue(0)
+#                             progress_widget.setFormat("---")
+#                             color = "#888888"
+
+#                         progress_widget.setStyleSheet(f"""
+#                             QProgressBar {{
+#                                 background-color: #2a2a2a;
+#                                 border: 1px solid #444;
+#                                 border-radius: 4px;
+#                                 text-align: center;
+#                                 color: white;
+#                             }}
+#                             QProgressBar::chunk {{
+#                                 background-color: {color};
+#                                 border-radius: 4px;
+#                             }}
+#                         """)
+#                         progress_widget.last_status = d.status
+
+#                 # if isinstance(progress_widget, QProgressBar):
+#                 #     if d.progress is not None:
+#                 #         progress_widget.setValue(int(d.progress))
+#                 #         progress_widget.setFormat(f"{int(d.progress)}%")
+#                 # if isinstance(progress_widget, QProgressBar):
+#                 #     if d.status == config.Status.queued:
+#                 #         progress_widget.setValue(0)
+#                 #         progress_widget.setFormat("Queued")
+#                 #         color = "#9C27B0"
+#                 #     else:
+#                 #         progress_widget.setValue(int(d.progress))
+#                 #         progress_widget.setFormat(f"{int(d.progress)}%")
+
+#                 #         # Change bar color based on status
+#                 #         color = "#00C853"  # default: green
+#                 #         if d.status == "downloading":
+#                 #             color = "#2962FF"
+#                 #         elif d.status == "completed":
+#                 #             color = "#00C853"
+#                 #         elif d.status == "cancelled":
+#                 #             color = "#D32F2F"
+#                 #         elif d.status == "pending":
+#                 #             color = "#FDD835"
+#                 #         elif d.status == "error":
+#                 #             color = "#9E9E9E"
+#                 #         elif d.status == "merging_audio":
+#                 #             color = "#FF9800"
+#                 #         elif d.status == "scheduled":
+#                 #             color = "#F7DC6F"
+#                 #         elif d.status == "deleted":
+#                 #             color = "#9C27B0"  # purple
+                        
+                        
+
+#                 #     progress_widget.setStyleSheet(f"""
+#                 #         QProgressBar {{
+#                 #             background-color: #2a2a2a;
+#                 #             border: 1px solid #444;
+#                 #             border-radius: 4px;
+#                 #             text-align: center;
+#                 #             color: white;
+#                 #         }}
+#                 #         QProgressBar::chunk {{
+#                 #             background-color: {color};
+#                 #             border-radius: 4px;
+#                 #         }}
+#                 #     """)color = "#FF9800"
+                    
+                        
+
+                
+
+                
+
+#             except Exception as e:
+#                 log(f"Error updating progress bar at row {row}: {e}")
+
+    

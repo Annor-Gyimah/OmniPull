@@ -4,475 +4,498 @@
 <context>
     <name>DownloadManagerUI</name>
     <message>
-        <location filename="../../main.py" line="621"/>
+        <location filename="../../main.py" line="646"/>
         <source>Retry</source>
         <translation type="unfinished">再試行</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="622"/>
+        <location filename="../../main.py" line="647"/>
         <source>Open</source>
         <translation type="unfinished">開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="623"/>
+        <location filename="../../main.py" line="648"/>
         <source>CHOOSE FOLDER</source>
         <translation type="unfinished">フォルダを選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="624"/>
+        <location filename="../../main.py" line="649"/>
         <source>FILENAME</source>
         <translation type="unfinished">ファイル名</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="625"/>
+        <location filename="../../main.py" line="650"/>
         <source>Place download link here</source>
         <translation type="unfinished">ダウンロードリンクをここに貼り付けてください</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="626"/>
+        <location filename="../../main.py" line="651"/>
         <source>Filename goes here</source>
         <translation type="unfinished">ファイル名をここに入力</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="627"/>
+        <location filename="../../main.py" line="652"/>
         <source>Playlist</source>
         <translation type="unfinished">プレイリスト</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="628"/>
-        <location filename="../../main.py" line="1629"/>
+        <location filename="../../main.py" line="653"/>
+        <location filename="../../main.py" line="1857"/>
+        <location filename="../../main.py" line="1947"/>
         <source>Download</source>
         <translation type="unfinished">ダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="629"/>
+        <location filename="../../main.py" line="654"/>
         <source>Size:</source>
         <translation type="unfinished">サイズ：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="630"/>
-        <location filename="../../main.py" line="2237"/>
+        <location filename="../../main.py" line="655"/>
+        <location filename="../../main.py" line="2776"/>
         <source>Type:</source>
         <translation type="unfinished">タイプ：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="631"/>
-        <location filename="../../main.py" line="2238"/>
+        <location filename="../../main.py" line="656"/>
+        <location filename="../../main.py" line="2777"/>
         <source>Protocol:</source>
         <translation type="unfinished">プロトコル：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="632"/>
-        <location filename="../../main.py" line="2236"/>
+        <location filename="../../main.py" line="657"/>
+        <location filename="../../main.py" line="2775"/>
         <source>Resumable:</source>
         <translation type="unfinished">再開可能：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="656"/>
-        <source>Monitor Copied Urls</source>
-        <translation type="unfinished">コピーされたURLを監視</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">一般</translation>
-    </message>
-    <message>
-        <source>Updates</source>
-        <translation type="obsolete">更新</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1097"/>
+        <location filename="../../main.py" line="1310"/>
         <source>Folder Error</source>
         <translation type="unfinished">フォルダーエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1105"/>
+        <location filename="../../main.py" line="1318"/>
         <source>destination folder</source>
         <translation type="unfinished">保存先フォルダ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1106"/>
+        <location filename="../../main.py" line="1319"/>
         <source>does not exist</source>
         <translation type="unfinished">存在しません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1106"/>
+        <location filename="../../main.py" line="1319"/>
         <source>Please enter a valid folder name</source>
         <translation type="unfinished">有効なフォルダ名を入力してください</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1111"/>
+        <location filename="../../main.py" line="1324"/>
         <source>you don&apos;t have enough permission for destination folder</source>
         <translation type="unfinished">保存先フォルダに対する十分な権限がありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1116"/>
+        <location filename="../../main.py" line="1329"/>
         <source>problem in destination folder</source>
         <translation type="unfinished">保存先フォルダに問題があります</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1120"/>
-        <location filename="../../main.py" line="1263"/>
+        <location filename="../../main.py" line="1333"/>
+        <location filename="../../main.py" line="1517"/>
         <source>Download Error</source>
         <translation type="unfinished">ダウンロードエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1120"/>
+        <location filename="../../main.py" line="1333"/>
         <source>File name is invalid. Please enter a valid filename</source>
         <translation type="unfinished">ファイル名が無効です。正しいファイル名を入力してください</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1126"/>
-        <source>File with the same name already exist in</source>
-        <translation type="unfinished">同じ名前のファイルがすでに存在します</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1127"/>
-        <source>Do you want to overwrite file?</source>
-        <translation type="unfinished">ファイルを上書きしますか？</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1127"/>
+        <location filename="../../main.py" line="1358"/>
         <source>File Overwrite</source>
         <translation type="unfinished">ファイルの上書き</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1153"/>
+        <location filename="../../main.py" line="1393"/>
         <source>File with the same name:</source>
         <translation type="unfinished">同じ名前のファイル：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1154"/>
+        <location filename="../../main.py" line="1394"/>
         <source>already exists in download list</source>
         <translation type="unfinished">すでにダウンロードリストに存在します</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1155"/>
+        <location filename="../../main.py" line="1395"/>
         <source>Do you want to resume this file?</source>
         <translation type="unfinished">このファイルを再開しますか？</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1156"/>
+        <location filename="../../main.py" line="1396"/>
         <source>Resume ==&gt; continue if it has been partially downloaded ...</source>
         <translation type="unfinished">再開 ==&gt; 部分的にダウンロードされた場合は続行...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1157"/>
+        <location filename="../../main.py" line="1397"/>
         <source>Overwrite ==&gt; delete old downloads and overwrite existing item... </source>
         <translation type="unfinished">上書き ==&gt; 古いダウンロードを削除し、既存のアイテムを上書きします...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1158"/>
+        <location filename="../../main.py" line="1398"/>
         <source>Note: if you need a fresh download, you have to change file name </source>
         <translation type="unfinished">注：新しいダウンロードが必要な場合は、ファイル名を変更する必要があります</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1159"/>
+        <location filename="../../main.py" line="1399"/>
         <source>or target folder, or delete the same entry from the download list.</source>
         <translation type="unfinished">またはターゲットフォルダを変更するか、ダウンロードリストから同じエントリを削除してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1169"/>
+        <location filename="../../main.py" line="1410"/>
         <source>File Already Exists</source>
         <translation type="unfinished">ファイルはすでに存在します</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1173"/>
+        <location filename="../../main.py" line="1414"/>
         <source>Resume</source>
         <translation type="unfinished">再開</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1174"/>
+        <location filename="../../main.py" line="1364"/>
+        <location filename="../../main.py" line="1415"/>
         <source>Overwrite</source>
         <translation type="unfinished">上書き</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1175"/>
-        <location filename="../../main.py" line="1538"/>
-        <location filename="../../main.py" line="1630"/>
-        <location filename="../../main.py" line="2556"/>
+        <location filename="../../main.py" line="1354"/>
+        <source>File with the same name already exists in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1357"/>
+        <source>Do you want to overwrite the file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1365"/>
+        <location filename="../../main.py" line="1416"/>
+        <location filename="../../main.py" line="1858"/>
+        <location filename="../../main.py" line="1948"/>
+        <location filename="../../main.py" line="3183"/>
         <source>Cancel</source>
         <translation type="unfinished">キャンセル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1265"/>
+        <location filename="../../main.py" line="1519"/>
         <source>Nothing to download</source>
         <translation type="unfinished">ダウンロードするものがありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1266"/>
+        <location filename="../../main.py" line="1520"/>
         <source>It might be a web page or an invalid URL link. Check your link or click &quot;Retry&quot;.</source>
         <translation type="unfinished">ウェブページまたは無効なURLリンクかもしれません。リンクを確認するか、「再試行」をクリックしてください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Play Download</source>
-        <translation type="unfinished">再生してダウンロード</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Please check the url</source>
-        <translation type="unfinished">URLを確認してください</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1448"/>
-        <source>Playlist is empty, nothing to download :</source>
-        <translation type="unfinished">プレイリストは空です。ダウンロードするものはありません：</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1480"/>
+        <location filename="../../main.py" line="1708"/>
+        <location filename="../../main.py" line="1720"/>
         <source>Playlist Download</source>
         <translation type="unfinished">プレイリストダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1490"/>
+        <location filename="../../main.py" line="1709"/>
+        <source>Please check the URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1711"/>
+        <source>Playlist is empty, nothing to download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1799"/>
         <source>Select All</source>
         <translation type="unfinished">すべて選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1493"/>
-        <source>Choose quality for all videos:</source>
-        <translation type="unfinished">すべての動画の品質を選択してください：</translation>
+        <location filename="../../main.py" line="1803"/>
+        <source>Apply to all:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1537"/>
-        <source>OK</source>
-        <translation type="unfinished">OK</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1600"/>
-        <location filename="../../main.py" line="1661"/>
+        <location filename="../../main.py" line="1918"/>
+        <location filename="../../main.py" line="1979"/>
         <source>FFmpeg is missing</source>
         <translation type="unfinished">FFmpegが見つかりません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1606"/>
+        <location filename="../../main.py" line="1924"/>
         <source>&quot;ffmpeg&quot; is missing!! and needs to be downloaded:</source>
         <translation type="unfinished">&quot;ffmpeg&quot;が見つかりません！！ ダウンロードが必要です：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1610"/>
+        <location filename="../../main.py" line="1928"/>
         <source>Recommended:</source>
         <translation type="unfinished">推奨：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1611"/>
+        <location filename="../../main.py" line="1929"/>
         <source>Local folder:</source>
         <translation type="unfinished">ローカルフォルダ：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1658"/>
+        <location filename="../../main.py" line="1976"/>
         <source>&quot;ffmpeg&quot; is required to merge an audio stream with your video.</source>
         <translation type="unfinished">&quot;ffmpeg&quot;は音声ストリームを動画に結合するために必要です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1658"/>
+        <location filename="../../main.py" line="1976"/>
         <source>Executable must be found at</source>
         <translation type="unfinished">実行可能ファイルは以下に配置する必要があります</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1659"/>
+        <location filename="../../main.py" line="1977"/>
         <source>folder or add the ffmpeg path to system PATH.</source>
         <translation type="unfinished">フォルダまたはffmpegのパスをシステムのPATHに追加してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1660"/>
+        <location filename="../../main.py" line="1978"/>
         <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install ffmpeg&apos; on Linux or &apos;brew install ffmpeg&apos; on MacOS.</source>
         <translation type="unfinished">Linuxでは「sudo apt-get update」および「sudo apt-get install ffmpeg」、MacOSでは「brew install ffmpeg」を実行してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1893"/>
-        <location filename="../../main.py" line="1924"/>
-        <location filename="../../main.py" line="1977"/>
-        <location filename="../../main.py" line="2020"/>
-        <location filename="../../main.py" line="2039"/>
-        <location filename="../../main.py" line="2294"/>
+        <location filename="../../main.py" line="2375"/>
+        <location filename="../../main.py" line="2406"/>
+        <location filename="../../main.py" line="2460"/>
+        <location filename="../../main.py" line="2500"/>
+        <location filename="../../main.py" line="2519"/>
+        <location filename="../../main.py" line="2835"/>
+        <location filename="../../main.py" line="3114"/>
         <source>Error</source>
         <translation type="unfinished">エラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1893"/>
-        <location filename="../../main.py" line="2020"/>
-        <location filename="../../main.py" line="2039"/>
+        <location filename="../../main.py" line="2375"/>
+        <location filename="../../main.py" line="2500"/>
+        <location filename="../../main.py" line="2519"/>
+        <location filename="../../main.py" line="3114"/>
         <source>No download item selected</source>
         <translation type="unfinished">ダウンロード項目が選択されていません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1924"/>
-        <location filename="../../main.py" line="1977"/>
+        <location filename="../../main.py" line="2406"/>
+        <location filename="../../main.py" line="2462"/>
         <source>Can&apos;t delete items while downloading. Stop or cancel all downloads first!</source>
         <translation type="unfinished">ダウンロード中はアイテムを削除できません。すべてのダウンロードを停止またはキャンセルしてください！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1928"/>
-        <location filename="../../main.py" line="2148"/>
+        <location filename="../../main.py" line="2410"/>
+        <location filename="../../main.py" line="2687"/>
         <source>Warning!!!</source>
         <translation type="unfinished">警告!!!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1929"/>
+        <location filename="../../main.py" line="2411"/>
         <source>Are you sure you want to delete these items?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1933"/>
+        <location filename="../../main.py" line="2415"/>
         <source>Delete files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1963"/>
+        <location filename="../../main.py" line="2445"/>
         <source>File:</source>
         <translation type="unfinished">ファイル：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1964"/>
+        <location filename="../../main.py" line="2446"/>
         <source>has been deleted.</source>
         <translation type="unfinished">が削除されました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1981"/>
+        <location filename="../../main.py" line="2467"/>
         <source>Delete all items and their progress temp files</source>
         <translation type="unfinished">すべてのアイテムとその進行中の一時ファイルを削除</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1982"/>
+        <location filename="../../main.py" line="2468"/>
         <source>Type the word &apos;delete&apos; and hit OK to proceed.</source>
         <translation type="unfinished">「delete」と入力してOKを押してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1983"/>
+        <location filename="../../main.py" line="2472"/>
         <source>Warning!!</source>
         <translation type="unfinished">警告！！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2098"/>
+        <location filename="../../main.py" line="2565"/>
+        <source>No Downloads to Schedule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2566"/>
+        <source>No valid downloads found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2568"/>
+        <source>There are currently no downloads with status &apos;Pending&apos; or &apos;Cancelled&apos; that can be scheduled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2572"/>
+        <source>Download scheduled for...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2584"/>
+        <source>Schedule Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2591"/>
         <source>Open File</source>
         <translation type="unfinished">ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2100"/>
+        <location filename="../../main.py" line="2592"/>
         <source>Open File Location</source>
         <translation type="unfinished">ファイルの場所を開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2102"/>
+        <location filename="../../main.py" line="2593"/>
         <source>Watch while downloading</source>
         <translation type="unfinished">ダウンロード中に視聴</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2104"/>
+        <location filename="../../main.py" line="2594"/>
         <source>Schedule download</source>
         <translation type="unfinished">ダウンロードをスケジュール</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2106"/>
+        <location filename="../../main.py" line="2595"/>
         <source>Cancel schedule!</source>
         <translation type="unfinished">スケジュールをキャンセル！</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2108"/>
-        <location filename="../../main.py" line="2250"/>
+        <location filename="../../main.py" line="2596"/>
+        <location filename="../../main.py" line="2789"/>
         <source>File Properties</source>
         <translation type="unfinished">ファイルのプロパティ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2148"/>
+        <location filename="../../main.py" line="2687"/>
         <source>This download is not yet completed</source>
         <translation type="unfinished">このダウンロードはまだ完了していません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2231"/>
+        <location filename="../../main.py" line="2770"/>
         <source>Name:</source>
         <translation type="unfinished">名前：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2232"/>
+        <location filename="../../main.py" line="2771"/>
         <source>Folder:</source>
         <translation type="unfinished">フォルダ：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2233"/>
+        <location filename="../../main.py" line="2772"/>
         <source>Progress:</source>
         <translation type="unfinished">進捗：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2234"/>
+        <location filename="../../main.py" line="2773"/>
         <source>Total size:</source>
         <translation type="unfinished">総サイズ：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2235"/>
+        <location filename="../../main.py" line="2774"/>
         <source>Status:</source>
         <translation type="unfinished">ステータス：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2240"/>
+        <location filename="../../main.py" line="2779"/>
         <source>Webpage url:</source>
         <translation type="unfinished">ウェブページURL：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2293"/>
+        <location filename="../../main.py" line="2834"/>
         <source>Error while creating global settings folder</source>
         <translation type="unfinished">グローバル設定フォルダーの作成中にエラーが発生しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2294"/>
+        <location filename="../../main.py" line="2835"/>
         <source>Local folder will be used instead</source>
         <translation type="unfinished">代わりにローカルフォルダーが使用されます</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2517"/>
+        <location filename="../../main.py" line="3120"/>
+        <source>To open download window offline</source>
+        <translation type="unfinished">ダウンロードウィンドウをオフラインで開くには</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3121"/>
+        <source>go to setting tab, then uncheck auto close download window</source>
+        <translation type="unfinished">設定タブに移動し、「ダウンロードウィンドウを自動的に閉じる」のチェックを外してください</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3121"/>
+        <source>Information</source>
+        <translation type="unfinished">情報</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3144"/>
         <source>Current version: </source>
         <translation type="unfinished">現在のバージョン：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2518"/>
+        <location filename="../../main.py" line="3145"/>
         <source>Server version: </source>
         <translation type="unfinished">サーバーバージョン：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2519"/>
-        <location filename="../../main.py" line="2527"/>
+        <location filename="../../main.py" line="3146"/>
+        <location filename="../../main.py" line="3154"/>
         <source>App Update</source>
         <translation type="unfinished">アプリの更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2520"/>
+        <location filename="../../main.py" line="3147"/>
         <source>App is up-to-date</source>
         <translation type="unfinished">アプリは最新です</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2525"/>
+        <location filename="../../main.py" line="3152"/>
         <source>Couldn&apos;t check for update</source>
         <translation type="unfinished">更新を確認できませんでした</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2526"/>
+        <location filename="../../main.py" line="3153"/>
         <source>Check your internet connection</source>
         <translation type="unfinished">インターネット接続を確認してください</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2536"/>
+        <location filename="../../main.py" line="3163"/>
         <source>Update Application</source>
         <translation type="unfinished">アプリケーションを更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2543"/>
+        <location filename="../../main.py" line="3170"/>
         <source>New version available:</source>
         <translation type="unfinished">新しいバージョンが利用可能：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2555"/>
+        <location filename="../../main.py" line="3182"/>
         <source>Update</source>
         <translation type="unfinished">更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2588"/>
+        <location filename="../../main.py" line="3215"/>
         <source>Update scheduled to run on the next reboot.</source>
         <translation type="unfinished">更新は次回再起動時に実行される予定です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2588"/>
+        <location filename="../../main.py" line="3215"/>
         <source>Please you can reboot now to install updates.</source>
         <translation type="unfinished">更新をインストールするために今すぐ再起動できます。</translation>
     </message>
@@ -480,636 +503,159 @@
 <context>
     <name>DownloadWindow</name>
     <message>
-        <location filename="../../main.py" line="2888"/>
+        <location filename="../../main.py" line="3536"/>
         <source>Done</source>
         <translation>完了</translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>LINK</source>
-        <translation type="vanished">リンク</translation>
-    </message>
-    <message>
-        <source>Retry</source>
-        <translation type="vanished">再試行</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="vanished">開く</translation>
-    </message>
-    <message>
-        <source>CHOOSE FOLDER</source>
-        <translation type="vanished">フォルダを選択</translation>
-    </message>
-    <message>
-        <source>FILENAME</source>
-        <translation type="vanished">ファイル名</translation>
-    </message>
-    <message>
-        <source>Place download link here</source>
-        <translation type="vanished">ダウンロードリンクをここに貼り付けてください</translation>
-    </message>
-    <message>
-        <source>Filename goes here</source>
-        <translation type="vanished">ファイル名をここに入力</translation>
-    </message>
-    <message>
-        <source>Playlist</source>
-        <translation type="vanished">プレイリスト</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="vanished">ダウンロード</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="vanished">サイズ：</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="vanished">タイプ：</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="vanished">プロトコル：</translation>
-    </message>
-    <message>
-        <source>Resumable:</source>
-        <translation type="vanished">再開可能：</translation>
-    </message>
-    <message>
-        <source>Resume</source>
-        <translation type="vanished">再開</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation type="vanished">一時停止</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">キャンセル</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">更新</translation>
-    </message>
-    <message>
-        <source>D. Window</source>
-        <translation type="vanished">ダウンロードウィンドウ</translation>
-    </message>
-    <message>
-        <source>Resume All</source>
-        <translation type="vanished">すべて再開</translation>
-    </message>
-    <message>
-        <source>Stop All</source>
-        <translation type="vanished">すべて停止</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">削除</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="vanished">すべて削除</translation>
-    </message>
-    <message>
-        <source>Schedule All</source>
-        <translation type="vanished">すべてスケジュール</translation>
-    </message>
-    <message>
-        <source>Home</source>
-        <translation type="vanished">ホーム</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation type="vanished">ダウンロード</translation>
-    </message>
-    <message>
-        <source>Logs</source>
-        <translation type="vanished">ログ</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">隠す</translation>
-    </message>
-    <message>
-        <source>About</source>
-        <translation type="vanished">について</translation>
-    </message>
-    <message>
-        <source>English</source>
-        <translation type="vanished">英語</translation>
-    </message>
-    <message>
-        <source>Spanish</source>
-        <translation type="vanished">スペイン語</translation>
-    </message>
-    <message>
-        <source>French</source>
-        <translation type="vanished">フランス語</translation>
-    </message>
-    <message>
-        <source>Japanese</source>
-        <translation type="vanished">日本語</translation>
-    </message>
-    <message>
-        <source>Chinese</source>
-        <translation type="vanished">中国語</translation>
-    </message>
-    <message>
-        <source>Korean</source>
-        <translation type="vanished">韓国語</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="vanished">一般</translation>
-    </message>
-    <message>
-        <source>Choose Language:</source>
-        <translation type="vanished">言語を選択：</translation>
-    </message>
-    <message>
-        <source>Choose Setting:</source>
-        <translation type="vanished">設定を選択：</translation>
-    </message>
-    <message>
-        <source>Monitor Copied Urls</source>
-        <translation type="vanished">コピーされたURLを監視</translation>
-    </message>
-    <message>
-        <source>Show Download Window</source>
-        <translation type="vanished">ダウンロードウィンドウを表示</translation>
-    </message>
-    <message>
-        <source>Auto close DL Window</source>
-        <translation type="vanished">自動的にダウンロードウィンドウを閉じる</translation>
-    </message>
-    <message>
-        <source>Show Thumbnail</source>
-        <translation type="vanished">サムネイルを表示</translation>
-    </message>
-    <message>
-        <source>On Startup</source>
-        <translation type="vanished">起動時</translation>
-    </message>
-    <message>
-        <source>Segment</source>
-        <translation type="vanished">セグメント</translation>
-    </message>
-    <message>
-        <source>Connection / Network</source>
-        <translation type="vanished">接続 / ネットワーク</translation>
-    </message>
-    <message>
-        <source>Speed Limit</source>
-        <translation type="vanished">速度制限</translation>
-    </message>
-    <message>
-        <source>Max Concurrent</source>
-        <translation type="vanished">最大同時接続数</translation>
-    </message>
-    <message>
-        <source>Downloads:</source>
-        <translation type="vanished">ダウンロード：</translation>
-    </message>
-    <message>
-        <source>Max Connection</source>
-        <translation type="vanished">最大接続数</translation>
-    </message>
-    <message>
-        <source>Settings:</source>
-        <translation type="vanished">設定：</translation>
-    </message>
-    <message>
-        <source>Proxy</source>
-        <translation type="vanished">プロキシ</translation>
-    </message>
-    <message>
-        <source>Enter Proxy IP or Domain</source>
-        <translation type="vanished">プロキシIPまたはドメインを入力してください</translation>
-    </message>
-    <message>
-        <source>Updates</source>
-        <translation type="vanished">更新</translation>
-    </message>
-    <message>
-        <source>Check for update every:</source>
-        <translation type="vanished">更新を確認する頻度：</translation>
-    </message>
-    <message>
-        <source>Check for update</source>
-        <translation type="vanished">更新を確認</translation>
-    </message>
-    <message>
-        <source>Log Level</source>
-        <translation type="vanished">ログレベル</translation>
-    </message>
-    <message>
-        <source>Detailed events</source>
-        <translation type="vanished">詳細なイベント</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="vanished">クリア</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">進行状況</translation>
-    </message>
-    <message>
-        <source>Speed</source>
-        <translation type="vanished">速度</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">残り</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">完了</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">サイズ</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">ステータス</translation>
-    </message>
-    <message>
-        <source>Confirm Exit</source>
-        <translation type="vanished">終了確認</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to close the application?</source>
-        <translation type="vanished">本当にアプリケーションを閉じますか？</translation>
-    </message>
-    <message>
-        <source>Folder Error</source>
-        <translation type="vanished">フォルダーエラー</translation>
-    </message>
-    <message>
-        <source>destination folder</source>
-        <translation type="vanished">保存先フォルダ</translation>
-    </message>
-    <message>
-        <source>does not exist</source>
-        <translation type="vanished">存在しません</translation>
-    </message>
-    <message>
-        <source>Please enter a valid folder name</source>
-        <translation type="vanished">有効なフォルダ名を入力してください</translation>
-    </message>
-    <message>
-        <source>you don&apos;t have enough permission for destination folder</source>
-        <translation type="vanished">保存先フォルダに対する十分な権限がありません</translation>
-    </message>
-    <message>
-        <source>problem in destination folder</source>
-        <translation type="vanished">保存先フォルダに問題があります</translation>
-    </message>
-    <message>
-        <source>Download Error</source>
-        <translation type="vanished">ダウンロードエラー</translation>
-    </message>
-    <message>
-        <source>File name is invalid. Please enter a valid filename</source>
-        <translation type="vanished">ファイル名が無効です。正しいファイル名を入力してください</translation>
-    </message>
-    <message>
-        <source>File with the same name already exist in</source>
-        <translation type="vanished">同じ名前のファイルがすでに存在します</translation>
-    </message>
-    <message>
-        <source>Do you want to overwrite file?</source>
-        <translation type="vanished">ファイルを上書きしますか？</translation>
-    </message>
-    <message>
-        <source>File Overwrite</source>
-        <translation type="vanished">ファイルの上書き</translation>
-    </message>
-    <message>
-        <source>File with the same name:</source>
-        <translation type="vanished">同じ名前のファイル：</translation>
-    </message>
-    <message>
-        <source>already exists in download list</source>
-        <translation type="vanished">すでにダウンロードリストに存在します</translation>
-    </message>
-    <message>
-        <source>Do you want to resume this file?</source>
-        <translation type="vanished">このファイルを再開しますか？</translation>
-    </message>
-    <message>
-        <source>Resume ==&gt; continue if it has been partially downloaded ...</source>
-        <translation type="vanished">再開 ==&gt; 部分的にダウンロードされた場合は続行...</translation>
-    </message>
-    <message>
-        <source>Overwrite ==&gt; delete old downloads and overwrite existing item... </source>
-        <translation type="vanished">上書き ==&gt; 古いダウンロードを削除し、既存のアイテムを上書きします...</translation>
-    </message>
-    <message>
-        <source>Overwrite ==&gt; delete old downloads and overwrite existing item...</source>
-        <translation type="vanished">上書き ==&gt; 古いダウンロードを削除し、既存のアイテムを上書き...</translation>
-    </message>
-    <message>
-        <source>Note: if you need a fresh download, you have to change file name </source>
-        <translation type="vanished">注：新しいダウンロードが必要な場合は、ファイル名を変更する必要があります</translation>
-    </message>
-    <message>
-        <source>or target folder, or delete the same entry from the download list.</source>
-        <translation type="vanished">またはターゲットフォルダを変更するか、ダウンロードリストから同じエントリを削除してください。</translation>
-    </message>
-    <message>
-        <source>File Already Exists</source>
-        <translation type="vanished">ファイルはすでに存在します</translation>
-    </message>
-    <message>
-        <source>Overwrite</source>
-        <translation type="vanished">上書き</translation>
-    </message>
-    <message>
-        <source>Nothing to download</source>
-        <translation type="vanished">ダウンロードするものがありません</translation>
-    </message>
-    <message>
-        <source>It might be a web page or an invalid URL link. Check your link or click &quot;Retry&quot;.</source>
-        <translation type="vanished">ウェブページまたは無効なURLリンクかもしれません。リンクを確認するか、「再試行」をクリックしてください。</translation>
-    </message>
-    <message>
-        <source>Play Download</source>
-        <translation type="vanished">再生してダウンロード</translation>
-    </message>
-    <message>
-        <source>Please check the url</source>
-        <translation type="vanished">URLを確認してください</translation>
-    </message>
-    <message>
-        <source>Playlist is empty, nothing to download :</source>
-        <translation type="vanished">プレイリストは空です。ダウンロードするものはありません：</translation>
-    </message>
-    <message>
-        <source>Playlist Download</source>
-        <translation type="vanished">プレイリストダウンロード</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation type="vanished">すべて選択</translation>
-    </message>
-    <message>
-        <source>Choose quality for all videos:</source>
-        <translation type="vanished">すべての動画の品質を選択してください：</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-    <message>
-        <source>FFmpeg is missing</source>
-        <translation type="vanished">FFmpegが見つかりません</translation>
-    </message>
-    <message>
-        <source>&quot;ffmpeg&quot; is missing!! and needs to be downloaded:</source>
-        <translation type="vanished">&quot;ffmpeg&quot;が見つかりません！！ ダウンロードが必要です：</translation>
-    </message>
-    <message>
-        <source>Recommended:</source>
-        <translation type="vanished">推奨：</translation>
-    </message>
-    <message>
-        <source>Local folder:</source>
-        <translation type="vanished">ローカルフォルダ：</translation>
-    </message>
-    <message>
-        <source>&quot;ffmpeg&quot; is required to merge an audio stream with your video.</source>
-        <translation type="vanished">&quot;ffmpeg&quot;は音声ストリームを動画に結合するために必要です。</translation>
-    </message>
-    <message>
-        <source>Executable must be found at</source>
-        <translation type="vanished">実行可能ファイルは以下に配置する必要があります</translation>
-    </message>
-    <message>
-        <source>folder or add the ffmpeg path to system PATH.</source>
-        <translation type="vanished">フォルダまたはffmpegのパスをシステムのPATHに追加してください。</translation>
-    </message>
-    <message>
-        <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install ffmpeg&apos; on Linux or &apos;brew install ffmpeg&apos; on MacOS.</source>
-        <translation type="vanished">Linuxでは「sudo apt-get update」および「sudo apt-get install ffmpeg」、MacOSでは「brew install ffmpeg」を実行してください。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">エラー</translation>
-    </message>
-    <message>
-        <source>No download item selected</source>
-        <translation type="vanished">ダウンロード項目が選択されていません</translation>
-    </message>
-    <message>
-        <source>No Internet</source>
-        <translation type="vanished">インターネット接続なし</translation>
-    </message>
-    <message>
-        <source>Please check your internet connection and try again</source>
-        <translation type="vanished">インターネット接続を確認し、再試行してください</translation>
-    </message>
-    <message>
-        <source>To open download window offline</source>
-        <translation type="vanished">ダウンロードウィンドウをオフラインで開くには</translation>
-    </message>
-    <message>
-        <source>go to setting tab, then uncheck auto close download window</source>
-        <translation type="vanished">設定タブに移動し、「ダウンロードウィンドウを自動的に閉じる」のチェックを外してください</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">情報</translation>
-    </message>
-    <message>
-        <source>Can&apos;t delete items while downloading. Stop or cancel all downloads first!</source>
-        <translation type="vanished">ダウンロード中はアイテムを削除できません。すべてのダウンロードを停止またはキャンセルしてください！</translation>
-    </message>
-    <message>
-        <source>Warning!!!</source>
-        <translation type="vanished">警告!!!</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete</source>
-        <translation type="vanished">本当に削除しますか？</translation>
-    </message>
-    <message>
-        <source>Delete file?</source>
-        <translation type="vanished">ファイルを削除しますか？</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="vanished">ファイル：</translation>
-    </message>
-    <message>
-        <source>has been deleted.</source>
-        <translation type="vanished">が削除されました。</translation>
-    </message>
-    <message>
-        <source>Delete all items and their progress temp files</source>
-        <translation type="vanished">すべてのアイテムとその進行中の一時ファイルを削除</translation>
-    </message>
-    <message>
-        <source>Type the word &apos;delete&apos; and hit OK to proceed.</source>
-        <translation type="vanished">「delete」と入力してOKを押してください。</translation>
-    </message>
-    <message>
-        <source>Warning!!</source>
-        <translation type="vanished">警告！！</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="vanished">ファイルを開く</translation>
-    </message>
-    <message>
-        <source>Open File Location</source>
-        <translation type="vanished">ファイルの場所を開く</translation>
-    </message>
-    <message>
-        <source>Watch while downloading</source>
-        <translation type="vanished">ダウンロード中に視聴</translation>
-    </message>
-    <message>
-        <source>Schedule download</source>
-        <translation type="vanished">ダウンロードをスケジュール</translation>
-    </message>
-    <message>
-        <source>Cancel schedule!</source>
-        <translation type="vanished">スケジュールをキャンセル！</translation>
-    </message>
-    <message>
-        <source>File Properties</source>
-        <translation type="vanished">ファイルのプロパティ</translation>
-    </message>
-    <message>
-        <source>This download is not yet completed</source>
-        <translation type="vanished">このダウンロードはまだ完了していません</translation>
-    </message>
-    <message>
-        <source>Download Item: </source>
-        <translation type="vanished">ダウンロードアイテム：</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">名前：</translation>
-    </message>
-    <message>
-        <source>Folder:</source>
-        <translation type="vanished">フォルダ：</translation>
-    </message>
-    <message>
-        <source>Progress:</source>
-        <translation type="vanished">進捗：</translation>
-    </message>
-    <message>
-        <source>Total size:</source>
-        <translation type="vanished">総サイズ：</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation type="vanished">ステータス：</translation>
-    </message>
-    <message>
-        <source>Webpage url:</source>
-        <translation type="vanished">ウェブページURL：</translation>
-    </message>
-    <message>
-        <source>Error while creating global settings folder</source>
-        <translation type="vanished">グローバル設定フォルダーの作成中にエラーが発生しました</translation>
-    </message>
-    <message>
-        <source>Local folder will be used instead</source>
-        <translation type="vanished">代わりにローカルフォルダーが使用されます</translation>
-    </message>
-    <message>
-        <source>Current version: </source>
-        <translation type="vanished">現在のバージョン：</translation>
-    </message>
-    <message>
-        <source>Server version: </source>
-        <translation type="vanished">サーバーバージョン：</translation>
-    </message>
-    <message>
-        <source>App Update</source>
-        <translation type="vanished">アプリの更新</translation>
-    </message>
-    <message>
-        <source>App is up-to-date</source>
-        <translation type="vanished">アプリは最新です</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t check for update</source>
-        <translation type="vanished">更新を確認できませんでした</translation>
-    </message>
-    <message>
-        <source>Couldn’t check for update</source>
-        <translation type="vanished">更新を確認できませんでした</translation>
-    </message>
-    <message>
-        <source>Check your internet connection</source>
-        <translation type="vanished">インターネット接続を確認してください</translation>
-    </message>
-    <message>
-        <source>Update Application</source>
-        <translation type="vanished">アプリケーションを更新</translation>
-    </message>
-    <message>
-        <source>New version available:</source>
-        <translation type="vanished">新しいバージョンが利用可能：</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="vanished">更新</translation>
-    </message>
-    <message>
-        <source>Update scheduled to run on the next reboot.</source>
-        <translation type="vanished">更新は次回再起動時に実行される予定です。</translation>
-    </message>
-    <message>
-        <source>Please you can reboot now to install updates.</source>
-        <translation type="vanished">更新をインストールするために今すぐ再起動できます。</translation>
     </message>
 </context>
 <context>
     <name>ScheduleDialog</name>
     <message>
         <source>Scheduling Download Item</source>
-        <translation type="vanished">ダウンロードアイテムのスケジュール設定</translation>
+        <translation type="vanished">ダウンロード項目をスケジュール中</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2628"/>
+        <location filename="../../main.py" line="3259"/>
         <source>Schedule Download</source>
-        <translation type="unfinished"></translation>
+        <translation>ダウンロードのスケジュール</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2686"/>
+        <location filename="../../main.py" line="3329"/>
         <source>Hours:</source>
         <translation>時間：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2692"/>
+        <location filename="../../main.py" line="3335"/>
         <source>Minutes:</source>
         <translation>分：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2711"/>
+        <location filename="../../main.py" line="3354"/>
         <source>Ok</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2715"/>
+        <location filename="../../main.py" line="3358"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWindow</name>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="500"/>
+        <source>Monitor Copied URLs</source>
+        <translation>コピーされたURLを監視</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="490"/>
+        <source>Settings</source>
+        <translation>設定</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="495"/>
+        <source>General</source>
+        <translation>一般</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="496"/>
+        <source>Connection</source>
+        <translation>接続</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="497"/>
+        <source>Browser</source>
+        <translation>ブラウザ</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="498"/>
+        <source>Updates</source>
+        <translation>アップデート</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="501"/>
+        <source>Show Download Window</source>
+        <translation>ダウンロードウィンドウを表示</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="502"/>
+        <source>Auto Close DL Window</source>
+        <translation>ダウンロードウィンドウを自動的に閉じる</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="503"/>
+        <source>Show Thumbnail</source>
+        <translation>サムネイルを表示</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="504"/>
+        <source>On Startup</source>
+        <translation>起動時に</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="506"/>
+        <source>KB</source>
+        <translation>KB</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="507"/>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="510"/>
+        <source>Speed Limit</source>
+        <translation>速度制限</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="511"/>
+        <source>Proxy</source>
+        <translation>プロキシ</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="512"/>
+        <source>Enter a proxy address and select its type. Example: 127.0.0.1:8080</source>
+        <translation>プロキシアドレスを入力して種類を選択してください（例：127.0.0.1:8080）</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="513"/>
+        <source>Retry failed scheduled downloads</source>
+        <translation>失敗したスケジュールダウンロードを再試行</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="516"/>
+        <source>Max Concurrent Downloads:</source>
+        <translation>最大同時ダウンロード数：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="517"/>
+        <source>Max Connection Settings:</source>
+        <translation>最大接続設定：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="520"/>
+        <source>Check for update</source>
+        <translation>アップデートを確認</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="521"/>
+        <source>Check for update every (days):</source>
+        <translation>アップデートを確認する頻度（日数）：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="524"/>
+        <source>Choose Language:</source>
+        <translation>言語を選択：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="525"/>
+        <source>Choose Setting:</source>
+        <translation>設定を選択：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="526"/>
+        <source>Segment:</source>
+        <translation>セグメント</translation>
     </message>
 </context>
 <context>

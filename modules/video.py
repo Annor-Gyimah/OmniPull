@@ -103,6 +103,16 @@ class Video(DownloadItem):
     def setup(self):
         self._process_streams()
 
+    def url_expired(self) -> bool:
+        """
+        Check if video or audio stream URL is likely expired.
+        This is a rough heuristic, based on age or erroring headers (advanced).
+        """
+        # Option 1: Timestamp check (you can store a fetched time and compare)
+        max_age_secs = 3600 * 3  # assume 3 hours max age
+        return (time.time() - getattr(self, "last_update", 0)) > max_age_secs
+
+
     def _process_streams(self):
         """ Create Stream object lists"""
         # if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
@@ -198,6 +208,10 @@ class Video(DownloadItem):
         self.protocol = stream.protocol
         self.format_id = stream.format_id
         self.manifest_url = stream.manifest_url
+        self.last_update = time.time()
+
+        
+
 
         # Filter audio streams based on extension compatibility
         audio_streams = [audio for audio in self.audio_streams.values()
@@ -236,88 +250,7 @@ class Video(DownloadItem):
         self.audio_fragments = audio_stream.fragments
         self.audio_format_id = audio_stream.format_id
 
-    # def update_param(self):
-    #     # do some parameter updates
-    #     stream = self.selected_stream
-    #     self.name = self.title + '.' + stream.extension
-    #     self.eff_url = stream.url
-    #     self.type = stream.mediatype
-    #     self.size = stream.size
-    #     self.fragment_base_url = stream.fragment_base_url
-    #     self.fragments = stream.fragments
-    #     self.protocol = stream.protocol
-    #     self.format_id = stream.format_id
-    #     self.manifest_url = stream.manifest_url
-
-    #     #print(f"This is the PROTOCOL: {self.protocol}")
-
-    #     # Filter audio streams based on extension compatibility
-    #     audio_streams = [audio for audio in self.audio_streams.values()
-    #                     if audio.extension == stream.extension or
-    #                     (audio.extension == 'm4a' and stream.extension == 'mp4')]
-
-    #     if not audio_streams:  # Ensure there are available audio streams
-    #         log("No suitable audio stream found!")
-    #         return
-
-    #     # Select an audio to embed if our stream is DASH video
-    #     if stream.mediatype == 'dash' and self.protocol.startswith('http'):
-    #         if len(audio_streams) > 2:
-    #             audio_stream = audio_streams[2]
-    #         else:
-    #             audio_stream = audio_streams[3]  # Fallback to first available
-    #     else:
-    #         # If protocol is 'm3u8_native' or other formats
-    #         audio_stream = audio_streams[0]
-
-    #     print(audio_stream)
-    #     self.audio_stream = audio_stream
-    #     self.audio_url = audio_stream.url
-    #     self.audio_size = audio_stream.size
-    #     self.audio_fragment_base_url = audio_stream.fragment_base_url
-    #     self.audio_fragments = audio_stream.fragments
-    #     self.audio_format_id = audio_stream.format_id
-
     
-
-    # def update_param(self):
-    #     # do some parameter updates
-    #     stream = self.selected_stream
-    #     self.name = self.title + '.' + stream.extension
-    #     self.eff_url = stream.url
-    #     self.type = stream.mediatype
-    #     self.size = stream.size
-    #     self.fragment_base_url = stream.fragment_base_url
-    #     self.fragments = stream.fragments
-    #     self.protocol = stream.protocol
-    #     self.format_id = stream.format_id
-    #     self.manifest_url = stream.manifest_url
-
-    #     print(f"This is the PROTOCOL: {self.protocol}")
-
-    #     # select an audio to embed if our stream is dash video
-    #     if stream.mediatype == 'dash' and self.protocol == 'https':
-    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
-    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][2]
-    #         print(audio_stream)
-    #         self.audio_stream = audio_stream
-    #         self.audio_url = audio_stream.url
-    #         self.audio_size = audio_stream.size
-    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
-    #         self.audio_fragments = audio_stream.fragments
-    #         self.audio_format_id = audio_stream.format_id
-    #     else:
-    #         #self.protocol == 'm3u8_native
-    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
-    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
-    #         print(audio_stream)
-    #         self.audio_stream = audio_stream
-    #         self.audio_url = audio_stream.url
-    #         self.audio_size = audio_stream.size
-    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
-    #         self.audio_fragments = audio_stream.fragments
-    #         self.audio_format_id = audio_stream.format_id
-
 
 class Stream:
     def __init__(self, stream_info):

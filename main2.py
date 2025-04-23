@@ -37,6 +37,7 @@ from ui.queue_dialog import QueueDialog
 
 
 
+
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format, truncate, 
     notify, run_command, handle_exceptions)
@@ -51,6 +52,7 @@ os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100
 widgets = None
 widgets_settings = None
 widgets_about = None
+widgets_queue_dialog = None
 
 
 
@@ -329,8 +331,7 @@ class DownloadManagerUI(QMainWindow):
         self.ui.setupUi(self)
         self.ui_settings = SettingsWindow(self)
         self.ui_queues = QueueDialog(self)
-
-
+        
         # Now safely connect signal
         self.ui.table.itemSelectionChanged.connect(self.update_toolbar_buttons_for_selection)
 
@@ -529,6 +530,7 @@ class DownloadManagerUI(QMainWindow):
 
         self.ui_queues.main_window = self
 
+
         widgets.folder_input.setText(config.download_folder)
 
     
@@ -563,6 +565,58 @@ class DownloadManagerUI(QMainWindow):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
         
+    # def apply_language(self, language):
+    #     """
+    #     Applying the type of language selected by the user
+    #     """
+    #     # Load and apply the selected language
+    #     if language == "French":
+    #         if self.translator.load(self.resource_path2("app_fr.qm")):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Spanish":
+    #         if self.translator.load(self.resource_path2("app_es.qm")):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Chinese":
+    #         if self.translator.load(self.resource_path2("app_zh.qm")):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Korean":
+    #         if self.translator.load(self.resource_path2("app_ko.qm")):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Japanese":
+    #         if self.translator.load(self.resource_path2("app_ja.qm")):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     else:
+    #         QCoreApplication.instance().removeTranslator(self.translator)
+
+    #     # Update the UI
+    #     self.retrans()
+
+    # This is used when running the application from an IDE
+    # def apply_language(self, language):
+    #     # Load and apply the selected language
+    #     if language == "French":
+    #         if self.translator.load("modules/translations/app_fr.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Spanish":
+    #         if self.translator.load("modules/translations/app_es.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Chinese":
+    #         if self.translator.load("modules/translations/app_zh.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Korean":
+    #         if self.translator.load("modules/translations/app_ko.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Japanese":
+    #         if self.translator.load("modules/translations/app_ja.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     else:
+    #         QCoreApplication.instance().removeTranslator(self.translator)
+
+    #     # Update the UI
+    #     self.retrans()
+
+
+    
 
     def apply_language(self, language):
         QCoreApplication.instance().removeTranslator(self.translator)
@@ -572,7 +626,8 @@ class DownloadManagerUI(QMainWindow):
             "Spanish": "app_es.qm",
             "Chinese": "app_zh.qm",
             "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm"
+            "Japanese": "app_ja.qm",
+            "English": "app_en.qm",
         }
 
         if language in file_map:
@@ -592,9 +647,10 @@ class DownloadManagerUI(QMainWindow):
         dialog.exec()
 
     def show_queue_dialog(self):
-        self.ui_queues.d_list = self.d_list  # Update d_list for the dialog
-        self.ui_queues.populate_queue_items()
         self.ui_queues.exec() # Show the existing instance
+
+        # dialog = QueueDialog()
+        # dialog.exec()
 
 
     def retrans(self):
@@ -638,27 +694,9 @@ class DownloadManagerUI(QMainWindow):
         # widgets.label_general.setText(self.tr("General"))
         # widgets.label_language.setText(self.tr("Choose Language:"))
         # widgets.label_setting.setText(self.tr("Choose Setting:"))
-        widgets_settings.monitor_clipboard_cb.setText(self.tr("Monitor Copied Urls"))
+        self.setup_context_menu_actions()
         
-        # widgets.checkBox2.setText(self.tr("Show Download Window"))
-        # widgets.checkBox3.setText(self.tr("Auto close DL Window"))
-        # widgets.checkBox4.setText(self.tr("Show Thumbnail"))
-        # widgets.checkBox5.setText(self.tr("On Startup"))
-        # widgets.label_segment.setText(self.tr("Segment"))
-        # widgets.label_connection.setText(self.tr("Connection / Network"))
-        # widgets.checkBox_network.setText(self.tr("Speed Limit"))
-        # mxc, mxc2 = self.tr("Max Concurrent"), self.tr("Downloads:")
-        # widgets.label_max_downloads.setText(f"{mxc} \n {mxc2}")
-        # mxcd, mxcd1 = self.tr("Max Connection"), self.tr("Settings:")
-        # widgets.label_max_connections.setText(f"{mxcd} \n {mxcd1}")
-        # widgets.checkBox_proxy.setText(self.tr("Proxy"))
-        # widgets.lineEdit_proxy.setPlaceholderText(self.tr("Enter Proxy IP or Domain"))
-        # widgets.label_updates.setText(self.tr("Updates"))
-        # widgets.label_check_every.setText(self.tr("Check for update every:"))
-        # widgets.update_button.setText(self.tr("Check for update"))
-        # widgets.logLevelLabel.setText(self.tr("Log Level"))
-        # widgets.detailedEventsLabel.setText(self.tr("Detailed events"))
-        # widgets.clearButton.setText(self.tr("Clear"))
+        
         # widgets.tableWidget.setHorizontalHeaderLabels([("ID"), self.tr("Name"), self.tr("Progress"), self.tr("Speed"), self.tr("Left"), self.tr("Done"), self.tr("Size"), self.tr("Status"), "I"])
 
 
@@ -785,6 +823,19 @@ class DownloadManagerUI(QMainWindow):
                 "Settings": True,
                 "Download Window": False,
             },
+            config.Status.queued: {
+                "Resume": True,
+                "Pause": False,
+                "Delete": True,
+                "Delete All": False,
+                "Refresh": True,
+                "Resume All": False,
+                "Stop All": False,
+                "Schedule All": False,
+                "Settings": True,
+                "Download Window": False,
+
+            }
         }
 
         return status_map.get(status, {})
@@ -798,7 +849,7 @@ class DownloadManagerUI(QMainWindow):
             # Enable only global buttons
             for key in widgets.toolbar_buttons:
                 widgets.toolbar_buttons[key].setEnabled(key in {
-                    "Stop All", "Resume All", "Settings", "Schedule All", "Queues",
+                    "Stop All", "Resume All", "Settings", "Schedule All"
                 })
             return
 
@@ -826,7 +877,6 @@ class DownloadManagerUI(QMainWindow):
 
 
 
-
     def queue_combo(self):
         self.queues = setting.load_queues()
         
@@ -840,6 +890,8 @@ class DownloadManagerUI(QMainWindow):
             name = queue.get("name")
             if name:
                 widgets.combo3.addItem(name)
+
+
     
 
 
@@ -938,10 +990,6 @@ class DownloadManagerUI(QMainWindow):
                     self.show_information(title=v['title'], inform="", msg=v['msg'])
                 else:
                     self.show_critical(title=v['title'], msg=v['msg'])
-            elif k == "queue_list":
-                self.queue_combo()
-            elif k == "queue_download":
-                self._queue_or_start_download(*v)
 
 
     def run(self):
@@ -995,6 +1043,7 @@ class DownloadManagerUI(QMainWindow):
             log(f"New URL set: {url}")
             # Update the DownloadItem with the new URL
             # schedule refresh header func
+            self.queue_combo()
             if isinstance(self.url_timer, Timer):
                 self.url_timer.cancel()  # cancel previous timer
 
@@ -1480,8 +1529,65 @@ class DownloadManagerUI(QMainWindow):
             if d.target_file == target_file:
                 return i
         return None
+    
+    
+    
+    # def on_download_button_clicked(self, downloader=None):
+    #     """Handle DownloadButton click event."""
+    #     # Check if the download button is disabled
+    #     if self.d.url == "":
+    #         # Use QMessageBox to display the popup in PyQt
+    #         msg = QMessageBox()
+    #         msg.setIcon(QMessageBox.Warning)
+    #         msg.setWindowTitle(self.tr('Download Error'))
+    #         msg.setStyleSheet(self.get_msgbox_style("warning"))
+    #         msg.setText(self.tr('Nothing to download'))
+    #         msg.setInformativeText(self.tr('It might be a web page or an invalid URL link. Check your link or click "Retry".'))
+    #         msg.setStandardButtons(QMessageBox.Ok)
+    #         msg.exec()
+    #         return
+        
+
+    #     # Get a copy of the current download item (self.d)
+    #     d = copy.copy(self.d)
+
+    #     # Set the folder for download
+    #     d.folder = config.download_folder  # Ensure that config.download_folder is properly set
+
+    #     selected_queue = widgets.combo3.currentText()
+      
+
+    #     if selected_queue and selected_queue != "None":
+    #         d.in_queue = True
+    #         d.queue_name = selected_queue
+    #         d.status = config.Status.queued
+    #         d.last_known_progress = 0
+    #         d.last_known_size = 0
+    #         d.size = 0
+    #         d.segment_size = 0
+    #         self.d_list.append(d)  # save to queue but don't start
+            
+    #         setting.save_d_list(self.d_list)
+    #         QMessageBox.information(
+    #             self,
+    #             self.tr("Added to Queue"),
+    #             self.tr(f"'{d.name}' has been added to queue: {selected_queue}.\nStart it from the Queues Dialog."),
+    #         )
+            
+    #         self.change_page(btn=None, btnName=None, idx=1)
+    #     else:
+            
+    #         d.queue = None  # Ensure it's not assigned to any queue
+
+    #         # Start the download using the appropriate downloader
+    #         r = self.start_download(d, downloader=downloader)
+
+            
+    #         if r not in ('error', 'cancelled', False):
+    #             self.change_page(btn=None, btnName=None, idx=1)
 
 
+    
     def get_queue_id(self, name: str) -> str:
         import hashlib
 
@@ -1527,7 +1633,6 @@ class DownloadManagerUI(QMainWindow):
 
             self.d_list.append(d)
             setting.save_d_list(self.d_list)
-            self.queue_update("populate_table", None)
 
             title = self.tr("Added to Queue")
             inform = self.tr("has been added to queue:")
@@ -1544,39 +1649,8 @@ class DownloadManagerUI(QMainWindow):
             r = self.start_download(d, downloader=downloader)
             if r not in ('error', 'cancelled', False):
                 self.change_page(btn=None, btnName=None, idx=1)
-    
-    
-    
-    # def on_download_button_clicked(self, downloader=None):
-    #     """Handle DownloadButton click event."""
-    #     # Check if the download button is disabled
-    #     if self.d.url == "":
-    #         # Use QMessageBox to display the popup in PyQt
-    #         msg = QMessageBox()
-    #         msg.setIcon(QMessageBox.Warning)
-    #         msg.setWindowTitle(self.tr('Download Error'))
-    #         msg.setStyleSheet(self.get_msgbox_style("warning"))
-    #         msg.setText(self.tr('Nothing to download'))
-    #         msg.setInformativeText(self.tr('It might be a web page or an invalid URL link. Check your link or click "Retry".'))
-    #         msg.setStandardButtons(QMessageBox.Ok)
-    #         msg.exec()
-    #         return
-        
-
-    #     # Get a copy of the current download item (self.d)
-    #     d = copy.copy(self.d)
-
-    #     # Set the folder for download
-    #     d.folder = config.download_folder  # Ensure that config.download_folder is properly set
-
-    #     # Start the download using the appropriate downloader
-    #     r = self.start_download(d, downloader=downloader)
 
         
-    #     if r not in ('error', 'cancelled', False):
-    #         self.change_page(btn=None, btnName=None, idx=1)
-            
-    
    
 
     def change_page(self, btn=None, btnName=None, idx=None):
@@ -2059,10 +2133,13 @@ class DownloadManagerUI(QMainWindow):
     def populate_table(self):
         # Adjust table row count to match d_list
         widgets.table.setRowCount(len(self.d_list))
+        
 
         for row, d in enumerate(reversed(self.d_list)):
             # Always ensure there's a QProgressBar in the progress column (col=2)
             progress = widgets.table.cellWidget(row, 2)
+            
+            
             if not isinstance(progress, QProgressBar):
                 progress = QProgressBar()
                 progress.setRange(0, 100)
@@ -2081,15 +2158,18 @@ class DownloadManagerUI(QMainWindow):
                     }
                 """)
                 widgets.table.setCellWidget(row, 2, progress)
+                
 
             file_path = os.path.join(d.folder, str(d.name))
             
-            if not os.path.exists(file_path) and not d.status in ["cancelled", "error", "failed", "scheduled", "merging_audio", "paused", "downloading", "pending"]:
+            if not os.path.exists(file_path) and not d.status in ["cancelled", "error", "failed", "scheduled", "merging_audio", "paused", "downloading", "pending", "queued"]:
                 d.status = config.Status.deleted
-
-            if d.in_queue and d.queue_name:
+            
+            # ✅ Ensure correct status for queued item
+            if not os.path.exists(file_path) and d.queue_name != "":
                 d.status = config.Status.queued
-
+                progress.setValue(0)
+                progress.setFormat("Queued")
 
             # ID column
             id_item = QTableWidgetItem(str(len(self.d_list) - row))
@@ -2131,59 +2211,85 @@ class DownloadManagerUI(QMainWindow):
                 if not d:
                     continue
                 
-
-               
-
-                
                 progress_widget = widgets.table.cellWidget(row, 2)
-                # if isinstance(progress_widget, QProgressBar):
-                #     if d.progress is not None:
-                #         progress_widget.setValue(int(d.progress))
-                #         progress_widget.setFormat(f"{int(d.progress)}%")
                 if isinstance(progress_widget, QProgressBar):
-                    if d.progress is not None:
+                    # Add tracking if missing
+                    if not hasattr(progress_widget, 'last_status'):
+                        progress_widget.last_status = None
+
+                    # Always update progress if downloading
+                    if d.status == config.Status.downloading:
                         progress_widget.setValue(int(d.progress))
                         progress_widget.setFormat(f"{int(d.progress)}%")
-
-                        # Change bar color based on status
-                        color = "#00C853"  # default: green
-                        if d.status == "downloading":
-                            color = "#2962FF"
-                        elif d.status == "completed":
-                            color = "#00C853"
-                        elif d.status == "cancelled":
-                            color = "#D32F2F"
-                        elif d.status == "pending":
-                            color = "#FDD835"
-                        elif d.status == "error":
-                            color = "#9E9E9E"
-                        elif d.status == "merging_audio":
-                            color = "#FF9800"
-                        elif d.status == "scheduled":
-                            color = "#F7DC6F"
-                        elif d.status == "deleted":
-                            color = "#9C27B0"  # purple
+                        color = "#2962FF"
                         
+                        progress_widget.setStyleSheet(f"""
+                            QProgressBar {{
+                                background-color: #2a2a2a;
+                                border: 1px solid #444;
+                                border-radius: 4px;
+                                text-align: center;
+                                color: white;
+                            }}
+                            QProgressBar::chunk {{
+                                background-color: {color};
+                                border-radius: 4px;
+                            }}
+                        """)
+                        progress_widget.last_status = d.status  # still update status cache
 
-                    elif d.progress is None:
-                        print("Progress is None")
-                        if d.status == "queued":
-                            print("Queued")
-                    progress_widget.setStyleSheet(f"""
-                        QProgressBar {{
-                            background-color: #2a2a2a;
-                            border: 1px solid #444;
-                            border-radius: 4px;
-                            text-align: center;
-                            color: white;
-                        }}
-                        QProgressBar::chunk {{
-                            background-color: {color};
-                            border-radius: 4px;
-                        }}
-                    """)
-                    
-                
+                    # For other statuses, only update when changed
+                    elif d.status != progress_widget.last_status:
+                        if d.status == config.Status.queued:
+                            progress_widget.setValue(0)
+                            progress_widget.setFormat("Queued")
+                            color = "#9C27B0"
+                        elif d.status == config.Status.completed:
+                            progress_widget.setValue(100)
+                            progress_widget.setFormat("100%")
+                            color = "#00C853"
+                        elif d.status == config.Status.cancelled:
+                            progress_widget.setValue(d.progress)
+                            # progress_widget.setFormat("Cancelled")
+                            color = "#D32F2F"
+                        elif d.status == config.Status.error:
+                            progress_widget.setValue(0)
+                            progress_widget.setFormat("Error")
+                            color = "#9E9E9E"
+                        elif d.status == config.Status.pending:
+                            progress_widget.setValue(d.progress)
+                            # progress_widget.setFormat("Pending")
+                            color = "#FDD835"
+                        elif d.status == config.Status.scheduled:
+                            # progress_widget.setValue(0)
+                            # progress_widget.setFormat("Scheduled")
+                            color = "#F7DC6F"
+                        elif d.status == config.Status.deleted:
+                            progress_widget.setValue(d.progress)
+                            # progress_widget.setFormat("Deleted")
+                            color = "#9C27B0"
+                        elif d.status == config.Status.merging_audio:
+                            progress_widget.setValue(d.progress)
+                            color = "#FF9800"
+                        else:
+                            progress_widget.setValue(0)
+                            progress_widget.setFormat("---")
+                            color = "#888888"
+
+                        progress_widget.setStyleSheet(f"""
+                            QProgressBar {{
+                                background-color: #2a2a2a;
+                                border: 1px solid #444;
+                                border-radius: 4px;
+                                text-align: center;
+                                color: white;
+                            }}
+                            QProgressBar::chunk {{
+                                background-color: {color};
+                                border-radius: 4px;
+                            }}
+                        """)
+                        progress_widget.last_status = d.status
 
                 
 
@@ -2416,6 +2522,7 @@ class DownloadManagerUI(QMainWindow):
 
     # endregion
 
+    
     def _queue_or_start_download(self, d, refresh_if_needed=False):
         # ✅ 1. Optionally refresh stream info if it's a video and refresh_if_needed is True
         if refresh_if_needed and isinstance(d, Video):
@@ -2452,7 +2559,6 @@ class DownloadManagerUI(QMainWindow):
             Thread(target=brain.brain, daemon=True, args=(d,)).start()
 
 
-
     def resume_btn(self):
         selected_row = widgets.table.currentRow()
         if selected_row < 0 or selected_row >= widgets.table.rowCount():
@@ -2462,20 +2568,9 @@ class DownloadManagerUI(QMainWindow):
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
-        self.start_download(d, silent=True)
-        
-        # If internet is available, resume the download
+        self._queue_or_start_download(d, refresh_if_needed=True)
 
-        # Check if the internet_checker is already running
-        # if not self.internet_checker.isRunning():
-        #     # Start the internet check if it's not running
-        #     self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
-        #     self.internet_checker.start()  # Start the thread to check internet status
-        # else:
-        #     # If the thread is already running, proceed directly with the result from the last check
-        #     self.on_internet_check_done(self.internet_checker.is_connected)
-
-
+    
 
     def delete_btn(self):
         # Get all selected rows
@@ -2533,9 +2628,6 @@ class DownloadManagerUI(QMainWindow):
                 # Clean up the deleted item
                 d.delete_tempfiles()
                 os.remove(f"{d.folder}/{d.name}")
-                widgets.table.clearSelection()
-                self.update_toolbar_buttons_for_selection()
-
 
         except Exception as e:
             log(f"Error deleting items: {e}")
@@ -2624,11 +2716,13 @@ class DownloadManagerUI(QMainWindow):
 
         self.pending.clear()
 
+   
+
     def resume_all_downloads(self):
-        # change status of all non completed items to pending
         for d in self.d_list:
-            if d.status == config.Status.cancelled:
-                self.start_download(d, silent=True)
+            if d.status in (config.Status.cancelled, config.Status.failed, config.Status.paused, config.Status.error):
+                self._queue_or_start_download(d, refresh_if_needed=True)
+
 
 
     # def schedule_all(self):
@@ -2730,6 +2824,17 @@ class DownloadManagerUI(QMainWindow):
         self.update_context_menu_actions_state(d)
 
         context_menu = QMenu(widgets.table)
+        context_menu.setStyleSheet("""
+            background-color: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #0F1B14,
+                stop: 1 #050708
+            );
+            color: white;
+            border-radius: 14px;
+                                   
+                                   
+        """)
         context_menu.addAction(self.action_open_file)
         context_menu.addAction(self.action_open_location)
         context_menu.addAction(self.action_watch_downloading)
@@ -3096,6 +3201,9 @@ class DownloadManagerUI(QMainWindow):
 
 
     
+    
+
+
     def check_scheduled(self):
         now = time.localtime()
 
@@ -3104,7 +3212,7 @@ class DownloadManagerUI(QMainWindow):
                 if (d.sched[0], d.sched[1]) == (now.tm_hour, now.tm_min):
                     log(f"Scheduled time matched for {d.name}, attempting download...")
 
-                    result = self.start_download(d, silent=True)
+                    self._queue_or_start_download(d, refresh_if_needed=True)
 
                     # Retry condition: download failed or was cancelled
                     if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
@@ -3116,7 +3224,6 @@ class DownloadManagerUI(QMainWindow):
                             if d.schedule_retries < config.retry_scheduled_max_tries:
                                 d.schedule_retries += 1
 
-                                # Add retry interval
                                 from datetime import datetime, timedelta
                                 retry_time = datetime.now() + timedelta(
                                     minutes=config.retry_scheduled_interval_mins)
@@ -3130,6 +3237,8 @@ class DownloadManagerUI(QMainWindow):
                             d.status = config.Status.failed
 
         self.queue_update("populate_table", None)
+
+
 
 
 

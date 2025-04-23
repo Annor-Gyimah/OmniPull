@@ -272,6 +272,7 @@ class Ui_MainWindow(object):
 
         self.combo1 = QComboBox()
         self.combo2 = QComboBox()
+        self.combo3 = QComboBox()
         self.combo1.setStyleSheet(
             
             """
@@ -302,9 +303,11 @@ class Ui_MainWindow(object):
         """
         )
         self.combo2.setStyleSheet(self.combo1.styleSheet())
+        self.combo3.setStyleSheet(self.combo1.styleSheet())
 
         self.combo1.setFixedWidth(360)
         self.combo2.setFixedWidth(360)
+        self.combo3.setFixedWidth(360)
 
         combo1_row = QHBoxLayout()
         combo1_label = QLabel("Download Item:")
@@ -318,8 +321,15 @@ class Ui_MainWindow(object):
         combo2_row.addWidget(combo2_label)
         combo2_row.addWidget(self.combo2)
 
+        combo3_row = QHBoxLayout()
+        combo3_label = QLabel("Queue:")
+        combo3_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo3_row.addWidget(combo3_label)
+        combo3_row.addWidget(self.combo3)
+
         right_layout.addLayout(combo1_row)
         right_layout.addLayout(combo2_row)
+        right_layout.addLayout(combo3_row)
 
         # METADATA
         info_row = QGridLayout()
@@ -615,6 +625,7 @@ class Ui_MainWindow(object):
             "Schedule All": "icons/sche.png",
             "Settings": "icons/setting.svg",
             "Download Window": "icons/d_window.png",
+            "Queues": "icons/queues.png"
             
         }
 

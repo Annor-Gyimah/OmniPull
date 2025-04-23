@@ -4,8 +4,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QCoreApplication
-
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator
+import os, sys
 
 from modules import config, setting
 
@@ -18,6 +18,10 @@ class SettingsWindow(QDialog):
 
 
         setting.load_setting()
+
+        self.translator = QTranslator()
+
+        
 
         # Layouts
         # main_layout = QHBoxLayout(self)
@@ -53,9 +57,11 @@ class SettingsWindow(QDialog):
             "Updates": "icons/updates.svg"
         }
 
-        for text, icon in icon_map.items():
-            item = QListWidgetItem(QIcon(icon), text)
+        for key, icon in icon_map.items():
+            translated_text = self.tr(key)
+            item = QListWidgetItem(QIcon(icon), translated_text)
             self.sidebar.addItem(item)
+
 
         main_layout.addWidget(self.sidebar)
 
@@ -141,6 +147,9 @@ class SettingsWindow(QDialog):
         # Connect sidebar to stack switching
         self.sidebar.currentRowChanged.connect(self.stack.setCurrentIndex)
         self.sidebar.setCurrentRow(0)
+        # Load saved language
+        self.current_language = config.lang
+        self.apply_language(self.current_language)
 
     def setup_general_tab(self):
         general_widget = QWidget()
@@ -153,7 +162,7 @@ class SettingsWindow(QDialog):
         self.setting_scope_combo = QComboBox()
         self.setting_scope_combo.addItems(["Global", "Local"])
 
-        self.monitor_clipboard_cb = QCheckBox(QCoreApplication.translate("SettingsWindow", "Monitor Copied URLs"))
+        self.monitor_clipboard_cb = QCheckBox("Monitor Copied URLs")
         self.show_download_window_cb = QCheckBox("Show Download Window")
         self.auto_close_cb = QCheckBox("Auto Close DL Window")
         self.show_thumbnail_cb = QCheckBox("Show Thumbnail")
@@ -168,14 +177,14 @@ class SettingsWindow(QDialog):
         segment_row.addWidget(self.segment_linedit)
         segment_row.addWidget(self.segment_unit_combo)
         
-        general_layout.addRow(QLabel(QCoreApplication.translate("SettingsWindow", "Choose Language:")), self.language_combo)
+        general_layout.addRow(QLabel("Choose Language:"), self.language_combo)
         general_layout.addRow(QLabel("Choose Setting:"), self.setting_scope_combo)
         general_layout.addRow(self.monitor_clipboard_cb)
         general_layout.addRow(self.show_download_window_cb)
         general_layout.addRow(self.auto_close_cb)
         general_layout.addRow(self.show_thumbnail_cb)
         general_layout.addRow(self.on_startup_cb)
-        general_layout.addRow(QLabel(QCoreApplication.translate("SettingsWindow", "Segment:")), segment_row)
+        general_layout.addRow(QLabel("Segment:"), segment_row)
         self.stack.addWidget(general_widget)
 
     def setup_connection_tab(self):
@@ -443,8 +452,79 @@ class SettingsWindow(QDialog):
         main_window = self.parent()  # get reference to the main window
         if main_window:
             main_window.apply_language(config.lang)
-            main_window.retrans()
+            self.retrans()
 
         super().accept()
+
+
+    def resource_path2(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
+
+
+    def apply_language(self, language):
+        QCoreApplication.instance().removeTranslator(self.translator)
+
+        file_map = {
+            "French": "app_fr.qm",
+            "Spanish": "app_es.qm",
+            "Chinese": "app_zh.qm",
+            "Korean": "app_ko.qm",
+            "Japanese": "app_ja.qm",
+            "English": "app_en.qm",
+        }
+
+        if language in file_map:
+            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
+            if self.translator.load(qm_path):
+                QCoreApplication.instance().installTranslator(self.translator)
+                print(f"[Language] Loaded {language} translation.")
+            else:
+                print(f"[Language] Failed to load {qm_path}")
+
+       
+
+        self.retrans()
+
+    def retrans(self):
+        self.setWindowTitle(self.tr("Settings"))
+        # self.ok_button.setText(self.tr("OK"))
+        # self.cancel_button.setText(self.tr("Cancel"))
+
+        # General Tab
+        self.sidebar.item(0).setText(self.tr("General"))
+        self.sidebar.item(1).setText(self.tr("Connection"))
+        self.sidebar.item(2).setText(self.tr("Browser"))
+        self.sidebar.item(3).setText(self.tr("Updates"))
+
+        self.monitor_clipboard_cb.setText(self.tr("Monitor Copied URLs"))
+        self.show_download_window_cb.setText(self.tr("Show Download Window"))
+        self.auto_close_cb.setText(self.tr("Auto Close DL Window"))
+        self.show_thumbnail_cb.setText(self.tr("Show Thumbnail"))
+        self.on_startup_cb.setText(self.tr("On Startup"))
+
+        self.segment_unit_combo.setItemText(0, self.tr("KB"))
+        self.segment_unit_combo.setItemText(1, self.tr("MB"))
+
+        # Connection Tab
+        self.speed_checkBox.setText(self.tr("Speed Limit"))
+        self.checkBox_proxy.setText(self.tr("Proxy"))
+        self.label_proxy_info.setText(self.tr("Enter a proxy address and select its type. Example: 127.0.0.1:8080"))
+        self.retry_schedule_cb.setText(self.tr("Retry failed scheduled downloads"))
+
+        # Retry labels
+        self.stack.widget(1).layout().labelForField(self.max_concurrent_combo).setText(self.tr("Max Concurrent Downloads:"))
+        self.stack.widget(1).layout().labelForField(self.max_conn_settings_combo).setText(self.tr("Max Connection Settings:"))
+
+        # Updates Tab
+        self.check_update_btn.setText(self.tr("Check for update"))
+        self.stack.widget(3).layout().labelForField(self.check_interval_combo).setText(self.tr("Check for update every (days):"))
+
+        # Language label and others
+        self.stack.widget(0).layout().labelForField(self.language_combo).setText(self.tr("Choose Language:"))
+        self.stack.widget(0).layout().labelForField(self.setting_scope_combo).setText(self.tr("Choose Setting:"))
+        # self.stack.widget(0).layout().labelForField(self.segment_linedit.parent()).setText(self.tr("Segment:"))
+
 
 

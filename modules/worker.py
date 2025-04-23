@@ -232,6 +232,8 @@ class Worker:
         target_directory = os.path.dirname(self.seg.name)
         if not os.path.isdir(target_directory):
             os.makedirs(target_directory, exist_ok=True)  # it will also create any intermediate folders in the given path
+            #os.makedirs(target_directory)  # it will also create any intermediate folders in the given path
+
 
         try:
             with open(self.seg.name, self.mode) as self.file:

@@ -8,6 +8,10 @@ from . import downloaditem
 from .utils import log, handle_exceptions, update_object
 
 
+
+
+     
+
 def get_global_sett_folder():
     """return a proper global setting folder"""
     home_folder = os.path.expanduser('~')
@@ -68,7 +72,6 @@ def load_d_list():
     """create and return a list of 'DownloadItem objects' based on data extracted from 'downloads.cfg' file"""
     d_list = []
     try:
-        log('Load previous download items from', config.sett_folder)
         file = os.path.join(config.sett_folder, 'downloads.cfg')
 
         with open(file, 'r') as f:
@@ -79,6 +82,7 @@ def load_d_list():
         for dict_ in data:
             d = update_object(downloaditem.DownloadItem(), dict_)
             d.sched = dict_.get('scheduled', None) 
+            d.queue_position = int(dict_.get("queue_position", 0))
             if d:  # if update_object() returned an updated object not None
                 d_list.append(d)
 
@@ -89,6 +93,8 @@ def load_d_list():
                 status = config.Status.completed
             elif d.progress <= 100 and d.sched != None:
                 status = config.Status.scheduled
+            elif d.in_queue and d.queue_name:
+                status = config.Status.queued
             else:
                 status=config.Status.cancelled
             # status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
@@ -103,40 +109,6 @@ def load_d_list():
         if not isinstance(d_list, list):
             d_list = []
         return d_list
-
-# def load_d_list():
-#     """Create and return a list of 'DownloadItem' objects based on data extracted from 'downloads.cfg' file"""
-#     d_list = []
-#     try:
-#         log('Load previous download items from', config.sett_folder)
-#         file = os.path.join(config.sett_folder, 'downloads.cfg')
-
-#         with open(file, 'r') as f:
-#             # Expecting a list of dictionaries
-#             data = json.load(f)
-
-#         # Converting list of dictionaries to list of DownloadItem objects
-#         for dict_ in data:
-#             d = downloaditem.DownloadItem()  # Create an instance first
-#             d = update_object(d, dict_)  # Update with stored values
-            
-#             # Ensure `self.sched` is explicitly assigned
-#             d.sched = dict_.get('scheduled', None)  
-
-#             if d:  # If update_object() returned an updated object
-#                 d_list.append(d)
-
-#         # Clean `d_list`
-#         for d in d_list:
-#             status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
-#             d.status = status
-#             d.live_connections = 0
-
-#         return d_list
-
-#     except Exception as e:
-#         log(f"Error loading downloads: {e}")
-#         return []
 
 
 
@@ -178,16 +150,6 @@ def load_setting():
         config.__dict__.update(settings)
 
 
-# def save_setting():
-#     settings = {key: config.__dict__.get(key) for key in config.settings_keys}
-
-#     try:
-#         file = os.path.join(config.sett_folder, 'setting.cfg')
-#         with open(file, 'w') as f:
-#             json.dump(settings, f)
-#             #log('setting saved')
-#     except Exception as e:
-#         handle_exceptions(e)
 
 def save_setting():
     settings = {key: config.__dict__.get(key) for key in config.settings_keys}
@@ -201,3 +163,39 @@ def save_setting():
             json.dump(settings, f)
     except Exception as e:
         handle_exceptions(e)
+
+
+QUEUES_CFG_FILE = os.path.join(config.sett_folder, "queues.cfg")
+
+def load_queues():
+    """ Load list queues from  a list of queues.cfg """
+
+    try:
+        if not os.path.exists(QUEUES_CFG_FILE):
+            return []
+
+        with open(QUEUES_CFG_FILE, 'r') as f:
+            return json.load(f)
+
+    except Exception as e:
+        print(f"Error loading queues.cfg: {e}")
+        return []
+    
+
+
+def save_queues(queues):
+    """Save list of queues to queues.cfg file"""
+    try:
+        with open(QUEUES_CFG_FILE, 'w') as f:
+            json.dump(queues, f, indent=2)
+    except Exception as e:
+        print(f"Error saving queues.cfg: {e}")
+
+# Example queue entry structure:
+# {
+#     "id": "queue_001",
+#     "name": "My Queue",
+#     "max_concurrent": 2,
+#     "auto_stop": False,
+#     "scheduled_time": [13, 30]  # Optional: [hour, minute]
+# }
