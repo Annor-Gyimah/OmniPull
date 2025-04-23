@@ -86,6 +86,8 @@ def load_d_list():
             if d:  # if update_object() returned an updated object not None
                 d_list.append(d)
 
+        
+
         # clean d_list
         for d in d_list:
             status = None
@@ -94,9 +96,14 @@ def load_d_list():
             elif d.progress <= 100 and d.sched != None:
                 status = config.Status.scheduled
             elif d.in_queue and d.queue_name:
-                status = config.Status.queued
+                if d.status not in (config.Status.downloading, config.Status.completed):
+                    status = config.Status.queued
+                else:
+                    status = d.status  # preserve active or completed
             else:
-                status=config.Status.cancelled
+                if d.status not in (config.Status.downloading, config.Status.completed):
+                    status = config.Status.cancelled
+
             # status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
             d.status = status
             d.live_connections = 0

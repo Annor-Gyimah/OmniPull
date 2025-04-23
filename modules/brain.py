@@ -40,12 +40,20 @@ def brain(d=None, downloader=None):
         d.reset_segments()
         d.downloaded = 0
 
+    
+
+
+
     # set status
-    if d.status == Status.downloading:
-        log('another brain thread may be running')
-        return
-    else:
-        d.status = Status.downloading
+    # if d.status == Status.downloading:
+    #     log('another brain thread may be running')
+    #     return
+    # else:
+    #     d.status = Status.downloading
+    # Set status explicitly at the start of brain
+    log(f'brain() started for: {d.name} | current status: {d.status}')
+    d.status = Status.downloading
+
 
     # # add item index to active download set
     # active_downloads.add(d.id)
@@ -95,6 +103,10 @@ def brain(d=None, downloader=None):
     if d.callback and d.status == Status.completed:
         # d.callback()
         globals()[d.callback]()
+
+    # ✅ Now it's safe to notify the queue dialog
+    if hasattr(config, "queue_dialog") and config.queue_dialog:
+        config.queue_dialog.on_queue_item_finished(d)
 
     # report quitting
     log(f'brain {d.num}: quitting')

@@ -3,38 +3,136 @@
 >> operating system: Linux-6.8.0-57-generic-x86_64-with-glibc2.39 - x86_64
 >> current working directory: /home/annorion/Desktop/pyiconic/New UI/modules
 >> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/modules
->> youtube-dl load_time= 2.7894973754882812e-05
+>> youtube-dl load_time= 3.337860107421875e-05
 >> Days since last check for update: 8 day(s).
->> donwload item 64 already in list, check resume availability
->> overwrite
+>> D:  id: 63 
+_name: Hyper.Knife.S01E03.720p.HEVC.x265-MeGusta.Sermovie.mkv 
+ext:  
+folder: /home/annorion/Videos 
+url: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E03.720p.HEVC.x265-MeGusta.Sermovie.mkv 
+eff_url: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E03.720p.HEVC.x265-MeGusta.Sermovie.mkv 
+playlist_url:  
+size: 341370887 
+resumable: True 
+type: application/octet-stream 
+_segment_size: 524288 
+live_connections: 0 
+_downloaded: 341370887 
+_status: completed 
+remaining_parts: 1 
+q: <modules.downloaditem.Communication object at 0x7001ed2de540> 
+status_code: 0 
+status_code_description:  
+animation_index: 0 
+audio_stream: None 
+audio_url: None 
+audio_size: 0 
+is_audio: False 
+callback:  
+sched: None 
+schedule_retries: 0 
+_speed: 0 
+prev_downloaded_value: 0 
+speed_buffer: deque([]) 
+speed_timer: 0 
+speed_refresh_rate: 1 
+_segments: [] 
+fragment_base_url: None 
+fragments: None 
+audio_fragment_base_url: None 
+audio_fragments: None 
+protocol:  
+format_id: None 
+audio_format_id: None 
+last_known_size: 341370887 
+last_known_progress: 100 
+animation_timer: 1745430854.152388 
+manifest_url:  
+in_queue: True 
+queue_name: Pictures 
+queue_position: 1 
+queue_id: b11ddc7e 
+
+>> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/modules
+>> New URL set: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie.mkv
+>> Extracting info for URL: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie.mkv
+>> [generic] Extracting URL: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie.mkv
+>> [generic] Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> [info] Available formats for Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie:
+>> [generic] Extracting URL: https://dl12.sermoviedown.pw/Series/2025/Hyper.Knife/720/Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie.mkv
+>> [generic] Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> [info] Available formats for Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie:
+>> Unexpected error: 'formats'
+>> Error: YouTube extraction failed
+>> Reset to default thumbnail due to error
+>> New URL set: http://localhost/lite/invin.mkv
+>> Extracting info for URL: http://localhost/lite/invin.mkv
+>> [generic] Extracting URL: http://localhost/lite/invin.mkv
+>> [generic] invin: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> [info] Available formats for invin:
+>> [generic] Extracting URL: http://localhost/lite/invin.mkv
+>> [generic] invin: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> [info] Available formats for invin:
+>> Unexpected error: 'formats'
+>> Error: YouTube extraction failed
+>> Reset to default thumbnail due to error
+>> brain() started for: invin.mkv | current status: queued
 >> ----------------------------------------------------------------------------------------------------
->> start downloading file: "Hyper.Knife.S01E01.720p.HEVC.x265-MeGusta.Sermovie.mkv", size: ..., to: /home/annorion/Videos
->> thread_manager 64: quitting
->> file_manager 64: quitting
->> brain 64: Cancelled download
->> brain 64: quitting
->> donwload item 63 already in list, check resume availability
->> overwrite
->> ----------------------------------------------------------------------------------------------------
->> start downloading file: "invin.mkv", size: ..., to: /home/annorion/Videos
->> thread_manager 63: quitting
->> file_manager 63: quitting
->> brain 63: Cancelled download
->> brain 63: quitting
->> donwload item 63 already in list, check resume availability
->> resuming
->> resume is possible
->> ----------------------------------------------------------------------------------------------------
->> start downloading file: "invin.mkv", size: ..., to: /home/annorion/Videos
->> file_manager 63: quitting
->> thread_manager 63: quitting
->> brain 63: Cancelled download
->> brain 63: quitting
->> donwload item 62 already in list, check resume availability
->> resuming
->> resume is possible
->> ----------------------------------------------------------------------------------------------------
->> start downloading file: "main.exe", size: 73.3 MB, to: /home/annorion/Videos
+>> start downloading file: "invin.mkv", size: 231.6 MB, to: /home/annorion/Videos
+>> >> completed segment:  0
+>> >> completed segment:  1
+>> >> completed segment:  2
+>> >> completed segment:  3
+>> >> completed segment:  4
+>> >> completed segment:  5
+>> >> completed segment:  6
+>> >> completed segment:  7
+>> >> completed segment:  8
+>> >> completed segment:  9
+>> >> completed segment:  10
+>> >> completed segment:  11
+>> >> completed segment:  12
+>> >> completed segment:  13
+>> >> completed segment:  14
+>> >> completed segment:  15
+>> >> completed segment:  16
+>> >> completed segment:  17
+>> >> completed segment:  18
+>> >> completed segment:  19
+>> >> completed segment:  20
+>> >> completed segment:  21
+>> >> completed segment:  22
+>> >> completed segment:  23
+>> >> completed segment:  24
+>> >> completed segment:  25
+>> >> completed segment:  26
+>> >> completed segment:  27
+>> >> completed segment:  28
+>> >> completed segment:  29
+>> >> completed segment:  30
+>> >> completed segment:  31
+>> >> completed segment:  32
+>> >> completed segment:  33
+>> >> completed segment:  34
+>> >> completed segment:  35
+>> >> completed segment:  36
+>> >> completed segment:  37
+>> >> completed segment:  38
+>> >> completed segment:  39
+>> >> completed segment:  40
+>> >> completed segment:  41
+>> >> completed segment:  42
+>> >> completed segment:  43
+>> >> completed segment:  44
+>> >> completed segment:  45
 >> >> completed segment:  46
 >> >> completed segment:  47
 >> >> completed segment:  48
@@ -45,14 +143,1217 @@
 >> >> completed segment:  53
 >> >> completed segment:  54
 >> >> completed segment:  55
->> brain 62: Cancelled download
->> brain 62: quitting
->> thread_manager 62: quitting
->> file_manager 62: quitting
->> donwload item 63 already in list, check resume availability
->> resuming
->> resume is possible
+>> >> completed segment:  56
+>> >> completed segment:  57
+>> >> completed segment:  58
+>> >> completed segment:  59
+>> >> completed segment:  60
+>> >> completed segment:  61
+>> >> completed segment:  62
+>> >> completed segment:  63
+>> >> completed segment:  64
+>> >> completed segment:  65
+>> >> completed segment:  66
+>> >> completed segment:  67
+>> >> completed segment:  68
+>> >> completed segment:  69
+>> >> completed segment:  70
+>> >> completed segment:  71
+>> >> completed segment:  72
+>> >> completed segment:  73
+>> >> completed segment:  74
+>> >> completed segment:  75
+>> >> completed segment:  76
+>> >> completed segment:  77
+>> >> completed segment:  78
+>> >> completed segment:  79
+>> >> completed segment:  80
+>> >> completed segment:  81
+>> >> completed segment:  82
+>> >> completed segment:  83
+>> >> completed segment:  84
+>> >> completed segment:  85
+>> >> completed segment:  86
+>> >> completed segment:  87
+>> >> completed segment:  88
+>> >> completed segment:  89
+>> >> completed segment:  90
+>> >> completed segment:  91
+>> >> completed segment:  92
+>> >> completed segment:  93
+>> >> completed segment:  94
+>> >> completed segment:  95
+>> >> completed segment:  96
+>> >> completed segment:  97
+>> >> completed segment:  98
+>> >> completed segment:  99
+>> >> completed segment:  100
+>> >> completed segment:  101
+>> >> completed segment:  102
+>> >> completed segment:  103
+>> >> completed segment:  104
+>> >> completed segment:  105
+>> >> completed segment:  106
+>> >> completed segment:  107
+>> >> completed segment:  108
+>> >> completed segment:  109
+>> >> completed segment:  110
+>> >> completed segment:  111
+>> >> completed segment:  112
+>> >> completed segment:  113
+>> >> completed segment:  114
+>> >> completed segment:  115
+>> >> completed segment:  116
+>> >> completed segment:  117
+>> >> completed segment:  118
+>> >> completed segment:  119
+>> >> completed segment:  120
+>> >> completed segment:  121
+>> >> completed segment:  122
+>> >> completed segment:  123
+>> >> completed segment:  124
+>> >> completed segment:  125
+>> >> completed segment:  126
+>> >> completed segment:  127
+>> >> completed segment:  128
+>> >> completed segment:  129
+>> >> completed segment:  130
+>> >> completed segment:  131
+>> >> completed segment:  132
+>> >> completed segment:  133
+>> >> completed segment:  134
+>> >> completed segment:  135
+>> >> completed segment:  136
+>> >> completed segment:  137
+>> >> completed segment:  138
+>> thread_manager 64: quitting
+>> >> completed segment:  139
+>> >> completed segment:  140
+>> >> completed segment:  141
+>> >> completed segment:  142
+>> >> completed segment:  143
+>> >> completed segment:  144
+>> >> completed segment:  145
+>> >> completed segment:  146
+>> >> completed segment:  147
+>> >> completed segment:  148
+>> >> completed segment:  149
+>> >> completed segment:  150
+>> >> completed segment:  151
+>> >> completed segment:  152
+>> >> completed segment:  153
+>> >> completed segment:  154
+>> >> completed segment:  155
+>> >> completed segment:  156
+>> >> completed segment:  157
+>> >> completed segment:  158
+>> >> completed segment:  159
+>> >> completed segment:  160
+>> >> completed segment:  161
+>> >> completed segment:  162
+>> >> completed segment:  163
+>> >> completed segment:  164
+>> >> completed segment:  165
+>> >> completed segment:  166
+>> >> completed segment:  167
+>> >> completed segment:  168
+>> >> completed segment:  169
+>> >> completed segment:  170
+>> >> completed segment:  171
+>> >> completed segment:  172
+>> >> completed segment:  173
+>> >> completed segment:  174
+>> >> completed segment:  175
+>> >> completed segment:  176
+>> >> completed segment:  177
+>> >> completed segment:  178
+>> >> completed segment:  179
+>> >> completed segment:  180
+>> >> completed segment:  181
+>> >> completed segment:  182
+>> >> completed segment:  183
+>> >> completed segment:  184
+>> >> completed segment:  185
+>> >> completed segment:  186
+>> >> completed segment:  187
+>> >> completed segment:  188
+>> >> completed segment:  189
+>> >> completed segment:  190
+>> >> completed segment:  191
+>> >> completed segment:  192
+>> >> completed segment:  193
+>> >> completed segment:  194
+>> >> completed segment:  195
+>> >> completed segment:  196
+>> >> completed segment:  197
+>> >> completed segment:  198
+>> >> completed segment:  199
+>> >> completed segment:  200
+>> >> completed segment:  201
+>> >> completed segment:  202
+>> >> completed segment:  203
+>> >> completed segment:  204
+>> >> completed segment:  205
+>> >> completed segment:  206
+>> >> completed segment:  207
+>> >> completed segment:  208
+>> >> completed segment:  209
+>> >> completed segment:  210
+>> >> completed segment:  211
+>> >> completed segment:  212
+>> >> completed segment:  213
+>> >> completed segment:  214
+>> >> completed segment:  215
+>> >> completed segment:  216
+>> >> completed segment:  217
+>> >> completed segment:  218
+>> >> completed segment:  219
+>> >> completed segment:  220
+>> >> completed segment:  221
+>> >> completed segment:  222
+>> >> completed segment:  223
+>> >> completed segment:  224
+>> >> completed segment:  225
+>> >> completed segment:  226
+>> >> completed segment:  227
+>> >> completed segment:  228
+>> >> completed segment:  229
+>> >> completed segment:  230
+>> >> completed segment:  231
+>> >> completed segment:  232
+>> >> completed segment:  233
+>> >> completed segment:  234
+>> >> completed segment:  235
+>> >> completed segment:  236
+>> >> completed segment:  237
+>> >> completed segment:  238
+>> >> completed segment:  239
+>> >> completed segment:  240
+>> >> completed segment:  241
+>> >> completed segment:  242
+>> >> completed segment:  243
+>> >> completed segment:  244
+>> >> completed segment:  245
+>> >> completed segment:  246
+>> >> completed segment:  247
+>> >> completed segment:  248
+>> >> completed segment:  249
+>> >> completed segment:  250
+>> >> completed segment:  251
+>> >> completed segment:  252
+>> >> completed segment:  253
+>> >> completed segment:  254
+>> >> completed segment:  255
+>> >> completed segment:  256
+>> >> completed segment:  257
+>> >> completed segment:  258
+>> >> completed segment:  259
+>> >> completed segment:  260
+>> >> completed segment:  261
+>> >> completed segment:  262
+>> >> completed segment:  263
+>> >> completed segment:  264
+>> >> completed segment:  265
+>> >> completed segment:  266
+>> >> completed segment:  267
+>> >> completed segment:  268
+>> >> completed segment:  269
+>> >> completed segment:  270
+>> >> completed segment:  271
+>> >> completed segment:  272
+>> >> completed segment:  273
+>> >> completed segment:  274
+>> >> completed segment:  275
+>> >> completed segment:  276
+>> >> completed segment:  277
+>> >> completed segment:  278
+>> >> completed segment:  279
+>> >> completed segment:  280
+>> >> completed segment:  281
+>> >> completed segment:  282
+>> >> completed segment:  283
+>> >> completed segment:  284
+>> >> completed segment:  285
+>> >> completed segment:  286
+>> >> completed segment:  287
+>> >> completed segment:  288
+>> >> completed segment:  289
+>> >> completed segment:  290
+>> >> completed segment:  291
+>> >> completed segment:  292
+>> >> completed segment:  293
+>> >> completed segment:  294
+>> >> completed segment:  295
+>> >> completed segment:  296
+>> >> completed segment:  297
+>> >> completed segment:  298
+>> >> completed segment:  299
+>> >> completed segment:  300
+>> >> completed segment:  301
+>> >> completed segment:  302
+>> >> completed segment:  303
+>> >> completed segment:  304
+>> >> completed segment:  305
+>> >> completed segment:  306
+>> >> completed segment:  307
+>> >> completed segment:  308
+>> >> completed segment:  309
+>> >> completed segment:  310
+>> >> completed segment:  311
+>> >> completed segment:  312
+>> >> completed segment:  313
+>> >> completed segment:  314
+>> >> completed segment:  315
+>> >> completed segment:  316
+>> >> completed segment:  317
+>> >> completed segment:  318
+>> >> completed segment:  319
+>> >> completed segment:  320
+>> >> completed segment:  321
+>> >> completed segment:  322
+>> >> completed segment:  323
+>> >> completed segment:  324
+>> >> completed segment:  325
+>> >> completed segment:  326
+>> >> completed segment:  327
+>> >> completed segment:  328
+>> >> completed segment:  329
+>> >> completed segment:  330
+>> >> completed segment:  331
+>> >> completed segment:  332
+>> >> completed segment:  333
+>> >> completed segment:  334
+>> >> completed segment:  335
+>> >> completed segment:  336
+>> >> completed segment:  337
+>> >> completed segment:  338
+>> >> completed segment:  339
+>> >> completed segment:  340
+>> >> completed segment:  341
+>> >> completed segment:  342
+>> >> completed segment:  343
+>> >> completed segment:  344
+>> >> completed segment:  345
+>> >> completed segment:  346
+>> >> completed segment:  347
+>> >> completed segment:  348
+>> >> completed segment:  349
+>> >> completed segment:  350
+>> >> completed segment:  351
+>> >> completed segment:  352
+>> >> completed segment:  353
+>> >> completed segment:  354
+>> >> completed segment:  355
+>> >> completed segment:  356
+>> >> completed segment:  357
+>> >> completed segment:  358
+>> >> completed segment:  359
+>> >> completed segment:  360
+>> >> completed segment:  361
+>> >> completed segment:  362
+>> >> completed segment:  363
+>> >> completed segment:  364
+>> >> completed segment:  365
+>> >> completed segment:  366
+>> >> completed segment:  367
+>> >> completed segment:  368
+>> >> completed segment:  369
+>> >> completed segment:  370
+>> >> completed segment:  371
+>> >> completed segment:  372
+>> >> completed segment:  373
+>> >> completed segment:  374
+>> >> completed segment:  375
+>> >> completed segment:  376
+>> >> completed segment:  377
+>> >> completed segment:  378
+>> >> completed segment:  379
+>> >> completed segment:  380
+>> >> completed segment:  381
+>> >> completed segment:  382
+>> >> completed segment:  383
+>> >> completed segment:  384
+>> >> completed segment:  385
+>> >> completed segment:  386
+>> >> completed segment:  387
+>> >> completed segment:  388
+>> >> completed segment:  389
+>> >> completed segment:  390
+>> >> completed segment:  391
+>> >> completed segment:  392
+>> >> completed segment:  393
+>> >> completed segment:  394
+>> >> completed segment:  395
+>> >> completed segment:  396
+>> >> completed segment:  397
+>> >> completed segment:  398
+>> >> completed segment:  399
+>> >> completed segment:  400
+>> >> completed segment:  401
+>> >> completed segment:  402
+>> >> completed segment:  403
+>> >> completed segment:  404
+>> >> completed segment:  405
+>> >> completed segment:  406
+>> >> completed segment:  407
+>> >> completed segment:  408
+>> >> completed segment:  409
+>> >> completed segment:  410
+>> >> completed segment:  411
+>> >> completed segment:  412
+>> >> completed segment:  413
+>> >> completed segment:  414
+>> >> completed segment:  415
+>> >> completed segment:  416
+>> >> completed segment:  417
+>> >> completed segment:  418
+>> >> completed segment:  419
+>> >> completed segment:  420
+>> >> completed segment:  421
+>> >> completed segment:  422
+>> >> completed segment:  423
+>> >> completed segment:  424
+>> >> completed segment:  425
+>> >> completed segment:  426
+>> >> completed segment:  427
+>> >> completed segment:  428
+>> >> completed segment:  429
+>> >> completed segment:  430
+>> >> completed segment:  431
+>> >> completed segment:  432
+>> >> completed segment:  433
+>> >> completed segment:  434
+>> >> completed segment:  435
+>> >> completed segment:  436
+>> >> completed segment:  437
+>> >> completed segment:  438
+>> >> completed segment:  439
+>> >> completed segment:  440
+>> >> completed segment:  441
+>> >> completed segment:  442
+>> >> completed segment:  443
+>> >> completed segment:  444
+>> >> completed segment:  445
+>> >> completed segment:  446
+>> >> completed segment:  447
+>> >> completed segment:  448
+>> >> completed segment:  449
+>> >> completed segment:  450
+>> >> completed segment:  451
+>> >> completed segment:  452
+>> >> completed segment:  453
+>> >> completed segment:  454
+>> >> completed segment:  455
+>> >> completed segment:  456
+>> >> completed segment:  457
+>> >> completed segment:  458
+>> >> completed segment:  459
+>> >> completed segment:  460
+>> >> completed segment:  461
+>> >> completed segment:  462
+>> done renaming file: /home/annorion/Videos/_temp_invin.mkv ... to: /home/annorion/Videos/invin.mkv
+>> file_manager 64: quitting
+>> File: "invin.mkv", completed.
+>> brain 64: quitting
+>> running command: xdg-open "/home/annorion/Videos"
+>> D:  id: 62 
+_name: invin.mkv 
+ext:  
+folder: /home/annorion/Videos 
+url: http://localhost/lite/invin.mkv 
+eff_url: http://localhost/lite/invin.mkv 
+playlist_url:  
+size: 242841283 
+resumable: True 
+type: N/A 
+_segment_size: 524288 
+live_connections: 0 
+_downloaded: 242841283 
+_status: completed 
+remaining_parts: 1 
+q: <modules.downloaditem.Communication object at 0x7001ed2de240> 
+status_code: 0 
+status_code_description:  
+animation_index: 0 
+audio_stream: None 
+audio_url: None 
+audio_size: 0 
+is_audio: False 
+callback:  
+sched: None 
+schedule_retries: 0 
+_speed: 0 
+prev_downloaded_value: 0 
+speed_buffer: deque([]) 
+speed_timer: 0 
+speed_refresh_rate: 1 
+_segments: [] 
+fragment_base_url: None 
+fragments: None 
+audio_fragment_base_url: None 
+audio_fragments: None 
+protocol:  
+format_id: None 
+audio_format_id: None 
+last_known_size: 242841283 
+last_known_progress: 100 
+animation_timer: 1745431467.8547316 
+manifest_url:  
+in_queue: True 
+queue_name: Videos 
+queue_position: 2 
+queue_id: 554cfab3 
+
+>> Opening completed file: /home/annorion/Videos/invin.mkv
+>> New URL set: https://www.youtube.com/watch?v=p1wcByRd4js
+>> Extracting info for URL: https://www.youtube.com/watch?v=p1wcByRd4js
+>> [youtube] Extracting URL: https://www.youtube.com/watch?v=p1wcByRd4js
+>> [youtube] p1wcByRd4js: Downloading webpage
+>> [youtube] p1wcByRd4js: Downloading ios player API JSON
+>> [youtube] p1wcByRd4js: Downloading mweb player API JSON
+>> [youtube] p1wcByRd4js: Downloading player 6450230e
+>> [youtube] Falling back to generic n function search
+         player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: nsig extraction failed: Some formats may be missing
+         n = 89lqpvlZGrft_JNx ; player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] Falling back to generic n function search
+         player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: nsig extraction failed: Some formats may be missing
+         n = UTI99UYNUGioXXzo ; player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: Downloading m3u8 information
+>> [info] Available formats for p1wcByRd4js:
+>> [youtube] Extracting URL: https://www.youtube.com/watch?v=p1wcByRd4js
+>> [youtube] p1wcByRd4js: Downloading webpage
+>> [youtube] p1wcByRd4js: Downloading ios player API JSON
+>> [youtube] p1wcByRd4js: Downloading mweb player API JSON
+>> [youtube] p1wcByRd4js: Downloading player 6450230e
+>> [youtube] Falling back to generic n function search
+         player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: nsig extraction failed: Some formats may be missing
+         n = wVme3nDmQET77Yef ; player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] Falling back to generic n function search
+         player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: nsig extraction failed: Some formats may be missing
+         n = 8CPRkvXroboy66h3 ; player = https://www.youtube.com/s/player/6450230e/player_ias.vflset/en_US/base.js
+>> [youtube] p1wcByRd4js: Downloading m3u8 information
+>> [info] Available formats for p1wcByRd4js:
+>> Updating playlist menu
+>> Updating stream menu
+>>       ›  mp4 - 0 - ...
+>> Stream '      ›  mp4 - 1080 - ...' selected for video Re_Zero Witch Cult Hierarchy_Relationships Tree
+>> Stream '      ›  mp4 - 1080 - ...' is already selected. No update needed.
+>> process_thumbnail()> error b64decode() missing 1 required positional argument: 's'
+>> Updating stream menu
+>> Warning: Selected stream '' is not valid, defaulting to the first stream.
+>>       ›  mp4 - 0 - ...
+>> Stream '      ›  mp4 - 1080 - ...' selected for video Re_Zero Witch Cult Hierarchy_Relationships Tree
+>> Stream '      ›  mp4 - 1080 - ...' is already selected. No update needed.
+>> Stream '      ›  mp4 - 1080 - ...' is already selected. No update needed.
+>>       ›  mp4 - 0 - ...
+>> Stream '      ›  mp4 - 720 - ...' selected for video Re_Zero Witch Cult Hierarchy_Relationships Tree
+>> Checking FFmpeg availability...
+>> Error while checking directories: [Errno 2] No such file or directory: '/home/annorion/.config/OmniPull/'
+>> FFmpeg checked OK! - at:  /usr/bin/ffmpeg
+>> brain() started for: Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4 | current status: cancelled
 >> ----------------------------------------------------------------------------------------------------
->> start downloading file: "invin.mkv", size: ..., to: /home/annorion/Videos
->> thread_manager 63: quitting
->> file_manager 63: quitting
+>> start downloading file: "Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4", size: ..., to: /home/annorion/Videos
+>> pre_process_hls()> start processing Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> download()> downloading https://manifest.googlevideo.com/api/manifest/hls_variant/expire/1745453268/ei/dCwJaNxKp9KL2g-aoNihDQ/ip/129.122.48.177/id/a75c1c07245de23b/source/youtube/requiressl/yes/xpc/EgVo2aDSNQ%3D%3D/playback_host/rr2---sn-8vq54voxbi5o5-5jjz.googlevideo.com/met/1745431668%2C/mh/gD/mm/31%2C29/mn/sn-8vq54voxbi5o5-5jjz%2Csn-avn7ln7e/ms/au%2Crdu/mv/m/mvi/2/pl/21/rms/au%2Cau/tx/51437495/txs/51437492%2C51437493%2C51437494%2C51437495/hfr/1/demuxed/1/tts_caps/1/maudio/1/initcwndbps/801250/bui/AccgBcO5V5S2lkKpalf52RhlORWSmCSEc6N_5H0wkHYr1u_v3NOMy8gWg9eZd4QNPoJYn-5ppfqL93Ei/spc/_S3wKmpUomR_2tz7aWLiAHaiSYpUJQDXm7LK0qZOwuWIBvyoPZjX2PC3aGE/vprv/1/go/1/rqh/5/mt/1745431044/fvip/2/nvgoi/1/short_key/1/ncsapi/1/keepalive/yes/dover/13/itag/0/playlist_type/DVR/sparams/expire%2Cei%2Cip%2Cid%2Csource%2Crequiressl%2Cxpc%2Ctx%2Ctxs%2Chfr%2Cdemuxed%2Ctts_caps%2Cmaudio%2Cbui%2Cspc%2Cvprv%2Cgo%2Crqh%2Citag%2Cplaylist_type/sig/AJfQdSswRAIgfWBIejCHQ38c2aQLan2QMYVpIQAMcifgXqgfR2IbMWYCIEY6jt4Vkfc9GrVGdB7odJFMFFs3COBjgw1Sk5aDpQZC/lsparams/playback_host%2Cmet%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps/lsig/ACuhMU0wRgIhAJ76Mmtu7XKgdkba6a2pe6PuBQNFuRNHMNzOcOQ5Gm8LAiEA9zQ3wRCmuOIR8Bs76NRxRC0WZSzy49crRqRMQThio0I%3D/file/index.m3u8 
+
+>> download(): done downloading
+>> download()> downloading https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1745453268/ei/dCwJaNxKp9KL2g-aoNihDQ/ip/129.122.48.177/id/a75c1c07245de23b/itag/609/source/youtube/requiressl/yes/ratebypass/yes/pfa/1/wft/1/sgovp/clen%3D24378403%3Bdur%3D745.011%3Bgir%3Dyes%3Bitag%3D247%3Blmt%3D1729490909451573/rqh/1/hls_chunk_host/rr2---sn-8vq54voxbi5o5-5jjz.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/met/1745431668,/mh/gD/mm/31,29/mn/sn-8vq54voxbi5o5-5jjz,sn-avn7ln7e/ms/au,rdu/mv/m/mvi/2/pl/21/rms/au,au/initcwndbps/801250/bui/AccgBcO5V5S2lkKpalf52RhlORWSmCSEc6N_5H0wkHYr1u_v3NOMy8gWg9eZd4QNPoJYn-5ppfqL93Ei/spc/_S3wKmpUomR_2tz7aWLiAHaiSYpUJQDXm7LK0qZOwuWIBvyoPZjX2PC3aGE/vprv/1/playlist_type/DVR/dover/13/txp/530F224/mt/1745431044/fvip/2/short_key/1/keepalive/yes/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,pfa,wft,sgovp,rqh,xpc,bui,spc,vprv,playlist_type/sig/AJfQdSswRAIgcekhN7lFawpyxYVrA9RwYIge7FfMQ54LwWICGOBN4UcCIA2-HP58b4xlmMu1c_e9KfGnFjLC6TxTycgdtkIIGCZ1/lsparams/hls_chunk_host,met,mh,mm,mn,ms,mv,mvi,pl,rms,initcwndbps/lsig/ACuhMU0wRgIhANoF1itAi6hEiTYvpv_HrijY0nyIkfIqKpW6cbdiojS_AiEAzGFKWFFQgQsP_YRkDGv2f75kQ_hWFkHZ6olk2ThuhMU%3D/playlist/index.m3u8 
+
+>> download(): done downloading
+>> download()> downloading https://manifest.googlevideo.com/api/manifest/hls_playlist/expire/1745453268/ei/dCwJaNxKp9KL2g-aoNihDQ/ip/129.122.48.177/id/a75c1c07245de23b/itag/234/source/youtube/requiressl/yes/ratebypass/yes/pfa/1/goi/133/sgoap/clen%3D12059117%3Bdur%3D745.081%3Bgir%3Dyes%3Bitag%3D140%3Blmt%3D1729490899857527/rqh/1/hls_chunk_host/rr2---sn-8vq54voxbi5o5-5jjz.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/met/1745431668,/mh/gD/mm/31,29/mn/sn-8vq54voxbi5o5-5jjz,sn-avn7ln7e/ms/au,rdu/mv/m/mvi/2/pl/21/rms/au,au/initcwndbps/801250/bui/AccgBcO5V5S2lkKpalf52RhlORWSmCSEc6N_5H0wkHYr1u_v3NOMy8gWg9eZd4QNPoJYn-5ppfqL93Ei/spc/_S3wKmpUomR_2tz7aWLiAHaiSYpUJQDXm7LK0qZOwuWIBvyoPZjX2PC3aGE/vprv/1/playlist_type/DVR/dover/13/txp/5318224/mt/1745431044/fvip/2/short_key/1/keepalive/yes/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,pfa,goi,sgoap,rqh,xpc,bui,spc,vprv,playlist_type/sig/AJfQdSswRQIhAKE0UYwdE_rSbl3h69tziw2SyUHJfMs1ZqtnoHCmJ8f6AiAgvbPm3JvZ0FPIy0PbnyAR5NoXREWUA9c-ESUPzu4Xag%3D%3D/lsparams/hls_chunk_host,met,mh,mm,mn,ms,mv,mvi,pl,rms,initcwndbps/lsig/ACuhMU0wRQIhAM95YNbgGovKtPUqsxbjJNtRCjHI1jUbVRxrzg1-f4UgAiAyAgT5nJQa71wrwCxDGq9l5OD9-ImR7Y2stsjARevT9g%3D%3D/playlist/index.m3u8 
+
+>> download(): done downloading
+>> pre_process_hls()> done processing Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> >> completed segment:  0.ts
+>> >> completed segment:  1.ts
+>> >> completed segment:  2.ts
+>> >> completed segment:  3.ts
+>> >> completed segment:  4.ts
+>> >> completed segment:  5.ts
+>> >> completed segment:  6.ts
+>> >> completed segment:  7.ts
+>> >> completed segment:  8.ts
+>> >> completed segment:  9.ts
+>> >> completed segment:  10.ts
+>> >> completed segment:  11.ts
+>> >> completed segment:  12.ts
+>> >> completed segment:  13.ts
+>> >> completed segment:  14.ts
+>> >> completed segment:  15.ts
+>> >> completed segment:  16.ts
+>> >> completed segment:  17.ts
+>> >> completed segment:  18.ts
+>> >> completed segment:  19.ts
+>> >> completed segment:  20.ts
+>> >> completed segment:  21.ts
+>> >> completed segment:  22.ts
+>> >> completed segment:  23.ts
+>> >> completed segment:  24.ts
+>> >> completed segment:  25.ts
+>> >> completed segment:  26.ts
+>> >> completed segment:  27.ts
+>> >> completed segment:  28.ts
+>> >> completed segment:  29.ts
+>> >> completed segment:  30.ts
+>> >> completed segment:  31.ts
+>> >> completed segment:  32.ts
+>> >> completed segment:  33.ts
+>> >> completed segment:  34.ts
+>> >> completed segment:  35.ts
+>> >> completed segment:  36.ts
+>> >> completed segment:  37.ts
+>> >> completed segment:  38.ts
+>> >> completed segment:  39.ts
+>> >> completed segment:  40.ts
+>> >> completed segment:  41.ts
+>> >> completed segment:  42.ts
+>> >> completed segment:  43.ts
+>> >> completed segment:  44.ts
+>> >> completed segment:  45.ts
+>> >> completed segment:  46.ts
+>> >> completed segment:  47.ts
+>> >> completed segment:  48.ts
+>> >> completed segment:  49.ts
+>> >> completed segment:  50.ts
+>> >> completed segment:  51.ts
+>> >> completed segment:  52.ts
+>> >> completed segment:  53.ts
+>> >> completed segment:  54.ts
+>> >> completed segment:  55.ts
+>> >> completed segment:  56.ts
+>> >> completed segment:  57.ts
+>> >> completed segment:  58.ts
+>> >> completed segment:  59.ts
+>> >> completed segment:  60.ts
+>> >> completed segment:  61.ts
+>> >> completed segment:  62.ts
+>> >> completed segment:  63.ts
+>> >> completed segment:  64.ts
+>> >> completed segment:  65.ts
+>> >> completed segment:  66.ts
+>> >> completed segment:  67.ts
+>> >> completed segment:  68.ts
+>> >> completed segment:  69.ts
+>> >> completed segment:  70.ts
+>> >> completed segment:  71.ts
+>> >> completed segment:  72.ts
+>> >> completed segment:  73.ts
+>> >> completed segment:  74.ts
+>> >> completed segment:  75.ts
+>> >> completed segment:  76.ts
+>> >> completed segment:  77.ts
+>> >> completed segment:  78.ts
+>> >> completed segment:  79.ts
+>> >> completed segment:  80.ts
+>> >> completed segment:  81.ts
+>> >> completed segment:  82.ts
+>> >> completed segment:  83.ts
+>> >> completed segment:  84.ts
+>> >> completed segment:  85.ts
+>> >> completed segment:  86.ts
+>> >> completed segment:  87.ts
+>> >> completed segment:  88.ts
+>> >> completed segment:  89.ts
+>> >> completed segment:  90.ts
+>> >> completed segment:  91.ts
+>> >> completed segment:  92.ts
+>> >> completed segment:  93.ts
+>> >> completed segment:  94.ts
+>> >> completed segment:  95.ts
+>> >> completed segment:  96.ts
+>> >> completed segment:  97.ts
+>> >> completed segment:  98.ts
+>> >> completed segment:  99.ts
+>> >> completed segment:  100.ts
+>> >> completed segment:  101.ts
+>> >> completed segment:  102.ts
+>> >> completed segment:  103.ts
+>> >> completed segment:  104.ts
+>> >> completed segment:  105.ts
+>> >> completed segment:  106.ts
+>> >> completed segment:  107.ts
+>> >> completed segment:  108.ts
+>> >> completed segment:  109.ts
+>> >> completed segment:  110.ts
+>> >> completed segment:  111.ts
+>> >> completed segment:  112.ts
+>> >> completed segment:  113.ts
+>> >> completed segment:  114.ts
+>> >> completed segment:  115.ts
+>> >> completed segment:  116.ts
+>> >> completed segment:  117.ts
+>> >> completed segment:  118.ts
+>> >> completed segment:  119.ts
+>> >> completed segment:  120.ts
+>> >> completed segment:  121.ts
+>> >> completed segment:  122.ts
+>> >> completed segment:  123.ts
+>> >> completed segment:  124.ts
+>> >> completed segment:  125.ts
+>> >> completed segment:  126.ts
+>> >> completed segment:  127.ts
+>> >> completed segment:  128.ts
+>> >> completed segment:  129.ts
+>> >> completed segment:  130.ts
+>> >> completed segment:  131.ts
+>> >> completed segment:  132.ts
+>> >> completed segment:  133.ts
+>> >> completed segment:  134.ts
+>> >> completed segment:  135.ts
+>> >> completed segment:  136.ts
+>> >> completed segment:  137.ts
+>> >> completed segment:  138.ts
+>> >> completed segment:  139.ts
+>> >> completed segment:  140.ts
+>> >> completed segment:  141.ts
+>> >> completed segment:  142.ts
+>> >> completed segment:  143.ts
+>> >> completed segment:  144.ts
+>> >> completed segment:  145.ts
+>> >> completed segment:  146.ts
+>> >> completed segment:  147.ts
+>> >> completed segment:  148.ts
+>> >> completed segment:  0_audio.ts
+>> >> completed segment:  1_audio.ts
+>> >> completed segment:  2_audio.ts
+>> >> completed segment:  3_audio.ts
+>> >> completed segment:  4_audio.ts
+>> >> completed segment:  5_audio.ts
+>> >> completed segment:  6_audio.ts
+>> >> completed segment:  7_audio.ts
+>> >> completed segment:  8_audio.ts
+>> >> completed segment:  9_audio.ts
+>> >> completed segment:  10_audio.ts
+>> >> completed segment:  11_audio.ts
+>> >> completed segment:  12_audio.ts
+>> >> completed segment:  13_audio.ts
+>> >> completed segment:  14_audio.ts
+>> >> completed segment:  15_audio.ts
+>> >> completed segment:  16_audio.ts
+>> >> completed segment:  17_audio.ts
+>> >> completed segment:  18_audio.ts
+>> >> completed segment:  19_audio.ts
+>> >> completed segment:  20_audio.ts
+>> >> completed segment:  21_audio.ts
+>> >> completed segment:  22_audio.ts
+>> >> completed segment:  23_audio.ts
+>> >> completed segment:  24_audio.ts
+>> >> completed segment:  25_audio.ts
+>> >> completed segment:  26_audio.ts
+>> >> completed segment:  27_audio.ts
+>> >> completed segment:  28_audio.ts
+>> >> completed segment:  29_audio.ts
+>> >> completed segment:  30_audio.ts
+>> >> completed segment:  31_audio.ts
+>> >> completed segment:  32_audio.ts
+>> >> completed segment:  33_audio.ts
+>> >> completed segment:  34_audio.ts
+>> >> completed segment:  35_audio.ts
+>> >> completed segment:  36_audio.ts
+>> >> completed segment:  37_audio.ts
+>> >> completed segment:  38_audio.ts
+>> >> completed segment:  39_audio.ts
+>> >> completed segment:  40_audio.ts
+>> >> completed segment:  41_audio.ts
+>> >> completed segment:  42_audio.ts
+>> >> completed segment:  43_audio.ts
+>> >> completed segment:  44_audio.ts
+>> >> completed segment:  45_audio.ts
+>> >> completed segment:  46_audio.ts
+>> >> completed segment:  47_audio.ts
+>> >> completed segment:  48_audio.ts
+>> >> completed segment:  49_audio.ts
+>> >> completed segment:  50_audio.ts
+>> >> completed segment:  51_audio.ts
+>> >> completed segment:  52_audio.ts
+>> >> completed segment:  53_audio.ts
+>> >> completed segment:  54_audio.ts
+>> >> completed segment:  55_audio.ts
+>> >> completed segment:  56_audio.ts
+>> >> completed segment:  57_audio.ts
+>> >> completed segment:  58_audio.ts
+>> >> completed segment:  59_audio.ts
+>> >> completed segment:  60_audio.ts
+>> >> completed segment:  61_audio.ts
+>> >> completed segment:  62_audio.ts
+>> >> completed segment:  63_audio.ts
+>> >> completed segment:  64_audio.ts
+>> >> completed segment:  65_audio.ts
+>> >> completed segment:  66_audio.ts
+>> >> completed segment:  67_audio.ts
+>> >> completed segment:  68_audio.ts
+>> >> completed segment:  69_audio.ts
+>> >> completed segment:  70_audio.ts
+>> >> completed segment:  71_audio.ts
+>> >> completed segment:  72_audio.ts
+>> >> completed segment:  73_audio.ts
+>> >> completed segment:  74_audio.ts
+>> >> completed segment:  75_audio.ts
+>> >> completed segment:  76_audio.ts
+>> >> completed segment:  77_audio.ts
+>> >> completed segment:  78_audio.ts
+>> >> completed segment:  79_audio.ts
+>> >> completed segment:  80_audio.ts
+>> >> completed segment:  81_audio.ts
+>> >> completed segment:  82_audio.ts
+>> >> completed segment:  83_audio.ts
+>> >> completed segment:  84_audio.ts
+>> >> completed segment:  85_audio.ts
+>> >> completed segment:  86_audio.ts
+>> >> completed segment:  87_audio.ts
+>> >> completed segment:  88_audio.ts
+>> >> completed segment:  89_audio.ts
+>> >> completed segment:  90_audio.ts
+>> >> completed segment:  91_audio.ts
+>> >> completed segment:  92_audio.ts
+>> >> completed segment:  93_audio.ts
+>> >> completed segment:  94_audio.ts
+>> >> completed segment:  95_audio.ts
+>> >> completed segment:  96_audio.ts
+>> >> completed segment:  97_audio.ts
+>> >> completed segment:  98_audio.ts
+>> >> completed segment:  99_audio.ts
+>> >> completed segment:  100_audio.ts
+>> >> completed segment:  101_audio.ts
+>> >> completed segment:  102_audio.ts
+>> >> completed segment:  103_audio.ts
+>> >> completed segment:  104_audio.ts
+>> >> completed segment:  105_audio.ts
+>> >> completed segment:  106_audio.ts
+>> >> completed segment:  107_audio.ts
+>> >> completed segment:  108_audio.ts
+>> >> completed segment:  109_audio.ts
+>> >> completed segment:  110_audio.ts
+>> >> completed segment:  111_audio.ts
+>> >> completed segment:  112_audio.ts
+>> >> completed segment:  113_audio.ts
+>> >> completed segment:  114_audio.ts
+>> >> completed segment:  115_audio.ts
+>> >> completed segment:  116_audio.ts
+>> >> completed segment:  117_audio.ts
+>> >> completed segment:  118_audio.ts
+>> >> completed segment:  119_audio.ts
+>> >> completed segment:  120_audio.ts
+>> >> completed segment:  121_audio.ts
+>> >> completed segment:  122_audio.ts
+>> >> completed segment:  123_audio.ts
+>> >> completed segment:  124_audio.ts
+>> >> completed segment:  125_audio.ts
+>> >> completed segment:  126_audio.ts
+>> >> completed segment:  127_audio.ts
+>> >> completed segment:  128_audio.ts
+>> >> completed segment:  129_audio.ts
+>> >> completed segment:  130_audio.ts
+>> >> completed segment:  131_audio.ts
+>> >> completed segment:  132_audio.ts
+>> >> completed segment:  133_audio.ts
+>> >> completed segment:  134_audio.ts
+>> >> completed segment:  135_audio.ts
+>> >> completed segment:  136_audio.ts
+>> >> completed segment:  137_audio.ts
+>> thread_manager 64: quitting
+>> >> completed segment:  138_audio.ts
+>> >> completed segment:  139_audio.ts
+>> >> completed segment:  140_audio.ts
+>> >> completed segment:  141_audio.ts
+>> >> completed segment:  142_audio.ts
+>> >> completed segment:  143_audio.ts
+>> >> completed segment:  144_audio.ts
+>> >> completed segment:  145_audio.ts
+>> >> completed segment:  146_audio.ts
+>> >> completed segment:  147_audio.ts
+>> >> completed segment:  148_audio.ts
+>> handling hls videos
+>> post_process_hls()> start processing Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> running command: "/usr/bin/ffmpeg" -y -protocol_whitelist "file,http,https,tcp,tls,crypto"  -allowed_extensions ALL -i "/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/local_video.m3u8" -c copy -f mp4 "file:/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4"
+>> ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+>> built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+>> configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+>> libavutil      58. 29.100 / 58. 29.100
+>> libavcodec     60. 31.102 / 60. 31.102
+>> libavformat    60. 16.100 / 60. 16.100
+>> libavdevice    60.  3.100 / 60.  3.100
+>> libavfilter     9. 12.100 /  9. 12.100
+>> libswscale      7.  5.100 /  7.  5.100
+>> libswresample   4. 12.100 /  4. 12.100
+>> libpostproc    57.  3.100 / 57.  3.100
+>> [hls @ 0x59c646f758c0] Skip ('#EXT-X-VERSION:6')
+>> [hls @ 0x59c646f758c0] Opening 'https://rr2---sn-8vq54voxbi5o5-5jjz.googlevideo.com/videoplayback/id/a75c1c07245de23b/itag/609/source/youtube/expire/1745453268/ei/dCwJaNxKp9KL2g-aoNihDQ/ip/129.122.48.177/requiressl/yes/ratebypass/yes/pfa/1/wft/1/sgovp/clen%3D24378403%3Bdur%3D745.011%3Bgir%3Dyes%3Bitag%3D247%3Blmt%3D1729490909451573/rqh/1/hls_chunk_host/rr2---sn-8vq54voxbi5o5-5jjz.googlevideo.com/xpc/EgVo2aDSNQ%3D%3D/met/1745431668,/mh/gD/mm/31,29/mn/sn-8vq54voxbi5o5-5jjz,sn-avn7ln7e/ms/au,rdu/mv/m/mvi/2/pl/21/rms/au,au/initcwndbps/801250/bui/AccgBcO5V5S2lkKpalf52RhlORWSmCSEc6N_5H0wkHYr1u_v3NOMy8gWg9eZd4QNPoJYn-5ppfqL93Ei/spc/_S3wKmpUomR_2tz7aWLiAHaiSYpUJQDXm7LK0qZOwuWIBvyoPZjX2PC3aGE/vprv/1/playlist_type/DVR/txp/530F224/mt/1745431044/fvip/2/keepalive/yes/sparams/expire,ei,ip,id,itag,source,requiressl,ratebypass,pfa,wft,sgovp,rqh,xpc,bui,spc,vprv,playlist_type/sig/AJfQdSswRAIgcekhN7lFawpyxYVrA9RwYIge7FfMQ54LwWICGOBN4UcCIA2-HP58b4xlmMu1c_e9KfGnFjLC6TxTycgdtkIIGCZ1/lsparams/hls_chunk_host,met,mh,mm,mn,ms,mv,mvi,pl,rms,initcwndbps/lsig/ACuhMU0wRgIhANoF1itAi6hEiTYvpv_HrijY0nyIkfIqKpW6cbdiojS_AiEAzGFKWFFQgQsP_YRkDGv2f75kQ_hWFkHZ6olk2ThuhMU%3D/playlist/index.m3u8/govp/slices%3D0-18400/gosq/0?is=1&file=seg.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/0.ts' for reading
+>> Input #0, hls, from '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/local_video.m3u8':
+>> Duration: 00:12:25.01, start: 0.000000, bitrate: 0 kb/s
+>> Program 0
+>> Metadata:
+>> variant_bitrate : 0
+>> Stream #0:0(und): Video: vp9 (Profile 0) (vp09 / 0x39307076), yuv420p(tv, bt709), 1280x720, 23 kb/s, 29.97 fps, 29.97 tbr, 1k tbn (default)
+>> Metadata:
+>> variant_bitrate : 0
+>> compatible_brands: iso6mp41
+>> handler_name    : ISO Media file produced by Google Inc. Created on: 04/23/2025.
+>> vendor_id       : [0][0][0][0]
+>> major_brand     : dash
+>> minor_version   : 0
+>> creation_time   : 2025-04-23T18:09:04.000000Z
+>> Output #0, mp4, to 'file:/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4':
+>> Metadata:
+>> encoder         : Lavf60.16.100
+>> Stream #0:0(und): Video: vp9 (Profile 0) (vp09 / 0x39307076), yuv420p(tv, bt709), 1280x720, q=2-31, 23 kb/s, 29.97 fps, 29.97 tbr, 16k tbn (default)
+>> Metadata:
+>> variant_bitrate : 0
+>> compatible_brands: iso6mp41
+>> handler_name    : ISO Media file produced by Google Inc. Created on: 04/23/2025.
+>> vendor_id       : [0][0][0][0]
+>> major_brand     : dash
+>> minor_version   : 0
+>> creation_time   : 2025-04-23T18:09:04.000000Z
+>> Stream mapping:
+>> Stream #0:0 -> #0:0 (copy)
+>> Press [q] to stop, [?] for help
+>> size=       0kB time=00:00:00.00 bitrate=N/A speed=N/A
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/1.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/2.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/3.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/4.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/5.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/6.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/7.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/8.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/9.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/10.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/11.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/12.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/13.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/14.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/15.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/16.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/17.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/18.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/19.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/20.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/21.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/22.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/23.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/24.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/25.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/26.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/27.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/28.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/29.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/30.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/31.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/32.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/33.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/34.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/35.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/36.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/37.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/38.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/39.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/40.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/41.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/42.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/43.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/44.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/45.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/46.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/47.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/48.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/49.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/50.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/51.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/52.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/53.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/54.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/55.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/56.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/57.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/58.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/59.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/60.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/61.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/62.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/63.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/64.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/65.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/66.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/67.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/68.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/69.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/70.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/71.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/72.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/73.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/74.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/75.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/76.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/77.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/78.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/79.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/80.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/81.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/82.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/83.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/84.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/85.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/86.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/87.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/88.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/89.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/90.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/91.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/92.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/93.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/94.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/95.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/96.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/97.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/98.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/99.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/100.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/101.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/102.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/103.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/104.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/105.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/106.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/107.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/108.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/109.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/110.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/111.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/112.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/113.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/114.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/115.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/116.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/117.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/118.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/119.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/120.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/121.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/122.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/123.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/124.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/125.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/126.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/127.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/128.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/129.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/130.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/131.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/132.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/133.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/134.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/135.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/136.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/137.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/138.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/139.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/140.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/141.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/142.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/143.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/144.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/145.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/146.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/147.ts' for reading
+>> [hls @ 0x59c646f758c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/148.ts' for reading
+>> [out#0/mp4 @ 0x59c647361700] video:23656kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.917032%
+>> size=   23873kB time=00:12:24.97 bitrate= 262.5kbits/s speed=1.05e+03x
+>> running command: "/usr/bin/ffmpeg" -y -protocol_whitelist "file,http,https,tcp,tls,crypto"  -allowed_extensions ALL -i "/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/local_audio.m3u8" -c copy -f mp4 "file:/home/annorion/Videos/audio_for_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4"
+>> ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+>> built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+>> configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+>> libavutil      58. 29.100 / 58. 29.100
+>> libavcodec     60. 31.102 / 60. 31.102
+>> libavformat    60. 16.100 / 60. 16.100
+>> libavdevice    60.  3.100 / 60.  3.100
+>> libavfilter     9. 12.100 /  9. 12.100
+>> libswscale      7.  5.100 /  7.  5.100
+>> libswresample   4. 12.100 /  4. 12.100
+>> libpostproc    57.  3.100 / 57.  3.100
+>> [hls @ 0x5634dda468c0] Skip ('#EXT-X-VERSION:3')
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/0_audio.ts' for reading
+>> Input #0, hls, from '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/local_audio.m3u8':
+>> Duration: 00:12:25.01, start: 0.000000, bitrate: 0 kb/s
+>> Program 0
+>> Metadata:
+>> variant_bitrate : 0
+>> Stream #0:0: Audio: aac (LC), 44100 Hz, stereo, fltp, 133 kb/s
+>> Metadata:
+>> variant_bitrate : 0
+>> id3v2_priv.com.apple.streaming.transportStreamTimestamp: \x00\x00\x00\x00\x00\x00\x00\x00
+>> Output #0, mp4, to 'file:/home/annorion/Videos/audio_for_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4':
+>> Metadata:
+>> encoder         : Lavf60.16.100
+>> Stream #0:0: Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 133 kb/s
+>> Metadata:
+>> variant_bitrate : 0
+>> id3v2_priv.com.apple.streaming.transportStreamTimestamp: \x00\x00\x00\x00\x00\x00\x00\x00
+>> Stream mapping:
+>> Stream #0:0 -> #0:0 (copy)
+>> Press [q] to stop, [?] for help
+>> size=       0kB time=00:00:00.00 bitrate=N/A speed=N/A
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/1_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/2_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/3_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/4_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/5_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/6_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/7_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/8_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/9_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/10_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/11_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/12_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/13_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/14_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/15_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/16_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/17_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/18_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/19_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/20_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/21_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/22_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/23_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/24_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/25_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/26_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/27_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/28_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/29_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/30_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/31_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/32_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/33_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/34_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/35_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/36_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/37_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/38_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/39_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/40_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/41_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/42_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/43_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/44_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/45_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/46_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/47_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/48_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/49_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/50_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/51_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/52_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/53_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/54_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/55_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/56_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/57_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/58_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/59_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/60_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/61_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/62_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/63_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/64_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/65_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/66_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/67_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/68_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/69_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/70_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/71_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/72_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/73_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/74_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/75_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/76_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/77_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/78_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/79_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/80_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/81_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/82_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/83_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/84_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/85_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/86_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/87_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/88_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/89_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/90_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/91_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/92_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/93_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/94_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/95_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/96_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/97_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/98_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/99_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/100_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/101_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/102_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/103_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/104_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/105_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/106_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/107_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/108_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/109_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/110_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/111_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/112_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/113_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/114_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/115_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/116_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/117_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/118_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/119_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/120_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/121_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/122_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/123_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/124_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/125_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/126_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/127_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/128_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/129_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/130_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/131_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/132_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/133_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/134_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/135_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/136_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/137_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/138_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/139_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/140_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/141_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/142_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/143_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/144_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/145_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/146_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/147_audio.ts' for reading
+>> [hls @ 0x5634dda468c0] Opening '/home/annorion/Videos/_temp_Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4_parts_/148_audio.ts' for reading
+>> [out#0/mp4 @ 0x5634dda5c4c0] video:0kB audio:11860kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+>> size=   11815kB time=00:12:24.98 bitrate= 129.9kbits/s speed=2.49e+03x
+>> post_process_hls()> done processing Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> handling dash videos
+>> merging video and audio
+>> done merging video and audio for:  /home/annorion/Videos/Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> done renaming file: /home/annorion/Videos/Re_Zero_Witch_Cult_Hierarchy_Relationships_Tree.mp4 ... to: /home/annorion/Videos/Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4
+>> file_manager 64: quitting
+>> File: "Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4", completed.
+>> brain 64: quitting
+>> Opening completed file: /home/annorion/Videos/Re_Zero Witch Cult Hierarchy_Relationships Tree.mp4

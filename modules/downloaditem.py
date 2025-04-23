@@ -374,6 +374,9 @@ class DownloadItem:
 
     @status.setter
     def status(self, value):
+        # import traceback
+        # print(f"[status debug] {self.name} changing status from {self._status} to {value}")
+        # traceback.print_stack(limit=3)  # See where it's coming from
         self._status = value
 
     @property
