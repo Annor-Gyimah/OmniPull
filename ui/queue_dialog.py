@@ -4,8 +4,8 @@ from PySide6.QtWidgets import (
     QLineEdit, QSpinBox, QCheckBox, QTimeEdit, QTabWidget, QWidget, QFrame, QGroupBox,
     QListWidgetItem, QTableWidgetItem, QMessageBox,
 )
-from PySide6.QtCore import Qt, QTime
-from PySide6.QtCore import QObject, QThread, Signal, Slot, QTime, Qt
+from PySide6.QtCore import QThread, Slot, QTime, Qt
+from PySide6.QtGui import QIcon
 
 from modules import setting, config, brain
 from threading import Thread
@@ -113,6 +113,14 @@ class QueueDialog(QDialog):
                 margin: 0px;
                 border: none;
             }
+                           
+            QToolTip {
+                color: white;
+                background-color: #444444;
+                border: 1px solid white;
+                padding: 4px;
+                border-radius: 4px;
+            }
         """)
 
         # self.queues = []  # or use a dict if storing config too: self.queues = {}
@@ -206,7 +214,15 @@ class QueueDialog(QDialog):
 
         self.queue_items_table = QTableWidget()
         self.queue_items_table.setColumnCount(5)
-        self.queue_items_table.setHorizontalHeaderLabels(["Pos", "Name", "Size", "Status"])
+        self.queue_items_table.setHorizontalHeaderLabels(["Pos", "Name", "Size", "Status", "Delete"])
+
+        # Optional: Set consistent column widths
+        self.queue_items_table.setColumnWidth(0, 40)   # Queue position
+        self.queue_items_table.setColumnWidth(1, 100)  # Name
+        self.queue_items_table.setColumnWidth(2, 100)  # Size
+        self.queue_items_table.setColumnWidth(3, 100)  # Status
+        self.queue_items_table.setColumnWidth(4, 20)   # Delete button
+        
         self.queue_items_table.verticalHeader().setVisible(False)
         self.queue_items_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.queue_items_table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -445,9 +461,58 @@ class QueueDialog(QDialog):
         # Update button label according to the queue's state
         if self.running_queues.get(self.current_queue_id, False):
             self.start_stop_queue_btn.setText("Stop Queue")
+            self.delete_button.setEnabled(False)
+            self.name_edit.setEnabled(False)
+            self.max_spin.setEnabled(False)
+            self.auto_stop.setEnabled(False)
+            self.enable_sched.setEnabled(False)
+            self.start_time.setEnabled(False)
+
+            # 🚫 Disable move controls
+            self.up_button.setEnabled(False)
+            self.down_button.setEnabled(False)
+
         else:
             self.start_stop_queue_btn.setText("Start Queue")
+            self.delete_button.setEnabled(True)
+            self.name_edit.setEnabled(True)
+            self.max_spin.setEnabled(True)
+            self.auto_stop.setEnabled(True)
+            self.enable_sched.setEnabled(True)
+            self.start_time.setEnabled(True)
 
+            # ✅ Enable move controls
+            self.up_button.setEnabled(True)
+            self.down_button.setEnabled(True)
+
+
+
+    # def populate_queue_items(self):
+    #     self.queue_items_table.setRowCount(0)
+
+    #     # Get relevant downloads
+    #     items = [
+    #         d for d in self.d_list
+    #         if d.in_queue and d.queue_id == self.current_queue_id
+    #     ]
+
+    #     # Sort by queue position
+    #     items.sort(key=lambda d: d.queue_position)
+
+    #     self.queue_items_table.setRowCount(len(items))
+    #     btn = QPushButton("🗑")
+    #     btn.setFixedSize(30, 25)
+    #     btn.setStyleSheet("color: red; font-weight: bold;")
+    #     btn.clicked.connect(lambda _, row=row, item=item: self.delete_queue_item(item))
+    #     self.queue_items_table.setCellWidget(row, column_index, btn)
+
+
+
+    #     for row, d in enumerate(items):
+    #         self.queue_items_table.setItem(row, 0, QTableWidgetItem(str(d.queue_position)))
+    #         self.queue_items_table.setItem(row, 1, QTableWidgetItem(d.name))
+    #         self.queue_items_table.setItem(row, 2, QTableWidgetItem(f"{d.size/1024/1024:.2f} MB"))
+    #         self.queue_items_table.setItem(row, 3, QTableWidgetItem(str(d.status)))
 
     def populate_queue_items(self):
         self.queue_items_table.setRowCount(0)
@@ -469,6 +534,20 @@ class QueueDialog(QDialog):
             self.queue_items_table.setItem(row, 2, QTableWidgetItem(f"{d.size/1024/1024:.2f} MB"))
             self.queue_items_table.setItem(row, 3, QTableWidgetItem(str(d.status)))
 
+            btn = QPushButton()
+            btn.setIcon(QIcon.fromTheme("edit-delete"))
+            btn.setFixedSize(48, 28)
+            btn.setStyleSheet("background-color: transparent;")
+            btn.setToolTip("Delete this item")
+
+            if d.status == config.Status.downloading:
+                btn.setEnabled(False)
+
+            btn.clicked.connect(lambda _, item=d: self.delete_queue_item(item))
+            self.queue_items_table.setCellWidget(row, 4, btn)
+
+
+                
     
         
 
@@ -511,12 +590,32 @@ class QueueDialog(QDialog):
 
 
 
+    # def stop_queue_downloads(self):
+    #     for d in self.active_queue_threads:
+    #         d.status = config.Status.cancelled
+    #     self.active_queue_threads = []
+    #     setting.save_d_list(self.d_list)
+    #     self.populate_queue_items()
+
     def stop_queue_downloads(self):
-        for d in self.active_queue_threads:
-            d.status = config.Status.cancelled
-        self.active_queue_threads = []
+        queue_id = self.current_queue_id
+        self.queue_processing = False
+        self.running_queues[queue_id] = False
+
+        for d in self.d_list:
+            if d.in_queue and d.queue_id == queue_id:
+                if d.status in (config.Status.downloading, config.Status.pending):
+                    d.status = config.Status.cancelled
+
         setting.save_d_list(self.d_list)
         self.populate_queue_items()
+
+        # If a runner is active, terminate its thread safely
+        if hasattr(self, "queue_runner") and self.queue_runner:
+            self.queue_runner.paused = True  # acts like a soft kill
+        self.accept()
+
+
 
     def run_download_with_qthread(self, d):
         
@@ -626,23 +725,20 @@ class QueueDialog(QDialog):
         self.populate_queue_items()
         setting.save_d_list(self.d_list)
 
-        # Start next item in queue
-        # remaining = self.get_sorted_queue_items()
-        # next_item = None
-        # for item in remaining:
-        #     if item.status == config.Status.queued:
-        #         next_item = item
-        #         break
 
-        # if next_item:
-        #     self.current_running_item = next_item
-        #     # self.run_download_for_item(next_item)
-        # else:
-        #     self.queue_processing = False
-        #     self.running_queues[self.current_queue_id] = False
-        #     self.start_stop_queue_btn.setText("Start Queue")
-
-
+    def delete_queue_item(self, item):
+        confirm = QMessageBox.question(
+            self,
+            "Confirm Delete",
+            f"Are you sure you want to delete {item.name} from this queue?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if confirm == QMessageBox.Yes:
+            self.d_list.remove(item)
+            setting.save_d_list(self.d_list)
+            self.populate_queue_items()
+            if hasattr(self.parent(), "populate_table"):
+                self.parent().populate_table()
 
 
 
