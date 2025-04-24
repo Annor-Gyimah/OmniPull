@@ -24,7 +24,7 @@ try:
 except:
     print('pillow module is missing try to install it to display video thumbnails')
 
-from . import config
+from modules import config
 
 
 

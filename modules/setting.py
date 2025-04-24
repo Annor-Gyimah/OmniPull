@@ -3,9 +3,9 @@
 import os
 import json
 
-from . import config
-from . import downloaditem
-from .utils import log, handle_exceptions, update_object
+from modules import config
+from modules import downloaditem
+from modules.utils import log, handle_exceptions, update_object
 
 
 

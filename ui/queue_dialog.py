@@ -2,13 +2,16 @@
 from PySide6.QtWidgets import (
     QDialog, QListWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QLineEdit, QSpinBox, QCheckBox, QTimeEdit, QTabWidget, QWidget, QFrame, QGroupBox,
-    QListWidgetItem, QTableWidgetItem,
+    QListWidgetItem, QTableWidgetItem, QMessageBox,
 )
 from PySide6.QtCore import Qt, QTime
+from PySide6.QtCore import QObject, QThread, Signal, Slot, QTime, Qt
 
 from modules import setting, config, brain
 from threading import Thread
 from ui.download_window import DownloadWindow
+from ui.queue_runner import QueueRunner
+from ui.download_worker import DownloadWorker
 import os
 
 class QueueDialog(QDialog):
@@ -480,33 +483,31 @@ class QueueDialog(QDialog):
             self.start_stop_queue_btn.setText("Start Queue")
             self.stop_queue_downloads()
 
-        # if not self.queue_running:
-        #     self.queue_running = True
-        #     self.start_stop_queue_btn.setText("Stop Queue")
-        #     self.start_queue_downloads()
-        # else:
-        #     self.queue_running = False
-        #     self.start_stop_queue_btn.setText("Start Queue")
-        #     self.stop_queue_downloads()
-
-    
+   
 
     def start_queue_downloads(self):
-        config.queue_dialog = self  # inside QueueDialog before starting queue
         if self.queue_processing:
-            return  # Already running
+            return
 
         self.queue_processing = True
-        self.active_queue_threads = []
-
+        queue_id = self.current_queue_id
         items = self.get_sorted_queue_items()
         if not items:
             return
 
-        # Start only the first item
-        first_item = items[0]
-        self.current_running_item = first_item
-        self.run_download_for_item(first_item)
+        self.queue_runner = QueueRunner(queue_id, items, parent=self)
+        self.queue_runner.download_started.connect(self.on_first_download_started)
+        self.queue_runner.download_finished.connect(self.on_download_finished)
+        self.queue_runner.download_finished.connect(self.on_queue_item_finished)
+        self.queue_runner.queue_finished.connect(self.on_queue_finished)
+        self.queue_runner.start()
+
+        self.running_queues[queue_id] = True
+        self.start_stop_queue_btn.setText("Stop Queue")
+
+        self.accept()  # ✅ Closes the dialog right after queue starts
+
+
 
 
 
@@ -516,6 +517,83 @@ class QueueDialog(QDialog):
         self.active_queue_threads = []
         setting.save_d_list(self.d_list)
         self.populate_queue_items()
+
+    def run_download_with_qthread(self, d):
+        
+
+        
+
+        
+
+        self.download_thread = QThread()
+        self.download_worker = DownloadWorker(d)
+
+        self.download_worker.moveToThread(self.download_thread)
+        self.download_thread.started.connect(self.download_worker.run)
+
+
+        main_window = self.parent()
+        win = None
+        if config.show_download_window:
+            win = DownloadWindow(d)
+            main_window.download_windows[d.id] = win
+            win.show()
+
+        # Only connect signals if window is created
+        if win:
+            self.download_worker.progress_changed.connect(win.on_progress_changed)
+            self.download_worker.status_changed.connect(win.on_status_changed)
+            self.download_worker.log_updated.connect(win.on_log_updated)
+
+
+        # Connect signals back to main GUI thread
+        self.download_worker.finished.connect(self.on_download_finished)
+        self.download_worker.failed.connect(self.on_download_failed)
+
+        self.download_worker.finished.connect(self.download_thread.quit)
+        self.download_worker.failed.connect(self.download_thread.quit)
+        self.download_worker.finished.connect(self.download_worker.deleteLater)
+        self.download_worker.failed.connect(self.download_worker.deleteLater)
+        self.download_thread.finished.connect(self.download_thread.deleteLater)
+
+
+        self.download_thread.start()
+
+        
+
+    
+
+
+    # Example slot methods:
+    def on_download_finished(self, d):
+        print(f"[main] Download finished: {d.name}")
+        self.populate_queue_items()
+        setting.save_d_list(self.d_list)
+        self.on_queue_item_finished(d)  # <- call this here in on_download_finished()
+
+    @Slot(str)
+    def on_queue_finished(self, queue_id):
+        if queue_id == self.current_queue_id:
+            self.queue_processing = False
+            self.running_queues[self.current_queue_id] = False
+            self.start_stop_queue_btn.setText("Start Queue")
+
+
+        
+
+    @Slot(object)
+    def on_first_download_started(self, d):
+        if self.isVisible():
+            self.accept()  # ✅ This will close the dialog gracefully
+
+
+
+    def on_download_failed(self, d):
+        print(f"[main] Download failed or cancelled: {d.name}")
+        self.populate_queue_items()
+        setting.save_d_list(self.d_list)
+        
+
 
 
     def run_download_for_item(self, d):
@@ -541,7 +619,7 @@ class QueueDialog(QDialog):
         self.populate_queue_items()
         setting.save_d_list(self.d_list)
         self.active_queue_threads.append(d)
-        self.accept()
+        
 
     def on_queue_item_finished(self, d):
         self.current_running_item = None
@@ -549,19 +627,56 @@ class QueueDialog(QDialog):
         setting.save_d_list(self.d_list)
 
         # Start next item in queue
-        remaining = self.get_sorted_queue_items()
-        next_item = None
-        for item in remaining:
-            if item.status == config.Status.queued:
-                next_item = item
-                break
+        # remaining = self.get_sorted_queue_items()
+        # next_item = None
+        # for item in remaining:
+        #     if item.status == config.Status.queued:
+        #         next_item = item
+        #         break
 
-        if next_item:
-            self.current_running_item = next_item
-            self.run_download_for_item(next_item)
-        else:
-            self.queue_processing = False
-            self.running_queues[self.current_queue_id] = False
-            self.start_stop_queue_btn.setText("Start Queue")
+        # if next_item:
+        #     self.current_running_item = next_item
+        #     # self.run_download_for_item(next_item)
+        # else:
+        #     self.queue_processing = False
+        #     self.running_queues[self.current_queue_id] = False
+        #     self.start_stop_queue_btn.setText("Start Queue")
 
+
+
+
+
+
+
+
+# class DownloadWorker(QObject):
+#     finished = Signal(object)
+#     failed = Signal(object)
+
+#     progress_changed = Signal(float)
+#     status_changed = Signal(str)
+#     log_updated = Signal(str)
+
+#     def __init__(self, download_item):
+#         super().__init__()
+#         self.d = download_item
+
+#     @Slot()
+#     def run(self):
+#         try:
+#             print(f"[worker] Starting download for: {self.d.name}")
+#             self.d.update(self.d.url)  # ensure segments are initialized
+#             os.makedirs(self.d.temp_folder, exist_ok=True)
+#             brain.brain(self.d)
+
+#             if self.d.status == config.Status.cancelled:
+#                 print(f"[worker] Download cancelled: {self.d.name}")
+#                 self.failed.emit(self.d)
+#             else:
+#                 print(f"[worker] Download completed: {self.d.name}")
+#                 self.finished.emit(self.d)
+
+#         except Exception as e:
+#             print(f"[worker] Exception: {e}")
+#             self.failed.emit(self.d)
 

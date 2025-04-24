@@ -921,4 +921,68 @@
 #             except Exception as e:
 #                 log(f"Error updating progress bar at row {row}: {e}")
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class QueueRunner(QObject):
+#     queue_finished = Signal(str)  # queue_id
+#     download_started = Signal(object)
+#     download_finished = Signal(object)
+
+#     def __init__(self, queue_id, queue_items, parent=None):
+#         super().__init__(parent)
+#         self.queue_id = queue_id
+#         self.queue_items = queue_items
+#         self.index = 0
+#         self.threads = []
+
+#     def start(self):
+#         self.start_next()
+
+#     def start_next(self):
+#         if self.index >= len(self.queue_items):
+#             self.queue_finished.emit(self.queue_id)
+#             return
+
+#         d = self.queue_items[self.index]
+#         self.download_started.emit(d)
+
+#         # Setup thread + worker
+#         thread = QThread()
+#         worker = DownloadWorker(d)
+#         worker.moveToThread(thread)
+
+#         # Hook up thread-safe signals
+#         worker.finished.connect(lambda d=d: self.handle_finished(d))
+
+#         thread.started.connect(worker.run)
+#         thread.finished.connect(thread.deleteLater)
+#         thread.start()
+
+#         self.threads.append(thread)  # Hold reference
+
+#         # Create and connect DownloadWindow
+#         if config.show_download_window:
+#             main_window = self.parent()
+#             win = DownloadWindow(d)
+#             main_window.download_windows[d.id] = win
+#             win.show()
+#             worker.progress_changed.connect(win.on_progress_changed)
+#             worker.status_changed.connect(win.on_status_changed)
+#             worker.log_updated.connect(win.on_log_updated)
+
+#     def handle_finished(self, d):
+#         self.download_finished.emit(d)
+#         self.index += 1
+#         self.start_next()

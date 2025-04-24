@@ -9,7 +9,7 @@ from collections import deque
 from queue import Queue
 from threading import Thread, Lock
 from urllib.parse import urljoin
-from .utils import validate_file_name, get_headers, translate_server_code, size_splitter, get_seg_size, log, \
+from modules.utils import validate_file_name, get_headers, translate_server_code, size_splitter, get_seg_size, log, \
     delete_file, delete_folder, save_json, load_json
 from . import config
 

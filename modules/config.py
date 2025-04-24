@@ -13,7 +13,7 @@ import os
 import sys
 import platform
 
-from .version import __version__
+from modules.version import __version__
 
 
 # CONSTANTS

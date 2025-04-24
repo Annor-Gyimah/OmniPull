@@ -5,9 +5,11 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QTimer, Qt, Slot
 from modules.utils import truncate, size_format, size_splitter, time_format
 from modules import config
+
+
 
 # Modernized DownloadWindow UI to match dark theme and new style
 class DownloadWindow(QWidget):
@@ -183,3 +185,25 @@ class DownloadWindow(QWidget):
     def close(self):
         self.timer.stop()
         super().close()
+
+    
+    @Slot(float)
+    def on_progress_changed(self, value):
+        self.set_progress_mode('determinate')
+        self.progress_bar.setValue(int(value))
+        self.percent_label.setText(f"{value:.1f}%")
+
+    @Slot(str)
+    def on_status_changed(self, status):
+        self.status_label.setText(status)
+        if status in ("completed", "cancelled", "error"):
+            self.hide_button.setStyleSheet("background-color: white; color: black;")
+            self.cancel_button.setText(self.tr('Done'))
+            self.cancel_button.setStyleSheet('background-color: grey; color: white;')
+            if config.auto_close_download_window:
+                self.close()
+
+    @Slot(str)
+    def on_log_updated(self, text):
+        self.log_display.append(text)
+

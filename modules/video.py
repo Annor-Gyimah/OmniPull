@@ -10,9 +10,9 @@ import time
 from threading import Thread
 from urllib.parse import urljoin
 
-from . import config
-from .downloaditem import DownloadItem, Segment
-from .utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
+from modules import config
+from modules.downloaditem import DownloadItem, Segment
+from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
     delete_file, download, process_thumbnail
 
 # youtube-dl

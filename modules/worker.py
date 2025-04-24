@@ -7,8 +7,8 @@ import time
 import certifi
 import pycurl
 
-from .config import Status, APP_NAME, proxy, USER_AGENT
-from .utils import get_seg_size, log
+from modules.config import Status, APP_NAME, proxy, USER_AGENT
+from modules.utils import get_seg_size, log
 
 
 class Worker:
