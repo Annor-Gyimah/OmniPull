@@ -102,16 +102,22 @@ def file_manager(d, keep_segments=False, emitter=None):
                 log('failed to merge segment', seg.name, ' - ', e)
 
         if not job_list:
+            # Handle m3u8 streams (HLS)
             if 'm3u8' in d.protocol:
                 d.status = Status.merging_audio
                 success = post_process_hls(d)
                 if not success:
                     d.status = Status.error
                     break
-            elif d.type == 'dash':
+
+            # Handle DASH (separate audio/video)
+            if d.type == 'dash':
                 output_file = d.target_file.replace(' ', '_')
                 if not is_download_complete(d):
-                    return
+                    log(f"Skipping merge: {d.name} is not fully downloaded.")
+                    d.status = Status.error
+                    break
+
                 d.status = Status.merging_audio
                 error, output = merge_video_audio(d.temp_file, d.audio_file, output_file, d)
                 if not error:
@@ -120,7 +126,9 @@ def file_manager(d, keep_segments=False, emitter=None):
                 else:
                     d.status = Status.error
                     break
-            else:
+
+            # Handle "normal" single-stream downloads
+            if not ('m3u8' in d.protocol or d.type == 'dash'):
                 rename_file(d.temp_file, d.target_file)
                 delete_folder(d.temp_folder)
 
@@ -129,6 +137,7 @@ def file_manager(d, keep_segments=False, emitter=None):
                 emitter.status_changed.emit("completed")
                 emitter.progress_changed.emit(100.0)
             break
+
 
         if d.status != Status.downloading:
             break
@@ -140,8 +149,8 @@ def file_manager(d, keep_segments=False, emitter=None):
 
 
 def thread_manager(d, emitter=None):
-    from worker import Worker
-    import config
+    # from worker import Worker
+    # import config
 
     workers = [Worker(tag=i, d=d) for i in range(config.max_connections)]
     free_workers = list(reversed(range(config.max_connections)))

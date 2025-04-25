@@ -19,14 +19,12 @@ from collections import deque
 
 # region Third Parties import
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
-                               QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
-                               QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
-                               QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
-                               QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
+QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
+QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
-from PySide6.QtCore import QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication, Qt
-from PySide6 import QtCore, QtGui
+from PySide6.QtCore import QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication, Qt, QTime
+from PySide6 import QtCore
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
 
 
@@ -329,6 +327,13 @@ class DownloadManagerUI(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui_settings = SettingsWindow(self)
+
+        self.last_schedule_check = {}  # queue_id: QTime
+
+        self.running_queues = {}
+
+        self.download_windows = {}
+
         self.ui_queues = QueueDialog(self)
 
 
@@ -530,6 +535,9 @@ class DownloadManagerUI(QMainWindow):
 
         self.ui_queues.main_window = self
 
+        
+
+
         widgets.folder_input.setText(config.download_folder)
 
     
@@ -556,6 +564,11 @@ class DownloadManagerUI(QMainWindow):
         self.apply_language(self.current_language)
         self.setup_context_menu_actions()
         self.queue_combo()
+
+        self.scheduler_timer = QTimer(self)
+        self.scheduler_timer.timeout.connect(self.check_scheduled_queues)
+        self.scheduler_timer.start(60000)  # Every 60 seconds
+
         
     
 
@@ -641,26 +654,39 @@ class DownloadManagerUI(QMainWindow):
         # widgets.label_setting.setText(self.tr("Choose Setting:"))
         widgets_settings.monitor_clipboard_cb.setText(self.tr("Monitor Copied Urls"))
         
-        # widgets.checkBox2.setText(self.tr("Show Download Window"))
-        # widgets.checkBox3.setText(self.tr("Auto close DL Window"))
-        # widgets.checkBox4.setText(self.tr("Show Thumbnail"))
-        # widgets.checkBox5.setText(self.tr("On Startup"))
-        # widgets.label_segment.setText(self.tr("Segment"))
-        # widgets.label_connection.setText(self.tr("Connection / Network"))
-        # widgets.checkBox_network.setText(self.tr("Speed Limit"))
-        # mxc, mxc2 = self.tr("Max Concurrent"), self.tr("Downloads:")
-        # widgets.label_max_downloads.setText(f"{mxc} \n {mxc2}")
-        # mxcd, mxcd1 = self.tr("Max Connection"), self.tr("Settings:")
-        # widgets.label_max_connections.setText(f"{mxcd} \n {mxcd1}")
-        # widgets.checkBox_proxy.setText(self.tr("Proxy"))
-        # widgets.lineEdit_proxy.setPlaceholderText(self.tr("Enter Proxy IP or Domain"))
-        # widgets.label_updates.setText(self.tr("Updates"))
-        # widgets.label_check_every.setText(self.tr("Check for update every:"))
-        # widgets.update_button.setText(self.tr("Check for update"))
-        # widgets.logLevelLabel.setText(self.tr("Log Level"))
-        # widgets.detailedEventsLabel.setText(self.tr("Detailed events"))
-        # widgets.clearButton.setText(self.tr("Clear"))
-        # widgets.tableWidget.setHorizontalHeaderLabels([("ID"), self.tr("Name"), self.tr("Progress"), self.tr("Speed"), self.tr("Left"), self.tr("Done"), self.tr("Size"), self.tr("Status"), "I"])
+
+    def start_queue_by_id(self, queue_id):
+        # Find the queue by ID and set it active
+        self.running_queues[queue_id] = True
+        self.ui_queues.current_queue_id = queue_id
+        self.ui_queues.queue_list.setCurrentRow(
+            next((i for i, q in enumerate(self.queues) if self.get_queue_id(q["name"]) == queue_id), 0)
+        )
+        self.ui_queues.start_queue_downloads()
+
+    def check_scheduled_queues(self):
+        now = QTime.currentTime()
+
+        for q in self.queues:
+            queue_id = self.get_queue_id(q["name"])
+            schedule = q.get("schedule")
+
+            if not schedule or self.running_queues.get(queue_id, False):
+                continue
+
+            hour, minute = schedule
+            if now.hour() == hour and now.minute() == minute:
+                last_time = self.last_schedule_check.get(queue_id)
+
+                if last_time and last_time.hour() == hour and last_time.minute() == minute:
+                    continue  # Already triggered this minute
+
+                items = [d for d in self.d_list if d.in_queue and d.queue_id == queue_id and d.status == config.Status.queued]
+                if items:
+                    self.start_queue_by_id(queue_id)
+                    self.last_schedule_check[queue_id] = now
+                    QMessageBox.information(self, "Queue Scheduler", f"Queue '{q['name']}' has started automatically.")
+
 
 
     
@@ -2087,6 +2113,7 @@ class DownloadManagerUI(QMainWindow):
                 config.Status.error,
                 config.Status.failed,
                 config.Status.scheduled,
+                config.Status.cancelled,
             ):
                 d.status = config.Status.deleted
 

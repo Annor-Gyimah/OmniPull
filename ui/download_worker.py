@@ -33,4 +33,5 @@ class DownloadWorker(QObject):
                 self.finished.emit(self.d)
         except Exception as e:
             self.log_updated.emit(f"Error: {e}")
+            self.d.status = config.Status.error  # Mark as error
             self.failed.emit(self.d)

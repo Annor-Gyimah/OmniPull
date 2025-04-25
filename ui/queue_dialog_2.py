@@ -473,6 +473,8 @@ class QueueDialog(QDialog):
             # 🚫 Disable move controls
             self.up_button.setEnabled(False)
             self.down_button.setEnabled(False)
+            #self.max_spin.setEnabled(not self.main_window.running_queues.get(self.current_queue_id, False))
+
 
         else:
             self.start_stop_queue_btn.setText("Start Queue")
@@ -486,6 +488,8 @@ class QueueDialog(QDialog):
             # ✅ Enable move controls
             self.up_button.setEnabled(True)
             self.down_button.setEnabled(True)
+            #self.max_spin.setEnabled(not self.main_window.running_queues.get(self.current_queue_id, True))
+
 
 
 
@@ -577,6 +581,20 @@ class QueueDialog(QDialog):
             return
 
         self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
+        #self.main_window.queue_runner = QueueRunner(queue_id, items, max_concurrent=self.max_spin.value(), parent=self.main_window)
+
+        # runner = self.main_window.queue_runner
+
+        # runner.download_started.connect(self.on_first_download_started)
+        # runner.download_finished.connect(self.on_download_finished)
+        # # runner.download_finished.connect(self.on_queue_item_finished)
+        # runner.queue_finished.connect(self.on_queue_finished)
+
+        # runner.start()
+        # self.main_window.running_queues[queue_id] = True
+        # self.start_stop_queue_btn.setText("Stop Queue")
+        # self.accept()
+
         self.queue_runner.download_started.connect(self.on_first_download_started)
         self.queue_runner.download_finished.connect(self.on_download_finished)
         self.queue_runner.download_finished.connect(self.on_queue_item_finished)
