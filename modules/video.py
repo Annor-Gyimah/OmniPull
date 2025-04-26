@@ -9,7 +9,7 @@ import tarfile
 import time
 from threading import Thread
 from urllib.parse import urljoin
-
+import copy
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
@@ -249,6 +249,45 @@ class Video(DownloadItem):
         self.audio_fragment_base_url = audio_stream.fragment_base_url
         self.audio_fragments = audio_stream.fragments
         self.audio_format_id = audio_stream.format_id
+
+    def clone(self):
+        v = Video(self.url)
+        v.name = self.name
+        v.type = self.type
+        v.protocol = self.protocol
+        v.size = self.size
+        v.ext = self.ext
+        v.resumable = self.resumable
+        v.vid_info = copy.deepcopy(self.vid_info)
+        v.stream_names = copy.deepcopy(self.stream_names)
+        v.selected_stream_name = self.selected_stream_name
+        v._selected_stream = copy.deepcopy(self._selected_stream)  # ✅ better
+        v._segments = self._segments.copy() if self._segments else []
+        v.audio_url = self.audio_url
+        v.audio_size = self.audio_size
+        v.audio_fragments = copy.deepcopy(self.audio_fragments)
+        v.audio_fragment_base_url = self.audio_fragment_base_url
+        return v
+
+    
+    # def clone(self):
+    #     v = Video(self.url)
+    #     v.name = self.name
+    #     v.type = self.type
+    #     v.protocol = self.protocol
+    #     v.size = self.size
+    #     v.ext = self.ext
+    #     v.resumable = self.resumable
+    #     v.vid_info = copy.deepcopy(self.vid_info)
+    #     v.stream_names = copy.deepcopy(self.stream_names)
+    #     v.selected_stream = copy.deepcopy(self.selected_stream)
+    #     v.selected_stream_name = self.selected_stream_name
+    #     v.temp_folder = self.temp_folder
+    #     v.temp_file = self.temp_file
+    #     v.audio_file = self.audio_file
+    #     v._segments = self._segments.copy() if self._segments else []
+    #     return v
+
 
     
 

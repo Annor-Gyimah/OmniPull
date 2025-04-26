@@ -566,19 +566,66 @@ class QueueDialog(QDialog):
 
    
 
+    # def start_queue_downloads(self):
+    #     if self.queue_processing:
+    #         return
+
+    #     self.queue_processing = True
+    #     queue_id = self.current_queue_id
+    #     items = self.get_sorted_queue_items()
+    #     all_items = self.get_sorted_queue_items()
+    #     if not items:
+    #         QMessageBox.warning(self, "Empty Queue", "This queue has no downloads to start.")
+    #         self.start_stop_queue_btn.setText("Start Queue")
+    #         return 
+        
+    #     # 🔥 NEW: Filter only items that are queued
+    #     items_to_download = [d for d in all_items if d.status in (config.Status.queued, config.Status.pending)]
+
+    #     if not items_to_download:
+    #         QMessageBox.warning(self, "Nothing to Download", "All items are completed or failed. Nothing to download.")
+    #         return
+
+    #     self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
+    #     self.queue_runner.download_started.connect(self.on_first_download_started)
+    #     self.queue_runner.download_finished.connect(self.on_download_finished)
+    #     self.queue_runner.download_failed.connect(self.on_download_failed)   # <-- add this
+    #     self.queue_runner.download_finished.connect(self.on_queue_item_finished)
+    #     self.queue_runner.queue_finished.connect(self.on_queue_finished)
+    #     self.queue_runner.start()
+
+    #     self.main_window.running_queues[queue_id] = True
+    #     self.start_stop_queue_btn.setText("Stop Queue")
+
+    #     self.accept()  # ✅ Closes the dialog right after queue starts
+
+
     def start_queue_downloads(self):
         if self.queue_processing:
             return
 
-        self.queue_processing = True
-        queue_id = self.current_queue_id
-        items = self.get_sorted_queue_items()
-        if not items:
+        all_items = self.get_sorted_queue_items()
+
+        if not all_items:
+            QMessageBox.warning(self, "Empty Queue", "This queue has no downloads to start.")
+            self.start_stop_queue_btn.setText("Start Queue")
             return
 
-        self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
+        # 🔥 NEW: Filter only items that are queued
+        items_to_download = [d for d in all_items if d.status in (config.Status.queued, config.Status.pending)]
+
+        if not items_to_download:
+            QMessageBox.warning(self, "Nothing to Download", "All items are completed or failed. Nothing to download.")
+            self.start_stop_queue_btn.setText("Start Queue")
+            return
+
+        self.queue_processing = True
+        queue_id = self.current_queue_id
+
+        self.queue_runner = QueueRunner(queue_id, items_to_download, parent=self.main_window)
         self.queue_runner.download_started.connect(self.on_first_download_started)
         self.queue_runner.download_finished.connect(self.on_download_finished)
+        self.queue_runner.download_failed.connect(self.on_download_failed)
         self.queue_runner.download_finished.connect(self.on_queue_item_finished)
         self.queue_runner.queue_finished.connect(self.on_queue_finished)
         self.queue_runner.start()
@@ -586,9 +633,7 @@ class QueueDialog(QDialog):
         self.main_window.running_queues[queue_id] = True
         self.start_stop_queue_btn.setText("Stop Queue")
 
-        self.accept()  # ✅ Closes the dialog right after queue starts
-
-
+        self.accept()
 
 
 
@@ -616,43 +661,6 @@ class QueueDialog(QDialog):
         if hasattr(self, "queue_runner") and self.queue_runner:
             self.queue_runner.paused = True  # acts like a soft kill
         self.accept()
-
-
-
-    def run_download_with_qthread(self, d):
-        self.download_thread = QThread()
-        self.download_worker = DownloadWorker(d)
-
-        self.download_worker.moveToThread(self.download_thread)
-        self.download_thread.started.connect(self.download_worker.run)
-
-
-        main_window = self.parent()
-        win = None
-        if config.show_download_window:
-            win = DownloadWindow(d)
-            main_window.download_windows[d.id] = win
-            win.show()
-
-        # Only connect signals if window is created
-        if win:
-            self.download_worker.progress_changed.connect(win.on_progress_changed)
-            self.download_worker.status_changed.connect(win.on_status_changed)
-            self.download_worker.log_updated.connect(win.on_log_updated)
-
-
-        # Connect signals back to main GUI thread
-        self.download_worker.finished.connect(self.on_download_finished)
-        self.download_worker.failed.connect(self.on_download_failed)
-
-        self.download_worker.finished.connect(self.download_thread.quit)
-        self.download_worker.failed.connect(self.download_thread.quit)
-        self.download_worker.finished.connect(self.download_worker.deleteLater)
-        self.download_worker.failed.connect(self.download_worker.deleteLater)
-        self.download_thread.finished.connect(self.download_thread.deleteLater)
-
-
-        self.download_thread.start()
 
         
 
@@ -687,6 +695,7 @@ class QueueDialog(QDialog):
         print(f"[main] Download failed or cancelled: {d.name}")
         self.populate_queue_items()
         setting.save_d_list(self.d_list)
+        self.on_queue_item_finished(d)  # <- call this here in on_download_finished()
         
 
 
@@ -738,12 +747,46 @@ class QueueDialog(QDialog):
 
 
 
+# def run_download_with_qthread(self, d):
+#         self.download_thread = QThread()
+#         self.download_worker = DownloadWorker(d)
+
+#         self.download_worker.moveToThread(self.download_thread)
+#         self.download_thread.started.connect(self.download_worker.run)
+
+
+#         main_window = self.parent()
+#         win = None
+#         if config.show_download_window:
+#             win = DownloadWindow(d)
+#             main_window.download_windows[d.id] = win
+#             win.show()
+
+#         # Only connect signals if window is created
+#         if win:
+#             self.download_worker.progress_changed.connect(win.on_progress_changed)
+#             self.download_worker.status_changed.connect(win.on_status_changed)
+#             self.download_worker.log_updated.connect(win.on_log_updated)
+
+
+#         # Connect signals back to main GUI thread
+#         self.download_worker.finished.connect(self.on_download_finished)
+#         self.download_worker.failed.connect(self.on_download_failed)
+
+#         self.download_worker.finished.connect(self.download_thread.quit)
+#         self.download_worker.failed.connect(self.download_thread.quit)
+#         self.download_worker.finished.connect(self.download_worker.deleteLater)
+#         self.download_worker.failed.connect(self.download_worker.deleteLater)
+#         self.download_thread.finished.connect(self.download_thread.deleteLater)
+
+
+#         self.download_thread.start()
 
 
 
-# class DownloadWorker(QObject):
-#     finished = Signal(object)
-#     failed = Signal(object)
+# # class DownloadWorker(QObject):
+# #     finished = Signal(object)
+# #     failed = Signal(object)
 
 #     progress_changed = Signal(float)
 #     status_changed = Signal(str)

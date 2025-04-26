@@ -24,7 +24,7 @@ QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScroll
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication, Qt, QTime
-from PySide6 import QtCore
+from PySide6 import QtCore, QtGui
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
 
 
@@ -334,6 +334,9 @@ class DownloadManagerUI(QMainWindow):
 
         self.download_windows = {}
 
+        self.background_threads = []  # 🧠 New list to track QThreads
+
+
         self.ui_queues = QueueDialog(self)
 
 
@@ -481,6 +484,7 @@ class DownloadManagerUI(QMainWindow):
         self.log_recorder_thread = LogRecorderThread()
         #self.log_recorder_thread.error_signal.connect(self.handle_log_error)
         self.log_recorder_thread.start()
+        self.background_threads.append(self.log_recorder_thread)  # ✅ Track it
 
         # Setup clipboard monitoring
         self.clipboard = QApplication.clipboard()
@@ -532,6 +536,9 @@ class DownloadManagerUI(QMainWindow):
         # load stored setting from disk
         setting.load_setting()
         self.d_list = setting.load_d_list()
+        # self.d_list.reverse()  # 🛠 Fix one-time if the downloads.cfg is reversed
+        # setting.save_d_list(self.d_list)  # Save corrected d_list properly
+
 
         self.ui_queues.main_window = self
 
@@ -1100,6 +1107,7 @@ class DownloadManagerUI(QMainWindow):
             self.yt_thread.finished.connect(self.on_youtube_finished)
             self.yt_thread.progress.connect(self.update_progress_bar_value)  # Connect progress signal to update progress bar
             self.yt_thread.start()
+            self.background_threads.append(self.yt_thread)
 
     def on_youtube_finished(self, result):
         if isinstance(result, list):
@@ -1240,7 +1248,9 @@ class DownloadManagerUI(QMainWindow):
         self.queue_update('protocol', self.d.protocol)
         self.queue_update('resumable', self.d.resumable)
 
-        total_speed = sum(self.d_list[i].speed for i in self.active_downloads)
+        # total_speed = sum(self.d_list[i].speed for i in self.active_downloads)
+        total_speed = sum(self.d_list[i].speed for i in self.active_downloads if i < len(self.d_list))
+
         self.queue_update('total_speed', total_speed)
 
         # Queue other updates
@@ -1499,24 +1509,86 @@ class DownloadManagerUI(QMainWindow):
 
         return hashlib.md5(name.encode()).hexdigest()[:8]
 
+    # def on_download_button_clicked(self, downloader=None):
+    #     if not self.d or not self.d.url:
+    #         self.show_information("Download Error", "Nothing to download", "Check your URL or click Retry.")
+    #         return
+
+    #     if isinstance(self.d, Video):
+    #         d = self.d.clone()  # ✅ Full deep clone, reuse parsed streams/info
+    #         d.update_param()
+    #     else:
+    #         d = copy.copy(self.d)
+    #         d.update(d.url)     # ✅ Only normal HTTP downloads refresh info
+
+    #     d.folder = config.download_folder
+
+    #     selected_queue = widgets.combo3.currentText()
+
+    #     if selected_queue and selected_queue != "None":
+    #         d.in_queue = True
+    #         d.queue_name = selected_queue
+    #         d.queue_id = self.get_queue_id(selected_queue)
+    #         d.status = config.Status.queued
+    #         d.last_known_progress = 0
+    #         d.last_known_size = 0
+
+    #         if not isinstance(d, Video):
+    #             d._segments = []
+
+    #         # Assign queue position
+    #         existing_positions = [
+    #             item.queue_position for item in self.d_list
+    #             if item.in_queue and item.queue_name == selected_queue
+    #         ]
+    #         d.queue_position = max(existing_positions, default=0) + 1
+    #         d.id = len(self.d_list)
+
+    #         self.d_list.append(d)
+    #         setting.save_d_list(self.d_list)
+    #         self.queue_update("populate_table", None)
+
+    #         self.show_information("Added to Queue", f"{d.name}", "Start it from the Queues Dialog.")
+    #         self.change_page(btn=None, btnName=None, idx=1)
+
+    #     else:
+    #         # Immediate download (not queued)
+    #         r = self.start_download(d, downloader=downloader)
+    #         if r not in ('error', 'cancelled', False):
+    #             self.change_page(btn=None, btnName=None, idx=1)
+
+
     def on_download_button_clicked(self, downloader=None):
         """Handle DownloadButton click event."""
         if self.d.url == "":
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle(self.tr('Download Error'))
-            msg.setStyleSheet(self.get_msgbox_style("warning"))
-            msg.setText(self.tr('Nothing to download'))
-            msg.setInformativeText(self.tr('It might be a web page or an invalid URL link. Check your link or click "Retry".'))
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
+            self.show_information("Download Error", "Nothing to download", "Check your URL or click Retry.")
             return
+        
+        
+
 
         d = copy.copy(self.d)
         d.folder = config.download_folder
         selected_queue = widgets.combo3.currentText()
 
+        # if isinstance(self.d, Video):
+        #     # Hide queue options for YouTube videos
+        #     widgets.combo3.clear()
+        #     widgets.combo3.addItem("None")  # Force direct download
+        # else:
+        #     # Normal files - show queues
+        #     widgets.combo3.clear()
+        #     widgets.combo3.addItem("None")
+        #     widgets.combo3.addItems(self.get_queue_names())
+
+
+        if isinstance(self.d, Video) and selected_queue and selected_queue != "None":
+            self.show_warning("Queue Error", "YouTube and streaming videos cannot be added to a queue. Please download directly.")
+            return
+
         if selected_queue and selected_queue != "None":
+
+            
             d.in_queue = True
             d.queue_name = selected_queue
             d.queue_id = self.get_queue_id(selected_queue)
@@ -2073,6 +2145,10 @@ class DownloadManagerUI(QMainWindow):
         widgets.table.setRowCount(len(self.d_list))
 
         for row, d in enumerate(reversed(self.d_list)):
+            # ✅ Auto-fix invalid in_queue states
+            if d.in_queue and not d.queue_name:
+                d.in_queue = False
+                d.queue_position = 0
             # Always ensure there's a QProgressBar in the progress column (col=2)
             progress = widgets.table.cellWidget(row, 2)
             if not isinstance(progress, QProgressBar):
@@ -2147,7 +2223,8 @@ class DownloadManagerUI(QMainWindow):
                 widgets.table.setItem(row, col, item)
                 
 
-                
+        setting.save_d_list(self.d_list)
+
 
     
 
@@ -2224,7 +2301,23 @@ class DownloadManagerUI(QMainWindow):
                 log(f"Error updating progress bar at row {row}: {e}")
 
     
-    
+    def closeEvent(self, event):
+        """Gracefully shutdown all running threads on app close."""
+        log("Application is closing, shutting down background threads...")
+
+        # Signal terminate if needed
+        config.terminate = True
+
+        # Gracefully close all threads
+        for thread in self.background_threads:
+            if thread and thread.isRunning():
+                thread.quit()
+                thread.wait(2000)  # wait max 2 seconds
+        self.background_threads.clear()
+
+        event.accept()
+
+
     
 
     # Clear Log
@@ -2373,6 +2466,22 @@ class DownloadManagerUI(QMainWindow):
                 }
                 QPushButton:hover {
                     background-color: #00B248;
+                }
+                QComboBox, QSpinBox, QLineEdit {
+                    background-color: rgba(28, 28, 30, 0.55);  /* Neutral frosted charcoal */
+                    color: #e0e0e0;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border-radius: 6px;
+                    padding: 6px 10px;
+                }
+
+                QComboBox:hover, QSpinBox:hover, QLineEdit:hover {
+                    border: 1px solid rgba(111, 255, 176, 0.18);  /* subtle emerald glow on hover */
+                }
+
+                QComboBox::drop-down {
+                    border: none;
+                    background-color: transparent;
                 }
             """,
             "conflict": """
@@ -2711,9 +2820,14 @@ class DownloadManagerUI(QMainWindow):
         self.action_open_file = QAction(icon("cil-file.png"), self.tr("Open File"))
         self.action_open_location = QAction(icon("cil-folder.png"), self.tr("Open File Location"))
         self.action_watch_downloading = QAction(icon("cil-media-play.png"), self.tr("Watch while downloading"))
-        self.action_schedule_download = QAction(icon("cil-clock.png"), self.tr("Schedule download"))
+        self.action_schedule_download = QAction(icon("cil-schedule.png"), self.tr("Schedule download"))
         self.action_cancel_schedule = QAction(icon("cil-x.png"), self.tr("Cancel schedule!"))
         self.action_file_properties = QAction(icon("cil-info.png"), self.tr("File Properties"))
+
+        self.action_add_to_queue = QAction(icon("cil-medical-cross.png"), self.tr("Add to Queue"))
+        self.action_remove_from_queue = QAction(icon("cil-minus.png"), self.tr("Remove from Queue"))
+
+
 
         # Connect triggers
         self.action_open_file.triggered.connect(self.open_item)
@@ -2722,25 +2836,33 @@ class DownloadManagerUI(QMainWindow):
         self.action_schedule_download.triggered.connect(self.schedule_download)
         self.action_cancel_schedule.triggered.connect(self.cancel_schedule)
         self.action_file_properties.triggered.connect(self.file_properties)
+        self.action_add_to_queue.triggered.connect(self.add_to_queue_from_context)
+        self.action_remove_from_queue.triggered.connect(self.remove_from_queue_from_context)
 
-    def context_menu_actions_state(self, status: str) -> dict:
+
+    def context_menu_actions_state(self, status: str, d=None) -> dict:
         return {
             "open_file": status == "completed",
             "open_location": status == "completed",
             "watch": status in {"downloading", "paused", "pending"},
             "schedule": status in {"paused", "pending", "cancelled", "error", "failed", "deleted"},
             "cancel_schedule": status in {"scheduled", "pending", "downloading", "paused"},
-            "properties": True,  # always enabled
+            "add_to_queue": status == "cancelled" and (d is not None) and (not d.in_queue),
+            "remove_from_queue": status == "queued" and (d is not None) and d.in_queue,
+            "properties": True,
         }
 
 
+
     def update_context_menu_actions_state(self, d):
-        states = self.context_menu_actions_state(d.status)
+        states = self.context_menu_actions_state(d.status, d)
         self.action_open_file.setEnabled(states["open_file"])
         self.action_open_location.setEnabled(states["open_location"])
         self.action_watch_downloading.setEnabled(states["watch"])
         self.action_schedule_download.setEnabled(states["schedule"])
         self.action_cancel_schedule.setEnabled(states["cancel_schedule"])
+        self.action_add_to_queue.setEnabled(states["add_to_queue"])
+        self.action_remove_from_queue.setEnabled(states["remove_from_queue"])
         self.action_file_properties.setEnabled(states["properties"])
 
 
@@ -2763,16 +2885,141 @@ class DownloadManagerUI(QMainWindow):
         self.update_context_menu_actions_state(d)
 
         context_menu = QMenu(widgets.table)
+        context_menu.setStyleSheet("""
+            background-color: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #0F1B14,
+                stop: 1 #050708
+            );
+            color: white;
+            border-radius: 14px;
+                                   
+            
+                                   
+                                   
+        """)
         context_menu.addAction(self.action_open_file)
         context_menu.addAction(self.action_open_location)
         context_menu.addAction(self.action_watch_downloading)
         context_menu.addAction(self.action_schedule_download)
         context_menu.addAction(self.action_cancel_schedule)
+        context_menu.addSeparator()
+        context_menu.addAction(self.action_add_to_queue)
+        context_menu.addAction(self.action_remove_from_queue)
+
         context_menu.addAction(self.action_file_properties)
         context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
 
 
-    
+    def add_to_queue_from_context(self):
+        selected_items = widgets.table.selectedItems()
+        if not selected_items:
+            return
+
+        selected_row = selected_items[0].row()
+        id_item = widgets.table.item(selected_row, 0)
+        download_id = id_item.data(Qt.UserRole)
+        d = next((x for x in self.d_list if x.id == download_id), None)
+        if not d:
+            return
+
+        queue_names = [q["name"] for q in self.queues]
+
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Select Queue")
+        dialog.setLabelText("Choose a queue to add to:")
+        dialog.setComboBoxItems(queue_names)
+        dialog.setStyleSheet(self.get_msgbox_style("inputdial"))  # 🟰 Set your style here
+
+        if dialog.exec() == QInputDialog.Accepted:
+            queue_name = dialog.textValue()
+            if queue_name:
+                d.in_queue = True
+                d.queue_name = queue_name
+                d.queue_id = self.get_queue_id(queue_name)
+                d.status = config.Status.queued
+
+                existing_positions = [
+                    item.queue_position for item in self.d_list
+                    if item.in_queue and item.queue_name == queue_name
+                ]
+                d.queue_position = max(existing_positions, default=0) + 1
+
+                setting.save_d_list(self.d_list)
+                self.populate_table()
+                self.refresh_table_row(d)
+
+
+
+    def remove_from_queue_from_context(self):
+        selected_items = widgets.table.selectedItems()
+        if not selected_items:
+            return
+
+        selected_row = selected_items[0].row()
+        id_item = widgets.table.item(selected_row, 0)
+        download_id = id_item.data(Qt.UserRole)
+        d = next((x for x in self.d_list if x.id == download_id), None)
+        if not d:
+            return
+
+        d.in_queue = False
+        d.queue_name = ""
+        d.queue_id = ""
+        d.queue_position = 0
+        d.status = config.Status.cancelled
+
+        setting.save_d_list(self.d_list)
+        self.populate_table()
+        self.refresh_table_row(d)
+
+    def set_row_color(self, row, status):
+        """Apply color coding based on status."""
+        color = QtGui.QColor()
+
+        if status == config.Status.completed:
+            color = QtGui.QColor(0, 200, 83)  # Green
+        elif status in (config.Status.error, config.Status.failed, config.Status.cancelled):
+            color = QtGui.QColor(244, 67, 54)  # Red
+        elif status == config.Status.downloading:
+            color = QtGui.QColor(33, 150, 243)  # Blue
+        elif status == config.Status.paused:
+            color = QtGui.QColor(255, 193, 7)  # Amber
+        elif status == config.Status.queued:
+            color = QtGui.QColor(156, 39, 176)  # Purple
+        elif status == config.Status.deleted:
+            color = QtGui.QColor(158, 158, 158)  # Grey
+        else:
+            color = QtGui.QColor(255, 255, 255)  # Default white
+
+        for col in range(widgets.table.columnCount()):
+            item = widgets.table.item(row, col)
+            if item:
+                item.setForeground(color)
+
+
+    def refresh_table_row(self, d):
+        """Refresh only the specific row for a download without repainting the whole table."""
+        target_row = None
+
+        # First find the row that matches the download ID
+        for row in range(widgets.table.rowCount()):
+            id_item = widgets.table.item(row, 0)
+            if id_item and id_item.data(Qt.UserRole) == d.id:
+                target_row = row
+                break
+
+        if target_row is not None:
+            # Update only the status column
+            status_col = self.d_headers.index("status")
+            status_item = widgets.table.item(target_row, status_col)
+            if status_item:
+                status_item.setText(d.status)
+
+            # Update the color styling
+            self.set_row_color(target_row, d.status)
+
+
 
     def open_item(self):
         selected_row = widgets.table.currentRow()

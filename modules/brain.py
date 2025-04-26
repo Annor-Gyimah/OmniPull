@@ -29,9 +29,7 @@ def set_signal_emitter(emitter):
     signal_emitter = emitter
 
 # brain.py
-
 def brain(d=None, emitter=None):
-
     log(f"brain() started for: {d.name} | current status: {d.status}")
     d.status = Status.downloading
     log('-' * 100)
@@ -48,26 +46,95 @@ def brain(d=None, emitter=None):
     else:
         keep_segments = False
 
-    # Pass emitter explicitly
+    # Start managers
     Thread(target=file_manager, daemon=True, args=(d, keep_segments, emitter)).start()
     Thread(target=thread_manager, daemon=True, args=(d, emitter)).start()
 
+
+    start_time = time.time()
+    max_timeout = 30  # 2 minutes timeout
+
+
+    # Start monitoring
     while True:
+        #time.sleep(1)
+
         time.sleep(0.1)
 
+        if time.time() - start_time > max_timeout and d.progress == 0:
+            d.status = Status.error
+            log(f"Timeout reached for {d.name}. Marking as failed.")
+            if emitter:
+                emitter.status_changed.emit("error")     # ✅ tell DownloadWindow
+                emitter.failed.emit(d)                   # ✅ tell DownloadWorker
+            break
+
+        # ✅ Cancellation Check
+        if d.status == Status.cancelled:
+            log(f"brain() cancelled manually for: {d.name}")
+            break
+
+        # ✅ Completion Check
         if d.status == Status.completed:
             config.main_window_q.put(('restore_window', ''))
             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
             break
-        elif d.status == Status.cancelled:
+
+        # ✅ Error Check
+        if d.status == Status.error:
+            log(f"brain() error detected for: {d.name}")
             break
-        elif d.status == Status.error:
-            break
+
 
     if d.callback and d.status == Status.completed:
         globals()[d.callback]()
 
+    # if emitter and d.status in (Status.error, Status.failed, Status.cancelled):
+    #     emitter.status_changed.emit("error")
+    #     emitter.failed.emit(d)
+
+
     log(f'brain {d.num}: quitting')
+
+
+# def brain(d=None, emitter=None):
+
+#     log(f"brain() started for: {d.name} | current status: {d.status}")
+#     d.status = Status.downloading
+#     log('-' * 100)
+#     log(f'start downloading file: "{d.name}", size: {size_format(d.size)}, to: {d.folder}')
+
+#     d.load_progress_info()
+
+#     if 'm3u8' in d.protocol:
+#         keep_segments = True
+#         success = pre_process_hls(d)
+#         if not success:
+#             d.status = Status.error
+#             return
+#     else:
+#         keep_segments = False
+
+#     # Pass emitter explicitly
+#     Thread(target=file_manager, daemon=True, args=(d, keep_segments, emitter)).start()
+#     Thread(target=thread_manager, daemon=True, args=(d, emitter)).start()
+
+#     while True:
+#         time.sleep(0.1)
+
+#         if d.status == Status.completed:
+#             config.main_window_q.put(('restore_window', ''))
+#             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#             break
+#         elif d.status == Status.cancelled:
+#             break
+#         elif d.status == Status.error:
+#             break
+
+#     if d.callback and d.status == Status.completed:
+#         globals()[d.callback]()
+
+#     log(f'brain {d.num}: quitting')
 
 
 def file_manager(d, keep_segments=False, emitter=None):
@@ -119,6 +186,7 @@ def file_manager(d, keep_segments=False, emitter=None):
                     break
 
                 d.status = Status.merging_audio
+                log(f"This is the temp_file{d.temp_file} and audio {d.audio_file}", log_level=3)
                 error, output = merge_video_audio(d.temp_file, d.audio_file, output_file, d)
                 if not error:
                     rename_file(output_file, d.target_file)
@@ -129,6 +197,7 @@ def file_manager(d, keep_segments=False, emitter=None):
 
             # Handle "normal" single-stream downloads
             if not ('m3u8' in d.protocol or d.type == 'dash'):
+                log(f"This is the temp_file{d.temp_file} and audio {d.audio_file} and target file {d.target_file}", log_level=3)
                 rename_file(d.temp_file, d.target_file)
                 delete_folder(d.temp_folder)
 
