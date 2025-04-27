@@ -1203,33 +1203,6 @@ class DownloadManagerUI(QMainWindow):
                 elif key == 'check_browser_queue':
                     self.check_browser_queue()
                 
-                # elif key == 'monitor_clip':
-                #     self.monitor_clip()
-                # elif key == 'show_download_win':
-                #     self.show_download_win()
-                # elif key == 'auto_close_win':
-                #     self.auto_close_win()
-                # elif key == 'show_thumb_nail':
-                #     self.show_thumb_nail()
-                # elif key == 'segment_size_set':
-                #     self.segment_size_set()
-                # elif key == 'speed_limit_set':
-                #     self.speed_limit_set()
-                # elif key == 'max_current_dl':
-                #     self.max_current_dl()
-                # elif key == 'max_connection':
-                #     self.max_connection()
-                # elif key == 'proxy_settings':
-                #     self.proxy_settings()
-                
-                # elif key == 'check_update_frequency':
-                #     self.check_update_frequency()
-                # elif key == 'set_log':
-                #     self.set_log()
-                # elif key == 'switch_language':
-                #     self.switch_language()
-                # elif key == 'on_startup':
-                #     self.on_startup()
                 
                 
             # Save settings 
@@ -1259,21 +1232,7 @@ class DownloadManagerUI(QMainWindow):
         self.queue_update('pending_jobs', None)
         self.queue_update('settings_folder', None)
         self.queue_update('check_browser_queue', None)
-        
-        # self.queue_update('monitor_clip', None)
-        # self.queue_update('show_download_win', None)
-        # self.queue_update('auto_close_win', None)
-        # self.queue_update('show_thumb_nail', None)
-        # self.queue_update('segment_size_set', None)
-        # self.queue_update('speed_limit_set', None)
-        # self.queue_update('max_current_dl', None)
-        # self.queue_update('max_connection', None)
-        # self.queue_update('proxy_settings', None)
-        # self.queue_update('check_update_frequency', None)
-        # self.queue_update('set_log', None)
-        # self.queue_update('switch_language', None)
-        # self.queue_update('current_lang', None)
-        # self.queue_update('on_startup', None)
+
 
         self.update_table_progress()
         
@@ -2313,7 +2272,7 @@ class DownloadManagerUI(QMainWindow):
             if thread and thread.isRunning():
                 thread.quit()
                 thread.wait(2000)  # wait max 2 seconds
-        self.background_threads.clear()
+        #self.background_threads.clear()
 
         event.accept()
 
@@ -2906,7 +2865,7 @@ class DownloadManagerUI(QMainWindow):
         context_menu.addSeparator()
         context_menu.addAction(self.action_add_to_queue)
         context_menu.addAction(self.action_remove_from_queue)
-
+        context_menu.addSeparator()
         context_menu.addAction(self.action_file_properties)
         context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
 
