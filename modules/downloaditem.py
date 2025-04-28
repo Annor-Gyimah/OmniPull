@@ -102,9 +102,19 @@ class DownloadItem:
 
     # animation ['►►   ', '  ►►'] › ► ⤮ ⇴ ↹ ↯  ↮  ₡ ['⯈', '▼', '⯇', '▲']
     # ['⏵⏵', '  ⏵⏵'] ['›', '››', '›››', '››››', '›››››']
-    animation_icons = {config.Status.downloading: ['❯', '❯❯', '❯❯❯', '❯❯❯❯'], config.Status.pending: ['⏳'],
-                       config.Status.completed: ['✔'], config.Status.cancelled: ['-x-'],
-                       config.Status.merging_audio: ['↯', '↯↯', '↯↯↯'], config.Status.error: ['err']}
+    animation_icons = {
+        config.Status.downloading: ['❯', '❯❯', '❯❯❯', '❯❯❯❯'],
+        config.Status.pending: ['⏳'],
+        config.Status.completed: ['✔'],
+        config.Status.cancelled: ['-x-'],
+        config.Status.merging_audio: ['↯', '↯↯', '↯↯↯'],
+        config.Status.error: ['err'],
+        config.Status.paused: ['⏸', '⏸⏸'],
+        config.Status.failed: ['⚠', '❌'],
+        config.Status.scheduled: ['🕒', '🕞', '🕘'],
+        config.Status.deleted: ['🗑', '🗑️'],
+        config.Status.queued: ['➤', '➤➤', '➤➤➤'],
+    }
 
     def __init__(self, id_=0, url='', name='', folder=''):
         self.id = id_

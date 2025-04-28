@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
     QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
-    QHeaderView,
+    QHeaderView, QMenu
 )
 from PySide6.QtGui import QIcon
 from random import randint
@@ -33,24 +33,56 @@ class Ui_MainWindow(object):
         self.top_layout.setContentsMargins(0, 0, 0, 0)
 
         self.menubar = QMenuBar()
+
+        # TASK
         self.task_menu = self.menubar.addMenu("Task")
         self.task_menu.addAction("Add New Download")
         self.task_menu.addAction("Import List")
 
+        # FILE
         self.file_menu = self.menubar.addMenu("File")
         self.file_menu.addAction("Open File")
+        self.file_menu.addAction("Export Downloads List")
         self.file_menu.addAction("Exit")
 
+        # DOWNLOADS
         self.downloads_menu = self.menubar.addMenu("Downloads")
-        self.downloads_menu.addAction("Start All")
-        self.downloads_menu.addAction("Pause All")
+        self.downloads_menu.addAction("Resume All")
+        self.downloads_menu.addAction("Stop All")
+        self.downloads_menu.addAction("Clear Completed")
 
+        # VIEW
         self.view_menu = self.menubar.addMenu("View")
-        self.view_menu.addAction("Refresh")
+        self.refresh_table = self.view_menu.addAction("Refresh Table")
+        self.sort_menu = QMenu("Sort By", self.view_menu)
+        self.view_menu.addMenu(self.sort_menu)
+        self.status_action = self.sort_menu.addAction("Sort by Status")
+        self.name_action = self.sort_menu.addAction("Sort by Name")
+        self.progress_action = self.sort_menu.addAction("Sort by Progress")
 
+        
+
+        # TOOLS
+        self.tools_menu = self.menubar.addMenu("Tools")
+
+        self.settings_action = self.tools_menu.addAction("Settings")  # 🛠 Save it!
+
+        self.browser_extension_menu = QMenu("Browser Extension", self.tools_menu)
+        self.tools_menu.addMenu(self.browser_extension_menu)
+
+        self.chrome_action = self.browser_extension_menu.addAction("Chrome")
+        self.firefox_action = self.browser_extension_menu.addAction("Firefox")
+        self.edge_action = self.browser_extension_menu.addAction("Edge")
+
+
+        
+
+        # HELP
         self.help_menu = self.menubar.addMenu("Help")
         self.help_menu.addAction("About")
         self.help_menu.addAction("Check for Updates")
+        self.help_menu.addAction("User Guide")
+
 
         self.top_layout.addWidget(self.menubar)
         self.main_layout.addWidget(self.top_frame)
@@ -66,8 +98,9 @@ class Ui_MainWindow(object):
         self.sidebar_frame.setObjectName("SidebarFrame")
         self.sidebar_frame.setFixedWidth(180)
         self.sidebar_layout = QVBoxLayout(self.sidebar_frame)
-        self.sidebar_layout.setSpacing(20)
-        self.sidebar_layout.setContentsMargins(5, 5, 5, 5)
+        self.sidebar_layout.setSpacing(0)  # 👈 No spacing between buttons
+        self.sidebar_layout.setContentsMargins(0, 0, 0, 0)  # 👈 No margins, full edge-to-edge
+
 
         self.page_buttons = []
         icon_names = ["icons/add.svg", "icons/play.svg", "icons/terminal.svg"]
@@ -79,14 +112,17 @@ class Ui_MainWindow(object):
             btn.setCheckable(True)
             btn.setStyleSheet("""
                 QPushButton {
-                    background-color: #222;
-                    border: 1px solid #333;
-                    border-radius: 10px;
+                    background-color: transparent;
+                    border: none;
+                    padding: 40px;
+                    text-align: center;
                 }
                 QPushButton:hover {
-                    background-color: #2c2c2c;
+                    background-color: #333;
                 }
+                
             """)
+            btn.setCursor(Qt.PointingHandCursor)
             self.page_buttons.append(btn)
             self.sidebar_layout.addWidget(btn)
 

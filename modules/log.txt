@@ -3,5 +3,5 @@
 >> operating system: Linux-6.8.0-58-generic-x86_64-with-glibc2.39 - x86_64
 >> current working directory: /home/annorion/Desktop/pyiconic/New UI/modules
 >> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/modules
->> youtube-dl load_time= 2.9325485229492188e-05
->> Days since last check for update: 12 day(s).
+>> youtube-dl load_time= 5.340576171875e-05
+>> Days since last check for update: 13 day(s).

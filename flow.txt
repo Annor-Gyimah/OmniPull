@@ -37,3 +37,19 @@ STEP 3 - python package-extension.py
  Main table progress updates correctly from queue threads
 
  No app crashes from segmentation faults 🎉
+
+
+ #	Feature/Task	Status	Notes
+1	Queue System Core	✅ Done	Add, start, stop, schedule queues
+2	Per-item Delete in Queue Dialog	✅ Done	Delete buttons for each item
+3	Disable queue editing while active	✅ Done	No renaming, no deletion of running queue
+4	Schedule Queue Start	✅ Done	Auto-start queues at a given time
+5	Retry Failed Items after Queue finishes	✅ Done	Re-attempt after all first attempts
+6	Improve DownloadWorker timeout	✅ Done	Auto-skip stuck downloads after 30-60s
+7	Add/Remove Download from Queue via Table Context Menu	✅ Done	Context menu working well
+8	Prevent YouTube/Streaming Items from being added to queues	✅ Done	Informational popup
+9	Populate Table Optimized with Worker	✅ Done	Fast, non-blocking UI loading
+10	Progress Bar Updated Dynamically	✅ Done	Progress color matches status
+11	GUI Updates Optimized	✅ Done	Using queue + timer batches
+12	Solved QThread crash (Destroyed while running)	✅ Done	Safer thread exit on shutdown
+13	Stopped app freezing under many downloads	✅ Done	Massive playlist no longer freezes UI
