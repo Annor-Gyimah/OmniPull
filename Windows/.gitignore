@@ -5,5 +5,3 @@ __pycache__/
 .ruff_cache/
 .pdm-python
 modules/log.txt
-modules/queues.cfg
-modules/setting.cfg
