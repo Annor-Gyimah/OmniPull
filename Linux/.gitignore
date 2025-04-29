@@ -8,3 +8,5 @@ src
 tests
 modules/log.txt
 modules/__pycache__/
+modules/queues.cfg
+modules/setting.cfg
