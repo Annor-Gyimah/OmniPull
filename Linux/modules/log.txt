@@ -1,7 +1,11 @@
->> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/modules
+>> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/Linux/modules
 >> Starting OmniPull version: 1.2.24 Non-Frozen
 >> operating system: Linux-6.8.0-58-generic-x86_64-with-glibc2.39 - x86_64
->> current working directory: /home/annorion/Desktop/pyiconic/New UI/modules
->> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/modules
->> youtube-dl load_time= 2.86102294921875e-05
->> Days since last check for update: 13 day(s).
+>> current working directory: /home/annorion/Desktop/pyiconic/New UI/Linux/modules
+>> Load Application setting from /home/annorion/Desktop/pyiconic/New UI/Linux/modules
+>> youtube-dl load_time= 3.314018249511719e-05
+>> Days since last check for update: 14 day(s).
+>> download()> downloading https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/ChangeLog.txt 
+
+>> download(): done downloading
+>> check_for_update() --> App. is up-to-date, server version= 1.2.24

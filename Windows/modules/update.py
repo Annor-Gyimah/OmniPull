@@ -13,22 +13,19 @@ import py_compile
 import shutil
 import sys
 import zipfile
-import tarfile
+import tempfile
 import wget
 import subprocess
 from . import config
 import os
-import time
-import tempfile
+from datetime import datetime, timedelta
+from . import video
+from .utils import log, download, run_command, delete_folder, popup, get_mac_id
+import webbrowser
 import httpx
 import socket
 import uuid
 import requests
-from . import video
-from .downloaditem import DownloadItem
-from .utils import log, download, run_command, delete_folder, delete_file, popup, get_mac_id
-import webbrowser
-
 
 def check_for_update():
     """download version.py from github, extract latest version number return app latest version"
@@ -38,8 +35,6 @@ def check_for_update():
 
     source_code_url = 'https://github.com/pyIDM/pyIDM/blob/master/pyidm/version.py'
     new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
-
-    
     url = new_release_url if config.FROZEN else source_code_url
 
     # get BytesIO object
@@ -52,38 +47,11 @@ def check_for_update():
         # extract version number from contents
         latest_version = contents.rsplit(maxsplit=1)[-1].replace("'", '')
 
-        return latest_version, contents
+        return latest_version
 
     else:
         log("check_for_update() --> couldn't check for update, url is unreachable")
         return None
-    
-
-# def get_changelog():
-#     """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
-#     """
-
-#     # url will be chosen depend on frozen state of the application
-#     source_code_url = 'http://localhost/lite/ChangeLog.txt'
-#     new_release_url = 'http://localhost/lite/ChangeLog.txt'
-#     url = new_release_url if config.FROZEN else source_code_url
-
-#     # url = new_release_url
-
-#     # get BytesIO object
-#     buffer = download(url)
-
-#     if buffer:
-#         # convert to string
-#         contents = buffer.getvalue().decode()
-
-#         # extract version number from contents
-#         latest_version = contents.splitlines()[0].replace(':', '').strip()
-
-#         return latest_version, contents
-#     else:
-#         log("check_for_update() --> couldn't check for update, url is unreachable")
-#         return None
 
 
 def get_changelog():
@@ -93,20 +61,17 @@ def get_changelog():
     # Get latest release info from GitHub API
     content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
-                        follow_redirects=True).json()
+        follow_redirects=True).json()
 
     # Extract tagName and remove any unwanted characters like leading dots
     tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
     
 
-    
-    # currentVersion = list(map(int, config.APP_VERSION.split(".")))
-    
     # url will be chosen depend on frozen state of the application
-    source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/ChangeLog.txt'
-    new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/ChangeLog.txt'
-
+    source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
+    new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
     url = new_release_url if config.FROZEN else source_code_url
+    # url = new_release_url
 
 
     # get BytesIO object
@@ -117,18 +82,17 @@ def get_changelog():
         contents = buffer.getvalue().decode()
 
         # extract version number from contents
-        #latest_version = contents.splitlines()[0].replace(':', '').strip()
+        # latest_version = contents.splitlines()[0].replace(':', '').strip()
         latest_version = tagName
-
-        config.latest_version = latest_version
-       
 
         return latest_version, contents
     else:
         log("check_for_update() --> couldn't check for update, url is unreachable")
         return None
 
+
 def update():
+
     # Get the latest release from GitHub API
     content = httpx.get(
         url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", 
@@ -138,191 +102,108 @@ def update():
         follow_redirects=True
     ).json()
 
-    tagName = content["tag_name"].lstrip('.')  # Remove 'v' and any leading dots
-    print(f"Current version: {tagName}")
+    tagName = content["tag_name"].lstrip('.')  # Remove any leading dots
     
-    url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/update.sh"  # URL for update.sh
-    main_tar_url = f"https://github.com/Annor-Gyimah/Li-Dl/releases/download/{tagName}/main.tar.gz"     # URL for main.tar.gz
+     
+    # url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
+    update_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/update.bat"  # URL for update.sh
+    cleanup_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/cleanup.bat"
+    main_zip_url = f"https://github.com/Annor-Gyimah/Li-Dl/releases/download/{tagName}/main.zip"
 
-    # update_script_url = "http://localhost/lite/update.sh"  # URL for update.sh
-    # main_tar_url = f"http://localhost/lite/main.tar.gz"     # URL for main.tar.gz
 
     
-
     # Create a hidden temporary directory in the user's home directory
     temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
-    download_path = os.path.join(temp_dir, "main.tar.gz")
-    update_script_path = os.path.join(temp_dir, "update.sh")
+    download_path = os.path.join(temp_dir, "main.zip")
+    update_script_path = os.path.join(temp_dir, "update.bat")
+    dir = os.path.expanduser("~")
+    cleanup_script_path = os.path.join(dir, "cleanup.bat")
+
+    current_time = datetime.now()
+    #run_time = current_time + timedelta(minutes=2)
+    run_time2 = current_time + timedelta(minutes=5)
+   
+
+
 
     try:
         # Download update files to the temporary directory
         log("Downloading update files...")
         wget.download(update_script_url, update_script_path)
-        wget.download(main_tar_url, download_path)
+        wget.download(main_zip_url, download_path)
+        if os.path.exists(cleanup_script_path):
+            pass
+        else:
+            wget.download(cleanup_script_url, cleanup_script_path)
         log("\nDownload completed.")
 
         # Extract the downloaded tar.gz file in the temporary directory
         log("Extracting update package...")
-        with tarfile.open(download_path, 'r:gz') as tar_ref:
-            tar_ref.extractall(temp_dir)
+        with zipfile.ZipFile(download_path, 'r') as zip_ref:  # extract zip file
+            zip_ref.extractall(temp_dir)
         log("Extraction completed.")
 
-        # Make the update script executable
-        os.chmod(update_script_path, 0o755)
-        source_file = os.path.join(temp_dir, "main")
-
-        # Schedule update.sh to run at next reboot with cron
-        cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
+        source_file = os.path.join(temp_dir, "main.exe")
+        update_command = f'"{update_script_path}" "{source_file}"'
+        cleanup_command = f'"{cleanup_script_path}" "{temp_dir}"'
         try:
-            popup(msg="Please authenticate to install updates on reboot", title=config.APP_NAME, type_="info")
-            subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
+            # Construct a command to create a scheduled task
+            task_name = f"{config.APP_NAME}_Update"
+
+            task_command = (
+                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc minute /mo 3 /rl HIGHEST /f'
+
+                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
+
+                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
+
+                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
+
+                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" 'f'/sc daily /st 12:00 /ri 60 /du 24:00 /rl HIGHEST /f'
+
+            
+                
+            )
+
+            
+            
+
+            # Schedule the cleanup task
+            task_name_cleanup = f"{config.APP_NAME}_Cleanup"
+            task_command_cleanup = (
+                f'schtasks /create /tn "{task_name_cleanup}" /tr "{cleanup_command}" /sc daily /st 12:05:00 /f'
+            )
+            
+            # Run the command as administrator
+            popup(msg="Please authenticate to install updates", title=config.APP_NAME, type_="info")
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command_cleanup}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
             log("Update scheduled to run on the next reboot.")
             config.confirm_update = True
+            # end_time = current_time + timedelta(seconds=5)
+            # popup(msg=f"Ending the application in {end_time}", title=config.APP_NAME, type_="quit_app")
 
         except subprocess.CalledProcessError as e:
             log(f"Failed to schedule update: {e}")
             config.confirm_update = False
-
-        # cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
-        # try:
-        #     popup(msg="Please authenticate to install updates on reboot", title=config.APP_NAME, type_="info")
-        #     subprocess.run(f'echo "{cron_job}" | pkexec crontab -u root -', shell=True, check=True)
-        #     log("Update scheduled to run on the next reboot.")
-        #     config.confirm_update = True
-
-        # except subprocess.CalledProcessError as e:
-        #     log(f"Failed to schedule update: {e}")
-        #     config.confirm_update = False
-
-
     except Exception as e:
         log(f"An error occurred during update: {e}")
-
-# def update():
-#     #url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-#     update_script_url = "http://localhost/lite/update.sh"  # URL for update.sh script
-#     main_tar_url = "http://localhost/lite/main.tar.gz"     # URL for main.tar.gz
-
-#     # Define paths on the Desktop for downloading
-#     temp_dir = os.path.join(os.path.expanduser("~"), "Desktop", "temp")
-#     if os.path.exists(temp_dir):
-#         pass
-#     else:
-#         os.mkdir(temp_dir)
-#     download_path = os.path.join(temp_dir, "main.tar.gz")
-#     update_script_path = os.path.join(temp_dir, "update.sh")
-    
-    
-
-#     try:
-#         # Download update files
-#         log("Downloading update files...")
-#         wget.download(update_script_url, update_script_path)
-#         wget.download(main_tar_url, download_path)
-#         log("\nDownload completed.")
-
-#         # Extract the downloaded tar.gz file
-#         log("Extracting update package...")
-#         with tarfile.open(download_path, 'r:gz') as tar_ref:
-#             tar_ref.extractall(temp_dir)
-#         log("Extraction completed.")
-#         os.chmod(update_script_path, 0o755) 
-#         schedule_update()
         
-#         # Schedule update.sh to run at the next reboot
-#         # Use `sudo crontab -u root` to add job directly to root's crontab
-#         cron_job = f"@reboot /bin/bash {update_script_path} {temp_dir} && rm -rf {temp_dir}"  # delete temp folder after execution
-#         try:
-#             subprocess.run(f'(crontab -l; echo "{cron_job}") | crontab -', shell=True, check=True)
-#             log("Update scheduled to run on the next reboot.")
-#         except subprocess.CalledProcessError as e:
-#             log(f"Failed to schedule update: {e}")
-
-
-#         # # Define the path to the new 'main' file (adjust as necessary)
-#         # new_main_path = os.path.join(extract_path, "main")  # Adjust if main file is in a different location
-
-       
-
-#     except Exception as e:
-#         log(f"An error occurred during update: {e}")
-    
-
-
-def schedule_update():
-    source_file = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "main")
-    update_script = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "update.sh")
-
-    # Define the cron job with explicit `root` crontab
-    cron_job = f"@reboot /bin/bash {update_script} {source_file}"
-    
-    # Use `sudo crontab -u root` to add job directly to root's crontab
-    try:
-        
-        subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
-        log("Update scheduled to run on the next reboot.")
-    except subprocess.CalledProcessError as e:
-        log(f"Failed to schedule update: {e}")
-
-def on_exit():
-    log("Preparing to start updater service...")
-
-    source_file = os.path.join(os.path.expanduser("~"), "Desktop", "AppUpdate", "main")  # Path to new 'main'
-    destination_dir = "/opt/main/"  # Directory where 'main' should go
-    updater_script = os.path.join(os.path.expanduser("~"), "Desktop", "AppUpdate", "updater_service.py")
-
-    try:
-        # Launch the updater service
-        subprocess.Popen(["python3", updater_script, source_file, destination_dir])
-        
-        log("Updater service started successfully.")
-        time.sleep(2)  # Brief wait to allow updater to initialize
-
-    except Exception as e:
-        log(f"Failed to start updater service: {e}")
-
-
-    # first check windows 32 or 64
-#     import platform
-#     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
-#     if platform.machine().endswith('64'):
-#         # 64 bit link
-#         url = 'http://localhost/lite/pyiconic/main.tar.gz'
-#     else:
-#         # 32 bit link
-#         url = 'http://localhost/lite/pyiconic/main.tar.gz'
-
-#     log('downloading: ', url)
-
-#     # create a download object, will store ffmpeg in setting folder
-#     # print('config.sett_folder = ', config.sett_folder)
-#     d = DownloadItem(url=url, folder=config.update_folder)
-#     d.update(url)
-#     d.name = 'main.tar.gz'  # must rename it for unzip to find it
-#     # print('d.folder = ', d.folder)
-
-#     # post download
-#     d.callback = 'unzip_main'
-
-#     # send download request to main window
-#     config.main_window_q.put(('download', (d, True)))
-
-# def unzip_main():
-#     log('unzip_main:', 'unzipping')
-
-#     try:
-#         file_name = os.path.join(config.update_folder, 'main.tar.gz')
-#         with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
-#             zip_ref.extractall(config.update_folder)
-
-#         log('main update:', 'delete zip file')
-#         delete_file(file_name)
-#         log('main update:', 'main .. is ready at: ', config.update_folder)
-#     except Exception as e:
-#         log('unzip_main: error ', e)
-
-
+        popup(
+            msg="Windows Defender real-time protection is enabled. "
+                "Please disable it temporarily and start the updating process again.",
+            title=config.APP_NAME,
+            type_="critical"
+        )
+            
 def check_for_ytdl_update():
     """it will download "version.py" file from github to check for a new version, return ytdl_latest_version
     """
@@ -427,7 +308,6 @@ def update_youtube_dl():
     log('youtube_dl module ..... done updating')
 
 
-
 class SoftwareUpdateChecker:
     def __init__(self, api_url, software_version):
         self.api_url = api_url
@@ -481,11 +361,10 @@ class SoftwareUpdateChecker:
                 update_status = response.json()
                 print(update_status)
                 if update_status.get('update_needed'):
-                    print(f"Update required: {update_status.get('new_version')}")
+                    log(f"Update required: {update_status.get('new_version')}")
                 else:
-                    print(f"You are up to date. Version: {self.software_version}")
+                    log(f"You are up to date. Version: {self.software_version}")
             else:
-                print("Error checking update status")
+                log("Error checking update status")
         except requests.RequestException as e:
-            pass
-            print(f"Error connecting to the server: {e}")
+            log(f"Error connecting to the server: {e}")
