@@ -52,7 +52,7 @@ def brain(d=None, emitter=None):
 
 
     start_time = time.time()
-    max_timeout = 30  # 2 minutes timeout
+    max_timeout = 180  # 2 minutes timeout
 
 
     # Start monitoring

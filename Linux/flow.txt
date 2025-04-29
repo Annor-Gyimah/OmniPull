@@ -1,0 +1,55 @@
+STEP 1 - openssl genrsa -out pyiconic-key.pem 2048
+
+
+STEP 2 - openssl rsa -in pyiconic-key.pem -pubout -outform DER -out pyiconic-pub.der
+
+
+STEP 3 - python package-extension.py
+
+
+
+ Create, edit, delete queues
+
+ Add items to queues
+
+ Per-item delete in the queue item tab
+
+ Move items up/down (reordering)
+
+ Per-queue concurrency limits (max downloads)
+
+ Queue scheduling via QTimeEdit + QTimer
+
+ Start/Stop toggle with proper state handling
+
+ Skips completed/failed/cancelled items
+
+ Timeout handling + failed item detection
+
+ Manual cancel skips to next item
+
+ Start queue only if queued items exist
+
+ Multi-thread-safe queue runner (DownloadWorker + signals)
+
+ Per-queue settings disabled when active
+
+ Main table progress updates correctly from queue threads
+
+ No app crashes from segmentation faults 🎉
+
+
+ #	Feature/Task	Status	Notes
+1	Queue System Core	✅ Done	Add, start, stop, schedule queues
+2	Per-item Delete in Queue Dialog	✅ Done	Delete buttons for each item
+3	Disable queue editing while active	✅ Done	No renaming, no deletion of running queue
+4	Schedule Queue Start	✅ Done	Auto-start queues at a given time
+5	Retry Failed Items after Queue finishes	✅ Done	Re-attempt after all first attempts
+6	Improve DownloadWorker timeout	✅ Done	Auto-skip stuck downloads after 30-60s
+7	Add/Remove Download from Queue via Table Context Menu	✅ Done	Context menu working well
+8	Prevent YouTube/Streaming Items from being added to queues	✅ Done	Informational popup
+9	Populate Table Optimized with Worker	✅ Done	Fast, non-blocking UI loading
+10	Progress Bar Updated Dynamically	✅ Done	Progress color matches status
+11	GUI Updates Optimized	✅ Done	Using queue + timer batches
+12	Solved QThread crash (Destroyed while running)	✅ Done	Safer thread exit on shutdown
+13	Stopped app freezing under many downloads	✅ Done	Massive playlist no longer freezes UI

@@ -11,7 +11,7 @@ from modules import config
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("About PyIconic")
+        self.setWindowTitle(f"About {config.APP_NAME}")
         self.setFixedSize(650, 360)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
@@ -84,7 +84,7 @@ class AboutDialog(QDialog):
         left_layout.setAlignment(Qt.AlignTop)
 
         logo = QLabel()
-        pix = QPixmap("../icons/d_window.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pix = QPixmap("../icons/logo1.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(pix)
         logo.setAlignment(Qt.AlignCenter)
 
