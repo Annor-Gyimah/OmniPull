@@ -7,3 +7,4 @@ __pycache__/
 src
 tests
 modules/log.txt
+modules/__pycache__/
