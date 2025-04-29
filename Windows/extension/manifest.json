@@ -1,0 +1,29 @@
+{
+    "manifest_version": 2,
+    "name": "PyIconic Downloader",
+    "description": "Send download links to PyIconic desktop app",
+    "version": "1.0",
+    "permissions": [
+      "contextMenus",
+      "nativeMessaging",
+      "notifications"
+    ],
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": true
+    },
+    "icons": {
+      "128": "icons/icon128.png"
+    },
+
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ]
+
+    
+  }
+  
