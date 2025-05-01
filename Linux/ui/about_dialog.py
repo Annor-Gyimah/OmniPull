@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 import webbrowser
 import os
 from modules import config
+import resources_rc
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -84,7 +85,7 @@ class AboutDialog(QDialog):
         left_layout.setAlignment(Qt.AlignTop)
 
         logo = QLabel()
-        pix = QPixmap("../icons/logo1.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pix = QPixmap(":/icons/logo1.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(pix)
         logo.setAlignment(Qt.AlignCenter)
 

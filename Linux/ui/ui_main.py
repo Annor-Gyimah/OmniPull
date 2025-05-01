@@ -9,7 +9,7 @@ from random import randint
 import os
 import psutil
 from PySide6.QtCore import QCoreApplication
-
+import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -103,7 +103,7 @@ class Ui_MainWindow(object):
 
 
         self.page_buttons = []
-        icon_names = ["icons/add.svg", "icons/play.svg", "icons/terminal.svg"]
+        icon_names = [":/icons/add.svg", ":/icons/play.svg", ":/icons/terminal.svg"]
         for idx, icon_path in enumerate(icon_names):
             btn = QPushButton()
             btn.setFixedSize(150, 100)
@@ -651,25 +651,25 @@ class Ui_MainWindow(object):
 
         self.toolbar_buttons = {}
         icon_map = {
-            "Resume": "icons/play.svg",
-            "Pause": "icons/pause.svg",
-            "Stop All": "icons/stop_all.svg",
-            "Delete": "icons/trash.svg",
-            "Delete All": "icons/multi_trash.svg",
-            "Refresh": "icons/refresh.svg",
-            "Resume All": "icons/resume_all.svg",
-            "Schedule All": "icons/sche.png",
-            "Settings": "icons/setting.svg",
-            "Download Window": "icons/d_window.png",
-            "Queues": "icons/queues.png"
+            "Resume": ":/icons/play.svg",
+            "Pause": ":/icons/pause.svg",
+            "Stop All": ":/icons/stop_all.svg",
+            "Delete": ":/icons/trash.svg",
+            "Delete All": ":/icons/multi_trash.svg",
+            "Refresh": ":/icons/refresh.svg",
+            "Resume All": ":/icons/resume_all.svg",
+            "Schedule All": ":/icons/sche.png",
+            "Settings": ":/icons/setting.svg",
+            "Download Window": ":/icons/d_window.png",
+            "Queues": ":/icons/queues.png"
             
         }
 
         for label, icon_path in icon_map.items():
             btn = QPushButton()
             btn.setToolTip(label)
-            if os.path.exists(icon_path):
-                icon = QIcon(icon_path)
+            icon = QIcon(icon_path)
+            if not icon.isNull():
                 btn.setIcon(icon)
                 btn.setIconSize(QSize(42, 42))
                 btn.setFixedSize(50, 50)
