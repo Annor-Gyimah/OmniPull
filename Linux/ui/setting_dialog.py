@@ -51,10 +51,10 @@ class SettingsWindow(QDialog):
         """)
 
         icon_map = {
-            "General": "icons/general.png",
-            "Connection": "icons/cil-link.png",
-            "Browser": "icons/extension.png",
-            "Updates": "icons/updates.svg"
+            "General": ":/icons/general.svg",
+            "Connection": ":/icons/cil-link.png",
+            "Browser": ":/icons/extension.png",
+            "Updates": ":/icons/updates.svg"
         }
 
         for key, icon in icon_map.items():
@@ -232,7 +232,7 @@ class SettingsWindow(QDialog):
         conn_layout.addRow(self.checkBox_proxy, proxy_row)
 
         # Info label under proxy
-        self.label_proxy_info = QLabel("Enter a proxy address and select its type. Example: 127.0.0.1:8080")
+        self.label_proxy_info = QLabel("Enter a proxy address and select its type. \n Example: 127.0.0.1:8080")
         self.label_proxy_info.setStyleSheet("color: #aaa; font-size: 11px; margin-left: 4px;")
         conn_layout.addRow("", self.label_proxy_info)
 
