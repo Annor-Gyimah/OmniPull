@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/add.svg</file>
+        <file>icons/add.png</file>
         <file>icons/play.svg</file>
         <file>icons/blury.png</file>
         <file>icons/cil-clock.png</file>
@@ -14,21 +14,30 @@
         <file>icons/cil-schedule.png</file>
         <file>icons/cil-x.png</file>
         <file>icons/d_window.png</file>
+        <file>icons/download.png</file>
+        <file>icons/folder.png</file>
         <file>icons/general.svg</file>
         <file>icons/logo1.png</file>
         <file>icons/multi_trash.svg</file>
         <file>icons/pause.svg</file>
+        <file>icons/playlist.png</file>
+        <file>icons/queues.png</file>
         <file>icons/refresh.svg</file>
+        <file>icons/refresh.png</file>
+        <file>icons/retry.png</file>
         <file>icons/remove.svg</file>
         <file>icons/resume_all.svg</file>
         <file>icons/sche.png</file>
         <file>icons/stop_all.svg</file>
         <file>icons/stop.svg</file>
         <file>icons/setting.svg</file>
+        <file>icons/table.png</file>
         <file>icons/trash.svg</file>
+        <file>icons/terminal.png</file>
+        <file>icons/thumbnail-default.png</file>
         <file>icons/updates.svg</file>
         <file>icons/window.svg</file>
-        <file>icons/thumbnail-default.png</file>
+        
         
     </qresource>
 </RCC>
