@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
-    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame
+    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 import os, sys
-
+from modules.utils import log, delete_file
 from modules import config, setting
 
 class SettingsWindow(QDialog):
@@ -138,6 +138,7 @@ class SettingsWindow(QDialog):
         self.setup_connection_tab()
         self.setup_browser_tab()
         self.setup_updates_tab()
+        self.check_update_btn.clicked.connect(self.on_call_update)
 
         
         
@@ -289,7 +290,7 @@ class SettingsWindow(QDialog):
         self.check_interval_combo = QComboBox()
         self.check_interval_combo.addItems(["1", "3", "7", "14"])
 
-        self.version_label = QLabel("App Version: 1.2.24")
+        self.version_label = QLabel(f"App Version: {config.APP_VERSION}")
         self.check_update_btn = QPushButton("Check for update")
 
         updates_layout.addRow(QLabel("Check for update every (days):"), self.check_interval_combo)
@@ -527,4 +528,46 @@ class SettingsWindow(QDialog):
         # self.stack.widget(0).layout().labelForField(self.segment_linedit.parent()).setText(self.tr("Segment:"))
 
 
+    def on_call_update(self):
+        # Call the update function from the main window
+        config.main_window_q.put(("update call", ""))
+        # Close the settings window after calling the update function
+        self.close()
 
+    # region settings
+    def settings_folder(self):
+        selected = self.setting_scope_combo.currentText()
+
+        if selected == "Local":
+            config.sett_folder = config.current_directory
+            delete_file(os.path.join(config.global_sett_folder, 'setting.cfg'))
+        else:
+            config.sett_folder = config.global_sett_folder
+            delete_file(os.path.join(config.current_directory, 'setting.cfg'))
+
+            if not os.path.isdir(config.global_sett_folder):
+                try:
+                    choice = QMessageBox.question(
+                        self, 'Create Folder',
+                        f'Folder: {config.global_sett_folder}\nwill be created',
+                        QMessageBox.Ok | QMessageBox.Cancel
+                    )
+
+                    if choice == QMessageBox.Ok:
+                        os.makedirs(config.global_sett_folder, exist_ok=True)  # ✅ This prevents error if it already exists
+                    else:
+                        raise Exception('Operation Cancelled by User')
+
+                except Exception as e:
+                    log('global setting folder error:', e)
+                    config.sett_folder = config.current_directory
+                    QMessageBox.critical(
+                        self, self.tr('Error'),
+                        f'Error while creating global settings folder\n"{config.global_sett_folder}"\n{str(e)}\nLocal folder will be used instead'
+                    )
+                    self.setting_scope_combo.setCurrentText('Local')
+
+        try:
+            self.setting_scope_combo.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
+        except:
+            pass

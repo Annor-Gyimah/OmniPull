@@ -1,7 +1,6 @@
 """
-    pyIDM
-
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySide6"
+    OmniPull - a free and open source download manager for Windows, Linux, and MacOS.
+    OmniPull is a cross-platform, multi-threaded, multi-segment, and multi-connections internet download manager, based on "pyCuRL/curl", "yt-dlp", and "PySide6"
 
     :copyright: (c) 2019-2020 by Mahmoud Elshahat.
     :license: GNU LGPLv3, see LICENSE for more details.

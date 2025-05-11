@@ -35,12 +35,14 @@ from ui.about_dialog import AboutDialog
 from ui.queue_dialog import QueueDialog
 from ui.download_window import DownloadWindow
 from ui.populate_worker import PopulateTableWorker
+from ui.schedule_dialog import ScheduleDialog
+from ui.user_guide_dialog import UserGuideDialog
 
 
 
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format, truncate, 
-    notify, run_command, handle_exceptions)
+    notify, run_command, handle_exceptions, popup)
 from modules import config, brain, setting, video, update, startup
 from modules.downloaditem import DownloadItem
 from pathlib import Path
@@ -52,6 +54,7 @@ os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100
 widgets = None
 widgets_settings = None
 widgets_about = None
+
 
 
 
@@ -125,6 +128,7 @@ class YouTubeThread(QThread):
                 while not video.ytdl:
                     time.sleep(0.1)
             widgets.download_btn.setEnabled(False)
+            widgets.playlist_btn.setEnabled(False)
             widgets_settings.monitor_clipboard_cb.setChecked(False)
             widgets.combo1.clear()
             widgets.combo2.clear()
@@ -160,6 +164,7 @@ class YouTubeThread(QThread):
 
         except DownloadError as e:
             log('DownloadError:', e)
+            popup(title="Timeout", msg="Please retry the download.", type_="warning")
             self.finished.emit(None)
         except ExtractorError as e:
             log('ExtractorError:', e)
@@ -167,6 +172,78 @@ class YouTubeThread(QThread):
         except Exception as e:
             log('Unexpected error:', e)
             self.finished.emit(None)
+
+    # def run(self):
+    #     """Run the thread to process the video URL."""
+    #     try:
+    #         # Ensure youtube-dl is loaded
+    #         if video.ytdl is None:
+    #             log('youtube-dl module still loading, please wait')
+    #             while not video.ytdl:
+    #                 time.sleep(0.1)
+
+    #         widgets.download_btn.setEnabled(False)
+    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
+    #         widgets.combo1.clear()
+    #         widgets.combo2.clear()
+
+    #         log(f"Extracting info for URL: {self.url}")
+    #         self.change_cursor('busy')
+
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             # Simulate progress updates for single video extraction
+    #             progress = 0
+    #             is_single_video = False
+
+    #             def simulate_progress():
+    #                 nonlocal progress
+    #                 while progress < 90:  # Simulate progress up to 90%
+    #                     progress += 10
+    #                     self.progress.emit(progress)
+    #                     time.sleep(0.5)  # Adjust delay as needed
+
+    #             # Start a thread to simulate progress
+    #             progress_thread = Thread(target=simulate_progress, daemon=True)
+    #             progress_thread.start()
+
+    #             # Extract video info
+    #             info = ydl.extract_info(self.url, download=False, process=True)
+    #             log('Media info:', info, log_level=3)
+
+    #             # Stop simulated progress if it's still running
+    #             progress = 90
+
+    #             if info.get('_type') == 'playlist' or 'entries' in info:
+    #                 pl_info = list(info.get('entries', []))
+    #                 playlist = []
+    #                 for index, item in enumerate(pl_info):
+    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
+    #                     if url:
+    #                         playlist.append(Video(url, vid_info=item))
+    #                     # Emit progress as we process each playlist entry
+    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
+    #                 result = playlist
+    #             else:
+    #                 # For a single video, update progress on extraction
+    #                 is_single_video = True
+    #                 result = Video(self.url, vid_info=None)
+    #                 self.progress.emit(100)  # Extraction complete
+
+    #             self.finished.emit(result)
+    #             self.change_cursor('normal')
+    #             widgets.download_btn.setEnabled(True)
+    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
+
+    #     except DownloadError as e:
+    #         log('DownloadError:', e)
+            
+    #         self.finished.emit(None)
+    #     except ExtractorError as e:
+    #         log('ExtractorError:', e)
+    #         self.finished.emit(None)
+    #     except Exception as e:
+    #         log('Unexpected error:', e)
+    #         self.finished.emit(None)
 
             
 class CheckUpdateAppThread(QThread):
@@ -193,22 +270,27 @@ class CheckUpdateAppThread(QThread):
 
         # Retrieve current version and changelog information
         current_version = config.APP_VERSION
-        info = update.get_changelog()
+        try:
+            info = update.get_changelog()
 
-        if info:
-            latest_version, version_description = info
+            if info:
+                latest_version, version_description = info
 
-            # Compare versions
-            newer_version = compare_versions(current_version, latest_version)
-            if not newer_version or newer_version == current_version:
+                # Compare versions
+                newer_version = compare_versions(current_version, latest_version)
+                if not newer_version or newer_version == current_version:
+                    self.new_version_available = False
+                else:  # newer_version == latest_version
+                    self.new_version_available = True
+
+                # Update global values
+                config.APP_LATEST_VERSION = latest_version
+                self.new_version_description = version_description
+            else:
                 self.new_version_available = False
-            else:  # newer_version == latest_version
-                self.new_version_available = True
-
-            # Update global values
-            config.APP_LATEST_VERSION = latest_version
-            self.new_version_description = version_description
-        else:
+                self.new_version_description = None
+        except Exception as e:
+            log(f"Error checking for updates: {e}")
             self.new_version_available = False
             self.new_version_description = None
 
@@ -596,6 +678,8 @@ class DownloadManagerUI(QMainWindow):
 
 
         widgets.help_menu.actions()[0].triggered.connect(self.show_about_dialog)
+        widgets.help_menu.actions()[1].triggered.connect(self.start_update)
+        widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
         widgets.toolbar_buttons["Queues"].clicked.connect(self.show_queue_dialog)
 
 
@@ -623,11 +707,18 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer.start(60000)  # Every 60 seconds
 
     
+
+
+
+    def show_user_guide(self):
+        dialog = UserGuideDialog(self)
+        dialog.exec()
+
     def export_downloads_list(self):
         file_dialog = QFileDialog(self)
         file_dialog.setAcceptMode(QFileDialog.AcceptSave)
-        file_dialog.setNameFilter("JSON Files (*.json)")
-        file_dialog.setDefaultSuffix("json")
+        file_dialog.setNameFilter("CFG Files (*.cfg)")
+        file_dialog.setDefaultSuffix("cfg")
         
         if file_dialog.exec():
             save_path = file_dialog.selectedFiles()[0]
@@ -635,19 +726,9 @@ class DownloadManagerUI(QMainWindow):
             try:
                 export_data = []
                 for d in self.d_list:
-                    export_data.append({
-                        "name": d.name,
-                        "url": d.url,
-                        "size": d.size,
-                        "status": d.status,
-                        "folder": d.folder,
-                        "progress": d.progress,
-                        "queue_name": getattr(d, "queue_name", ""),
-                        "queue_position": getattr(d, "queue_position", 0),
-                    })
+                    export_data.append(d.get_persistent_properties())
 
                 with open(save_path, "w") as f:
-                    import json
                     json.dump(export_data, f, indent=4)
 
                 self.show_information("Export Successful", f"File saved in {save_path}", "Downloads list exported successfully.")
@@ -711,6 +792,7 @@ class DownloadManagerUI(QMainWindow):
         QCoreApplication.instance().removeTranslator(self.translator)
 
         file_map = {
+            "English": "app_en.qm",
             "French": "app_fr.qm",
             "Spanish": "app_es.qm",
             "Chinese": "app_zh.qm",
@@ -781,7 +863,6 @@ class DownloadManagerUI(QMainWindow):
         # widgets.label_general.setText(self.tr("General"))
         # widgets.label_language.setText(self.tr("Choose Language:"))
         # widgets.label_setting.setText(self.tr("Choose Setting:"))
-        widgets_settings.monitor_clipboard_cb.setText(self.tr("Monitor Copied Urls"))
         
 
     def start_queue_by_id(self, queue_id):
@@ -980,6 +1061,10 @@ class DownloadManagerUI(QMainWindow):
                 widgets.toolbar_buttons[key].setEnabled(enabled)
 
 
+    def update_queue_combobox(self):
+        self.queues = setting.load_queues()
+        widgets.combo3.clear()
+        widgets.combo3.addItems(["None"] + [q["name"] for q in self.queues])
 
 
 
@@ -1085,19 +1170,20 @@ class DownloadManagerUI(QMainWindow):
                 widgets_settings.monitor_clipboard_cb.setChecked(v)               
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()    
-            # elif k == "restore_window":
-            #     config.terminate = False
-            #     self.restore_window()
             elif k == 'popup':
                 type_ = v['type_']
                 if type_ == 'info':
                     self.show_information(title=v['title'], inform="", msg=v['msg'])
-                else:
+                elif type_ == 'warning':
+                    self.show_warning(title=v['title'], msg=v['msg'])
+                elif type_ == 'critical':
                     self.show_critical(title=v['title'], msg=v['msg'])
             elif k == "queue_list":
                 self.queue_combo()
             elif k == "queue_download":
                 self._queue_or_start_download(*v)
+            elif k == "update call":
+                self.start_update(*v)
 
 
     def run(self):
@@ -1201,7 +1287,7 @@ class DownloadManagerUI(QMainWindow):
         if not config.browser_integration_enabled:
             return
 
-        queue_file = Path.home() / ".pyiconic_url_queue.json"
+        queue_file = Path.home() / "APPData/Roaming/.OmniPull/.omnipull_url_queue.json"
         if queue_file.exists():
             try:
                 with open(queue_file) as f:
@@ -1320,8 +1406,6 @@ class DownloadManagerUI(QMainWindow):
                     self.check_scheduled()
                 elif key == 'pending_jobs':
                     self.pending_jobs()
-                elif key == 'settings_folder':
-                    self.settings_folder()
                 elif key == 'check_browser_queue':
                     self.check_browser_queue()
                 
@@ -1352,7 +1436,6 @@ class DownloadManagerUI(QMainWindow):
         self.queue_update('populate_table', None)
         self.queue_update('check_scheduled', None)
         self.queue_update('pending_jobs', None)
-        self.queue_update('settings_folder', None)
         self.queue_update('check_browser_queue', None)
 
 
@@ -1381,10 +1464,10 @@ class DownloadManagerUI(QMainWindow):
         #     self.show_warning("No Internet","Please check your internet connection and try again")
         #     return
 
-        if self.check_time:
-            self.check_time = False
-            server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
-            server_check.server_check_update() 
+        # if self.check_time:
+        #     self.check_time = False
+        #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
+        #     server_check.server_check_update() 
 
         if d is None:
             return
@@ -1590,53 +1673,7 @@ class DownloadManagerUI(QMainWindow):
 
         return hashlib.md5(name.encode()).hexdigest()[:8]
 
-    # def on_download_button_clicked(self, downloader=None):
-    #     if not self.d or not self.d.url:
-    #         self.show_information("Download Error", "Nothing to download", "Check your URL or click Retry.")
-    #         return
-
-    #     if isinstance(self.d, Video):
-    #         d = self.d.clone()  # ✅ Full deep clone, reuse parsed streams/info
-    #         d.update_param()
-    #     else:
-    #         d = copy.copy(self.d)
-    #         d.update(d.url)     # ✅ Only normal HTTP downloads refresh info
-
-    #     d.folder = config.download_folder
-
-    #     selected_queue = widgets.combo3.currentText()
-
-    #     if selected_queue and selected_queue != "None":
-    #         d.in_queue = True
-    #         d.queue_name = selected_queue
-    #         d.queue_id = self.get_queue_id(selected_queue)
-    #         d.status = config.Status.queued
-    #         d.last_known_progress = 0
-    #         d.last_known_size = 0
-
-    #         if not isinstance(d, Video):
-    #             d._segments = []
-
-    #         # Assign queue position
-    #         existing_positions = [
-    #             item.queue_position for item in self.d_list
-    #             if item.in_queue and item.queue_name == selected_queue
-    #         ]
-    #         d.queue_position = max(existing_positions, default=0) + 1
-    #         d.id = len(self.d_list)
-
-    #         self.d_list.append(d)
-    #         setting.save_d_list(self.d_list)
-    #         self.queue_update("populate_table", None)
-
-    #         self.show_information("Added to Queue", f"{d.name}", "Start it from the Queues Dialog.")
-    #         self.change_page(btn=None, btnName=None, idx=1)
-
-    #     else:
-    #         # Immediate download (not queued)
-    #         r = self.start_download(d, downloader=downloader)
-    #         if r not in ('error', 'cancelled', False):
-    #             self.change_page(btn=None, btnName=None, idx=1)
+    
 
 
     def on_download_button_clicked(self, downloader=None):
@@ -1651,18 +1688,6 @@ class DownloadManagerUI(QMainWindow):
         d = copy.copy(self.d)
         d.folder = config.download_folder
         selected_queue = widgets.combo3.currentText()
-
-        # if isinstance(self.d, Video):
-        #     # Hide queue options for YouTube videos
-        #     widgets.combo3.clear()
-        #     widgets.combo3.addItem("None")  # Force direct download
-        # else:
-        #     # Normal files - show queues
-        #     widgets.combo3.clear()
-        #     widgets.combo3.addItem("None")
-        #     widgets.combo3.addItems(self.get_queue_names())
-
-
         if isinstance(self.d, Video) and selected_queue and selected_queue != "None":
             self.show_warning("Queue Error", "YouTube and streaming videos cannot be added to a queue. Please download directly.")
             return
@@ -1698,11 +1723,6 @@ class DownloadManagerUI(QMainWindow):
             inform = self.tr("has been added to queue:")
             msg = self.tr("Start it from the Queues Dialog.")
             self.show_information(title, inform, msg)
-            # QMessageBox.information(
-            #     self,
-            #     self.tr("Added to Queue"),
-            #     self.tr(f"'{d.name}' has been added to queue: {selected_queue}.\nStart it from the Queues Dialog."),
-            # )
             self.change_page(btn=None, btnName=None, idx=1)
         else:
             d.queue = None
@@ -1712,35 +1732,6 @@ class DownloadManagerUI(QMainWindow):
     
     
     
-    # def on_download_button_clicked(self, downloader=None):
-    #     """Handle DownloadButton click event."""
-    #     # Check if the download button is disabled
-    #     if self.d.url == "":
-    #         # Use QMessageBox to display the popup in PyQt
-    #         msg = QMessageBox()
-    #         msg.setIcon(QMessageBox.Warning)
-    #         msg.setWindowTitle(self.tr('Download Error'))
-    #         msg.setStyleSheet(self.get_msgbox_style("warning"))
-    #         msg.setText(self.tr('Nothing to download'))
-    #         msg.setInformativeText(self.tr('It might be a web page or an invalid URL link. Check your link or click "Retry".'))
-    #         msg.setStandardButtons(QMessageBox.Ok)
-    #         msg.exec()
-    #         return
-        
-
-    #     # Get a copy of the current download item (self.d)
-    #     d = copy.copy(self.d)
-
-    #     # Set the folder for download
-    #     d.folder = config.download_folder  # Ensure that config.download_folder is properly set
-
-    #     # Start the download using the appropriate downloader
-    #     r = self.start_download(d, downloader=downloader)
-
-        
-    #     if r not in ('error', 'cancelled', False):
-    #         self.change_page(btn=None, btnName=None, idx=1)
-            
     
    
 
@@ -1762,7 +1753,7 @@ class DownloadManagerUI(QMainWindow):
         try:
             if thumbnail is None or thumbnail == "":
                 # Reset to default thumbnail if no new thumbnail is provided
-                default_pixmap = QPixmap("icons/thumbnail-default.png")
+                default_pixmap = QPixmap(":/icons/thumbnail-default.png")
                 widgets.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
                 log("Resetting to default thumbnail")
             elif thumbnail != self.current_thumbnail:
@@ -1797,7 +1788,7 @@ class DownloadManagerUI(QMainWindow):
             self.reset_to_default_thumbnail()
 
     def reset_to_default_thumbnail(self):
-        default_pixmap = QPixmap("icons/thumbnail-default.png")
+        default_pixmap = QPixmap(":/icons/thumbnail-default.png")
         widgets.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
         log("Reset to default thumbnail due to error")
         widgets_settings.monitor_clipboard_cb.setChecked(True)
@@ -2121,6 +2112,26 @@ class DownloadManagerUI(QMainWindow):
                 # Create the dialog
                 dialog = QDialog(self)
                 dialog.setWindowTitle(self.tr('FFmpeg is missing'))
+                dialog.setStyleSheet("""
+                    QDialog {
+                        background-color: qlineargradient(
+                            x1: 0, y1: 0, x2: 1, y2: 1,
+                            stop: 0 #0F1B14,
+                            stop: 1 #050708
+                        );
+                        color: white;
+                        border-radius: 14px;
+                    }
+                    QLabel {
+                        color: white;
+                        font-size: 12px;
+                    }
+                    QRadioButton {
+                        padding: 4px;
+                    }
+                    
+                """)
+
 
                 # Layout setup
                 layout = QVBoxLayout(dialog)
@@ -2131,7 +2142,7 @@ class DownloadManagerUI(QMainWindow):
 
                 # Radio buttons for choosing destination folder
                 recommended, local_fd = self.tr("Recommended:"), self.tr("Local folder:")
-                recommended_radio = QRadioButton(f"{recommended} {config.ffmpeg_actual_path_2}")
+                recommended_radio = QRadioButton(f"{recommended} {config.global_sett_folder}")
                 recommended_radio.setChecked(True)
                 local_radio = QRadioButton(f"{local_fd} {config.current_directory}")
 
@@ -2150,7 +2161,41 @@ class DownloadManagerUI(QMainWindow):
                 # Buttons for Download and Cancel
                 button_layout = QHBoxLayout()
                 download_button = QPushButton(self.tr('Download'))
+                download_button.setStyleSheet("""
+                    QPushButton {
+                        background-color: qlineargradient(
+                        x1: 0, y1: 0, x2: 1, y2: 1,
+                        stop: 0 #0F1B14,
+                        stop: 1 #050708
+                        ); 
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px 16px;
+                        font-weight: bold;
+                    }
+                    QPushButton:hover {
+                        background-color: #33d47c;
+                    }
+                """)
                 cancel_button = QPushButton(self.tr('Cancel'))
+                cancel_button.setStyleSheet("""
+                    QPushButton {
+                        background-color: qlineargradient(
+                        x1: 0, y1: 0, x2: 1, y2: 1,
+                        stop: 0 #0F1B14,
+                        stop: 1 #050708
+                        ); 
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px 16px;
+                        font-weight: bold;
+                    }
+                    QPushButton:hover {
+                        background-color: #3c3c3c;
+                    }
+                """)
                 button_layout.addWidget(download_button)
                 button_layout.addWidget(cancel_button)
 
@@ -2566,7 +2611,7 @@ class DownloadManagerUI(QMainWindow):
                     stop: 0 #0F1B14,
                     stop: 1 #050708
                     );
-                    color: black;
+                    color: white;
                     padding: 6px 16px;
                     border: none;
                     border-radius: 6px;
@@ -2949,6 +2994,55 @@ class DownloadManagerUI(QMainWindow):
         if d.status == config.Status.pending:
             self.pending.pop(d.id)
 
+        #self.requeue_paused_items()
+
+    def requeue_paused_items(self):
+        for d in self.d_list:
+            if d.status == config.Status.cancelled and d.queue_name is not None and d.in_queue:
+                d.status = config.Status.queued
+        setting.save_d_list(self.d_list)
+        self.populate_table()
+
+                
+
+
+
+    # def pause_btn(self):
+    #     selected_rows = widgets.table.selectionModel().selectedRows()
+    #     if not selected_rows:
+    #         return
+
+    #     for row in selected_rows:
+    #         row_index = row.row()
+    #         id_item = widgets.table.item(row_index, 0)
+    #         download_id = id_item.data(Qt.UserRole)
+
+    #         # Find the matching download item
+    #         d = next((x for x in self.d_list if x.id == download_id), None)
+    #         if not d:
+    #             continue
+
+    #         # ✅ Case 1: It’s a queued item that is currently downloading
+    #         if d.in_queue and d.queue_name and d.status == config.Status.downloading:
+    #             log(f"[Pause] {d.name} is currently downloading in a queue. Setting back to queued.")
+    #             d.status = config.Status.queued
+    #             break  # ✅ Exit immediately to allow queue to resume the next one
+
+    #         # ✅ Case 2: It's not part of a queue — just cancel it normally
+    #         elif not d.in_queue and d.status in (config.Status.downloading, config.Status.pending):
+    #             log(f"[Pause] {d.name} is a normal download. Cancelling.")
+    #             d.status = config.Status.cancelled
+    #             d.queue = ""
+    #             d.queue_id = None
+    #             d.queue_position = 0
+
+    #             if d.status == config.Status.pending and d.id in self.pending:
+    #                 self.pending.pop(d.id)
+
+    #     setting.save_d_list(self.d_list)
+    #     self.populate_table()
+
+
 
 
     def refresh_link_btn(self):
@@ -3161,6 +3255,50 @@ class DownloadManagerUI(QMainWindow):
         context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
 
 
+    # def add_to_queue_from_context(self):
+    #     selected_items = widgets.table.selectedItems()
+    #     if not selected_items:
+    #         return
+
+    #     selected_row = selected_items[0].row()
+    #     id_item = widgets.table.item(selected_row, 0)
+    #     download_id = id_item.data(Qt.UserRole)
+    #     d = next((x for x in self.d_list if x.id == download_id), None)
+    #     if not d:
+    #         return
+
+    #     if d.type in ["dash", "m3u8", "hls", "streaming", "youtube"]:
+    #         self.show_critical(title="Streaming Downloads", msg="Streaming or Youtube downloads cannot be added to Queues")
+    #         return
+           
+
+    #     queue_names = [q["name"] for q in self.queues]
+
+    #     dialog = QInputDialog(self)
+    #     dialog.setWindowTitle("Select Queue")
+    #     dialog.setLabelText("Choose a queue to add to:")
+    #     dialog.setComboBoxItems(queue_names)
+    #     dialog.setStyleSheet(self.get_msgbox_style("inputdial"))  # 🟰 Set your style here
+
+    #     if dialog.exec() == QInputDialog.Accepted:
+    #         queue_name = dialog.textValue()
+    #         if queue_name:
+    #             d.in_queue = True
+    #             d.queue_name = queue_name
+    #             d.queue_id = self.get_queue_id(queue_name)
+    #             d.status = config.Status.queued
+
+    #             existing_positions = [
+    #                 item.queue_position for item in self.d_list
+    #                 if item.in_queue and item.queue_name == queue_name
+    #             ]
+    #             d.queue_position = max(existing_positions, default=0) + 1
+
+    #             setting.save_d_list(self.d_list)
+    #             setting.save_queues(self.queues)
+    #             self.populate_table()
+    #             self.refresh_table_row(d)
+
     def add_to_queue_from_context(self):
         selected_items = widgets.table.selectedItems()
         if not selected_items:
@@ -3174,9 +3312,15 @@ class DownloadManagerUI(QMainWindow):
             return
 
         if d.type in ["dash", "m3u8", "hls", "streaming", "youtube"]:
-            self.show_critical(title="Streaming Downloads", msg="Streaming or Youtube downloads cannot be added to Queues")
+            self.show_critical(title="Streaming Downloads", msg="Streaming or YouTube downloads cannot be added to Queues")
             return
-           
+
+        if not self.queues:
+            self.show_warning(
+                title="No Queues Available",
+                msg="You haven't created any queues yet. Please create one from the Queue Manager."
+            )
+            return
 
         queue_names = [q["name"] for q in self.queues]
 
@@ -3184,7 +3328,7 @@ class DownloadManagerUI(QMainWindow):
         dialog.setWindowTitle("Select Queue")
         dialog.setLabelText("Choose a queue to add to:")
         dialog.setComboBoxItems(queue_names)
-        dialog.setStyleSheet(self.get_msgbox_style("inputdial"))  # 🟰 Set your style here
+        dialog.setStyleSheet(self.get_msgbox_style("inputdial"))
 
         if dialog.exec() == QInputDialog.Accepted:
             queue_name = dialog.textValue()
@@ -3201,8 +3345,10 @@ class DownloadManagerUI(QMainWindow):
                 d.queue_position = max(existing_positions, default=0) + 1
 
                 setting.save_d_list(self.d_list)
+                setting.save_queues(self.queues)
                 self.populate_table()
                 self.refresh_table_row(d)
+
 
 
 
@@ -3398,88 +3544,6 @@ class DownloadManagerUI(QMainWindow):
                     f'{d_protocol} {d.protocol} \n' \
                     f'{d_webpage_url} {d.url}'
             self.show_information(self.tr("File Properties"), inform="", msg=f"{text}")
-
-
-    # region settings
-    def settings_folder(self):
-        # Get the currently selected value in the combo box
-        selected = widgets_settings.setting_scope_combo.currentText()
-        if selected == "Local":
-            # Choose local folder as the settings folder
-            config.sett_folder = config.current_directory
-
-            # Remove settings.cfg from global folder
-            delete_file(os.path.join(config.global_sett_folder, 'setting.cfg'))
-        else:
-            # Choose global folder as the settings folder
-            config.sett_folder = config.global_sett_folder
-
-            # Remove settings.cfg from local folder
-            delete_file(os.path.join(config.current_directory, 'setting.cfg'))
-
-            # Check if the global settings folder exists
-            if not os.path.isdir(config.global_sett_folder):
-                try:
-                    # Display a confirmation dialog using QMessageBox
-                    choice = QMessageBox.question(self, 'Create Folder', 
-                                                f'Folder: {config.global_sett_folder}\nwill be created',
-                                                QMessageBox.Ok | QMessageBox.Cancel)
-                    
-                    
-
-                    # If the user cancels, raise an exception
-                    if choice != QMessageBox.Cancel:
-                        # Try to create the folder
-                        os.mkdir(config.global_sett_folder)
-                    else:
-                        raise Exception('Operation Cancelled by User')
-
-                except Exception as e:
-                    # Log the error
-                    log('global setting folder error:', e)
-
-                    # If there is an error, use the current directory as the fallback
-                    config.sett_folder = config.current_directory
-
-                    # Show a popup with the error and inform the user about the fallback
-                    ewc, lfw = self.tr("Error while creating global settings folder"), self.tr("Local folder will be used instead")
-                    QMessageBox.critical(self, self.tr('Error'),
-                                        f'{ewc} \n'
-                                        f'"{config.global_sett_folder}"\n'
-                                        f'{str(e)}\n'
-                                        f'{lfw}')
-
-                    # Update the combo box to reflect the local folder choice
-                    widgets_settings.setting_scope_combo.setCurrentText('Local')
-
-        # Update the combo box to reflect the current setting folder
-        try:
-            widgets_settings.setting_scope_combo.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
-        except:
-            pass
-
-    
-    # SWITCH LANGUAGE
-    def switch_language(self):
-        selected = widgets_settings.language_combo.currentText()
-        if selected == "French":
-            self.current_language = "French"
-        elif selected == "Spanish":
-            self.current_language = "Spanish"
-        elif selected == "Japanese":
-            self.current_language = "Japanese"
-        elif selected == "Chinese":
-            self.current_language = "Chinese"
-        elif selected == "Korean":
-            self.current_language = "Korean"
-        else:
-            self.current_language = "English"
-        
-        config.lang = self.current_language
-    
-            
-
-        self.apply_language(self.current_language)
 
 
     def on_startup(self):
@@ -3721,7 +3785,35 @@ class DownloadManagerUI(QMainWindow):
     def show_update_gui(self):
         # Create a QDialog (modal window)
         dialog = QDialog(self)
-        dialog.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #121212;
+                color: white;
+                border-radius: 12px;
+                font-family: 'Segoe UI';
+                font-size: 13px;
+                border: 1px solid #3A3F44;
+            }
+            QLabel {
+                font-size: 14px;
+                padding: 6px;
+            }
+            QTextEdit {
+                background-color: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #0F1B14,
+                stop: 1 #050708
+                );
+                border-radius: 16px;
+                color: white;
+                border: 1px solid #333;
+                font-family: Consolas, Courier New, monospace;
+                font-size: 12px;
+                padding: 10px;
+            }
+        """)
+
+
         dialog.setWindowTitle(self.tr('Update Application'))
         dialog.setModal(True)  # Keep the window on top
 
@@ -3742,7 +3834,43 @@ class DownloadManagerUI(QMainWindow):
         # Create buttons for "Update" and "Cancel"
         button_layout = QHBoxLayout()
         update_button = QPushButton(self.tr('Update'), dialog)
+        update_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #0F1B14,
+                stop: 1 #050708
+                ); 
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 6px 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #33d47c;
+            }
+            """
+        )
         cancel_button = QPushButton(self.tr('Cancel'), dialog)
+        cancel_button.setStyleSheet("""
+            QPushButton {
+                background-color: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #0F1B14,
+                stop: 1 #050708
+                ); 
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 6px 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #3c3c3c;
+            }
+        """)
         button_layout.addWidget(update_button)
         button_layout.addWidget(cancel_button)
 
@@ -3810,137 +3938,6 @@ class DownloadManagerUI(QMainWindow):
     # endregion
 
 
-
-
-
-
-# Redesigned ScheduleDialog with modern, sleek UI look
-class ScheduleDialog(QDialog):
-    def __init__(self, msg='', parent=None):
-        super().__init__(parent)
-        self.setWindowTitle(self.tr('Schedule Download'))
-        self.resize(420, 200)
-        self.setStyleSheet("""
-            QDialog {
-                background-color: qlineargradient(
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #0F1B14,
-                    stop: 1 #050708
-                );
-                color: white;
-                border-radius: 14px;
-            }
-            QLabel {
-                color: white;
-                font-size: 12px;
-            }
-            QComboBox {
-                background-color: rgba(28, 28, 30, 0.85);
-                color: #e0e0e0;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 6px;
-                padding: 5px;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox QAbstractItemView {
-                background-color: rgba(20, 25, 20, 0.95);
-                border: 1px solid rgba(60, 200, 120, 0.25);
-                selection-background-color: #2DE099;
-                color: white;
-            }
-            QPushButton {
-                background-color: qlineargradient(
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #0F1B14,
-                    stop: 1 #050708
-                ); 
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 6px 16px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #33d47c;
-            }
-            QPushButton#CancelBtn {
-                background-color: qlineargradient(
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #0F1B14,
-                    stop: 1 #050708
-                );
-                color: white;
-            }
-            QPushButton#CancelBtn:hover {
-                background-color: #666;
-            }
-        """)
-
-        layout = QVBoxLayout(self)
-        layout.setSpacing(15)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        self.message_label = QLabel(msg)
-        layout.addWidget(self.message_label)
-
-        row_layout = QHBoxLayout()
-        row_layout.setSpacing(10)
-
-        self.hour_label = QLabel(self.tr("Hours:"))
-        row_layout.addWidget(self.hour_label)
-        self.hours_combo = QComboBox(self)
-        self.hours_combo.addItems([str(i) for i in range(1, 13)])
-        row_layout.addWidget(self.hours_combo)
-
-        self.minute_label = QLabel(self.tr("Minutes:"))
-        row_layout.addWidget(self.minute_label)
-        self.minutes_combo = QComboBox(self)
-        self.minutes_combo.addItems([f"{i:02d}" for i in range(0, 60)])
-        row_layout.addWidget(self.minutes_combo)
-
-        layout.addLayout(row_layout)
-
-        am_pm_layout = QHBoxLayout()
-        am_pm_layout.setAlignment(Qt.AlignCenter)
-        self.am_pm_combo = QComboBox(self)
-        self.am_pm_combo.addItems(['AM', 'PM'])
-        am_pm_layout.addWidget(self.am_pm_combo)
-        layout.addLayout(am_pm_layout)
-
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(20)
-        button_layout.setAlignment(Qt.AlignRight)
-
-        self.ok_button = QPushButton(self.tr('Ok'), self)
-        self.ok_button.clicked.connect(self.accept)
-        button_layout.addWidget(self.ok_button)
-
-        self.cancel_button = QPushButton(self.tr('Cancel'), self)
-        self.cancel_button.setObjectName("CancelBtn")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-        self.hours_combo.setCurrentIndex(0)
-        self.minutes_combo.setCurrentIndex(0)
-        self.am_pm_combo.setCurrentIndex(0)
-
-    @property
-    def response(self):
-        h = int(self.hours_combo.currentText())
-        m = int(self.minutes_combo.currentText())
-        am_pm = self.am_pm_combo.currentText()
-
-        if am_pm == 'PM' and h != 12:
-            h += 12
-        elif am_pm == 'AM' and h == 12:
-            h = 0
-
-        return h, m
-
 def ask_for_sched_time(msg=''):
     dialog = ScheduleDialog(msg)
     result = dialog.exec()  # Show the dialog as a modal
@@ -3964,6 +3961,16 @@ def ask_for_sched_time(msg=''):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(":/icons/logo1.png"))
+    app_id = "omnipull.exe"
+    single_instance = SingleInstanceApp(app_id)
+
+    if single_instance.is_running():
+        QMessageBox.warning(None, "Warning", "Another instance of this application is already running.")
+        sys.exit(0)
+
+    # Start the server to mark this instance as active
+    single_instance.start_server()
     window = DownloadManagerUI(config.d_list)
     window.show()
     # Optionally, run a method after the main window is initialized

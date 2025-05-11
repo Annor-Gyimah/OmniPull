@@ -2,14 +2,14 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
     QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
-    QHeaderView, QMenu
+    QHeaderView, QMenu, QButtonGroup, QSizePolicy
 )
 from PySide6.QtGui import QIcon
 from random import randint
 import os
 import psutil
-from PySide6.QtCore import QCoreApplication
-
+from PySide6.QtCore import QPropertyAnimation, QPoint, QEasingCurve, QTimer, QCoreApplication
+import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -70,9 +70,16 @@ class Ui_MainWindow(object):
         self.browser_extension_menu = QMenu("Browser Extension", self.tools_menu)
         self.tools_menu.addMenu(self.browser_extension_menu)
 
-        self.chrome_action = self.browser_extension_menu.addAction("Chrome")
-        self.firefox_action = self.browser_extension_menu.addAction("Firefox")
-        self.edge_action = self.browser_extension_menu.addAction("Edge")
+        # Assuming icons are under :/icons/ in your .qrc file
+        self.chrome_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/google-chrome.svg"), "Chrome"
+        )
+        self.firefox_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/firefox.svg"), "Firefox"
+        )
+        self.edge_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/microsoft-edge.svg"), "Edge"
+        )
 
 
         
@@ -98,33 +105,49 @@ class Ui_MainWindow(object):
         self.sidebar_frame.setObjectName("SidebarFrame")
         self.sidebar_frame.setFixedWidth(180)
         self.sidebar_layout = QVBoxLayout(self.sidebar_frame)
-        self.sidebar_layout.setSpacing(0)  # 👈 No spacing between buttons
+        self.sidebar_layout.setSpacing(8)  # 👈 No spacing between buttons
         self.sidebar_layout.setContentsMargins(0, 0, 0, 0)  # 👈 No margins, full edge-to-edge
-
+        
+        
 
         self.page_buttons = []
-        icon_names = ["icons/add.svg", "icons/play.svg", "icons/terminal.svg"]
+        icon_names = [":/icons/add.png", ":/icons/table.png", ":/icons/terminal.png"]
+        self.button_group = QButtonGroup()
+        self.button_group.setExclusive(True)  # 👈 ensures only one button is checked
+
         for idx, icon_path in enumerate(icon_names):
             btn = QPushButton()
             btn.setFixedSize(150, 100)
             btn.setIcon(QIcon(icon_path))
-            btn.setIconSize(QSize(36, 36))
+            btn.setIconSize(QSize(150, 150))
             btn.setCheckable(True)
             btn.setStyleSheet("""
                 QPushButton {
                     background-color: transparent;
                     border: none;
-                    padding: 40px;
+                    padding: 80px;
                     text-align: center;
                 }
                 QPushButton:hover {
-                    background-color: #333;
+                    background-color: #1e1e1e;
+
                 }
+                QPushButton:checked {
+                    border-bottom: 4px solid qlineargradient(x1:1, y1:0, x2:0, y2:0,
+                    stop: 0 #00C853, stop: 1 #003d1f); /* 👈 indicator bar */
+                    border-radius: 0px;
+                    
+                }
+                
                 
             """)
             btn.setCursor(Qt.PointingHandCursor)
             self.page_buttons.append(btn)
             self.sidebar_layout.addWidget(btn)
+            self.button_group.addButton(btn, id=idx)  # 👈 Add to group with an ID
+
+            if idx == 0:
+                btn.setChecked(True)
 
         self.sidebar_layout.addStretch()
         total_gb, used_gb, free_gb, percent = self.get_disk_usage("/")
@@ -189,19 +212,21 @@ class Ui_MainWindow(object):
             }
         """)
 
-        self.retry_btn = QPushButton("Retry")
-        self.retry_btn.setFixedWidth(120)
+        self.retry_btn = QPushButton("")
+        self.retry_btn.setIcon(QIcon(":/icons/retry.png"))
+        self.retry_btn.setIconSize(QSize(42, 42))
+        self.retry_btn.setFixedSize(50, 50)
         self.retry_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2c2c2c;
                 color: white;
-                border: 1px solid #444;
                 border-radius: 20px;
-                padding: 6px 12px;
+                padding: 4px; /* 👈 required to prevent offset */
             }
             QPushButton:hover {
-                background-color: #3a3a3a;
+                background-color: rgba(0, 255, 180, 0.1);  /* subtle hover */
+                
             }
+            
         """)
 
         link_row = QHBoxLayout()
@@ -241,8 +266,10 @@ class Ui_MainWindow(object):
         folder_row = QHBoxLayout()
         self.folder_input = QLineEdit("/home/username/Downloads")
         self.folder_input.setStyleSheet(self.link_input.styleSheet())
-        self.folder_btn = QPushButton("📂 Open")
-        self.folder_btn.setFixedWidth(120)
+        self.folder_btn = QPushButton()
+        self.folder_btn.setIcon(QIcon(":/icons/folder.png"))
+        self.folder_btn.setIconSize(QSize(42, 42))
+        self.folder_btn.setFixedSize(55, 55)
         self.folder_btn.setStyleSheet(self.retry_btn.styleSheet())
         folder_row.addWidget(self.folder_input)
         folder_row.addWidget(self.folder_btn)
@@ -284,13 +311,13 @@ class Ui_MainWindow(object):
         left_layout.setAlignment(Qt.AlignCenter)
 
         self.thumbnail = QLabel()
-        self.thumbnail.setPixmap(QIcon("icons/thumbnail-default.png").pixmap(400, 350))
+        self.thumbnail.setPixmap(QIcon(":/icons/thumbnail-default.png").pixmap(400, 350))
         self.thumbnail.setAlignment(Qt.AlignCenter)
         self.thumbnail.setFixedSize(400, 350)
         self.thumbnail.setStyleSheet("border-radius: 8px;")
         left_layout.addWidget(self.thumbnail)
 
-        content_row.addWidget(left_frame, stretch=2)
+        
 
         # RIGHT PANEL
         right_frame = QFrame()
@@ -402,29 +429,66 @@ class Ui_MainWindow(object):
         # BUTTONS
         button_row = QHBoxLayout()
         button_row.setSpacing(10)
-
-        self.playlist_btn = QPushButton("🎵 Playlist")
-        self.playlist_btn.setFixedWidth(140)
+        button_row.setContentsMargins(4, 1, 4, 4)
+        self.playlist_btn = QPushButton("")
+        self.playlist_btn.setIcon(QIcon(":/icons/playlist.png"))
+        self.playlist_btn.setIconSize(QSize(62, 62))
+        self.playlist_btn.setFixedSize(75, 75)
+        self.playlist_btn.setStyleSheet(self.retry_btn.styleSheet())
         self.playlist_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2c2c2c;
-                color: white;
-                border: 1px solid #444;
-                border-radius: 14px;
-                padding: 4px 10px;
+                background-color: transparent;
+                border-radius: 20px;
+                padding: 5px; /* 👈 required to prevent offset */
             }
             QPushButton:hover {
-                background-color: #3a3a3a;
+                background-color: rgba(0, 255, 180, 0.08);  /* clean, modern hover */
             }
-         """)
-        self.download_btn = QPushButton("🔄 Download")
-        self.download_btn.setStyleSheet(self.retry_btn.styleSheet())
-        self.download_btn.setFixedWidth(140)
+        """)
+        self.download_btn = QPushButton()
+        
+        self.download_btn.setText("")  # Clear hidden text
+        self.download_btn.setIcon(QIcon(":/icons/download.png"))
+        self.download_btn.setIconSize(QSize(62, 62))
+        self.download_btn.setFixedSize(75, 75)
+        self.download_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border-radius: 20px;
+                padding: 5px; /* 👈 required to prevent offset */
+            }
+            QPushButton:hover {
+                background-color: rgba(0, 255, 180, 0.08);  /* clean, modern hover */
+            }
+        """)
+
+        self.download_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.download_btn.setContentsMargins(0, 0, 0, 0)
+
+        
+
+
 
         button_row.addWidget(self.playlist_btn)
         button_row.addWidget(self.download_btn)
         right_layout.addLayout(button_row)
 
+
+        # NEW: Middle Frame
+        middle_frame = QFrame()
+        middle_frame.setFrameShape(QFrame.StyledPanel)
+        middle_layout = QVBoxLayout(middle_frame)
+        middle_layout.setContentsMargins(12, 12, 12, 12)
+        middle_layout.setSpacing(8)
+
+        # Optional placeholder content
+        middle_label = QLabel("Subtitles / Extras")
+        middle_label.setStyleSheet("color: white;")
+        middle_layout.addWidget(middle_label)
+
+        content_row.addWidget(middle_frame, stretch=1)  # 👈 NEW PANEL
+        content_row.addWidget(left_frame, stretch=1)
+       
         content_row.addWidget(right_frame, stretch=1)
 
         # === WRAP CONTENT IN CONTAINER THAT STRETCHES
@@ -437,205 +501,8 @@ class Ui_MainWindow(object):
         self.page_add_layout.addLayout(content_container)
 
 
-
-        # Centered thumbnail & stacked elements
-        # row = QHBoxLayout()
-        # row.addSpacing(80)
-        # row.setSpacing(10)
-
-        # self.thumbnail = QLabel()
-        # self.thumbnail.setPixmap(QIcon("icons/thumbnail-default.png").pixmap(140, 100))
-        # self.thumbnail.setStyleSheet("border: 1px solid #333;")
-        # self.thumbnail.setFixedSize(140, 100)
-        # row.addWidget(self.thumbnail)
-
-        # # Vertical layout for combo boxes & playlist
-        # combo_column = QVBoxLayout()
-        # combo_column.setSpacing(10)
-        # self.combo1 = QComboBox()
-        # self.combo1.setFixedWidth(650)
-        # self.combo1.addItems(["Option 1", "Option 2"])
-        # self.combo1.setStyleSheet(
-            
-        #     """
-
-        #     QLineEdit, QComboBox {
-        #         background-color: rgba(28, 28, 30, 0.55);  /* Neutral frosted charcoal */
-        #         color: #e0e0e0;
-        #         border: 1px solid rgba(255, 255, 255, 0.05);
-        #         border-radius: 6px;
-        #         padding: 6px 10px;
-        #     }
-
-        #     QLineEdit:hover, QComboBox:hover {
-        #         border: 1px solid rgba(111, 255, 176, 0.18);  /* subtle emerald glow on hover */
-        #     }
-
-        #     QComboBox::drop-down {
-        #         border: none;
-        #         background-color: transparent;
-        #     }
-
-        #     QComboBox QAbstractItemView {
-        #         background-color: rgba(20, 25, 20, 0.95);
-        #         border: 1px solid rgba(60, 200, 120, 0.25);
-        #         selection-background-color: #2DE099;
-        #         color: white;
-        #     }
-
-
-
-        #     """
-        # )
-
-        # self.combo2 = QComboBox()
-        # self.combo2.addItems(["Option A", "Option B"])
-        # self.combo2.setFixedWidth(650)
-        # self.combo2.setStyleSheet(self.combo1.styleSheet())
-
-        # self.playlist_btn = QPushButton("\ud83c\udfb5 Playlist")
-        # self.playlist_btn.setFixedSize(120, 32)
-        # self.playlist_btn.setStyleSheet("""
-        #     QPushButton {
-        #         background-color: #2c2c2c;
-        #         color: white;
-        #         border: 1px solid #444;
-        #         border-radius: 14px;
-        #         padding: 4px 10px;
-        #     }
-        #     QPushButton:hover {
-        #         background-color: #3a3a3a;
-        #     }
-        # """)
-        # combo_column.addWidget(self.combo1)
-        # combo_column.addWidget(self.combo2)
-        # combo_column.addSpacing(8)
-        # combo_column.addWidget(self.playlist_btn)
-
-        # row.addLayout(combo_column)
-        # self.page_add_layout.addLayout(row)
-        # self.page_add_layout.addSpacing(20)  # Space between thumbnail/combo layout and metadata
-
-        # # Metadata center aligned individual labels
-        # self.page_add_layout.addSpacing(10)
-        # meta_row = QHBoxLayout()
-        # meta_row.setSpacing(40)
-        # meta_row.setAlignment(Qt.AlignCenter)
-
-        # self.size_label = QLabel("Size: ")
-        # self.size_value = QLabel("Unknown")
-        # self.type_label = QLabel("Type: ")
-        # self.type_value = QLabel("Unknown")
-        # self.protocol_label = QLabel("Protocol: ")
-        # self.protocol_value = QLabel("--")
-        # self.resume_label = QLabel("Resumable: ")
-        # self.resume_value = QLabel("No")
-
-        # for label in [self.size_label, self.size_value, self.type_label, self.type_value,
-        #             self.protocol_label, self.protocol_value, self.resume_label, self.resume_value]:
-        #     label.setStyleSheet("color: #bbb; font-size: 12px;")
-        #     meta_row.addWidget(label)
-
-        # self.page_add_layout.addLayout(meta_row)
-        # self.page_add_layout.addStretch()
-
-        # # Download button
-        # self.download_btn = QPushButton("\ud83d\udd04 Download")
-        # self.download_btn.setStyleSheet(self.retry_btn.styleSheet())
-        # self.page_add_layout.addWidget(self.download_btn, alignment=Qt.AlignCenter)
-
-        # Add updated page to stack
-        # self.stacked_widget.insertWidget(0, self.page_add)
-
         self.stacked_widget.addWidget(self.page_add)
         
-        # # Page 1 - Toolbar + Table
-        # self.toolbar_frame = QFrame()
-        # self.toolbar_layout = QHBoxLayout(self.toolbar_frame)
-        # self.toolbar_layout.setSpacing(10)
-
-        # self.toolbar_buttons = {}
-        # icon_map = {
-        #     "Resume": "icons/play.svg",
-        #     "Pause": "icons/pause.svg",
-        #     "Stop": "icons/stop.svg",
-        #     "Stop All": "icons/stop_all.svg",
-        #     "Delete": "icons/trash.svg",
-        #     "Delete All": "icons/multi_trash.svg",
-        #     "Refresh": "icons/refresh.svg",
-        #     "Resume All": "icons/resume_all.svg",
-        #     "Schedule All": "icons/sche.png",
-        #     "Settings": "icons/setting.svg",
-        #     "Download Window": "icons/d_window.png",
-        #     "Stop Queue": "icons/delete_all.svg",
-        #     "Grabber": "icons/delete_all.svg",
-        #     "Tell a Friend": "icons/delete_all.svg"
-        # }
-
-        # for label, icon_path in icon_map.items():
-        #     btn = QPushButton()
-        #     btn.setToolTip(label)
-        #     if os.path.exists(icon_path):
-        #         icon = QIcon(icon_path)
-        #         btn.setIcon(icon)
-        #         btn.setIconSize(QSize(42, 42))
-        #         btn.setFixedSize(50, 50)
-        #     else:
-        #         btn.setText(label)
-        #     btn.setStyleSheet("""
-        #         QPushButton {
-        #             background-color: transparent;
-        #             border: none;
-        #             border-radius: 6px;
-        #             padding: 6px;
-        #         }
-        #         QPushButton:hover {
-        #             background-color: #2e2e2e;
-        #         }
-        #     """)
-        #     self.toolbar_buttons[label] = btn
-        #     self.toolbar_layout.addWidget(btn)
-
-        # self.toolbar_layout.addStretch()
-
-        # self.table = QTableWidget(5, 9)
-        # self.table.setHorizontalHeaderLabels(["ID", "Name", "Progress", "Speed", "Left", "Done", "Size", "Status", "I"])
-        # self.table.setSelectionBehavior(QTableWidget.SelectRows)
-        # self.table.setAlternatingRowColors(True)
-        # self.table.verticalHeader().setVisible(False)
-
-        # for row in range(5):
-        #     for col in range(9):
-        #         if col == 2:
-        #             progress = QProgressBar()
-        #             progress.setRange(0, 100)
-        #             # progress_value = randint(10, 90)
-        #             # progress.setValue(progress_value)
-        #             progress.setTextVisible(True)
-                    
-        #             progress.setStyleSheet("""
-        #                 QProgressBar {
-        #                     background-color: #2a2a2a;
-        #                     border: 1px solid #444;
-        #                     border-radius: 4px;
-        #                     text-align: center;
-        #                     color: white;
-        #                 }
-        #                 QProgressBar::chunk {
-        #                     background-color: #00C853;
-        #                     border-radius: 4px;
-        #                 }
-        #             """)
-        #             self.table.setCellWidget(row, col, progress)
-        #         else:
-        #             self.table.setItem(row, col, QTableWidgetItem(f"Sample {row}-{col}"))
-
-        # self.page_table = QWidget()
-        # self.page_table_layout = QVBoxLayout(self.page_table)
-        # self.page_table_layout.setContentsMargins(0, 0, 0, 0)
-        # self.page_table_layout.addWidget(self.toolbar_frame)
-        # self.page_table_layout.addWidget(self.table)
-        # self.stacked_widget.addWidget(self.page_table)
 
         # Page 1 - Toolbar + Table
         self.toolbar_frame = QFrame()
@@ -651,25 +518,25 @@ class Ui_MainWindow(object):
 
         self.toolbar_buttons = {}
         icon_map = {
-            "Resume": "icons/play.svg",
-            "Pause": "icons/pause.svg",
-            "Stop All": "icons/stop_all.svg",
-            "Delete": "icons/trash.svg",
-            "Delete All": "icons/multi_trash.svg",
-            "Refresh": "icons/refresh.svg",
-            "Resume All": "icons/resume_all.svg",
-            "Schedule All": "icons/sche.png",
-            "Settings": "icons/setting.svg",
-            "Download Window": "icons/d_window.png",
-            "Queues": "icons/queues.png"
+            "Resume": ":/icons/play.svg",
+            "Pause": ":/icons/pause.svg",
+            "Stop All": ":/icons/stop_all.svg",
+            "Delete": ":/icons/trash.svg",
+            "Delete All": ":/icons/multi_trash.svg",
+            "Refresh": ":/icons/refresh.png",
+            "Resume All": ":/icons/resume_all.svg",
+            "Schedule All": ":/icons/sche.png",
+            "Settings": ":/icons/setting.svg",
+            "Download Window": ":/icons/d_window.png",
+            "Queues": ":/icons/queues.png"
             
         }
 
         for label, icon_path in icon_map.items():
             btn = QPushButton()
             btn.setToolTip(label)
-            if os.path.exists(icon_path):
-                icon = QIcon(icon_path)
+            icon = QIcon(icon_path)
+            if not icon.isNull():
                 btn.setIcon(icon)
                 btn.setIconSize(QSize(42, 42))
                 btn.setFixedSize(50, 50)
@@ -857,7 +724,7 @@ class Ui_MainWindow(object):
         for i, btn in enumerate(self.page_buttons):
             btn.clicked.connect(lambda _, idx=i: self.stacked_widget.setCurrentIndex(idx))
 
-        self.page_buttons[1].setChecked(True)
+        self.page_buttons[0].setChecked(True)
         self.stacked_widget.setCurrentIndex(0)
 
         self.content_layout.addWidget(self.stacked_widget)
@@ -874,8 +741,7 @@ class Ui_MainWindow(object):
 
         self.brand = QLabel("YourBrand")
         self.status_layout.addWidget(self.brand)
-        self.status_layout.addStretch(1)
-        
+        self.status_layout.addStretch(1)        
         self.status_layout.addWidget(QLabel("Status:"))
         self.status_value = QLabel("")
         self.status_layout.addWidget(self.status_value)
@@ -887,7 +753,14 @@ class Ui_MainWindow(object):
         self.version_value = QLabel("")
         self.status_layout.addWidget(self.version_value)
 
-        self.main_layout.addWidget(self.status_frame)
+        # Wrapper frame to enforce the same horizontal margins as content_frame
+        self.status_wrapper = QFrame()
+        self.status_wrapper_layout = QHBoxLayout(self.status_wrapper)
+        self.status_wrapper_layout.setContentsMargins(195, 0, 10, 12)  # Match content_frame margins
+        self.status_wrapper_layout.setSpacing(290)
+        self.status_wrapper_layout.addWidget(self.status_frame)
+
+        self.main_layout.addWidget(self.status_wrapper)
 
     def get_disk_usage(self, path="/"):
         usage = psutil.disk_usage(path)

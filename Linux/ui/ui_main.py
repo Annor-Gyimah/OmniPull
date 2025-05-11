@@ -70,9 +70,15 @@ class Ui_MainWindow(object):
         self.browser_extension_menu = QMenu("Browser Extension", self.tools_menu)
         self.tools_menu.addMenu(self.browser_extension_menu)
 
-        self.chrome_action = self.browser_extension_menu.addAction("Chrome")
-        self.firefox_action = self.browser_extension_menu.addAction("Firefox")
-        self.edge_action = self.browser_extension_menu.addAction("Edge")
+        self.chrome_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/google-chrome.svg"), "Chrome"
+        )
+        self.firefox_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/firefox.svg"), "Firefox"
+        )
+        self.edge_action = self.browser_extension_menu.addAction(
+            QIcon(":/icons/microsoft-edge.svg"), "Edge"
+        )
 
 
         

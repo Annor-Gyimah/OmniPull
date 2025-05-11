@@ -5,7 +5,7 @@ import re
 import shlex
 import subprocess
 import sys
-import tarfile
+import zipfile
 import time
 from threading import Thread
 from urllib.parse import urljoin
@@ -13,7 +13,7 @@ import copy
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
-    delete_file, download, process_thumbnail
+    delete_file, download, process_thumbnail, popup
 
 # youtube-dl
 ytdl = None  # youtube-dl will be imported in a separate thread to save loading time
@@ -388,10 +388,10 @@ def download_ffmpeg(destination=config.sett_folder):
     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
     if platform.machine().endswith('64'):
         # 64 bit link
-        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'
+        url = 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip'
     else:
         # 32 bit link
-        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz'
+        url = 'https://www.videohelp.com/download/ffmpeg-4.3.1-win32-static.zip'
 
     log('downloading: ', url)
 
@@ -399,7 +399,7 @@ def download_ffmpeg(destination=config.sett_folder):
     # print('config.sett_folder = ', config.sett_folder)
     d = DownloadItem(url=url, folder=config.ffmpeg_download_folder)
     d.update(url)
-    d.name = 'ffmpeg.tar.xz'  # must rename it for unzip to find it
+    d.name = 'ffmpeg.zip'  # must rename it for unzip to find it
     # print('d.folder = ', d.folder)
 
     # post download
@@ -409,57 +409,100 @@ def download_ffmpeg(destination=config.sett_folder):
     config.main_window_q.put(('download', (d, False)))
 
 
+
 def unzip_ffmpeg():
-    log('Unzip FFmpeg:', 'Unzipping')
+    log('unzip_ffmpeg:', 'unzipping')
 
     try:
-        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.tar.xz')
-        
-        # Extract using tarfile for .tar.xz files
-        with tarfile.open(file_name, 'r:xz') as tar_ref:
-            tar_ref.extractall(config.ffmpeg_download_folder)
+        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
+            zip_ref.extractall(config.ffmpeg_download_folder)
 
-        log('FFmpeg update:', 'Deleted zip file')
+        log('ffmpeg update:', 'delete zip file')
         delete_file(file_name)
-        log('FFmpeg update:', 'FFmpeg is ready at: ', config.ffmpeg_download_folder)
+        log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
     except Exception as e:
-        log('Unzip FFmpeg: error ', e)
+        log('unzip_ffmpeg: error ', e)
+
 
 
 def check_ffmpeg():
-    """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
-    and finally system-wide"""
+    """Check for ffmpeg availability, and cache result to avoid re-checking."""
+
+    # ✅ If previously verified, skip check
+    if config.ffmpeg_verified:
+        return True
 
     log('Checking FFmpeg availability...')
     found = False
 
-    # Search in current app directory then default setting folder
     try:
         for folder in [config.current_directory, config.global_sett_folder]:
+            if not folder: continue  # skip if not set
             for file in os.listdir(folder):
-                if file == 'ffmpeg':
-                    found = True
-                    config.ffmpeg_actual_path = os.path.join(folder, file)
-                    break
-            if found:  # Break outer loop
+                if file.lower().startswith("ffmpeg"):
+                    full_path = os.path.join(folder, file)
+                    if os.path.isfile(full_path):
+                        found = True
+                        config.ffmpeg_actual_path = full_path
+                        break
+            if found:
                 break
     except Exception as e:
-        log(f"Error while checking directories: {e}")
+        log(f"Error while checking folders for ffmpeg: {e}")
 
-    # Search in the system path
+    # Try system PATH
     if not found:
-        cmd = 'which ffmpeg'
-        error, output = run_command(cmd, verbose=False)
-        if not error:
+        from shutil import which
+        path = which("ffmpeg")
+        if path:
+            config.ffmpeg_actual_path = os.path.realpath(path)
             found = True
-            config.ffmpeg_actual_path = os.path.realpath(output.strip())
 
     if found:
-        log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
+        config.ffmpeg_verified = True  # ✅ Cache success
+        log('FFmpeg found:', config.ffmpeg_actual_path)
         return True
     else:
-        log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
+        config.ffmpeg_actual_path = None
+        log('FFmpeg not found. Will prompt user.')
         return False
+
+
+# def check_ffmpeg():
+#     """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
+#     and finally system-wide"""
+
+#     log('Checking FFmpeg availability...')
+#     found = False
+
+#     # Search in current app directory then default setting folder
+#     try:
+#         for folder in [config.current_directory, config.global_sett_folder]:
+#             for file in os.listdir(folder):
+#                 if file == 'ffmpeg':
+#                     found = True
+#                     config.ffmpeg_actual_path = os.path.join(folder, file)
+#                     break
+#             if found:  # Break outer loop
+#                 break
+#     except Exception as e:
+#         log(f"Error while checking directories: {e}")
+
+#     # Search in the system path
+#     if not found:
+#         cmd = 'which ffmpeg'
+#         error, output = run_command(cmd, verbose=False)
+#         if not error:
+#             found = True
+#             config.ffmpeg_actual_path = os.path.realpath(output.strip())
+
+#     if found:
+#         log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
+#         return True
+#     else:
+#         log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
+#         return False
 
 def is_download_complete(d):
     return all(seg.completed for seg in d.segments)
@@ -902,6 +945,7 @@ def post_process_hls(d):
         create_local_m3u8(remote_video_m3u8_file, local_video_m3u8_file, names, crypt_key_names)
     except Exception as e:
         log('post_process_hls()> error', e)
+        popup(title="Filename Error", msg="Please retry the download however the filename should not contain special characters.", type_="critical")
         return False
 
     if d.type == 'dash':

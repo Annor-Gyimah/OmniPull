@@ -35,44 +35,74 @@ def get_global_sett_folder():
 config.global_sett_folder = get_global_sett_folder()
 
 
+# def locate_setting_folder():
+#     """check local folder and global setting folder for setting.cfg file"""
+#     # look for previous setting file
+#     try:
+#         if 'setting.cfg' in os.listdir(config.current_directory):
+#             return config.current_directory
+#         elif 'setting.cfg' in os.listdir(config.global_sett_folder):
+#             return config.global_sett_folder
+#     except:
+#         pass
+
+#     # no setting file found will check local folder for writing permission, otherwise will return global sett folder
+#     try:
+#         folder = config.current_directory
+#         with open(os.path.join(folder, 'test'), 'w') as test_file:
+#             test_file.write('0')
+#         os.unlink(os.path.join(folder, 'test'))
+#         return config.current_directory
+
+#     except PermissionError:
+#         log("No enough permission to store setting at local folder:", folder)
+#         log('Global setting folder will be selected:', config.global_sett_folder)
+
+#         # create global setting folder if it doesn't exist
+#         if not os.path.isdir(config.global_sett_folder):
+#             os.mkdir(config.global_sett_folder)
+
+#         return config.global_sett_folder
+
 def locate_setting_folder():
-    """check local folder and global setting folder for setting.cfg file"""
-    # look for previous setting file
-    try:
-        if 'setting.cfg' in os.listdir(config.current_directory):
+    """Determine and return the setting folder. Prefer global folder by default."""
+    # Create global setting folder if not exists
+    if not os.path.exists(config.global_sett_folder):
+        try:
+            os.makedirs(config.global_sett_folder, exist_ok=True)
+        except Exception as e:
+            log(f"[Settings] Could not create global folder: {e}")
             return config.current_directory
-        elif 'setting.cfg' in os.listdir(config.global_sett_folder):
-            return config.global_sett_folder
-    except:
-        pass
 
-    # no setting file found will check local folder for writing permission, otherwise will return global sett folder
-    try:
-        folder = config.current_directory
-        with open(os.path.join(folder, 'test'), 'w') as test_file:
-            test_file.write('0')
-        os.unlink(os.path.join(folder, 'test'))
-        return config.current_directory
+    return config.global_sett_folder
 
-    except PermissionError:
-        log("No enough permission to store setting at local folder:", folder)
-        log('Global setting folder will be selected:', config.global_sett_folder)
 
-        # create global setting folder if it doesn't exist
-        if not os.path.isdir(config.global_sett_folder):
-            os.mkdir(config.global_sett_folder)
+def ensure_config_files_exist():
+    required_files = ['setting.cfg', 'downloads.cfg', 'queues.cfg', 'log.txt']
+    for file in required_files:
+        path = os.path.join(config.sett_folder, file)
+        if not os.path.exists(path):
+            with open(path, 'w') as f:
+                if file.endswith('.cfg'):
+                    json.dump([] if 'queues' in file or 'downloads' in file else {}, f)
+                else:
+                    f.write("")  # empty log.txt
 
-        return config.global_sett_folder
 
 
 config.sett_folder = locate_setting_folder()
-
+ensure_config_files_exist()
 
 def load_d_list():
     """create and return a list of 'DownloadItem objects' based on data extracted from 'downloads.cfg' file"""
     d_list = []
     try:
         file = os.path.join(config.sett_folder, 'downloads.cfg')
+
+        # file2 = os.path.join(config.sett_folder, 'queues.cfg')
+        # if not os.path.exists(file2):
+        #     with open(file2, 'w') as f:
+        #         json.dump([], f)
 
         with open(file, 'r') as f:
             # expecting a list of dictionaries
@@ -185,7 +215,7 @@ def load_queues():
             return json.load(f)
 
     except Exception as e:
-        print(f"Error loading queues.cfg: {e}")
+        log(f"Error loading queues.cfg: {e}")
         return []
     
 
@@ -196,7 +226,7 @@ def save_queues(queues):
         with open(QUEUES_CFG_FILE, 'w') as f:
             json.dump(queues, f, indent=2)
     except Exception as e:
-        print(f"Error saving queues.cfg: {e}")
+        log(f"Error saving queues.cfg: {e}")
 
 # Example queue entry structure:
 # {

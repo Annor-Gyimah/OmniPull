@@ -72,6 +72,8 @@ def brain(d=None, emitter=None):
         # ✅ Cancellation Check
         if d.status == Status.cancelled:
             log(f"brain() cancelled manually for: {d.name}")
+            if d.in_queue:
+                d.status = Status.queued
             break
 
         # ✅ Completion Check
@@ -84,6 +86,8 @@ def brain(d=None, emitter=None):
         if d.status == Status.error:
             log(f"brain() error detected for: {d.name}")
             break
+
+    
 
 
     if d.callback and d.status == Status.completed:

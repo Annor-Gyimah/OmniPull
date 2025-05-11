@@ -185,7 +185,7 @@ def load_queues():
             return json.load(f)
 
     except Exception as e:
-        print(f"Error loading queues.cfg: {e}")
+        log(f"Error loading queues.cfg: {e}")
         return []
     
 
@@ -196,7 +196,7 @@ def save_queues(queues):
         with open(QUEUES_CFG_FILE, 'w') as f:
             json.dump(queues, f, indent=2)
     except Exception as e:
-        print(f"Error saving queues.cfg: {e}")
+        log(f"Error saving queues.cfg: {e}")
 
 # Example queue entry structure:
 # {

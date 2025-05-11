@@ -1,7 +1,7 @@
 import platform
 import os
 import sys
-from Os import OS
+from modules.Os import OS
 
 home_address = os.path.expanduser("~")
 

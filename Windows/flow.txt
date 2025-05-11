@@ -53,3 +53,65 @@ STEP 3 - python package-extension.py
 11	GUI Updates Optimized	✅ Done	Using queue + timer batches
 12	Solved QThread crash (Destroyed while running)	✅ Done	Safer thread exit on shutdown
 13	Stopped app freezing under many downloads	✅ Done	Massive playlist no longer freezes UI
+
+
+
+Here’s a solid feature list you can use for documentation, presentation, or user guide:
+
+🔹 Core Download Features
+Download direct HTTP, HTTPS, FTP files
+
+Supports large files with multi-threaded segmenting
+
+Intelligent file renaming to prevent overwrites
+
+Resumable downloads with real-time progress tracking
+
+Clipboard monitoring for automatic URL detection
+
+🔹 YouTube & Streaming Support
+Download from YouTube and other streaming sites via yt-dlp
+
+Extracts best video/audio quality
+
+Supports DASH, HLS, and progressive streaming formats
+
+Video+audio merging using FFmpeg
+
+Detects and auto-resumes YouTube videos
+
+🔹 Queue System
+Create named queues (e.g. “Movies”, “Work”, “Music”)
+
+Schedule queue downloads
+
+Prioritize or pause/resume entire queues
+
+Reorder queue items
+
+🔹 Browser Integration
+Chrome & Firefox extension support
+
+OmniPull button automatically appears beside downloadable links
+
+YouTube button injected into video pages
+
+One-click send from browser to app via Native Messaging
+
+🔹 System Features
+Auto-check for software updates
+
+Lightweight & fast (thanks to QThreads)
+
+Global vs Local settings storage
+
+Logs and settings saved in AppData/Roaming/.OmniPull
+
+🔹 Modern UI
+Sleek, modern sidebar navigation
+
+Dark theme with stylish gradients
+
+Live speed indicators and progress bars
+
+Drag & drop support for URLs (optional)

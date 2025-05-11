@@ -5,3 +5,6 @@ __pycache__/
 .ruff_cache/
 .pdm-python
 modules/log.txt
+omnipull-watcher.exe
+omnipull-watcher.cmd
+Miscellaneous

@@ -1,0 +1,41 @@
+N/A
+- Flexible UI
+
+
+
+
+1.2.24
+- Fixed 'formats' error present when downloading youtube videos
+- Processing youtube video information now faster
+- Fixed issue with 'yt-dlp' unable to download youtube videos from some protocols such as https etc.
+- Fixed scheduler sets to cancelled after app is closed and reopened
+
+
+1.0.2
+- Change cancel button to pause button
+- Yt-dlp updated to latest version
+- Fixed GUI crashes for multiple URL processing
+- Made only one instance of the app run at a time
+- Table items are not editable
+
+2025.1.25
+- Support for multiple languages such as French, Spanish, Japanese, Chinese, Korean.
+- Fixed Download window not showing progress on resume.
+- Add autostart on startup.
+- DDM can now hide at the system's tray.
+- Wifi icon for indicating network connectivity.
+- Fixed stream combo selection.
+
+2024.12.25:
+- New GUI design with fresh button icons for main tab.
+- Thumbnail auto preview for selected video.
+- Ability to show download window offline per user option.
+- fixed resume/overwrite existing download item.
+- Ability to cancel ongoing ffmpeg operation, i.e. merging audio/video or handling hls streams.
+- arrange settings tab.
+- right click options for url widget.
+- various GUI tweaks.
+- stop creating global settings folder automatically.
+- playlist/video info extracting process becomes faster 2 times.
+- Fixed problem of scheduled downloads
+

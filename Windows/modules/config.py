@@ -1,7 +1,6 @@
 """
-    pyIDM
-
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySide6"
+    OmniPull - a free and open source download manager for Windows, Linux, and MacOS.
+    OmniPull is a cross-platform, multi-threaded, multi-segment, and multi-connections internet download manager, based on "pyCuRL/curl", "yt-dlp", and "PySide6"
 
     :copyright: (c) 2019-2020 by Mahmoud Elshahat.
     :license: GNU LGPLv3, see LICENSE for more details.
@@ -98,7 +97,7 @@ else:
 sys.path.insert(0, os.path.dirname(current_directory))
 sys.path.insert(0, current_directory)
 
-#sett_folder = None
+
 sett_folder = os.path.dirname(os.path.abspath(__file__))
 global_sett_folder = None
 download_folder = DEFAULT_DOWNLOAD_FOLDER
@@ -108,8 +107,9 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 ffmpeg_actual_path = "/usr/bin/ffmpeg"
 ##ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/usr/bin/ffmpeg")
 #ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
-ffmpeg_actual_path_2 = "/usr/bin/"
+ffmpeg_actual_path_2 = global_sett_folder
 ffmpeg_download_folder = sett_folder
+ffmpeg_verified = False # ffmpeg is verified or not
 
 # downloads
 active_downloads = set()  # indexes for active downloading items

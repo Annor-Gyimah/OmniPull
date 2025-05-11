@@ -22,6 +22,15 @@ class QueueDialog(QDialog):
         self.queues = setting.load_queues()
 
         # self.main_window.running_queues = {}  # key: queue_id, value: True/False
+        # if self.queues:
+        #     first_queue = self.queues[0]
+        #     self.current_queue_id = first_queue.get("id")
+        #     self.populate_queue_items()
+        # else:
+        #     self.current_queue_id = None
+
+
+
 
         self.main_window = parent
 
@@ -295,7 +304,133 @@ class QueueDialog(QDialog):
         self.queue_list.currentRowChanged.connect(
             lambda index: self.on_queue_selected(self.queue_list.currentItem(), None)
         )
+        self.name_edit.textChanged.connect(self.on_name_edit_changed)
+        self.queue_list.itemChanged.connect(self.on_queue_name_edited)
+
+
+    
+
+    def on_name_edit_changed(self, text):
+        row = self.queue_list.currentRow()
+        if row < 0 or row >= len(self.queues):
+            return
+
+        new_name = text.strip()
+        if not new_name:
+            return
+
+        # Prevent duplicate names
+        for i, q in enumerate(self.queues):
+            if i != row and q["name"].strip().lower() == new_name.lower():
+                QMessageBox.warning(self, "Duplicate Name", "A queue with this name already exists.")
+                self.name_edit.setText(self.queues[row]["name"])
+                return
+
+        old_name = self.queues[row]["name"]
+        old_queue_id = self.get_queue_id(old_name)
+        new_queue_id = self.get_queue_id(new_name)
+
+        # Update the queue object
+        self.queues[row]["name"] = new_name
+        self.queues[row]["id"] = new_queue_id
+
+        # Update the UI
+        self.queue_list.item(row).setText(new_name)
+
+        # Update the downloads that had the old queue ID
+        for d in self.d_list:
+            if d.in_queue and d.queue_id == old_queue_id:
+                d.queue_id = new_queue_id
+                d.queue_name = new_name
+
+        self.current_queue = new_name
+        self.current_queue_id = new_queue_id
+
+        setting.save_queues(self.queues)
+        setting.save_d_list(self.d_list)
+
+        # self.populate_queue_list()
+        # self.populate_queue_items()
+
+
+    def on_queue_name_edited(self, item):
+        row = self.queue_list.row(item)
+        new_name = item.text().strip()
+
+        if row < 0 or row >= len(self.queues):
+            return
+
+        for i, q in enumerate(self.queues):
+            if i != row and q["name"].strip().lower() == new_name.lower():
+                QMessageBox.warning(self, "Duplicate Name", f"A queue named '{new_name}' already exists.")
+                item.setText(self.queues[row]["name"])
+                return
+
+        old_name = self.queues[row]["name"]
+        old_queue_id = self.get_queue_id(old_name)
+        new_queue_id = self.get_queue_id(new_name)
+
+        self.queues[row]["name"] = new_name
+        self.queues[row]["id"] = new_queue_id
+        self.name_edit.setText(new_name)
+        self.current_queue = new_name
+        self.current_queue_id = new_queue_id
+
+        for d in self.d_list:
+            if d.in_queue and d.queue_id == old_queue_id:
+                d.queue_id = new_queue_id
+                d.queue_name = new_name
+
+        setting.save_queues(self.queues)
+        setting.save_d_list(self.d_list)
+
+        # self.populate_queue_list()
+        # self.populate_queue_items()
+
+
+
         
+    # def on_queue_name_edited(self, item):
+    #     row = self.queue_list.row(item)
+    #     new_name = item.text().strip()
+
+    #     if row >= 0 and row < len(self.queues):
+    #         # Prevent duplicate names
+    #         for i, q in enumerate(self.queues):
+    #             if i != row and q["name"].strip().lower() == new_name.lower():
+    #                 QMessageBox.warning(self, "Duplicate Name", f"A queue named '{new_name}' already exists.")
+    #                 item.setText(self.queues[row]["name"])  # revert name
+    #                 return
+
+    #         old_name = self.queues[row]["name"]
+    #         queue_id = self.queues[row].get("id")
+
+    #         # Update queue data
+    #         self.queues[row]["name"] = new_name
+    #         self.name_edit.setText(new_name)
+    #         self.current_queue = new_name
+    #         self.current_queue_id = queue_id
+
+    #         # Update all download items with matching queue_id
+    #         print(queue_id)
+    #         for d in self.d_list:
+    #             if d.queue_id == queue_id:
+    #                 d.queue = new_name
+    #                 d.queue_name = new_name
+
+    #         setting.save_queues(self.queues)
+    #         setting.save_d_list(self.d_list)
+
+
+    
+      
+
+
+
+
+    
+
+
 
 
     def move_selected_row_up(self):
@@ -339,7 +474,6 @@ class QueueDialog(QDialog):
 
 
     def create_new_queue(self):
-        # Auto-generate unique name
         base_name = "Queue"
         count = 1
         existing_names = [self.queue_list.item(i).text() for i in range(self.queue_list.count())]
@@ -349,15 +483,16 @@ class QueueDialog(QDialog):
             count += 1
             new_name = f"{base_name} {count}"
 
-        # Add to list widget
+        new_id = self.get_queue_id(new_name)
+
         new_item = QListWidgetItem(new_name)
         new_item.setFlags(new_item.flags() | Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.queue_list.addItem(new_item)
         self.queue_list.setCurrentItem(new_item)
         self.queue_list.editItem(new_item)
 
-        # Track internally
         self.queues.append({
+            "id": new_id,
             "name": new_name,
             "max_concurrent": 1,
             "auto_stop": False,
@@ -365,16 +500,58 @@ class QueueDialog(QDialog):
             "items": []
         })
 
+
+    # def delete_selected_queue(self):
+    #     row = self.queue_list.currentRow()
+    #     if row < 0 or row >= len(self.queues):
+    #         return
+
+    #     # Remove from the internal list and the UI list
+    #     del self.queues[row]
+    #     self.queue_list.takeItem(row)
+
+    #     # Update the config tab display
+    #     if self.queue_list.count() > 0:
+    #         self.queue_list.setCurrentRow(0)
+    #         self.update_queue_config(0)
+    #     else:
+    #         self.name_edit.clear()
+    #         self.max_spin.setValue(1)
+    #         self.auto_stop.setChecked(False)
+    #         self.enable_sched.setChecked(False)
+    #         self.start_time.setTime(QTime(0, 0))
+
+        
     def delete_selected_queue(self):
         row = self.queue_list.currentRow()
         if row < 0 or row >= len(self.queues):
             return
 
-        # Remove from the internal list and the UI list
+        # Get the queue being deleted
+        deleted_queue = self.queues[row]
+        deleted_queue_id = deleted_queue.get("id")
+
+        # ✅ Remove the queue from the list and UI
         del self.queues[row]
         self.queue_list.takeItem(row)
 
-        # Update the config tab display
+        # ✅ Save updated queue list
+        setting.save_queues(self.queues)
+
+        # ✅ Remove downloads assigned to the deleted queue (or unassign them)
+        for d in self.d_list:
+            if d.queue_id == deleted_queue_id:
+                d.in_queue = False
+                d.queue_id = None
+                d.queue_name = ""
+                d.queue_position = 0
+        setting.save_d_list(self.d_list)
+
+        # ✅ Refresh queue combo box in main UI (optional, but best UX)
+        if hasattr(self.parent(), "update_queue_combobox"):
+            self.parent().update_queue_combobox()
+
+        # ✅ Clear or update config panel
         if self.queue_list.count() > 0:
             self.queue_list.setCurrentRow(0)
             self.update_queue_config(0)
@@ -385,12 +562,14 @@ class QueueDialog(QDialog):
             self.enable_sched.setChecked(False)
             self.start_time.setTime(QTime(0, 0))
 
-        
+        QMessageBox.information(self, "Queue Deleted", "Queue was successfully deleted.")
 
     def populate_queue_list(self):
         self.queue_list.clear()
         for q in self.queues:
             self.queue_list.addItem(q["name"])
+            item = self.queue_list.item(self.queue_list.count() - 1)
+            item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
         # ✅ Force-select the first queue to trigger population
         if self.queue_list.count() > 0:
@@ -441,6 +620,8 @@ class QueueDialog(QDialog):
         import hashlib
 
         return hashlib.md5(name.encode()).hexdigest()[:8]
+    
+    
 
     def on_queue_selected(self, current, previous):
         if not current:
@@ -635,15 +816,6 @@ class QueueDialog(QDialog):
 
         self.accept()
 
-
-
-    # def stop_queue_downloads(self):
-    #     for d in self.active_queue_threads:
-    #         d.status = config.Status.cancelled
-    #     self.active_queue_threads = []
-    #     setting.save_d_list(self.d_list)
-    #     self.populate_queue_items()
-
     def stop_queue_downloads(self):
         queue_id = self.current_queue_id
         self.queue_processing = False
@@ -651,8 +823,8 @@ class QueueDialog(QDialog):
 
         for d in self.d_list:
             if d.in_queue and d.queue_id == queue_id:
-                if d.status in (config.Status.downloading, config.Status.pending):
-                    d.status = config.Status.cancelled
+                if d.status in (config.Status.downloading, config.Status.pending, config.Status.queued):
+                    d.status = config.Status.queued
 
         setting.save_d_list(self.d_list)
         self.populate_queue_items()

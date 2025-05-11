@@ -1,0 +1,10 @@
+
+
+{
+  "name": "com.omnipull.downloader",
+  "description": "OmniPull Native Messaging Host for Firefox",
+  "path": "C:\\Program Files\\Annorion\\OmniPull\\omnipull-watcher.exe",
+  "type": "stdio",
+  "allowed_extensions": ["omnipull@annorion.com"]
+}
+

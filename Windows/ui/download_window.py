@@ -5,7 +5,8 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 
-from PySide6.QtCore import QTimer, Qt, Slot
+from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
+import threading
 from modules.utils import truncate, size_format, size_splitter, time_format
 from modules import config
 
@@ -186,6 +187,9 @@ class DownloadWindow(QWidget):
         self.timer.stop()
         super().close()
 
+    # def close(self):
+    #     # Safely post a close event to run in main thread
+    #     QCoreApplication.postEvent(self, QEvent(QEvent.Close))
     
     @Slot(float)
     def on_progress_changed(self, value):

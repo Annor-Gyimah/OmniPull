@@ -986,3 +986,88 @@
 #         self.download_finished.emit(d)
 #         self.index += 1
 #         self.start_next()
+
+
+
+
+
+# def on_download_button_clicked(self, downloader=None):
+    #     if not self.d or not self.d.url:
+    #         self.show_information("Download Error", "Nothing to download", "Check your URL or click Retry.")
+    #         return
+
+    #     if isinstance(self.d, Video):
+    #         d = self.d.clone()  # ✅ Full deep clone, reuse parsed streams/info
+    #         d.update_param()
+    #     else:
+    #         d = copy.copy(self.d)
+    #         d.update(d.url)     # ✅ Only normal HTTP downloads refresh info
+
+    #     d.folder = config.download_folder
+
+    #     selected_queue = widgets.combo3.currentText()
+
+    #     if selected_queue and selected_queue != "None":
+    #         d.in_queue = True
+    #         d.queue_name = selected_queue
+    #         d.queue_id = self.get_queue_id(selected_queue)
+    #         d.status = config.Status.queued
+    #         d.last_known_progress = 0
+    #         d.last_known_size = 0
+
+    #         if not isinstance(d, Video):
+    #             d._segments = []
+
+    #         # Assign queue position
+    #         existing_positions = [
+    #             item.queue_position for item in self.d_list
+    #             if item.in_queue and item.queue_name == selected_queue
+    #         ]
+    #         d.queue_position = max(existing_positions, default=0) + 1
+    #         d.id = len(self.d_list)
+
+    #         self.d_list.append(d)
+    #         setting.save_d_list(self.d_list)
+    #         self.queue_update("populate_table", None)
+
+    #         self.show_information("Added to Queue", f"{d.name}", "Start it from the Queues Dialog.")
+    #         self.change_page(btn=None, btnName=None, idx=1)
+
+    #     else:
+    #         # Immediate download (not queued)
+    #         r = self.start_download(d, downloader=downloader)
+    #         if r not in ('error', 'cancelled', False):
+    #             self.change_page(btn=None, btnName=None, idx=1)
+
+
+
+    # def on_download_button_clicked(self, downloader=None):
+    #     """Handle DownloadButton click event."""
+    #     # Check if the download button is disabled
+    #     if self.d.url == "":
+    #         # Use QMessageBox to display the popup in PyQt
+    #         msg = QMessageBox()
+    #         msg.setIcon(QMessageBox.Warning)
+    #         msg.setWindowTitle(self.tr('Download Error'))
+    #         msg.setStyleSheet(self.get_msgbox_style("warning"))
+    #         msg.setText(self.tr('Nothing to download'))
+    #         msg.setInformativeText(self.tr('It might be a web page or an invalid URL link. Check your link or click "Retry".'))
+    #         msg.setStandardButtons(QMessageBox.Ok)
+    #         msg.exec()
+    #         return
+        
+
+    #     # Get a copy of the current download item (self.d)
+    #     d = copy.copy(self.d)
+
+    #     # Set the folder for download
+    #     d.folder = config.download_folder  # Ensure that config.download_folder is properly set
+
+    #     # Start the download using the appropriate downloader
+    #     r = self.start_download(d, downloader=downloader)
+
+        
+    #     if r not in ('error', 'cancelled', False):
+    #         self.change_page(btn=None, btnName=None, idx=1)
+            
+    
