@@ -486,7 +486,7 @@ class Ui_MainWindow(object):
         middle_label.setStyleSheet("color: white;")
         middle_layout.addWidget(middle_label)
 
-        content_row.addWidget(middle_frame, stretch=1)  # 👈 NEW PANEL
+        # content_row.addWidget(middle_frame, stretch=1)  # 👈 NEW PANEL
         content_row.addWidget(left_frame, stretch=1)
        
         content_row.addWidget(right_frame, stretch=1)

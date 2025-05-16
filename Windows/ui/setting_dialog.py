@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
-    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox
+    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
+    QGroupBox,  QTabWidget, QScrollArea
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -55,8 +56,9 @@ class SettingsWindow(QDialog):
         icon_map = {
             "General": "icons/general.png",
             "Connection": "icons/cil-link.png",
+            "Engine Config": "icons/cil-link.png",
             "Browser": "icons/extension.png",
-            "Updates": "icons/updates.svg"
+            "Updates": "icons/updates.svg",
         }
 
         for key, icon in icon_map.items():
@@ -138,6 +140,7 @@ class SettingsWindow(QDialog):
         # Initialize sections
         self.setup_general_tab()
         self.setup_connection_tab()
+        self.setup_engine_config_tab()
         self.setup_browser_tab()
         self.setup_updates_tab()
         self.check_update_btn.clicked.connect(self.on_call_update)
@@ -179,6 +182,11 @@ class SettingsWindow(QDialog):
         segment_row = QHBoxLayout()
         segment_row.addWidget(self.segment_linedit)
         segment_row.addWidget(self.segment_unit_combo)
+
+        download_engine = QComboBox()
+        download_engine.addItems(["yt-dlp", "aria2", "wget", "curl"])
+        self.download_engine_combo = download_engine
+        
         
         general_layout.addRow(QLabel("Choose Language:"), self.language_combo)
         general_layout.addRow(QLabel("Choose Setting:"), self.setting_scope_combo)
@@ -188,6 +196,7 @@ class SettingsWindow(QDialog):
         general_layout.addRow(self.show_thumbnail_cb)
         general_layout.addRow(self.on_startup_cb)
         general_layout.addRow(QLabel("Segment:"), segment_row)
+        general_layout.addRow(QLabel("Download Engine:"), download_engine)
         self.stack.addWidget(general_widget)
 
     def setup_connection_tab(self):
@@ -269,9 +278,156 @@ class SettingsWindow(QDialog):
         conn_layout.addRow(retry_layout)
         
 
-
         self.stack.addWidget(conn_widget)
+
+    def setup_engine_config_tab(self):
+        self.engine_widget = QWidget()
+        self.engine_layout = QVBoxLayout(self.engine_widget)
+
+        self.engine_tabs = QTabWidget()
+
+        # === YT-DLP CONFIG TAB ===
+        self.ytdlp_tab = QWidget()
+        ytdlp_layout = QVBoxLayout(self.ytdlp_tab)
+
+        ytdlp_group = QGroupBox("General")
+        ytdlp_group_layout = QVBoxLayout()
+
+        # Output template
+        out_layout = QHBoxLayout()
+        out_label = QLabel("Output Template:")
+        self.out_template = QLineEdit("%(title)s.%(ext)s")
+        self.out_template.setToolTip("Set the naming format for downloaded files.")
+        out_layout.addWidget(out_label)
+        out_layout.addWidget(self.out_template)
+
+        # Format selection
+        format_layout = QHBoxLayout()
+        format_label = QLabel("Download Format:")
+        self.format_combo = QComboBox()
+        self.format_combo.addItems(["best", "bestvideo+bestaudio", "worst", "bestvideo[height<=720]+bestaudio"])
+        self.format_combo.setToolTip("Select which format yt-dlp should download.")
+        format_layout.addWidget(format_label)
+        format_layout.addWidget(self.format_combo)
+
+        # Proxy
+        proxy_layout = QHBoxLayout()
+        proxy_label = QLabel("Proxy:")
+        self.proxy_edit = QLineEdit()
+        self.proxy_edit.setPlaceholderText("http://127.0.0.1:8080")
+        self.proxy_edit.setToolTip("Optional: Use a proxy for downloading.")
+        proxy_layout.addWidget(proxy_label)
+        proxy_layout.addWidget(self.proxy_edit)
+
+        # Fragments
+        frag_layout = QHBoxLayout()
+        frag_label = QLabel("Concurrent Fragments:")
+        self.frag_spin = QSpinBox()
+        self.frag_spin.setRange(1, 20)
+        self.frag_spin.setValue(5)
+        self.frag_spin.setToolTip("Number of parallel connections used by yt-dlp.")
+        frag_layout.addWidget(frag_label)
+        frag_layout.addWidget(self.frag_spin)
+
+        self.embed_thumb = QCheckBox("Embed Thumbnail")
+        self.embed_thumb.setToolTip("Include the video thumbnail in the output file.")
+        self.write_metadata = QCheckBox("Write Metadata")
+        self.write_metadata.setToolTip("Add metadata (e.g., title, artist) to the file.")
+
+        # Assemble layout
+        ytdlp_group_layout.addLayout(out_layout)
+        ytdlp_group_layout.addLayout(format_layout)
+        ytdlp_group_layout.addLayout(proxy_layout)
+        ytdlp_group_layout.addLayout(frag_layout)
+        ytdlp_group_layout.addWidget(self.embed_thumb)
+        ytdlp_group_layout.addWidget(self.write_metadata)
+        ytdlp_group.setLayout(ytdlp_group_layout)
+        ytdlp_layout.addWidget(ytdlp_group)
+        self.engine_tabs.addTab(self.ytdlp_tab, "YT-DLP")
+
+        # === ARIA2C CONFIG TAB ===
+        self.aria2c_tab = QWidget()
+        aria_layout = QVBoxLayout(self.aria2c_tab)
+        aria_group = QGroupBox("General")
+        aria_group_layout = QVBoxLayout()
+
+        # Max connections
+        max_layout = QHBoxLayout()
+        max_label = QLabel("Max connections per server:")
+        self.aria_max_spin = QSpinBox()
+        self.aria_max_spin.setRange(1, 64)
+        self.aria_max_spin.setValue(16)
+        self.aria_max_spin.setToolTip("Max simultaneous connections per download.")
+        max_layout.addWidget(max_label)
+        max_layout.addWidget(self.aria_max_spin)
+
+        # Other settings
+        self.aria_enable_dht = QCheckBox("Enable DHT")
+        self.aria_enable_dht.setToolTip("Enable peer discovery via DHT for torrents.")
+        self.aria_follow_torrent = QCheckBox("Follow torrent")
+        self.aria_follow_torrent.setToolTip("Automatically follow and fetch data from .torrent files.")
+
+        # Session save interval
+        interval_layout = QHBoxLayout()
+        interval_label = QLabel("Session Save Interval (s):")
+        self.aria_save_interval_spin = QSpinBox()
+        self.aria_save_interval_spin.setRange(10, 3600)
+        self.aria_save_interval_spin.setValue(60)
+        self.aria_save_interval_spin.setToolTip("How often to save active downloads to session file.")
+        interval_layout.addWidget(interval_label)
+        interval_layout.addWidget(self.aria_save_interval_spin)
+
+        # File allocation
+        alloc_layout = QHBoxLayout()
+        alloc_label = QLabel("File Allocation:")
+        self.aria_alloc_combo = QComboBox()
+        self.aria_alloc_combo.addItems(["none", "prealloc", "trunc", "falloc"])
+        self.aria_alloc_combo.setCurrentText("falloc")
+        self.aria_alloc_combo.setToolTip("Preallocation method: none, prealloc, trunc, falloc.")
+        alloc_layout.addWidget(alloc_label)
+        alloc_layout.addWidget(self.aria_alloc_combo)
+
+        # Split
+        split_layout = QHBoxLayout()
+        split_label = QLabel("Download Split Parts:")
+        self.aria_split_spin = QSpinBox()
+        self.aria_split_spin.setRange(1, 64)
+        self.aria_split_spin.setValue(32)
+        self.aria_split_spin.setToolTip("Split each download into this number of parts.")
+        split_layout.addWidget(split_label)
+        split_layout.addWidget(self.aria_split_spin)
+
+        # RPC Port
+        rpc_layout = QHBoxLayout()
+        rpc_label = QLabel("RPC Port:")
+        self.aria_rpc_spin = QSpinBox()
+        self.aria_rpc_spin.setRange(1024, 65535)
+        self.aria_rpc_spin.setValue(6800)
+        self.aria_rpc_spin.setToolTip("Port for the internal aria2c RPC server.")
+        rpc_layout.addWidget(rpc_label)
+        rpc_layout.addWidget(self.aria_rpc_spin)
+
+        # Assemble aria layout
+        aria_group_layout.addLayout(max_layout)
+        aria_group_layout.addWidget(self.aria_enable_dht)
+        aria_group_layout.addWidget(self.aria_follow_torrent)
+        aria_group_layout.addLayout(interval_layout)
+        aria_group_layout.addLayout(alloc_layout)
+        aria_group_layout.addLayout(split_layout)
+        aria_group_layout.addLayout(rpc_layout)
+        aria_group.setLayout(aria_group_layout)
+        aria_layout.addWidget(aria_group)
+        self.engine_tabs.addTab(self.aria2c_tab, "Aria2c")
+
+        # Add all to layout
+        self.engine_layout.addWidget(self.engine_tabs)
+        self.engine_layout.addStretch()
+        self.stack.addWidget(self.engine_widget)
+
+
         
+        
+
 
     def setup_browser_tab(self):
         browser_widget = QWidget()
@@ -378,6 +534,47 @@ class SettingsWindow(QDialog):
             margin: 0px;
             border: none;
         }
+        QSPinBox {
+            background-color: rgba(28, 28, 30, 0.55);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 14px; 
+            height: 30px;
+        }
+        QTabWidget::pane {
+            border: none;
+        }
+        QTabBar::tab {
+            background: transparent;
+            padding: 6px 12px;
+            margin-right: 1px;
+            color: white;
+        }
+        QTabBar::tab:selected {
+            background: #005c4b;
+            border-radius: 4px;
+        }
+        QGroupBox {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        QGroupBox:title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 4px 10px;
+            color: #9eeedc;
+            font-weight: bold;
+        }
+        QToolTip {
+            color: white;
+            background-color: #444444;
+            border: 1px solid white;
+            padding: 4px;
+            border-radius: 4px;
+        }
 
         """
 
@@ -389,6 +586,7 @@ class SettingsWindow(QDialog):
         self.auto_close_cb.setChecked(config.auto_close_download_window)
         self.show_thumbnail_cb.setChecked(config.show_thumbnail)
         self.on_startup_cb.setChecked(config.on_startup)
+        self.download_engine_combo.setCurrentText(config.download_engine)
         self.setting_scope_combo.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
 
         seg_size = config.segment_size // 1024
@@ -413,6 +611,14 @@ class SettingsWindow(QDialog):
         self.browser_integration_cb.setChecked(config.browser_integration_enabled)
 
 
+        self.aria_max_spin.setValue(config.aria2c_config['max_connections'])
+        self.aria_enable_dht.setChecked(config.aria2c_config['enable_dht'])
+        self.aria_follow_torrent.setChecked(config.aria2c_config['follow_torrent'])
+        self.aria_save_interval_spin.setValue(config.aria2c_config['save_interval'])
+        self.aria_rpc_spin.setValue(config.aria2c_config['rpc_port'])
+        self.aria_split_spin.setValue(config.aria2c_config['split'])
+        self.aria_alloc_combo.setCurrentText(config.aria2c_config['file_allocation'])
+
 
     
     def accept(self):
@@ -425,6 +631,8 @@ class SettingsWindow(QDialog):
         config.auto_close_download_window = self.auto_close_cb.isChecked()
         config.show_thumbnail = self.show_thumbnail_cb.isChecked()
         config.on_startup = self.on_startup_cb.isChecked()
+        config.download_engine = self.download_engine_combo.currentText()
+
        
 
         # Segment
@@ -447,6 +655,15 @@ class SettingsWindow(QDialog):
         config.retry_scheduled_max_tries = self.retry_count_spin.value()
         config.retry_scheduled_interval_mins = self.retry_interval_spin.value()
         config.browser_integration_enabled = self.browser_integration_cb.isChecked()
+
+        # Engine config settings
+        config.aria2c_config['max_connections'] = self.aria_max_spin.value()
+        config.aria2c_config['enable_dht'] = self.aria_enable_dht.isChecked()
+        config.aria2c_config['follow_torrent'] = self.aria_follow_torrent.isChecked()
+        config.aria2c_config['save_interval'] = self.aria_save_interval_spin.value()
+        config.aria2c_config['rpc_port'] = self.aria_rpc_spin.value()
+        config.aria2c_config['split'] = self.aria_split_spin.value()
+        config.aria2c_config['file_allocation'] = self.aria_alloc_combo.currentText()
 
 
 
@@ -496,12 +713,13 @@ class SettingsWindow(QDialog):
         # self.ok_button.setText(self.tr("OK"))
         # self.cancel_button.setText(self.tr("Cancel"))
 
-        # General Tab
         self.sidebar.item(0).setText(self.tr("General"))
         self.sidebar.item(1).setText(self.tr("Connection"))
-        self.sidebar.item(2).setText(self.tr("Browser"))
-        self.sidebar.item(3).setText(self.tr("Updates"))
+        self.sidebar.item(2).setText(self.tr("Engine Config"))
+        self.sidebar.item(3).setText(self.tr("Browser"))
+        self.sidebar.item(4).setText(self.tr("Updates"))
 
+        # General Tab
         self.monitor_clipboard_cb.setText(self.tr("Monitor Copied URLs"))
         self.show_download_window_cb.setText(self.tr("Show Download Window"))
         self.auto_close_cb.setText(self.tr("Auto Close DL Window"))
@@ -523,7 +741,7 @@ class SettingsWindow(QDialog):
 
         # Updates Tab
         self.check_update_btn.setText(self.tr("Check for update"))
-        self.stack.widget(3).layout().labelForField(self.check_interval_combo).setText(self.tr("Check for update every (days):"))
+        self.stack.widget(4).layout().labelForField(self.check_interval_combo).setText(self.tr("Check for update every (days):"))
 
         # Language label and others
         self.stack.widget(0).layout().labelForField(self.language_combo).setText(self.tr("Choose Language:"))

@@ -23,7 +23,7 @@ QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget,
 QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
-from PySide6.QtCore import QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication, Qt, QTime,  QUrl
+from PySide6.QtCore import (QTimer, QPoint, QObject, QThread, Signal, QRunnable, Slot, QUrl, QTranslator, QCoreApplication, Qt, QTime)
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard, QDesktopServices, QActionGroup
 
@@ -45,10 +45,12 @@ from modules.utils import (size_format, validate_file_name, compare_versions, lo
     notify, run_command, handle_exceptions, popup)
 from modules import config, brain, setting, video, update, startup
 from modules.downloaditem import DownloadItem
+from modules.aria2c_manager import aria2c_manager
 from pathlib import Path
 import json
 
-os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
+
+os.environ["QT_FONT_DPI"] = "120"  # FIX Problem for High DPI and Scale above 100%
 
 
 widgets = None
@@ -102,10 +104,15 @@ class SingleInstanceApp:
             self.server.listen(self.app_id)
 
 
+
+
+
+
 class YouTubeThread(QThread):
     """Thread to handle YouTube video extraction and downloading."""
     finished = Signal(object)  # Signal when the process is complete
     progress = Signal(int)  # Signal to update progress bar (0-100%)
+
 
     def __init__(self, url: str):
         """Initialize the YouTubeThread with the URL."""
@@ -118,6 +125,7 @@ class YouTubeThread(QThread):
             QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
         elif cursor_type == 'normal':
             QApplication.restoreOverrideCursor()  # Restore normal cursor
+    
 
     def run(self):
         """Run the thread to process the video URL."""
@@ -150,13 +158,14 @@ class YouTubeThread(QThread):
                         # Emit progress as we process each playlist entry
                         self.progress.emit(int((index + 1) * 100 / len(pl_info)))
                     result = playlist
+                    self.finished.emit(result)
+
                 else:
                     # For a single video, update progress on extraction
                     result = Video(self.url, vid_info=None)
                     self.progress.emit(50)  # Just after extracting the info
                     time.sleep(1)  # Simulating some processing
                     self.progress.emit(100)  # Video info extraction complete
-
                 self.finished.emit(result)
                 self.change_cursor('normal')
                 widgets.download_btn.setEnabled(True)
@@ -173,79 +182,12 @@ class YouTubeThread(QThread):
             log('Unexpected error:', e)
             self.finished.emit(None)
 
-    # def run(self):
-    #     """Run the thread to process the video URL."""
-    #     try:
-    #         # Ensure youtube-dl is loaded
-    #         if video.ytdl is None:
-    #             log('youtube-dl module still loading, please wait')
-    #             while not video.ytdl:
-    #                 time.sleep(0.1)
+   
 
-    #         widgets.download_btn.setEnabled(False)
-    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
-    #         widgets.combo1.clear()
-    #         widgets.combo2.clear()
 
-    #         log(f"Extracting info for URL: {self.url}")
-    #         self.change_cursor('busy')
 
-    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-    #             # Simulate progress updates for single video extraction
-    #             progress = 0
-    #             is_single_video = False
 
-    #             def simulate_progress():
-    #                 nonlocal progress
-    #                 while progress < 90:  # Simulate progress up to 90%
-    #                     progress += 10
-    #                     self.progress.emit(progress)
-    #                     time.sleep(0.5)  # Adjust delay as needed
 
-    #             # Start a thread to simulate progress
-    #             progress_thread = Thread(target=simulate_progress, daemon=True)
-    #             progress_thread.start()
-
-    #             # Extract video info
-    #             info = ydl.extract_info(self.url, download=False, process=True)
-    #             log('Media info:', info, log_level=3)
-
-    #             # Stop simulated progress if it's still running
-    #             progress = 90
-
-    #             if info.get('_type') == 'playlist' or 'entries' in info:
-    #                 pl_info = list(info.get('entries', []))
-    #                 playlist = []
-    #                 for index, item in enumerate(pl_info):
-    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
-    #                     if url:
-    #                         playlist.append(Video(url, vid_info=item))
-    #                     # Emit progress as we process each playlist entry
-    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
-    #                 result = playlist
-    #             else:
-    #                 # For a single video, update progress on extraction
-    #                 is_single_video = True
-    #                 result = Video(self.url, vid_info=None)
-    #                 self.progress.emit(100)  # Extraction complete
-
-    #             self.finished.emit(result)
-    #             self.change_cursor('normal')
-    #             widgets.download_btn.setEnabled(True)
-    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
-
-    #     except DownloadError as e:
-    #         log('DownloadError:', e)
-            
-    #         self.finished.emit(None)
-    #     except ExtractorError as e:
-    #         log('ExtractorError:', e)
-    #         self.finished.emit(None)
-    #     except Exception as e:
-    #         log('Unexpected error:', e)
-    #         self.finished.emit(None)
-
-            
 class CheckUpdateAppThread(QThread):
     """Thread to check if a new version of the app is available."""
     app_update = Signal(bool)  # Emits True if a new version is available
@@ -403,6 +345,7 @@ class LogRecorderThread(QThread):
 # region Main Downloader UI
 class DownloadManagerUI(QMainWindow):
     update_gui_signal = Signal(dict)
+    
     def __init__(self, d_list):
         QMainWindow.__init__(self)
 
@@ -705,10 +648,8 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer = QTimer(self)
         self.scheduler_timer.timeout.connect(self.check_scheduled_queues)
         self.scheduler_timer.start(60000)  # Every 60 seconds
-
-    
-
-
+        
+            
 
     def show_user_guide(self):
         dialog = UserGuideDialog(self)
@@ -1148,13 +1089,23 @@ class DownloadManagerUI(QMainWindow):
                         widgets.terminal_log.setPlainText(contents[slice_size:])
 
                     # parse youtube output while fetching playlist info with option "process=True"
-                    if '[download]' in v:  # "[download] Downloading video 3 of 30"
-                        b = v.rsplit(maxsplit=3)  # ['[download] Downloading video','3','of','30']
-                        total_num = int(b[-1])
-                        num = int(b[-3])
-                        # get 50% of this value and the remaining 50% will be for other process
-                        percent = int(num * 100 / total_num)
-                        percent = percent // 2    
+                    # if '[download]' in v:  # "[download] Downloading video 3 of 30"
+                    #     b = v.rsplit(maxsplit=3)  # ['[download] Downloading video','3','of','30']
+                    #     total_num = int(b[-1])
+                    #     num = int(b[-3])
+                    #     # get 50% of this value and the remaining 50% will be for other process
+                    #     percent = int(num * 100 / total_num)
+                    #     percent = percent // 2    
+                    if '[download]' in v and 'Downloading video' in v and 'of' in v:
+                        try:
+                            b = v.rsplit(maxsplit=3)
+                            total_num = int(b[-1])
+                            num = int(b[-3])
+                            percent = int(num * 100 / total_num)
+                            percent = percent // 2
+                        except Exception as e:
+                            log(f"[read_q] Error parsing download progress: {e}")
+
                     widgets.terminal_log.append(v)
                 except Exception as e:
                     log(f"{e}")
@@ -1303,8 +1254,38 @@ class DownloadManagerUI(QMainWindow):
                 log(f"Failed to process browser queue: {e}")
 
 
+    # def decide_download_engine(self):
+    #     # ✅ Set engine based on file type
+    #     if getattr(config, "download_engine", "yt-dlp").lower() == "aria2":
+    #         self.d.engine = "aria2c"
+    #     else:
+    #         self.d.engine = "yt-dlp"
+            
+
+    #     log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
+
+    #     setting.save_d_list(self.d_list)
+
+    def decide_download_engine(self):
+        if getattr(config, "download_engine", "yt-dlp").lower() == "aria2":
+            self.d.engine = "aria2c"
+            if not hasattr(self.d, "aria_gid"):
+                self.d.aria_gid = None  # ✅ only set if it's missing
+        else:
+            self.d.engine = "yt-dlp"
+
+        log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
+        setting.save_d_list(self.d_list)
+
+
+    
+        
+
     def get_header(self, url):
         self.d.update(url)
+
+        self.decide_download_engine()
+
 
         if url == self.d.url:
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
@@ -1344,7 +1325,10 @@ class DownloadManagerUI(QMainWindow):
         self.update_pl_menu()
         self.update_stream_menu()
 
-    
+
+
+
+
     # region download folder
     def open_folder_dialog(self):
         """Open a dialog to select a folder and update the line edit."""
@@ -1890,13 +1874,6 @@ class DownloadManagerUI(QMainWindow):
         log(f"Stream '{selected_stream}' selected for video {self.video.title}")
 
 
-    
-    # Step 1: Style and fix concurrent download issue in `download_playlist`
-
-
-    # Step 1: Style and fix concurrent download issue in `download_playlist`
-
-
 
     def download_playlist(self):
         if not self.video:
@@ -2263,93 +2240,7 @@ class DownloadManagerUI(QMainWindow):
             v = validate_file_name(v)
 
         return v
-    
-    # FINAL FIX for table progress bars always working
 
-    # def populate_table(self):
-    #     # Adjust table row count to match d_list
-    #     widgets.table.setRowCount(len(self.d_list))
-
-    #     for row, d in enumerate(reversed(self.d_list)):
-    #         # ✅ Auto-fix invalid in_queue states
-    #         if d.in_queue and not d.queue_name:
-    #             d.in_queue = False
-    #             d.queue_position = 0
-    #         # Always ensure there's a QProgressBar in the progress column (col=2)
-    #         progress = widgets.table.cellWidget(row, 2)
-    #         if not isinstance(progress, QProgressBar):
-    #             progress = QProgressBar()
-    #             progress.setRange(0, 100)
-    #             progress.setTextVisible(True)
-    #             progress.setStyleSheet("""
-    #                 QProgressBar {
-    #                     background-color: #2a2a2a;
-    #                     border: 1px solid #444;
-    #                     border-radius: 4px;
-    #                     text-align: center;
-    #                     color: white;
-    #                 }
-    #                 QProgressBar::chunk {
-    #                     background-color: #00C853;
-    #                     border-radius: 4px;
-    #                 }
-    #             """)
-    #             widgets.table.setCellWidget(row, 2, progress)
-
-    #         file_path = os.path.join(d.folder, str(d.name))
-            
-    #         # if not os.path.exists(file_path) and not d.status in ["cancelled", "error", "failed", "scheduled", "merging_audio", "paused", "downloading", "pending"]:
-    #         #     d.status = config.Status.deleted
-
-    #         # if d.in_queue and d.queue_name:
-    #         #     d.status = config.Status.queued
-
-    #         # Only mark as deleted if not downloading/queued and file is missing
-    #         if not os.path.exists(file_path) and d.status not in (
-    #             config.Status.downloading,
-    #             config.Status.completed,
-    #             config.Status.queued,
-    #             config.Status.pending,
-    #             config.Status.merging_audio,
-    #             config.Status.paused,
-    #             config.Status.error,
-    #             config.Status.failed,
-    #             config.Status.scheduled,
-    #             config.Status.cancelled,
-    #         ):
-    #             d.status = config.Status.deleted
-
-    #         # Only update to queued if not already downloading or completed
-    #         if d.in_queue and d.queue_name:
-    #             if d.status not in (config.Status.downloading, config.Status.completed):
-    #                 d.status = config.Status.queued
-
-
-
-    #         # ID column
-    #         id_item = QTableWidgetItem(str(len(self.d_list) - row))
-    #         id_item.setData(Qt.UserRole, d.id)
-    #         id_item.setFlags(id_item.flags() & ~QtCore.Qt.ItemIsEditable)
-    #         widgets.table.setItem(row, 0, id_item)
-            
-
-
-    #         # All other columns
-    #         for col, key in enumerate(self.d_headers[1:], 1):
-    #             if col == 2:
-    #                 continue  # skip progress bar column
-    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
-    #             item = QTableWidgetItem(cell_value)
-    #             item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-
-    #             # print(file_path)
-    #             # if not os.path.exists(file_path):
-    #             #     d.status == config.Status.deleted
-
-    #             widgets.table.setItem(row, col, item)
-                
-
-    #     setting.save_d_list(self.d_list)
 
     def populate_table(self):
         """Offload preparing the table data to a background thread."""
@@ -2525,6 +2416,11 @@ class DownloadManagerUI(QMainWindow):
                 thread.quit()
                 thread.wait(2000)  # wait max 2 seconds
         #self.background_threads.clear()
+        # Save settings
+        # setting.save_d_list(self.d_list)
+        # setting.save_settings()
+        # setting.save_queues()
+        aria2c_manager.force_save_session()
 
         event.accept()
 
@@ -2847,7 +2743,22 @@ class DownloadManagerUI(QMainWindow):
 
     #     self.start_download(d, silent=True)
 
+    # def resume_btn(self):
+    #     selected_row = widgets.table.currentRow()
+    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
+    #         self.show_warning(self.tr("Error"), self.tr("No download item selected"))
+    #         return
+
+    #     d_index = len(self.d_list) - 1 - selected_row
+    #     d = self.d_list[d_index]
+
+
+
+    #     self.start_download(d, silent=True)
+
     def resume_btn(self):
+        """Resume paused or queued downloads."""
+
         selected_row = widgets.table.currentRow()
         if selected_row < 0 or selected_row >= widgets.table.rowCount():
             self.show_warning(self.tr("Error"), self.tr("No download item selected"))
@@ -2856,21 +2767,30 @@ class DownloadManagerUI(QMainWindow):
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
+        if d.status not in (config.Status.cancelled, config.Status.queued):
+            return
+
+        # ✅ Resume aria2c download
+        if d.engine == "aria2c" and hasattr(d, "aria_gid"):
+            try:
+                success = aria2c_manager.resume(d.aria_gid)
+                if success:
+                    d.status = config.Status.downloading
+                    log(f"[Resume] Aria2c resumed: {d.name}")
+                    # Start brain() again to monitor progress
+                    Thread(target=brain.brain, args=(d,), daemon=True).start()
+                else:
+                    log(f"[Resume] Aria2c resume failed for: {d.name}")
+            except Exception as e:
+                log(f"[Resume] Failed to resume aria2c: {e}")
+                d.status = config.Status.error
+        else:
+            # ✅ Fallback: yt-dlp or native
+            self.start_download(d, silent=True)
 
 
-        self.start_download(d, silent=True)
         
-        # If internet is available, resume the download
-
-        # Check if the internet_checker is already running
-        # if not self.internet_checker.isRunning():
-        #     # Start the internet check if it's not running
-        #     self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
-        #     self.internet_checker.start()  # Start the thread to check internet status
-        # else:
-        #     # If the thread is already running, proceed directly with the result from the last check
-        #     self.on_internet_check_done(self.internet_checker.is_connected)
-
+        
 
 
     def delete_btn(self):
@@ -2977,7 +2897,26 @@ class DownloadManagerUI(QMainWindow):
 
 
 
+    # def pause_btn(self):
+    #     selected_row = widgets.table.currentRow()
+    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
+    #         self.show_warning(self.tr("Error"), self.tr("No download item selected"))
+    #         return
+
+    #     d_index = len(self.d_list) - 1 - selected_row
+    #     d = self.d_list[d_index]
+
+    #     if d.status == config.Status.completed:
+    #         return
+
+    #     d.status = config.Status.cancelled
+
+    #     if d.status == config.Status.pending:
+    #         self.pending.pop(d.id)
+
     def pause_btn(self):
+        """Pause the selected download item (YT-DLP or aria2c)."""
+
         selected_row = widgets.table.currentRow()
         if selected_row < 0 or selected_row >= widgets.table.rowCount():
             self.show_warning(self.tr("Error"), self.tr("No download item selected"))
@@ -2986,27 +2925,40 @@ class DownloadManagerUI(QMainWindow):
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
+        # Skip completed
         if d.status == config.Status.completed:
             return
 
-        d.status = config.Status.cancelled
+        # ✅ Aria2c pause
+        if d.engine == "aria2c" and hasattr(d, "aria_gid"):
+            try:
+                aria2 = aria2c_manager.get_api()
+                download = aria2.get_download(d.aria_gid)
+                if download:
+                    download.pause()
+                    aria2c_manager.force_save_session()
+                    d.status = config.Status.cancelled
+                    log(f"[Pause] Aria2c paused: {d.name}")
+            except Exception as e:
+                log(f"[Pause] Failed to pause aria2c: {e}")
+                d.status = config.Status.error
+        else:
+            # ✅ Fallback: yt-dlp or native downloads
+            if d.status in (config.Status.downloading, config.Status.pending):
+                d.status = config.Status.cancelled
+                log(f"[Pause] Cancelled: {d.name}")
+                if d.status == config.Status.pending:
+                    self.pending.pop(d.id, None)
 
-        if d.status == config.Status.pending:
-            self.pending.pop(d.id)
-
-        #self.requeue_paused_items()
-
-    def requeue_paused_items(self):
-        for d in self.d_list:
-            if d.status == config.Status.cancelled and d.queue_name is not None and d.in_queue:
-                d.status = config.Status.queued
         setting.save_d_list(self.d_list)
         self.populate_table()
 
+
+
+
+    
+
                 
-
-
-
     # def pause_btn(self):
     #     selected_rows = widgets.table.selectionModel().selectedRows()
     #     if not selected_rows:
