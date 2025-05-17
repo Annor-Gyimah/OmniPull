@@ -6,10 +6,12 @@ import shlex
 import subprocess
 import sys
 import zipfile
+import shutil
 import time
 from threading import Thread
 from urllib.parse import urljoin
 import copy
+import platform
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
@@ -409,6 +411,37 @@ def download_ffmpeg(destination=config.sett_folder):
     config.main_window_q.put(('download', (d, False)))
 
 
+def download_aria2c_with_wget(url, save_dir, filename):
+    """Download aria2c.zip using python-wget and update GUI progress if emitter is provided."""
+    os.makedirs(save_dir, exist_ok=True)
+    output_path = os.path.join(save_dir, filename)
+    import wget
+
+    try:
+        log(f"[aria2c] Downloading aria2c from {url}")
+        downloaded_path = wget.download(url, out=output_path)
+        log(f"[aria2c] Download complete: {downloaded_path}")
+        if os.path.exists(output_path):
+            unzip_aria2c()
+        return True
+    except Exception as e:
+        log(f"[aria2c] Download failed: {e}")
+        return False
+
+def download_aria2c(destination=config.sett_folder):
+    import platform
+    if platform.machine().endswith('64'):
+        url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip'
+    else:
+        url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-32bit-build1.zip'
+
+    filename = "aria2c.zip"
+    download_aria2c_with_wget(url, destination, filename)
+
+
+
+
+
 
 def unzip_ffmpeg():
     log('unzip_ffmpeg:', 'unzipping')
@@ -423,6 +456,49 @@ def unzip_ffmpeg():
         log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
     except Exception as e:
         log('unzip_ffmpeg: error ', e)
+
+
+
+def unzip_aria2c():
+    log('unzip_aria2c:', 'unzipping')
+    config.aria2_download_folder = config.sett_folder
+    try:
+        file_name = os.path.join(config.aria2_download_folder, 'aria2c.zip')
+
+        # Extract the zip
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:
+            zip_ref.extractall(config.aria2_download_folder)
+
+        # Find the extracted folder (assumes only one folder is extracted)
+        extracted_items = os.listdir(config.aria2_download_folder)
+        extracted_folder = next((item for item in extracted_items
+                                 if os.path.isdir(os.path.join(config.aria2_download_folder, item)) and 'aria2' in item), None)
+
+        if extracted_folder:
+            extracted_folder_path = os.path.join(config.aria2_download_folder, extracted_folder)
+            exe_path = os.path.join(extracted_folder_path, 'aria2c.exe')
+            dest_path = os.path.join(config.aria2_download_folder, 'aria2c.exe')
+
+            # Move aria2c.exe to the parent folder
+            if os.path.exists(exe_path):
+                shutil.move(exe_path, dest_path)
+                log('aria2c update:', f'aria2c.exe moved to {config.aria2_download_folder}')
+            else:
+                log('aria2c update:', 'aria2c.exe not found in extracted folder')
+            shutil.rmtree(extracted_folder_path)
+
+        # Delete zip file
+        log('aria2c update:', 'delete zip file')
+        delete_file(file_name)
+        # os.removedirs(extracted_folder)
+
+        log('aria2c update:', 'aria2c is ready at:', config.aria2_download_folder)
+        config.aria2_verified = True
+        param = dict(title='Aria2c Update', msg='Aria2c is now available. Please try download again.', type_='info')
+        config.main_window_q.put(('popup', param))
+
+    except Exception as e:
+        log('unzip_aria2c: error', e)
 
 
 
@@ -466,6 +542,50 @@ def check_ffmpeg():
     else:
         config.ffmpeg_actual_path = None
         log('FFmpeg not found. Will prompt user.')
+        return False
+    
+
+def check_aria2_exe():
+    """Check for aria2c availability, and cache result to avoid re-checking."""
+
+    # ✅ If previously verified, skip check
+    if config.aria2_verified:
+        return True
+
+    log('Checking aria2c availability...')
+    found = False
+
+
+    try:
+        for folder in [config.current_directory, config.global_sett_folder]:
+            if not folder: continue  # skip if not set
+            for file in os.listdir(folder):
+                if file.lower().startswith("aria2c.exe"):
+                    full_path = os.path.join(folder, file)
+                    if os.path.isfile(full_path):
+                        found = True
+                        config.aria2_actual_path = full_path
+                        break
+            if found:
+                break
+    except Exception as e:
+        log(f"Error while checking folders for aria2c: {e}")
+
+    # Try system PATH
+    if not found:
+        from shutil import which
+        path = which("aria2c")
+        if path:
+            config.aria2_actual_path = os.path.realpath(path)
+            found = True
+
+    if found:
+        config.aria2_verified = True  # ✅ Cache success
+        log('aria2c found:', config.aria2_actual_path)
+        return True
+    else:
+        config.aria2_actual_path = None
+        log('aria2c not found. Will prompt user.')
         return False
 
 

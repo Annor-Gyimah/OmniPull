@@ -61,7 +61,7 @@ class DownloadWindow(QWidget):
             }
         """)
         self.d = d
-        self.q = d.q
+        #self.q = d.q
         self.timeout = 10
         self.timer = 0
         self._progress_mode = 'determinate'

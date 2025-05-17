@@ -1071,3 +1071,300 @@
     #         self.change_page(btn=None, btnName=None, idx=1)
             
     
+
+
+# def run_aria2c_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     try:
+#         aria2 = aria2c_manager.get_api()
+#         added = aria2.add_uris([d.url], options={"dir": d.folder, "out": d.name})
+#         d.aria_gid = added.gid
+#         log(f"[Aria2c] GID: {d.aria_gid}")
+#         d.remaining_parts = 1
+#         d._downloaded = 0   
+#         d._progress = 0
+#         d.last_known_progress = 0
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)  # force update
+
+
+#         while True:
+#             download = aria2.get_download(d.aria_gid)
+#             if download is None:
+#                 log(f"[Aria2c] Download not found for GID: {d.aria_gid}")
+#                 d.status = Status.error
+#                 break
+
+#             percent = int(download.progress)
+#             d._progress = percent
+#             d.last_known_progress = percent
+
+#             d._total_size = int(download.total_length)
+#             d._downloaded = int(download.completed_length)
+#             d._speed = int(download.download_speed)
+
+#             d.remaining_time = download.eta if download.eta != -1 else 0  # optional fallback
+
+#             if emitter:
+#                 emitter.progress_changed.emit(percent)
+#                 emitter.log_updated.emit(f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
+
+#             if download.is_complete:
+#                 d.status = Status.completed
+#                 log(f"[Aria2c] Completed: {d.name}")
+#                 if emitter:
+#                     emitter.progress_changed.emit(100)
+#                     emitter.status_changed.emit("completed")
+#                 delete_folder(d.temp_folder)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             elif download.is_removed:
+#                 d.status = Status.error
+#                 log(f"[Aria2c] Error or removed: {d.name}")
+#                 if emitter:
+#                     emitter.status_changed.emit("error")
+#                 break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+# def run_aria2c_download(d, emitter=None):
+#     """Download static files using aria2c.exe."""
+#     d.status = config.Status.downloading
+#     if emitter:
+#         emitter.status_changed.emit("downloading")
+
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.q.log(f"[aria2c] Starting download: {d.name}")
+#     d.remaining_parts = 1
+
+
+#     # Reset progress info
+#     d._downloaded = 0
+#     d.remaining_parts = 1
+#     d._progress = 0
+#     d.last_known_progress = 0
+
+#     cmd = [
+#         config.aria2c_path,
+#         "--file-allocation=none",
+#         "--max-connection-per-server=5",
+#         "--allow-overwrite=true",
+#         "--summary-interval=1",
+#         "--dir", d.folder,
+#         "--out", d.name,
+#         d.url
+#     ]
+    
+
+#     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True)
+#     total_size = d.size or 1  # fallback to 1 to prevent zero division
+#     downloaded = 0
+
+#     try:
+#         for line in process.stdout:
+#             line = line.strip()
+            
+#             if emitter:
+#                 emitter.log_updated.emit(line)
+#             log(f"[aria2c] {line}")
+
+#             # Try to extract progress
+#             match = re.search(r'\((\d+)%\)', line)
+#             if match:
+#                 percent = int(match.group(1))
+#                 d._progress = percent
+#                 d.last_known_progress = percent
+#                 if emitter:
+#                     emitter.progress_changed.emit(percent)
+
+#             # Optional: fallback progress extraction by parsing downloaded size
+#             match2 = re.search(r'\[#\w+\s+([\d\.]+\w?B)/([\d\.]+\w?B)\(', line)
+#             if match2:
+#                 # Not parsed for d._downloaded currently
+#                 pass
+
+#         process.wait()
+
+#         if process.returncode == 0:
+#             log(f"[Aria2c] Completed: {d.name}")
+#             d.status = config.Status.completed
+#             d.remaining_parts = 0
+#             d._progress = 100
+#             d.last_known_progress = 100
+
+#             if emitter:
+#                 emitter.progress_changed.emit(100)
+#                 emitter.status_changed.emit("completed")
+            
+#             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+
+#         else:
+#             log(f"[Aria2c] Failed: {d.name}")
+#             d.status = config.Status.error
+#             if emitter:
+#                 emitter.status_changed.emit("error")
+
+#     except Exception as e:
+#         log(f"[Aria2c] Error: {e}")
+#         d.status = config.Status.error
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+
+
+
+# # aria2c_manager.py
+# # This script manages the aria2c download manager, providing functionality to start the RPC server,
+# # pause, resume downloads, and match download GIDs.
+# # This file is part of the application and is licensed under the MIT License.
+# import os
+# import subprocess
+# import time
+# import psutil
+# import aria2p
+
+# from modules.config import aria2c_path, sett_folder, aria2c_config
+# from modules.utils import log
+# from modules import config
+
+# class Aria2cManager:
+#     def __init__(self):
+#         self.api = None
+#         self.client = None
+
+#         self.session_file = os.path.join(sett_folder, "aria2c.session")
+#         self.initialized = False
+#         os.makedirs(sett_folder, exist_ok=True)
+#         if not os.path.exists(self.session_file):
+#             with open(self.session_file, 'w') as f:
+#                 pass
+
+#         self._kill_existing_aria2c()
+#         self._start_aria2c_with_session()
+#         self._connect_api()
+
+#     def _kill_existing_aria2c(self):
+#         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+#             try:
+#                 if 'aria2c' in proc.info['name']:
+#                     proc.terminate()
+#                     proc.wait(timeout=2)
+#                     log(f"[aria2c] Terminated existing process (PID {proc.pid})")
+#             except Exception as e:
+#                 log(f"[aria2c] Could not terminate aria2c (PID {proc.pid}): {e}")
+
+#     def ensure_initialized(self):
+#         """Only initialize if needed."""
+#         if self.initialized:
+#             return
+
+#         if not os.path.exists(config.aria2c_path):
+#             log("[aria2c] Executable missing. Skipping init.")
+#             return  # Let the app decide what to do (main.py will prompt user)
+
+#         self._init_aria2c()
+#         self.initialized = True
+
+#     def _start_aria2c_with_session(self):
+#         cmd = [
+#             config.aria2c_path,
+#             "--enable-rpc",
+#             "--rpc-listen-all=false",
+#             f"--rpc-listen-port={aria2c_config['rpc_port']}",
+#             "--rpc-allow-origin-all",
+#             "--continue=true",
+#             f"--save-session={self.session_file}",
+#             f"--input-file={self.session_file}",
+#             f"--save-session-interval={aria2c_config['save_interval']}",
+#             f"--max-connection-per-server={aria2c_config['max_connections']}",
+#             "--file-allocation=none"
+
+#         ]
+#         subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+#         log("[aria2c] Started aria2c with session support")
+#         time.sleep(1)
+
+#     def _connect_api(self):
+#         try:
+#             self.client = aria2p.Client(host="http://localhost", port=6800, secret="")
+#             self.api = aria2p.API(self.client)
+#             log("[aria2c] RPC server connected.")
+#         except Exception as e:
+#             log(f"[aria2c] Failed to connect to RPC server: {e}")
+#             self.api = None
+
+#     def get_api(self):
+#         if not self.api:
+#             self._connect_api()
+#         return self.api
+
+#     def pause(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download and not download.is_complete:
+#                 download.pause()
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to pause GID#{gid}: {e}")
+#         return False
+
+#     def resume(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download and not download.is_complete:
+#                 download.resume()  # not `unpause()`, correct method is `resume()`
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to resume GID#{gid}: {e}")
+#         return False
+
+#     def remove(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download:
+#                 download.remove(force=True, files=True)
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to remove GID#{gid}: {e}")
+#         return False
+
+#     def force_save_session(self):
+#         try:
+#             if self.api:
+#                 result = self.api.client.call("aria2.saveSession")
+#                 log(f"[aria2c] Session save result: {result}")
+#             else:
+#                 log("[aria2c] Cannot save session. API is not available.")
+#         except Exception as e:
+#             log(f"[aria2c] Failed to save session: {e}")
+
+
+# # Global instance
+# aria2c_manager = Aria2cManager()

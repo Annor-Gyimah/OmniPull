@@ -211,6 +211,7 @@ class DownloadItem:
 
 
 
+
     def get_persistent_properties(self):
         """return a dict of important parameters to be saved in file"""
         a = dict(id=self.id, _name=self._name, folder=self.folder, url=self.url, eff_url=self.eff_url,
@@ -222,7 +223,7 @@ class DownloadItem:
                  last_known_size=self.last_known_size, last_known_progress=self.last_known_progress,
                  protocol=self.protocol, manifest_url=self.manifest_url, scheduled=self.sched, schedule_retries=self.schedule_retries,
                  in_queue=self.in_queue, queue_id=self.queue_id, queue_name=self.queue_name, queue_position=self.queue_position,
-                 engine=self.engine, aria_gid=self.aria_gid,
+                 engine=self.engine, aria_gid=self.aria_gid
                 )
         return a
 

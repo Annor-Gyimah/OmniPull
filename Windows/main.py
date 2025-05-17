@@ -40,7 +40,7 @@ from ui.user_guide_dialog import UserGuideDialog
 
 
 
-from modules.video import (Video, check_ffmpeg, download_ffmpeg, get_ytdl_options)
+from modules.video import (Video, check_ffmpeg, download_ffmpeg, check_aria2_exe, download_aria2c, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format, truncate, 
     notify, run_command, handle_exceptions, popup)
 from modules import config, brain, setting, video, update, startup
@@ -341,6 +341,12 @@ class LogRecorderThread(QThread):
                 self.error_signal.emit(f'Log recorder error: {str(e)}')
                 self.msleep(100)
 
+
+
+class DownloadEmitter(QObject):
+    progress_changed = Signal(int)
+    status_changed = Signal(str)
+    log_updated = Signal(str)
 
 # region Main Downloader UI
 class DownloadManagerUI(QMainWindow):
@@ -648,6 +654,9 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer = QTimer(self)
         self.scheduler_timer.timeout.connect(self.check_scheduled_queues)
         self.scheduler_timer.start(60000)  # Every 60 seconds
+    
+
+        
         
             
 
@@ -1089,13 +1098,6 @@ class DownloadManagerUI(QMainWindow):
                         widgets.terminal_log.setPlainText(contents[slice_size:])
 
                     # parse youtube output while fetching playlist info with option "process=True"
-                    # if '[download]' in v:  # "[download] Downloading video 3 of 30"
-                    #     b = v.rsplit(maxsplit=3)  # ['[download] Downloading video','3','of','30']
-                    #     total_num = int(b[-1])
-                    #     num = int(b[-3])
-                    #     # get 50% of this value and the remaining 50% will be for other process
-                    #     percent = int(num * 100 / total_num)
-                    #     percent = percent // 2    
                     if '[download]' in v and 'Downloading video' in v and 'of' in v:
                         try:
                             b = v.rsplit(maxsplit=3)
@@ -1255,28 +1257,35 @@ class DownloadManagerUI(QMainWindow):
 
 
     # def decide_download_engine(self):
-    #     # ✅ Set engine based on file type
     #     if getattr(config, "download_engine", "yt-dlp").lower() == "aria2":
     #         self.d.engine = "aria2c"
+    #         if not hasattr(self.d, "aria_gid"):
+    #             self.d.aria_gid = None  # ✅ only set if it's missing
     #     else:
     #         self.d.engine = "yt-dlp"
-            
 
     #     log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
-
     #     setting.save_d_list(self.d_list)
 
     def decide_download_engine(self):
-        if getattr(config, "download_engine", "yt-dlp").lower() == "aria2":
-            self.d.engine = "aria2c"
-            if not hasattr(self.d, "aria_gid"):
-                self.d.aria_gid = None  # ✅ only set if it's missing
+        preferred_engine = getattr(config, "download_engine", "yt-dlp").lower()
+
+        if preferred_engine == "aria2":
+            if config.aria2c_path and os.path.exists(config.aria2c_path):
+                self.d.engine = "aria2c"
+                if not hasattr(self.d, "aria_gid"):
+                    self.d.aria_gid = None  # Set only if missing
+            else:
+                log("[Engine] aria2c selected, but executable not found. Falling back to yt-dlp.")
+                self.d.engine = "yt-dlp"
+                
         else:
             self.d.engine = "yt-dlp"
 
         log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
         setting.save_d_list(self.d_list)
 
+    
 
     
         
@@ -1322,6 +1331,8 @@ class DownloadManagerUI(QMainWindow):
             self.reset_to_default_thumbnail()
             return
 
+        # self.yt_thread.quit()
+        # self.yt_thread.wait()
         self.update_pl_menu()
         self.update_stream_menu()
 
@@ -1452,6 +1463,10 @@ class DownloadManagerUI(QMainWindow):
         #     self.check_time = False
         #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
         #     server_check.server_check_update() 
+        if config.aria2c_path is None and config.aria2_verified is False:
+            log('aria2c not found, falling back to yt-dlp')
+            self.aria2c_check()
+            return
 
         if d is None:
             return
@@ -1462,6 +1477,32 @@ class DownloadManagerUI(QMainWindow):
             if not self.ffmpeg_check():
                 log('Download cancelled, FFMPEG is missing')
                 return 'cancelled'
+            
+        # check for aria2c availability
+        # if config.aria2_verified == False:
+        #     self.aria2c_check()
+        #     return
+        # else:
+        #   pass
+
+
+        # if config.aria2c_path is None:
+        #     log('aria2c not found, falling back to yt-dlp')
+        #     self.aria2c_check()
+        #     return
+            # if not self.aria2c_check():
+            #     log('Download cancelled, aria2c is missing')
+            #     return 'cancelled'
+        # if not config.aria2_verified:
+        #     self.aria2c_check()
+        #     log('Download cancelled, aria2c is missing')
+        #     return 'cancelled'
+        # if d.engine == 'aria2c':
+        #     if not check_aria2_exe:
+        #         log('Download cancelled, aria2c is missing')
+        #         self.aria2c_check()
+        #         return 'cancelled'
+
         
 
         folder = d.folder or config.download_folder
@@ -2211,6 +2252,134 @@ class DownloadManagerUI(QMainWindow):
             return False
         else:
             return True
+        
+   
+
+
+    def aria2c_check(self):
+        """Check if aria2c is available, if not, prompt user to download."""
+       
+        if config.operating_system == 'Windows':
+            # Create the dialog
+            dialog = QDialog(self)
+            dialog.setWindowTitle(self.tr('aria2c is missing'))
+            dialog.setStyleSheet("""
+                QDialog {
+                    background-color: qlineargradient(
+                        x1: 0, y1: 0, x2: 1, y2: 1,
+                        stop: 0 #0F1B14,
+                        stop: 1 #050708
+                    );
+                    color: white;
+                    border-radius: 14px;
+                }
+                QLabel {
+                    color: white;
+                    font-size: 12px;
+                }
+                QRadioButton {
+                    padding: 4px;
+                }
+                
+            """)
+
+            # Layout setup
+            layout = QVBoxLayout(dialog)
+
+            # Label for missing aria2c
+            label = QLabel(self.tr('"aria2c" is missing!! and needs to be downloaded:'))
+            layout.addWidget(label)
+
+            # Radio buttons for choosing destination folder
+            recommended, local_fd = self.tr("Recommended:"), self.tr("Local folder:")
+            recommended_radio = QRadioButton(f"{recommended} {config.global_sett_folder}")
+            recommended_radio.setChecked(True)
+            local_radio = QRadioButton(f"{local_fd} {config.current_directory}")
+
+            # Group radio buttons
+            radio_group = QButtonGroup(dialog)
+            radio_group.addButton(recommended_radio)
+            radio_group.addButton(local_radio)
+
+            # Layout for radio buttons
+            radio_layout = QVBoxLayout()
+            radio_layout.addWidget(recommended_radio)
+            radio_layout.addWidget(local_radio)
+
+            layout.addLayout(radio_layout)
+
+            # Buttons for Download and Cancel
+            button_layout = QHBoxLayout()
+            download_button = QPushButton(self.tr('Download'))
+            download_button.setStyleSheet("""
+                QPushButton {
+                    background-color: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #0F1B14,
+                    stop: 1 #050708
+                    ); 
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 6px 16px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {     
+                    background-color: #33d47c;
+                }
+            """)
+            cancel_button = QPushButton(self.tr('Cancel'))
+            cancel_button.setStyleSheet("""
+                QPushButton {
+                    background-color: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #0F1B14,
+                    stop: 1 #050708
+                    );
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 6px 16px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #3c3c3c;
+                }
+            """)
+            button_layout.addWidget(download_button)
+            button_layout.addWidget(cancel_button)
+            layout.addLayout(button_layout)
+            # Set layout and show the dialog
+            dialog.setLayout(layout)
+            # Handle button actions
+            def on_download():
+                selected_folder = config.global_sett_folder if recommended_radio.isChecked() else config.current_directory
+                # Call the download function
+                # popup = DownloadWindow(d=None)
+                # popup.show()
+                download_aria2c(destination=config.sett_folder)
+                dialog.accept()
+                dialog.close()
+                self.show_information(title="Aria2c Missing", msg="Downloading on the background", inform="once ready we will let you know.")
+            def on_cancel():
+                dialog.reject()
+            # Connect button signals
+            download_button.clicked.connect(on_download)
+            cancel_button.clicked.connect(on_cancel)
+            # Execute the dialog
+            dialog.exec()
+        else:
+            self.show_message("Error", "aria2c is already installed.")
+            s2 = self.tr('"aria2c" is required to download files.')
+            s3, s3a = self.tr('Executable must be found at'), self.tr("folder or add the aria2c path to system PATH.")
+            s4 = self.tr("Please do 'sudo apt-get update' and 'sudo apt-get install aria2' on Linux or 'brew install aria2' on MacOS.")
+            QMessageBox.critical(self,
+                                self.tr('aria2c is missing'),
+                                f'{s2} \n'
+                                f'{s3} {config.aria2c_path} {s3a} \n'
+                                f"{s4}")
+        return False
+    
     # endregion
 
     # region downloads page
@@ -2410,6 +2579,8 @@ class DownloadManagerUI(QMainWindow):
         # Signal terminate if needed
         config.terminate = True
 
+        
+
         # Gracefully close all threads
         for thread in self.background_threads:
             if thread and thread.isRunning():
@@ -2420,8 +2591,11 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         # setting.save_settings()
         # setting.save_queues()
-        aria2c_manager.force_save_session()
 
+        #aria2c_manager.force_save_session()
+        aria2c_manager.cleanup_orphaned_paused_downloads()
+        #aria2c_manager.force_clean_and_save_session()
+        
         event.accept()
 
 
@@ -2779,6 +2953,7 @@ class DownloadManagerUI(QMainWindow):
                     log(f"[Resume] Aria2c resumed: {d.name}")
                     # Start brain() again to monitor progress
                     Thread(target=brain.brain, args=(d,), daemon=True).start()
+
                 else:
                     log(f"[Resume] Aria2c resume failed for: {d.name}")
             except Exception as e:
@@ -2787,6 +2962,9 @@ class DownloadManagerUI(QMainWindow):
         else:
             # ✅ Fallback: yt-dlp or native
             self.start_download(d, silent=True)
+        
+        widgets.toolbar_buttons['Pause'].setEnabled(True)
+        widgets.toolbar_buttons['Resume'].setEnabled(False)
 
 
         
@@ -2914,6 +3092,19 @@ class DownloadManagerUI(QMainWindow):
     #     if d.status == config.Status.pending:
     #         self.pending.pop(d.id)
 
+    def cleanup_threads_for_item(self, d):
+        """Gracefully stop all threads associated with a download item."""
+        for thread in getattr(d, "threads", []):
+            try:
+                if isinstance(thread, QThread) and thread.isRunning():
+                    thread.quit()
+                    thread.wait()
+                    log("Cleaning threads")
+            except Exception as e:
+                log(f"[ThreadCleanup] Failed to stop thread: {e}")
+        d.threads.clear()
+
+
     def pause_btn(self):
         """Pause the selected download item (YT-DLP or aria2c)."""
 
@@ -2936,7 +3127,8 @@ class DownloadManagerUI(QMainWindow):
                 download = aria2.get_download(d.aria_gid)
                 if download:
                     download.pause()
-                    aria2c_manager.force_save_session()
+                    # aria2c_manager.force_save_session()
+                    aria2c_manager.force_clean_and_save_session()
                     d.status = config.Status.cancelled
                     log(f"[Pause] Aria2c paused: {d.name}")
             except Exception as e:
@@ -2950,6 +3142,8 @@ class DownloadManagerUI(QMainWindow):
                 if d.status == config.Status.pending:
                     self.pending.pop(d.id, None)
 
+        widgets.toolbar_buttons['Pause'].setEnabled(False)
+        widgets.toolbar_buttons['Resume'].setEnabled(True)
         setting.save_d_list(self.d_list)
         self.populate_table()
 
@@ -3386,9 +3580,10 @@ class DownloadManagerUI(QMainWindow):
 
                 # Connect the thread's signal to a slot in the main window to show the message
                 self.file_open_thread.critical_signal.connect(self.show_critical)
-
                 # Start the thread
                 self.file_open_thread.start()
+                # Append the thread to background_threads so it can be closed gracefully
+                self.background_threads.append(self.file_open_thread)
                 log(f"Opening completed file: {self.selected_d.target_file}")
             elif self.selected_d.status == config.Status.deleted:
                 self.show_critical('File Not Found', f"The selected file could not be found or has been deleted.")
@@ -3409,6 +3604,7 @@ class DownloadManagerUI(QMainWindow):
             # Always open the temporary file for in-progress downloads
             self.file_open_thread = FileOpenThread(self.selected_d.temp_file, self)
             self.file_open_thread.start()
+            self.background_threads.append(self.file_open_thread)
             log(f"Watching in-progress download: {self.selected_d.temp_file}")
         except Exception as e:
             log(f"Error watching in-progress download: {e}")

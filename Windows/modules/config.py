@@ -115,26 +115,17 @@ ffmpeg_actual_path_2 = global_sett_folder
 ffmpeg_download_folder = sett_folder
 ffmpeg_verified = False # ffmpeg is verified or not
 
-# aria2c path
-aria2c_path = os.path.join('Miscellaneous', 'aria2c.exe')
-aria2 = aria2p.API(aria2p.Client(host="http://localhost", port=8000, secret=""))
-if os.path.exists(aria2c_path):
-    aria2c_path = os.path.abspath(aria2c_path)
-    print("aria2c path found in the current directory")
-else:
-    # aria2c_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Miscellaneous', 'aria2c.exe')
-    # aria2c_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aria2c.exe')
-    # aria2c_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aria2c/aria2c.exe')
-    # aria2c_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aria2c/aria2c')
-    # aria2c_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aria2c/aria2c.exe')
-    aria2c_path = os.path.join(current_directory, 'Miscellaneous', 'aria2c.exe')
-
-
+# aria2c
+aria2_download_folder = sett_folder
+aria2_actual_path = None
+aria2_verified = False  # aria2c is verified or not
+aria2c_path = aria2_actual_path 
+#os.path.join('Miscellaneous', 'aria2c.exe')
 aria2c_config = {
-    "max_connections": 16,
+    "max_connections": None,
     "enable_dht": True,
     "follow_torrent": False,
-    "save_interval": 60,
+    "save_interval": 10,
     "file_allocation": "falloc",
     "split": 32,
     "rpc_port": 6800
@@ -154,7 +145,8 @@ main_window_q = Queue()  # queue for Main application window
 settings_keys = ['current_theme','machine_id', 'download_engine', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
-                 'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config']
+                 'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
+                 'aria2_verified']
 
 # -------------------------------------------------------------------------------------
 
