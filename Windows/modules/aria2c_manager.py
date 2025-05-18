@@ -137,7 +137,7 @@ class Aria2cManager:
                 # Remove completed, error, or removed downloads from session
                 if d.is_complete or d.is_removed or d.status in ["complete", "removed", "error"]:
                     try:
-                        d.remove(force=True, files=True)
+                        d.remove(force=True, files=False)
                         log(f"[aria2c] Removed stale GID#{d.gid} before session save")
                     except Exception as e:
                         log(f"[aria2c] Failed to remove GID#{d.gid}: {e}")

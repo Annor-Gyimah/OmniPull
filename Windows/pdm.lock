@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:c6978baa34e942bf20f69926e3069da322080c570a9a8453621645dcb9d93b19"
+content_hash = "sha256:4c7887da268f027ccde61bbebbe43393bd508c1710933a422680d6d7c018043d"
 
 [[metadata.targets]]
 requires_python = ">=3.13"
@@ -154,9 +154,21 @@ files = [
 ]
 
 [[package]]
+name = "jeepney"
+version = "0.9.0"
+requires_python = ">=3.7"
+summary = "Low-level, pure Python DBus protocol wrapper."
+groups = ["default"]
+marker = "sys_platform == \"linux\""
+files = [
+    {file = "jeepney-0.9.0-py3-none-any.whl", hash = "sha256:97e5714520c16fc0a45695e5365a2e11b81ea79bba796e26f9f1d178cb182683"},
+    {file = "jeepney-0.9.0.tar.gz", hash = "sha256:cf0e9e845622b81e4a28df94c40345400256ec608d0e55bb8a3feaa9163f5732"},
+]
+
+[[package]]
 name = "loguru"
-version = "0.7.3"
-requires_python = "<4.0,>=3.5"
+version = "0.6.0"
+requires_python = ">=3.5"
 summary = "Python logging made (stupidly) simple"
 groups = ["default"]
 dependencies = [
@@ -165,8 +177,8 @@ dependencies = [
     "win32-setctime>=1.0.0; sys_platform == \"win32\"",
 ]
 files = [
-    {file = "loguru-0.7.3-py3-none-any.whl", hash = "sha256:31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c"},
-    {file = "loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6"},
+    {file = "loguru-0.6.0-py3-none-any.whl", hash = "sha256:4e2414d534a2ab57573365b3e6d0234dfb1d84b68b7f3b948e6fb743860a77c3"},
+    {file = "loguru-0.6.0.tar.gz", hash = "sha256:066bd06758d0a513e9836fd9c6b5a75bfb3fd36841f4b996bc60b547a309d41c"},
 ]
 
 [[package]]
@@ -178,6 +190,21 @@ groups = ["default"]
 files = [
     {file = "mutagen-1.47.0-py3-none-any.whl", hash = "sha256:edd96f50c5907a9539d8e5bba7245f62c9f520aef333d13392a79a4f70aca719"},
     {file = "mutagen-1.47.0.tar.gz", hash = "sha256:719fadef0a978c31b4cf3c956261b3c58b6948b32023078a2117b1de09f0fc99"},
+]
+
+[[package]]
+name = "notify-py"
+version = "0.3.43"
+requires_python = "<4.0,>=3.6"
+summary = "Cross-platform desktop notification library for Python"
+groups = ["default"]
+dependencies = [
+    "jeepney; sys_platform == \"linux\"",
+    "loguru<=0.6.0,>=0.5.3",
+]
+files = [
+    {file = "notify_py-0.3.43-py3-none-any.whl", hash = "sha256:90da686b480bf05d033b21fb5118662bb7a4c68e68cb21d93a048ca7b867f9b4"},
+    {file = "notify_py-0.3.43.tar.gz", hash = "sha256:16ee146d48f16bae5dad233db66014a387efd2c6ed2c4caf1e08aef432070513"},
 ]
 
 [[package]]

@@ -18,6 +18,7 @@ import uuid
 import json
 import pyperclip as clipboard
 from getmac import get_mac_address
+from notifypy import Notify
 import psutil
 try:
     from PIL import Image
@@ -28,13 +29,23 @@ from modules import config
 
 
 
+
+
+
+
 def notify(msg, title='', timeout=5):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
+        notification = Notify()
+        notification.application_name = f"{config.APP_NAME}"
+        notification.title = f"{title}"
+        notification.message = f"{msg}"
+        notification.icon = "logo1.png"
+        notification.send(block=False)
+        #plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
-        handle_exceptions(f'plyer notification: {e}')
+        handle_exceptions(f'notifypy notification: {e}')
 
 
 def handle_exceptions(error):
