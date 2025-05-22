@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:4c7887da268f027ccde61bbebbe43393bd508c1710933a422680d6d7c018043d"
+content_hash = "sha256:b7598c9923af4dbd105614d8febf679ad08a1c14ab6b20dba933a56abe8a22a6"
 
 [[metadata.targets]]
 requires_python = ">=3.13"
@@ -26,6 +26,15 @@ dependencies = [
 files = [
     {file = "aria2p-0.12.1-py3-none-any.whl", hash = "sha256:96d31c1edd3c9e0edf725b7adeb0b9fb9b6ae102f3c228040d773b43837913a2"},
     {file = "aria2p-0.12.1.tar.gz", hash = "sha256:1521ccba4a4bb164a023f4c4213513dc3e6f47b91927f5e49dd50678da8c1294"},
+]
+
+[[package]]
+name = "beautifulsoup"
+version = "3.2.2"
+summary = ""
+groups = ["default"]
+files = [
+    {file = "BeautifulSoup-3.2.2.tar.gz", hash = "sha256:a04169602bff6e3138b1259dbbf491f5a27f9499dea9a8fbafd48843f9d89970"},
 ]
 
 [[package]]

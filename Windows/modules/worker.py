@@ -9,7 +9,7 @@ import pycurl
 
 from modules.config import Status, APP_NAME, proxy, USER_AGENT
 from modules.utils import get_seg_size, log
-
+from modules import config
 
 class Worker:
     def __init__(self, tag=0, d=None):
@@ -150,47 +150,91 @@ class Worker:
         # print(self.headers)
 
     def set_options(self):
-        agent = USER_AGENT  # f"{APP_NAME} Download Manager"
+        agent = USER_AGENT
         self.c.setopt(pycurl.USERAGENT, agent)
-
         self.c.setopt(pycurl.URL, self.seg.url)
 
         range_ = self.resume_range or self.seg.range
         if range_:
-            self.c.setopt(pycurl.RANGE, range_)  # download segment only not the whole file
+            self.c.setopt(pycurl.RANGE, range_)
 
-        # set proxy, must be string empty '' means no proxy
-        self.c.setopt(pycurl.PROXY, proxy)
+        # 🔒 PROXY SETTINGS
+        if config.proxy:
+            self.c.setopt(pycurl.PROXY, config.proxy)
+            if config.proxy_type:
+                proxy_type_map = {
+                    "http": pycurl.PROXYTYPE_HTTP,
+                    "socks4": pycurl.PROXYTYPE_SOCKS4,
+                    "socks5": pycurl.PROXYTYPE_SOCKS5,
+                    "https": pycurl.PROXYTYPE_HTTP,  # pycurl doesn't support HTTPS proxy as a separate type
+                }
+                self.c.setopt(pycurl.PROXYTYPE, proxy_type_map.get(config.proxy_type.lower(), pycurl.PROXYTYPE_HTTP))
 
-        # re-directions
+            # Optional: Proxy Authentication
+            if getattr(config, "proxy_user", None) and getattr(config, "proxy_pass", None):
+                self.c.setopt(pycurl.PROXYUSERPWD, f"{config.proxy_user}:{config.proxy_pass}")
+
+        # ⬇ Redirects and connection
         self.c.setopt(pycurl.FOLLOWLOCATION, 1)
         self.c.setopt(pycurl.MAXREDIRS, 10)
-
-        self.c.setopt(pycurl.NOSIGNAL, 1)  # option required for multithreading safety
-        self.c.setopt(pycurl.NOPROGRESS, 0)  # will use a progress function
-        self.c.setopt(pycurl.CAINFO, certifi.where())  # for https sites and ssl cert handling
-
-        # set speed limit selected by user
-        self.c.setopt(pycurl.MAX_RECV_SPEED_LARGE, self.speed_limit)  # cap download speed to n bytes/sec, 0=disabled
-
-        # time out
-        self.c.setopt(pycurl.CONNECTTIMEOUT, 30)  # limits the connection phase, it has no impact once it has connected.
-        # self.c.setopt(pycurl.TIMEOUT, 300)  # limits the whole operation time
-
-        # abort if download speed slower than 1 byte/sec during 60 seconds
+        self.c.setopt(pycurl.NOSIGNAL, 1)
+        self.c.setopt(pycurl.NOPROGRESS, 0)
+        self.c.setopt(pycurl.CAINFO, certifi.where())
+        self.c.setopt(pycurl.MAX_RECV_SPEED_LARGE, self.speed_limit)
+        self.c.setopt(pycurl.CONNECTTIMEOUT, 30)
         self.c.setopt(pycurl.LOW_SPEED_LIMIT, 1)
         self.c.setopt(pycurl.LOW_SPEED_TIME, 60)
-
-        # verbose
         self.c.setopt(pycurl.VERBOSE, 0)
-
-        # it tells curl not to include headers with the body
         self.c.setopt(pycurl.HEADEROPT, 0)
 
-        # call back functions
+        # callbacks
         self.c.setopt(pycurl.HEADERFUNCTION, self.header_callback)
         self.c.setopt(pycurl.WRITEFUNCTION, self.write)
         self.c.setopt(pycurl.XFERINFOFUNCTION, self.progress)
+
+
+    # def set_options(self):
+    #     agent = USER_AGENT  # f"{APP_NAME} Download Manager"
+    #     self.c.setopt(pycurl.USERAGENT, agent)
+
+    #     self.c.setopt(pycurl.URL, self.seg.url)
+
+    #     range_ = self.resume_range or self.seg.range
+    #     if range_:
+    #         self.c.setopt(pycurl.RANGE, range_)  # download segment only not the whole file
+
+    #     # set proxy, must be string empty '' means no proxy
+    #     self.c.setopt(pycurl.PROXY, proxy)
+
+    #     # re-directions
+    #     self.c.setopt(pycurl.FOLLOWLOCATION, 1)
+    #     self.c.setopt(pycurl.MAXREDIRS, 10)
+
+    #     self.c.setopt(pycurl.NOSIGNAL, 1)  # option required for multithreading safety
+    #     self.c.setopt(pycurl.NOPROGRESS, 0)  # will use a progress function
+    #     self.c.setopt(pycurl.CAINFO, certifi.where())  # for https sites and ssl cert handling
+
+    #     # set speed limit selected by user
+    #     self.c.setopt(pycurl.MAX_RECV_SPEED_LARGE, self.speed_limit)  # cap download speed to n bytes/sec, 0=disabled
+
+    #     # time out
+    #     self.c.setopt(pycurl.CONNECTTIMEOUT, 30)  # limits the connection phase, it has no impact once it has connected.
+    #     # self.c.setopt(pycurl.TIMEOUT, 300)  # limits the whole operation time
+
+    #     # abort if download speed slower than 1 byte/sec during 60 seconds
+    #     self.c.setopt(pycurl.LOW_SPEED_LIMIT, 1)
+    #     self.c.setopt(pycurl.LOW_SPEED_TIME, 60)
+
+    #     # verbose
+    #     self.c.setopt(pycurl.VERBOSE, 0)
+
+    #     # it tells curl not to include headers with the body
+    #     self.c.setopt(pycurl.HEADEROPT, 0)
+
+    #     # call back functions
+    #     self.c.setopt(pycurl.HEADERFUNCTION, self.header_callback)
+    #     self.c.setopt(pycurl.WRITEFUNCTION, self.write)
+    #     self.c.setopt(pycurl.XFERINFOFUNCTION, self.progress)
 
     def header_callback(self, header_line):
         header_line = header_line.decode('iso-8859-1')

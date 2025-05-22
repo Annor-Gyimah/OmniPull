@@ -187,6 +187,21 @@ class DownloadWindow(QWidget):
         self.timer.stop()
         super().close()
 
+    def closeEvent(self, event):
+        try:
+            if hasattr(self, "timer") and self.timer.isActive():
+                self.timer.stop()
+        except Exception as e:
+            log(f"[DownloadWindow] Failed to stop timer: {e}")
+
+        try:
+            self.disconnect()  # Only if you've connected custom signals manually
+        except Exception as e:
+            log(f"[DownloadWindow] Failed to disconnect signals: {e}")
+
+        super().closeEvent(event)
+
+
     # def close(self):
     #     # Safely post a close event to run in main thread
     #     QCoreApplication.postEvent(self, QEvent(QEvent.Close))

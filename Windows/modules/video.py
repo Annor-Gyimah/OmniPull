@@ -44,11 +44,18 @@ def get_ytdl_options():
         'no_warnings': False,
         'logger': Logger(),
         'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
-        'listformats': True,
-        
+        'listformats': True,        
     }
     if config.proxy:
-        ydl_opts['proxy'] = config.proxy
+        proxy_url = config.proxy
+        if config.proxy_user and config.proxy_pass:
+            # Inject basic auth into the proxy URL
+            from urllib.parse import urlparse, urlunparse
+            parsed = urlparse(proxy_url)
+            proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
+
+        ydl_opts['proxy'] = proxy_url
+
 
     # website authentication
     # ydl_opts['username'] = ''
@@ -432,6 +439,7 @@ def download_aria2c(destination=config.sett_folder):
     import platform
     if platform.machine().endswith('64'):
         url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip'
+        #url = 'http://localhost/lite/aria2c.zip'
     else:
         url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-32bit-build1.zip'
 

@@ -22,7 +22,7 @@ class Aria2cManager:
         config.aria2c_path = os.path.join(config.sett_folder, "aria2c.exe")
         #self._ensure_session_file()
         #self._terminate_existing_processes()
-        # setting.load_setting()
+        setting.load_setting()
         self._start_rpc_server()
         self._connect_api()
 
@@ -45,6 +45,11 @@ class Aria2cManager:
         if not config.aria2c_path or not os.path.exists(config.aria2c_path):
             log("[aria2c] Executable not found. RPC server will not start.")
             return
+        
+        max_conn = config.aria2c_config.get("max_connections", 16)
+        if not isinstance(max_conn, int) or not (1 <= max_conn <= 16):
+            max_conn = 16
+            log("[aria2c] Warning: Invalid 'max_connections'. Reset to 16.")
 
         subprocess.Popen([
             config.aria2c_path,
@@ -56,7 +61,7 @@ class Aria2cManager:
             f"--save-session={self.session_file}",
             f"--input-file={self.session_file}",
             f"--save-session-interval={config.aria2c_config['save_interval']}",
-            f"--max-connection-per-server={config.aria2c_config['max_connections']}",
+            f"--max-connection-per-server={max_conn}",
             f"--file-allocation={config.aria2c_config['file_allocation']}",
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 

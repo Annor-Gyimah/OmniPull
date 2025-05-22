@@ -2,6 +2,7 @@
 import io
 import os
 import time
+import yt_dlp
 from threading import Thread
 from modules.video import merge_video_audio, is_download_complete, youtube_dl_downloader, unzip_ffmpeg, pre_process_hls, post_process_hls  # unzip_ffmpeg required here for ffmpeg callback
 from modules import config
@@ -38,18 +39,26 @@ def brain(d=None, emitter=None):
     log(f"brain() started for: {d.name} | current status: {d.status}")
     # Check which engine to use
     ################# YET TO ADD TO LINUX ############
-    if getattr(config, "download_engine", "yt-dlp").lower() == "aria2": 
-    
-        # If the URL is static, use aria2c
-        if d.type not in ("youtube", "dash", "hls", "m3u8", "streaming"):
-            run_aria2c_download(d, emitter=None)
-            return
-        else:
-            log(f"Falling back to yt-dlp for: {d.name}")
+    if d.engine == "aria2c":
+        run_aria2c_download(d, emitter)
+        return
 
+    elif d.engine == "yt-dlp":
+        run_ytdlp_download(d, emitter)
+        return
+
+    elif d.engine == "curl":
+        log(f"[brain] Using curl/pycurl for: {d.name}")
+        pass  # Let it continue to normal download pipeline
+
+    else:
+        log(f"[brain] Unknown engine '{d.engine}'. Defaulting to curl.")
+        pass  # Still go with curl logic
+
+    # ✅ pycurl or native logic continues here
     d.status = Status.downloading
     log('-' * 100)
-    log(f'start downloading file: "{d.name}", size: {size_format(d.size)}, to: {d.folder}')
+    log(f'start downloading file: "{d.name}", size: {size_format(d.size)}, to: {d.folder} with engine: {d.engine}') 
 
     d.load_progress_info()
 
@@ -62,59 +71,43 @@ def brain(d=None, emitter=None):
     else:
         keep_segments = False
 
-    # Start managers
     Thread(target=file_manager, daemon=True, args=(d, keep_segments, emitter)).start()
     Thread(target=thread_manager, daemon=True, args=(d, emitter)).start()
 
-
     start_time = time.time()
-    max_timeout = 180  # 2 minutes timeout
+    max_timeout = 180  # 2 minutes
 
-
-    # Start monitoring
     while True:
-        #time.sleep(1)
-
         time.sleep(0.1)
 
         if time.time() - start_time > max_timeout and d.progress == 0:
             d.status = Status.error
             log(f"Timeout reached for {d.name}. Marking as failed.")
             if emitter:
-                emitter.status_changed.emit("error")     # ✅ tell DownloadWindow
-                emitter.failed.emit(d)                   # ✅ tell DownloadWorker
+                emitter.status_changed.emit("error")
+                emitter.failed.emit(d)
             break
 
-        # ✅ Cancellation Check
         if d.status == Status.cancelled:
             log(f"brain() cancelled manually for: {d.name}")
             if d.in_queue:
                 d.status = Status.queued
             break
 
-        # ✅ Completion Check
         if d.status == Status.completed:
             config.main_window_q.put(('restore_window', ''))
             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
             break
 
-        # ✅ Error Check
         if d.status == Status.error:
             log(f"brain() error detected for: {d.name}")
             break
 
-    
-
-
     if d.callback and d.status == Status.completed:
         globals()[d.callback]()
 
-    # if emitter and d.status in (Status.error, Status.failed, Status.cancelled):
-    #     emitter.status_changed.emit("error")
-    #     emitter.failed.emit(d)
-
-
     log(f'brain {d.num}: quitting')
+
 
 
 ################# YET TO ADD TO LINUX ############
@@ -146,6 +139,8 @@ def run_aria2c_download(d, emitter=None):
                 "pause": "false",
                 "file-allocation": config.aria2c_config["file_allocation"], 
                 "max-connection-per-server": config.aria2c_config["max_connections"],
+                "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
+                "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
                                                      
             })
             d.aria_gid = added.gid
@@ -215,6 +210,114 @@ def run_aria2c_download(d, emitter=None):
 
 
 
+def run_ytdlp_download(d, emitter=None):
+    log(f"[yt-dlp] Starting download: {d.name}")
+    d.status = Status.downloading
+    d._progress = 0
+    d.remaining_parts = 1
+    d.last_known_progress = 0
+
+    def progress_hook(info):
+        if d.status == Status.cancelled:
+
+            raise yt_dlp.utils.DownloadCancelled("User cancelled download.")
+
+        if info["status"] == "downloading":
+            percent = info.get("_percent_str", "0%").strip().replace('%', '')
+            percent = re.sub(r'\x1b\[[0-9;]*m', '', percent)
+            d._progress = float(percent)
+
+            d._downloaded = info.get("downloaded_bytes", 0)
+            d._total_size = info.get("total_bytes") or info.get("total_bytes_estimate", 0)
+            d._speed = info.get("speed", 0)
+            d.remaining_time = info.get("eta", 0)
+
+            if emitter:
+                emitter.progress_changed.emit(int(d._progress))
+                emitter.status_changed.emit("downloading")
+                emitter.log_updated.emit(
+                    f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}"
+                )
+
+        elif info["status"] == "finished":
+            d.status = Status.completed
+            d._progress = 100
+            if emitter:
+                emitter.progress_changed.emit(100)
+                emitter.status_changed.emit("completed")
+            delete_folder(d.temp_folder)
+            #remove_metadata()
+            notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
+            log(f"[yt-dlp] Finished downloading: {d.name}")
+        
+            
+
+    # def remove_metadata():
+    #     if os.path.exists(d.name):
+    #         try:
+    #             os.remove(os.path.join(d.folder, d.name, ".info.json"))
+    #             os.remove(os.path.join(d.folder, d.name, ".description"))
+    #             os.remove(os.path.join(d.folder, d.name, ".annotations"))
+    #             os.remove(os.path.join(d.folder, d.name, ".metadata"))
+    #         except Exception as e:
+    #             log(f"[yt-dlp] Error removing metadata file: {e}")
+
+    output_path = os.path.join(d.folder, d.name)
+    ffmpeg_path = os.path.join(config.sett_folder, "ffmpeg.exe")
+
+    format_code = None
+    if getattr(d, "format_id", None) and getattr(d, "audio_format_id", None):
+        format_code = f"{d.format_id}+{d.audio_format_id}"
+    elif getattr(d, "format_id", None):
+        format_code = d.format_id  # fallback if no audio
+
+    if config.proxy:
+        proxy_url = config.proxy
+        if config.proxy_user and config.proxy_pass:
+            # Inject basic auth into the proxy URL
+            from urllib.parse import urlparse, urlunparse
+            parsed = urlparse(proxy_url)
+            proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
+
+        ydl_opts['proxy'] = proxy_url
+
+
+
+    ydl_opts = {
+        "outtmpl": output_path,
+        "progress_hooks": [progress_hook],
+        "quiet": config.ytdlp_config["quiet"],
+        "no_warnings": config.ytdlp_config["no_warnings"],
+        "retries": config.ytdlp_config["retries"],
+        "continuedl": True,  # resumes from partial
+        "nopart": True,      # disable .part file
+        "concurrent_fragment_downloads": config.ytdlp_config["concurrent_fragment_downloads"],
+        "ffmpeg_location": ffmpeg_path,
+        "format": format_code,
+        "writeinfojson": config.ytdlp_config["writeinfojson"],
+        "writedescription": config.ytdlp_config["writedescription"],
+        "writeannotations": config.ytdlp_config["writeannotations"],
+        "writemetadata": config.ytdlp_config["writemetadata"],
+        "merge_output_format": config.ytdlp_config['merge_output_format'],  # Ensure proper format
+        "proxy": proxy_url if config.proxy else None,
+    
+        "cookiesfile": config.ytdlp_config["cookiesfile"],
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([d.url])
+    except yt_dlp.utils.DownloadCancelled:
+        log(f"[yt-dlp] Cancelled by user: {d.name}")
+    except Exception as e:
+        d.status = Status.error
+        log(f"[yt-dlp] Error: {e}")
+        if emitter:
+            emitter.status_changed.emit("error")
+    finally:
+        log(f"[yt-dlp] Done processing {d.name}")
+        if emitter:
+            emitter.log_updated.emit(f"[yt-dlp] Done processing {d.name}")
 
 
 def file_manager(d, keep_segments=False, emitter=None):

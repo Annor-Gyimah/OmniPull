@@ -29,11 +29,14 @@ from modules import config
 
 
 
+def resource_path2(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 
 
-
-def notify(msg, title='', timeout=5):
+def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
@@ -41,7 +44,7 @@ def notify(msg, title='', timeout=5):
         notification.application_name = f"{config.APP_NAME}"
         notification.title = f"{title}"
         notification.message = f"{msg}"
-        notification.icon = "logo1.png"
+        notification.icon = resource_path2("logo1.png")
         notification.send(block=False)
         #plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:

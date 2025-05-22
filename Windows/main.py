@@ -38,7 +38,7 @@ from ui.populate_worker import PopulateTableWorker
 from ui.schedule_dialog import ScheduleDialog
 from ui.user_guide_dialog import UserGuideDialog
 
-from helpers.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
+from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning)
 
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
@@ -1179,11 +1179,15 @@ class DownloadManagerUI(QMainWindow):
                 if not hasattr(self.d, "aria_gid"):
                     self.d.aria_gid = None  # Set only if missing
             else:
-                log("[Engine] aria2c selected, but executable not found. Falling back to yt-dlp.")
-                self.d.engine = "yt-dlp"
+                log("[Engine] aria2c selected, but executable not found. Falling back to curl.")
+                self.d.engine = "curl"
+                #self.aria2c_check()
                 
-        else:
+        elif preferred_engine == "yt-dlp":
             self.d.engine = "yt-dlp"
+
+        elif preferred_engine == "curl":
+            self.d.engine = "curl"
 
         log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
         setting.save_d_list(self.d_list)
@@ -1229,6 +1233,10 @@ class DownloadManagerUI(QMainWindow):
             widgets.combo2.clear()
             self.reset_to_default_thumbnail()
             return
+        
+        self.yt_thread.quit()
+        self.yt_thread.wait()
+
         
         self.update_pl_menu()
         self.update_stream_menu()
@@ -1284,8 +1292,9 @@ class DownloadManagerUI(QMainWindow):
         # if self.check_time:
         #     self.check_time = False
         #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
-        #     server_check.server_check_update() 
-        if config.aria2c_path is None and config.aria2_verified is False:
+        #     server_check.server_check_update()
+        aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
+        if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
             log('aria2c not found, falling back to yt-dlp')
             self.aria2c_check()
             return
@@ -2136,7 +2145,7 @@ class DownloadManagerUI(QMainWindow):
                 download_aria2c(destination=config.sett_folder)
                 dialog.accept()
                 dialog.close()
-                show_information(title="Aria2c Missing", msg="Downloading on the background", inform="once ready we will let you know.")
+                #show_information(title="Aria2c Missing", msg="Downloading on the background", inform="once ready we will let you know.")
             def on_cancel():
                 dialog.reject()
             # Connect button signals
@@ -2185,28 +2194,21 @@ class DownloadManagerUI(QMainWindow):
 
         # Signal terminate if needed
         config.terminate = True
-
-        
-
         # Gracefully close all threads
         for thread in self.background_threads:
             if thread and thread.isRunning():
                 thread.quit()
                 thread.wait(2000)  # wait max 2 seconds
-        #self.background_threads.clear()
-        # Save settings
-        # setting.save_d_list(self.d_list)
-        # setting.save_settings()
-        # setting.save_queues()
-
-        #aria2c_manager.force_save_session()
-        aria2c_manager.cleanup_orphaned_paused_downloads()
-        #aria2c_manager.force_clean_and_save_session()
+        # self.background_threads.clear()
         
+
+        # aria2c_manager.force_save_session()
+        aria2c_manager.cleanup_orphaned_paused_downloads()
+        # aria2c_manager.force_clean_and_save_session()
+        # if aria2c_manager.api and aria2c_manager.is_server_alive():
+        #     aria2c_manager.cleanup_orphaned_paused_downloads()
+
         event.accept()
-
-
-    
 
     # Clear Log
     def clear_log(self):
@@ -2299,8 +2301,17 @@ class DownloadManagerUI(QMainWindow):
             except Exception as e:
                 log(f"[Resume] Failed to resume aria2c: {e}")
                 d.status = config.Status.error
+        elif d.engine == "yt-dlp":
+            # ✅ Resume yt-dlp download
+            try:
+                d.status = config.Status.downloading
+                log(f"[Resume] yt-dlp resumed: {d.name}")
+                Thread(target=brain.brain, args=(d,), daemon=True).start()
+            except Exception as e:
+                log(f"[Resume] Failed to resume yt-dlp: {e}")
+                d.status = config.Status.error
         else:
-            # ✅ Fallback: yt-dlp or native
+            # ✅ Fallback: PyCURL download
             self.start_download(d, silent=True)
         
         widgets.toolbar_buttons['Pause'].setEnabled(True)
@@ -2332,6 +2343,7 @@ class DownloadManagerUI(QMainWindow):
                     # aria2c_manager.force_save_session()
                     aria2c_manager.force_clean_and_save_session()
                     d.status = config.Status.cancelled
+                    time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
                     log(f"[Pause] Aria2c paused: {d.name}")
             except Exception as e:
                 log(f"[Pause] Failed to pause aria2c: {e}")
@@ -2586,9 +2598,14 @@ class DownloadManagerUI(QMainWindow):
         self.worker = PopulateTableWorker(self.d_list)
         self.worker.moveToThread(self.table_thread)
 
+        # Add cleanup connections
+        self.worker.finished.connect(self.table_thread.quit)  
+        self.worker.finished.connect(self.worker.deleteLater)  
+        self.table_thread.finished.connect(self.table_thread.deleteLater)
+
         self.worker.data_ready.connect(self.populate_table_apply)
         self.table_thread.started.connect(self.worker.run)
-        self.table_thread.finished.connect(self.table_thread.deleteLater)
+        # self.table_thread.finished.connect(self.table_thread.deleteLater)
 
         self.table_thread.start()
 

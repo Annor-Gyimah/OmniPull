@@ -203,7 +203,7 @@ class DownloadItem:
         self.queue_id = None  # unique identifier if you plan to support multiple queues
         self._progress = 0  # ################# YET TO ADD TO LINUX ############
 
-        self.engine = "yt-dlp"  # default
+        self.engine = config.download_engine
         self.aria_gid = None
 
 
