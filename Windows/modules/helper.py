@@ -3,6 +3,14 @@ import os
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import Qt
+import re
+
+
+
+def safe_filename(name):
+    """Sanitize filename to remove problematic characters."""
+    name = re.sub(r'[\\/*?:"<>|]', "_", name)  # Remove bad chars
+    return name.strip()
 
 
 

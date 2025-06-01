@@ -8,12 +8,14 @@ import sys
 import zipfile
 import shutil
 import time
+import asyncio
 from threading import Thread
 from urllib.parse import urljoin
 import copy
 import platform
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
+from modules.threadpool import executor
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
     delete_file, download, process_thumbnail, popup
 
@@ -44,7 +46,13 @@ def get_ytdl_options():
         'no_warnings': False,
         'logger': Logger(),
         'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
-        'listformats': True,        
+        # 'listformats': True,
+        # 'no_check_certificate': True,
+        # 'cookiefile': os.path.join(config.sett_folder, 'youtube_cookies.txt'),
+        # 'extractor_args': {
+        #     'youtube': ['visitor_data=yt.visitor_data_value', 'client=ANDROID'],
+        # }
+        
     }
     if config.proxy:
         proxy_url = config.proxy
@@ -57,16 +65,14 @@ def get_ytdl_options():
         ydl_opts['proxy'] = proxy_url
 
 
-    # website authentication
-    # ydl_opts['username'] = ''
-    # ydl_opts['password'] = ''
-
-        # if config.log_level >= 3:
-    #     ydl_opts['verbose'] = True  # it make problem with Frozen PyIDM, extractor doesn't work
-    # elif config.log_level <= 1:
-    #     ydl_opts['quiet'] = True  # it doesn't work
-
     return ydl_opts
+
+
+def extract_info_blocking(url, ydl_opts):
+    import yt_dlp as ytdl
+    with ytdl.YoutubeDL(ydl_opts) as ydl:
+        return ydl.extract_info(url, download=False, process=True)
+
 
 class Video(DownloadItem):
     """represent a youtube video object, interface for youtube-dl"""
@@ -79,8 +85,9 @@ class Video(DownloadItem):
 
         # let youtube-dl fetch video info
         if self.vid_info is None:
-            with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                self.vid_info = ydl.extract_info(self.url, download=False, process=True)
+            raise ValueError("vid_info must be provided when using Video.__init__. Use Video.create() instead.")
+            # with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+            #     self.vid_info = ydl.extract_info(self.url, download=False, process=True)
 
         self.webpage_url = url  # self.vid_info.get('webpage_url')
         self.title = validate_file_name(self.vid_info.get('title', f'video{int(time.time())}'))
@@ -112,6 +119,21 @@ class Video(DownloadItem):
     def setup(self):
         self._process_streams()
 
+
+    @classmethod
+    async def create(cls, url, get_size=True):
+        loop = asyncio.get_running_loop()
+        ydl_opts = get_ytdl_options()
+        vid_info = await loop.run_in_executor(executor, extract_info_blocking, url, ydl_opts)
+        return cls(url, vid_info=vid_info, get_size=get_size)
+    
+    @classmethod
+    async def extract_metadata(cls, url):
+        loop = asyncio.get_running_loop()
+        ydl_opts = get_ytdl_options()
+        return await loop.run_in_executor(executor, extract_info_blocking, url, ydl_opts)
+
+
     def url_expired(self) -> bool:
         """
         Check if video or audio stream URL is likely expired.
@@ -124,21 +146,23 @@ class Video(DownloadItem):
 
     def _process_streams(self):
         """ Create Stream object lists"""
-        # if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
-        #     log("Error: No video formats found in vid_info")
-        #     return
+        
+    
+        if not self.vid_info or 'formats' not in self.vid_info:
+            log(f"[Video] Skipping: no 'formats' found for {self.url}")
+            self._streams = {}
+            self.stream_names = []
+            self.selected_stream = None
+            return
+        
 
-        # try:
-        #     all_streams = [Stream(x) for x in self.vid_info['formats']]
-        # except Exception as e:
-        #     log(f"Error creating Stream objects: {e}")
-        #     return
+        
+    
         all_streams = [Stream(x) for x in self.vid_info['formats']]
 
         # prepare some categories
         normal_streams = {stream.raw_name: stream for stream in all_streams if stream.mediatype == 'normal'}
         dash_streams = {stream.raw_name: stream for stream in all_streams if stream.mediatype == 'dash'}
-        
 
         # normal streams will overwrite same streams names in dash
         video_streams = {**dash_streams, **normal_streams}
@@ -674,7 +698,7 @@ def import_ytdl():
     config.ytdl_VERSION = ytdl.version.__version__
 
     load_time = time.time() - start
-    log(f'youtube-dl load_time= {load_time}')
+    log(f'yt-dlp load_time= {load_time}')
 
 
 def parse_bytes(bytestr):

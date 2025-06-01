@@ -1368,3 +1368,318 @@
 
 # # Global instance
 # aria2c_manager = Aria2cManager()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################### aria2c for youtube ###########################################################
+# def run_aria2c_video_audio_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     try:
+#         aria2 = aria2c_manager.get_api()
+
+#         # Use the selected stream from GUI
+#         selected_stream = getattr(d, "selected_stream", None)
+#         if selected_stream:
+#             d.url = selected_stream.url
+#             if selected_stream.height:
+#                 d.name = validate_file_name(f"{d.name}_{selected_stream.height}p.mp4")
+#             else:
+#                 d.name = validate_file_name(f"{d.name}.mp4")
+
+#         audio_is_present = bool(d.audio_url and d.audio_url != d.url)
+
+#         # Submit video
+#         added_video = aria2.add_uris([d.url], options={
+#             "dir": d.folder,
+#             "out": d.name,
+#             "pause": "false",
+#             "file-allocation": config.aria2c_config["file_allocation"],
+#             "max-connection-per-server": config.aria2c_config["max_connections"],
+#             "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
+#             "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
+#         })
+#         d.aria_gid = added_video.gid
+#         log(f"[Aria2c] Video GID assigned: {d.aria_gid}")
+
+#         # Submit audio
+#         if audio_is_present:
+#             audio_out = os.path.basename(d.audio_file)
+#             added_audio = aria2.add_uris([d.audio_url], options={
+#                 "dir": d.folder,
+#                 "out": audio_out,
+#                 "pause": "false",
+#                 "file-allocation": config.aria2c_config["file_allocation"],
+#                 "max-connection-per-server": config.aria2c_config["max_connections"],
+#             })
+#             d.audio_gid = added_audio.gid
+#             log(f"[Aria2c] Audio GID assigned: {d.audio_gid}")
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)
+
+#         video_complete = False
+#         audio_complete = not audio_is_present
+#         last_progress = -1
+
+#         while True:
+#             try:
+#                 v = aria2.get_download(d.aria_gid)
+#                 video_complete = v.is_complete
+#                 v_percent = int(v.progress)
+#             except:
+#                 v_percent = 0
+
+#             d._downloaded = int(v.completed_length)
+#             d.size = int(v.total_length) if v.total_length else 0
+#             d._speed = int(v.download_speed)
+#             d.remaining_time = v.eta if v.eta != -1 else 0
+
+#             if audio_is_present:
+#                 try:
+#                     a = aria2.get_download(d.audio_gid)
+#                     audio_complete = a.is_complete
+#                     a_percent = int(a.progress)
+#                 except:
+#                     a_percent = 0
+#             else:
+#                 a_percent = 0
+
+#             combined = (v_percent + a_percent) // (2 if audio_is_present else 1)
+#             d._progress = combined
+#             d.last_known_progress = combined
+
+#             if emitter and combined != last_progress:
+#                 emitter.progress_changed.emit(combined)
+#                 emitter.log_updated.emit(
+#                     f"⬇ {size_format(d.downloaded)} | Video: {v_percent}% | Audio: {a_percent if audio_is_present else '—'}%"
+#                 )
+#                 last_progress = combined
+
+#             # When complete, delay slightly to ensure file flush
+#             if video_complete and audio_complete:
+#                 log(f"[Aria2c] Both video and audio completed for: {d.name}")
+
+#                 video_path = os.path.join(d.folder, d.name)
+#                 safe_name = os.path.splitext(d.name)[0]
+#                 output_file = os.path.join(d.folder, f"{safe_name}.merged.mp4")
+
+#                 # In-place check
+#                 if output_file == video_path:
+#                     output_file = os.path.join(d.folder, f"{safe_name}_final.mp4")
+
+#                 # Wait for OS to flush files
+#                 for path in [video_path, d.audio_file]:
+#                     for _ in range(10):
+#                         if os.path.exists(path) and os.path.getsize(path) > 1024:
+#                             break
+#                         log(f"[Aria2c] Waiting for file write completion: {path}")
+#                         time.sleep(1)
+#                     else:
+#                         log(f"[Aria2c] ERROR: File not ready or too small: {path}")
+#                         d.status = Status.error
+#                         break
+
+#                 d.status = Status.merging_audio
+#                 loop = asyncio.new_event_loop()
+#                 asyncio.set_event_loop(loop)
+#                 error, output = loop.run_until_complete(
+#                     async_merge_video_audio(video_path, d.audio_file, output_file, d)
+#                 )
+
+#                 if error:
+#                     log(f"[Merge] FFmpeg merge failed: {output}")
+#                     d.status = Status.error
+#                     break
+
+#                 try:
+#                     if os.path.exists(d.target_file):
+#                         os.remove(d.target_file)
+#                     rename_file(output_file, d.target_file)
+#                 except Exception as e:
+#                     log(f"[Merge] Rename error: {e}")
+#                     d.status = Status.error
+#                     break
+
+#                 d.delete_tempfiles()
+#                 d.status = Status.completed
+#                 log(f"[Aria2c] Download completed for: {d.name}")
+#                 delete_folder(d.temp_folder)
+#                 if emitter:
+#                     emitter.status_changed.emit("completed")
+#                     emitter.progress_changed.emit(100)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             if d.status == Status.cancelled:
+#                 log(f"[Aria2c] Download cancelled: {d.name}")
+#                 break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+
+
+
+
+# if d.engine in ["aria2", "aria2c"]:
+    #     log(f"[brain] aria2c selected for: {d.name}")
+
+    #     # Only re-extract if we have no pre-extracted video info
+    #     if ("youtube.com" in d.url or "youtu.be" in d.url) and not getattr(d, "vid_info", None):
+    #         log(f"[brain] Extracting stream info from YouTube URL for aria2c...")
+    #         from modules.video import get_ytdl_options, extract_info_blocking, Stream
+    #         ydl_opts = get_ytdl_options()
+    #         vid_info = extract_info_blocking(d.url, ydl_opts)
+    #         d.vid_info = vid_info
+    #     elif getattr(d, "vid_info", None):
+    #         log(f"[brain] Reusing existing vid_info for {d.name}")
+
+    #     if getattr(d, "vid_info", None):
+    #         from modules.video import Stream
+    #         streams = [Stream(f) for f in d.vid_info.get("formats", [])]
+    #         dash_streams = [s for s in streams if s.mediatype == 'dash']
+    #         audio_streams = [s for s in streams if s.mediatype == 'audio']
+
+    #         # --- Select user-requested format if valid ---
+    #         selected_stream = getattr(d, "selected_stream", None)
+    #         selected_dash = None
+
+    #         if selected_stream:
+    #             for s in dash_streams:
+    #                 if (
+    #                     s.format_id == selected_stream.format_id
+    #                     and s.url
+    #                     and "m3u8" not in s.url
+    #                     and "mpd" not in s.url
+    #                 ):
+    #                     selected_dash = s
+    #                     break
+
+    #         if not selected_dash:
+    #             selected_dash = next(
+    #                 (s for s in dash_streams if s.url and "m3u8" not in s.url and "mpd" not in s.url),
+    #                 None,
+    #             )
+
+    #         selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash or not selected_audio:
+    #             log("[brain] Could not find valid dash/audio streams — falling back to yt-dlp.")
+    #             run_ytdlp_download(d, emitter)
+    #             return
+
+    #         d.eff_url = selected_dash.url
+    #         d.audio_url = selected_audio.url
+    #         d.format_id = selected_dash.format_id
+    #         d.audio_format_id = selected_audio.format_id
+
+    #         # Sanitize title and embed quality label into name
+    #         #base_title = d.vid_info.get("title", f"yt_video_{int(time.time())}")
+    #         base_title = validate_file_name(d.vid_info.get("title"))
+    #         #quality_label = selected_dash.resolution or selected_dash.quality
+    #         d.name = f"{base_title}.mp4"
+
+    #         # Set the url for aria2c to download
+    #         d.url = d.eff_url
+
+    #         run_aria2c_video_audio_download(d, emitter)
+    #     else:
+    #         log("[Aria2c] Running normal static file download")
+    #         run_aria2c_download(d, emitter)
+    #     return
+
+
+    # if d.engine in ["aria2", "aria2c"]:
+    #     log(f"[brain] aria2c selected for: {d.name}")
+
+    #     # Extract if not already extracted
+    #     if ("youtube.com" in d.url or "youtu.be" in d.url) and not getattr(d, "vid_info", None):
+    #         log(f"[brain] Extracting stream info from YouTube URL for aria2c...")
+    #         from modules.video import get_ytdl_options, extract_info_blocking, Stream
+    #         ydl_opts = get_ytdl_options()
+    #         vid_info = extract_info_blocking(d.url, ydl_opts)
+    #         d.vid_info = vid_info
+    #     elif getattr(d, "vid_info", None):
+    #         log(f"[brain] Reusing existing vid_info for {d.name}")
+
+    #     if getattr(d, "vid_info", None):
+    #         from modules.video import Stream
+    #         streams = [Stream(f) for f in d.vid_info.get("formats", [])]
+    #         dash_streams = [s for s in streams if s.mediatype == 'dash']
+    #         audio_streams = [s for s in streams if s.mediatype == 'audio']
+
+    #         selected_stream = getattr(d, "selected_stream", None)
+    #         selected_dash = None
+    #         selected_audio = None
+
+    #         if selected_stream:
+    #             selected_dash = next((s for s in dash_streams if s.format_id == selected_stream.format_id), None)
+    #             if selected_dash:
+    #                 selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash:
+    #             selected_dash = max(dash_streams, key=lambda s: s.quality, default=None)
+    #         if not selected_audio:
+    #             selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash or not selected_audio:
+    #             log("[brain] Could not find valid dash/audio streams — falling back to yt-dlp.")
+    #             run_ytdlp_download(d, emitter)
+    #             return
+
+    #         d.eff_url = selected_dash.url
+    #         d.audio_url = selected_audio.url
+    #         d.format_id = selected_dash.format_id
+    #         d.audio_format_id = selected_audio.format_id
+
+    #         # Set the download name and target
+    #         clean_title = validate_file_name(d.vid_info.get("title"))
+    #         d.name = f"{clean_title}.mp4"
+    #         d.url = d.eff_url
+
+    #         run_aria2c_video_audio_download(d, emitter)
+    #     else:
+    #         log("[Aria2c] Running normal static file download")
+    #         run_aria2c_download(d, emitter)
+    #     return

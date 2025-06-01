@@ -1,8 +1,30 @@
-############################################
-
-# PROJECT DEVELOPER: EMMANUEL GYIMAH ANNOR
-
-#############################################
+#####################################################################################
+# OMNIPULL DOWNLOAD MANAGER
+#
+# Project Developer: Emmanuel Gyimah Annor
+#
+# Description:
+#   OmniPull is a cross-platform, feature-rich download manager designed to simplify
+#   and accelerate file downloads from the internet. It supports HTTP, HTTPS, and
+#   streaming protocols, integrates with browsers, and provides advanced features
+#   such as queue management, scheduling, clipboard monitoring, and YouTube/media
+#   extraction via yt-dlp. The application leverages PySide6 for a modern, responsive
+#   GUI and supports plugins like aria2c and ffmpeg for enhanced performance.
+#
+#   Key Features:
+#     - Multi-threaded downloads with pause/resume support
+#     - Download queue and scheduling system
+#     - YouTube and streaming video/audio extraction
+#     - Browser integration and clipboard monitoring
+#     - Download window with progress, speed, and logs
+#     - Customizable settings and language support
+#     - Robust error handling and update mechanism
+#
+#   This project is open for educational and personal use. For contributions,
+#   bug reports, or feature requests, please contact the developer.
+#
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
 # region Libraries import
 import sys
@@ -14,7 +36,10 @@ import re
 from threading import Thread, Timer
 import copy
 import requests
+import asyncio
+from pathlib import Path
 import json
+import hashlib
 from collections import deque
 
 # region Third Parties import
@@ -23,33 +48,30 @@ QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget,
 QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
-from PySide6.QtCore import (QTimer, QPoint, QObject, QThread, Signal, QRunnable, Slot, QUrl, QTranslator, QCoreApplication, Qt, QTime)
+from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
+QCoreApplication, Qt, QTime)
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard, QDesktopServices, QActionGroup
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup
 
 
-
-from ui.ui_main import Ui_MainWindow    
-from ui.setting_dialog import SettingsWindow
 from ui.about_dialog import AboutDialog
-from ui.queue_dialog import QueueDialog
 from ui.download_window import DownloadWindow
 from ui.populate_worker import PopulateTableWorker
+from ui.queue_dialog import QueueDialog
 from ui.schedule_dialog import ScheduleDialog
+from ui.setting_dialog import SettingsWindow
+from ui.ui_main import Ui_MainWindow 
 from ui.user_guide_dialog import UserGuideDialog
 
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning)
-
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format, truncate, 
     notify, run_command, handle_exceptions, popup)
-from modules import config, brain, setting, video, update, startup
+from modules import config, brain, setting, video, update
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
-from pathlib import Path
-import json
-import hashlib
+
 
 
 os.environ["QT_FONT_DPI"] = "120"  # FIX Problem for High DPI and Scale above 100%
@@ -134,6 +156,8 @@ class YouTubeThread(QThread):
     """Thread to handle YouTube video extraction and downloading."""
     finished = Signal(object)  # Signal when the process is complete
     progress = Signal(int)  # Signal to update progress bar (0-100%)
+    
+
 
 
     def __init__(self, url: str):
@@ -141,65 +165,135 @@ class YouTubeThread(QThread):
         super().__init__()
         self.url = url
 
+
+    # def run(self):
+    #     """Run the thread to process the video URL."""
+    #     try:
+    #         # Ensure youtube-dl is loaded
+    #         if video.ytdl is None:
+    #             log('youtube-dl module still loading, please wait')
+    #             while not video.ytdl:
+    #                 time.sleep(0.1)
+    #         widgets.download_btn.setEnabled(False)
+    #         widgets.playlist_btn.setEnabled(False)
+    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
+    #         widgets.combo1.clear()
+    #         widgets.combo2.clear()
+
+    #         log(f"Extracting info for URL: {self.url}")
+    #         change_cursor('busy')
+
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             info = ydl.extract_info(self.url, download=False, process=True)
+    #             log('Media info:', info, log_level=3)
+
+    #             if info.get('_type') == 'playlist' or 'entries' in info:
+    #                 pl_info = list(info.get('entries', []))
+    #                 playlist = []
+    #                 for index, item in enumerate(pl_info):
+    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
+    #                     if url:
+    #                         playlist.append(Video(url, vid_info=item))
+    #                     # Emit progress as we process each playlist entry
+    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
+    #                 result = playlist
+    #                 self.finished.emit(result)
+
+    #             else:
+    #                 # For a single video, update progress on extraction
+    #                 result = Video(self.url, vid_info=None)
+    #                 self.progress.emit(50)  # Just after extracting the info
+    #                 time.sleep(1)  # Simulating some processing
+    #                 self.progress.emit(100)  # Video info extraction complete
+    #             self.finished.emit(result)
+    #             change_cursor('normal')
+    #             widgets.download_btn.setEnabled(True)
+    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
+
+    #     except DownloadError as e:
+    #         log('DownloadError:', e)
+    #         popup(title="Timeout", msg="Please retry the download.", type_="warning")
+    #         self.finished.emit(None)
+    #     except ExtractorError as e:
+    #         log('ExtractorError:', e)
+    #         self.finished.emit(None)
+    #     except Exception as e:
+    #         log('Unexpected error:', e)
+    #         self.finished.emit(None)
+
     def run(self):
-        """Run the thread to process the video URL."""
         try:
-            # Ensure youtube-dl is loaded
-            if video.ytdl is None:
-                log('youtube-dl module still loading, please wait')
-                while not video.ytdl:
-                    time.sleep(0.1)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self._run_async())
+        except Exception as e:
+            log('Unexpected error:', e)
+            self.finished.emit(None)
+
+    
+    async def _run_async(self):
+        try:
             widgets.download_btn.setEnabled(False)
             widgets.playlist_btn.setEnabled(False)
             widgets_settings.monitor_clipboard_cb.setChecked(False)
             widgets.combo1.clear()
             widgets.combo2.clear()
-
-            log(f"Extracting info for URL: {self.url}")
             change_cursor('busy')
 
-            with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.url, download=False, process=True)
-                log('Media info:', info, log_level=3)
+            log(f"[AsyncYTDL] Extracting info for URL: {self.url}")
+            # video_obj = await video.Video.create(self.url)
+            vid_info = await video.Video.extract_metadata(self.url)  # we'll split out this helper
 
-                if info.get('_type') == 'playlist' or 'entries' in info:
-                    pl_info = list(info.get('entries', []))
-                    playlist = []
-                    for index, item in enumerate(pl_info):
-                        url = item.get('url') or item.get('webpage_url') or item.get('id')
-                        if url:
-                            playlist.append(Video(url, vid_info=item))
-                        # Emit progress as we process each playlist entry
-                        self.progress.emit(int((index + 1) * 100 / len(pl_info)))
-                    result = playlist
-                    self.finished.emit(result)
 
-                else:
-                    # For a single video, update progress on extraction
-                    result = Video(self.url, vid_info=None)
-                    self.progress.emit(50)  # Just after extracting the info
-                    time.sleep(1)  # Simulating some processing
-                    self.progress.emit(100)  # Video info extraction complete
-                self.finished.emit(result)
-                change_cursor('normal')
-                widgets.download_btn.setEnabled(True)
-                widgets_settings.monitor_clipboard_cb.setChecked(True)
+            if vid_info.get('_type') == 'playlist':
+                playlist = []
+                entries = list(vid_info.get('entries', []))
+                last_emit = -1  # initialize outside loop
+                UPDATE_INTERVAL = 10  # Update every 10%
+                for index, item in enumerate(entries):
+                    try:
+                        url = item.get('webpage_url') or item.get('url') or item.get('id')
+                        if not url:
+                            continue
+                        v = video.Video(url, vid_info=item, get_size=False)
+                        
+                        
+                        playlist.append(v)
 
-        except DownloadError as e:
-            log('DownloadError:', e)
-            popup(title="Timeout", msg="Please retry the download.", type_="warning")
-            self.finished.emit(None)
-        except ExtractorError as e:
-            log('ExtractorError:', e)
+                        # Emit progress only every 10%
+                        percent = int((index + 1) * 100 / len(entries))
+                        if percent // UPDATE_INTERVAL > last_emit // UPDATE_INTERVAL:
+                            self.progress.emit(percent)
+                            last_emit = percent
+
+                    except Exception as e:
+                        log(f"[AsyncYTDL] Skipping playlist item {index}: {e}")
+                
+                
+                self.finished.emit(playlist)
+                self.progress.emit(100)
+
+
+            else:
+                video_obj = video.Video(self.url, vid_info=vid_info)
+                self.progress.emit(50)
+                await asyncio.sleep(1)  # simulate additional processing
+                self.progress.emit(100)
+                self.finished.emit(video_obj)
+
+        except (DownloadError, ExtractorError) as e:
+            log('[AsyncYTDL] yt-dlp error:', e)
             self.finished.emit(None)
         except Exception as e:
-            log('Unexpected error:', e)
+            log('[AsyncYTDL] Error:', e)
             self.finished.emit(None)
+        finally:
+            change_cursor('normal')
+            widgets.download_btn.setEnabled(True)
+            widgets_settings.monitor_clipboard_cb.setChecked(True)
 
-   
 
-
-
+    
 
 
 class CheckUpdateAppThread(QThread):
@@ -1237,7 +1331,39 @@ class DownloadManagerUI(QMainWindow):
         self.yt_thread.quit()
         self.yt_thread.wait()
 
-        
+        # ✅ Warn user if aria2c is selected for YouTube streams
+        engine = config.download_engine.lower()
+        if engine in ["aria2", "aria2c"]:
+            url = self.d.url if isinstance(self.d, Video) else self.d.vid_info.get("webpage_url", "")
+            if "youtube.com" in url or "youtu.be" in url:
+                
+                reply = QMessageBox(self)
+                reply.setStyleSheet(get_msgbox_style("warning"))
+                reply.setWindowTitle(self.tr("Aria2c Warning"))
+                reply.setText(self.tr("You selected Aria2c for downloading a YouTube video.\n"
+                    "This method is experimental and may not download or merge properly.\n\n"
+                    "Do you want to continue?"))
+                reply.setIcon(QMessageBox.Question)
+                reply.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                reply.exec()
+                # reply = QMessageBox.warning(
+                #     self,
+                #     self.tr("Aria2c Warning"),
+                #     self.tr("You selected Aria2c for downloading a YouTube video.\n"
+                #             "This method is experimental and may not download or merge properly.\n\n"
+                #             "Do you want to continue?"),
+                #     QMessageBox.Yes | QMessageBox.No,
+                #     QMessageBox.No
+                # )
+            
+                if reply == QMessageBox.No:
+                    log("[Main] User cancelled YouTube download with aria2c.")
+                    widgets.download_btn.setEnabled(False)
+                    widgets.playlist_btn.setEnabled(False)
+                    return
+
+
+
         self.update_pl_menu()
         self.update_stream_menu()
 

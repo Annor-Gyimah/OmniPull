@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
 
 from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
 import threading
-from modules.utils import truncate, size_format, size_splitter, time_format
+from modules.utils import truncate, size_format, size_splitter, time_format, log
 from modules import config
 
 
@@ -67,6 +67,8 @@ class DownloadWindow(QWidget):
         self._progress_mode = 'determinate'
         self.init_ui()
         self.resize(500, 330)
+        self.setWindowTitle("Download Window")
+        
 
     @property
     def progress_mode(self):
@@ -194,10 +196,10 @@ class DownloadWindow(QWidget):
         except Exception as e:
             log(f"[DownloadWindow] Failed to stop timer: {e}")
 
-        try:
-            self.disconnect()  # Only if you've connected custom signals manually
-        except Exception as e:
-            log(f"[DownloadWindow] Failed to disconnect signals: {e}")
+        # try:
+        #     self.disconnect()  # Only if you've connected custom signals manually
+        # except Exception as e:
+        #     log(f"[DownloadWindow] Failed to disconnect signals: {e}")
 
         super().closeEvent(event)
 

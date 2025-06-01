@@ -205,6 +205,8 @@ class DownloadItem:
 
         self.engine = config.download_engine
         self.aria_gid = None
+        self.audio_gid = None
+
 
 
 
@@ -223,7 +225,7 @@ class DownloadItem:
                  last_known_size=self.last_known_size, last_known_progress=self.last_known_progress,
                  protocol=self.protocol, manifest_url=self.manifest_url, scheduled=self.sched, schedule_retries=self.schedule_retries,
                  in_queue=self.in_queue, queue_id=self.queue_id, queue_name=self.queue_name, queue_position=self.queue_position,
-                 engine=self.engine, aria_gid=self.aria_gid
+                 engine=self.engine, aria_gid=self.aria_gid, audio_gid=self.audio_gid,
                 )
         return a
 

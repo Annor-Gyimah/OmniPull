@@ -57,38 +57,43 @@ def check_for_update():
 def get_changelog():
     """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
     """
+    try:
+        # Get latest release info from GitHub API
+        content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
+            follow_redirects=True).json()
 
-    # Get latest release info from GitHub API
-    content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
-        follow_redirects=True).json()
+        # Extract tagName and remove any unwanted characters like leading dots
+        tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
+        
 
-    # Extract tagName and remove any unwanted characters like leading dots
-    tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
+        # url will be chosen depend on frozen state of the application
+        source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
+        new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
+        url = new_release_url if config.FROZEN else source_code_url
+        # url = new_release_url
+
+
+        # get BytesIO object
+        buffer = download(url)
+
+        if buffer:
+            # convert to string
+            contents = buffer.getvalue().decode()
+
+            # extract version number from contents
+            # latest_version = contents.splitlines()[0].replace(':', '').strip()
+            latest_version = tagName
+
+            return latest_version, contents
+        else:
+            log("check_for_update() --> couldn't check for update, url is unreachable")
+            return None
+    except httpx.RequestError as e:
+        log(f"An error occurred while fetching the changelog: {e}")
+        return None, None
     
-
-    # url will be chosen depend on frozen state of the application
-    source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
-    new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
-    url = new_release_url if config.FROZEN else source_code_url
-    # url = new_release_url
-
-
-    # get BytesIO object
-    buffer = download(url)
-
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        # latest_version = contents.splitlines()[0].replace(':', '').strip()
-        latest_version = tagName
-
-        return latest_version, contents
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
+    
 
 
 def update():
