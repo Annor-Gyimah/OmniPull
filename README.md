@@ -1,7 +1,7 @@
 # OmniPull Download Manager
 
 <p align="center">
-    <img src="path_to_logo/logo1.png" alt="OmniPull Logo" width="200"/>
+    <img src="Windows/icons/logo1.png" alt="OmniPull Logo" width="200"/>
 </p>
 
 <div align="center">
@@ -15,7 +15,7 @@
 OmniPull is a powerful, cross-platform download manager built with Python and PySide6. It provides a modern, intuitive interface for managing downloads with advanced features like multi-threading, queue management, and media extraction.
 
 <p align="center">
-    <img src="Windows/icons/logo1.png" alt="Main Window" width="800"/>
+    <img src="Windows/icons/screenshot.png" alt="Main Window" width="800"/>
 </p>
 
 ## 🚀 Key Feature
