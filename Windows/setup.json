@@ -56,6 +56,10 @@
   {
    "optionDest": "excludes",
    "value": "PyQt5"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/USER/Desktop/Softenv/OmniPull/Windows/icons/logo1.png;."
   }
  ],
  "nonPyinstallerOptions": {

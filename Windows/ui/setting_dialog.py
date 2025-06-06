@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
-    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox
+    QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
+    QGroupBox,  QTabWidget, QScrollArea, QFileDialog
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -9,6 +10,7 @@ import os, sys
 
 from modules.utils import log, delete_file
 from modules import config, setting
+from modules.settings_manager import SettingsManager
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
@@ -19,7 +21,8 @@ class SettingsWindow(QDialog):
        
 
 
-        setting.load_setting()
+        # setting.load_setting()
+        self.settings_manager = SettingsManager()
 
         self.translator = QTranslator()
 
@@ -54,9 +57,9 @@ class SettingsWindow(QDialog):
 
         icon_map = {
             "General": "icons/general.png",
-            "Connection": "icons/cil-link.png",
+            "Engine Config": "icons/cil-link.png",
             "Browser": "icons/extension.png",
-            "Updates": "icons/updates.svg"
+            "Updates": "icons/updates.svg",
         }
 
         for key, icon in icon_map.items():
@@ -137,15 +140,13 @@ class SettingsWindow(QDialog):
 
         # Initialize sections
         self.setup_general_tab()
-        self.setup_connection_tab()
+        self.setup_engine_config_tab()
         self.setup_browser_tab()
         self.setup_updates_tab()
         self.check_update_btn.clicked.connect(self.on_call_update)
 
-        
-        
+
         self.load_values(config)
-        
 
         # Connect sidebar to stack switching
         self.sidebar.currentRowChanged.connect(self.stack.setCurrentIndex)
@@ -171,15 +172,45 @@ class SettingsWindow(QDialog):
         self.show_thumbnail_cb = QCheckBox("Show Thumbnail")
         self.on_startup_cb = QCheckBox("On Startup")
 
-        self.segment_linedit = QLineEdit()
-        self.segment_linedit.setPlaceholderText("")
-        self.segment_unit_combo = QComboBox()
-        self.segment_unit_combo.addItems(["KB", "MB"])
 
-        segment_row = QHBoxLayout()
-        segment_row.addWidget(self.segment_linedit)
-        segment_row.addWidget(self.segment_unit_combo)
-        
+        download_engine = QComboBox()
+        download_engine.addItems(["yt-dlp", "aria2", "wget", "curl"])
+        self.download_engine_combo = download_engine
+
+        self.curl_proxy_checkBox = QCheckBox("Use Proxy")
+        self.curl_proxy_input = QLineEdit()
+        self.curl_proxy_input.setPlaceholderText("http://127.0.0.1:8080")
+        self.curl_proxy_type_combo = QComboBox()
+        self.curl_proxy_type_combo.addItems(["http", "https", "socks5"])
+        self.curl_proxy_username = QLineEdit()
+        self.curl_proxy_username.setPlaceholderText("Username")
+        self.curl_proxy_password = QLineEdit()
+        self.curl_proxy_password.setPlaceholderText("Password")
+        self.curl_proxy_checkBox.setToolTip("Enable proxy for curl downloads.")
+        self.curl_proxy_input.setToolTip("Enter the proxy address.")
+        self.curl_proxy_type_combo.setToolTip("Select the proxy type.")
+        self.curl_proxy_input.setEnabled(False)
+        self.curl_proxy_type_combo.setEnabled(False)
+        self.curl_proxy_username.setEnabled(False)
+        self.curl_proxy_password.setEnabled(False)
+        self.curl_proxy_checkBox.toggled.connect(self.curl_proxy_input.setEnabled)
+        self.curl_proxy_checkBox.toggled.connect(self.curl_proxy_type_combo.setEnabled)
+        self.curl_proxy_checkBox.toggled.connect(self.curl_proxy_username.setEnabled)
+        self.curl_proxy_checkBox.toggled.connect(self.curl_proxy_password.setEnabled)
+
+        # Proxy row: checkbox, type, address
+        proxy_row = QHBoxLayout()
+        proxy_row.addWidget(self.curl_proxy_checkBox)
+        proxy_row.addWidget(self.curl_proxy_type_combo)
+        proxy_row.addWidget(self.curl_proxy_input)
+
+        # Username/password row
+        proxy_auth_row = QHBoxLayout()
+        proxy_auth_row.addWidget(QLabel("Proxy Username:"))
+        proxy_auth_row.addWidget(self.curl_proxy_username)
+        proxy_auth_row.addWidget(QLabel("Proxy Password:"))
+        proxy_auth_row.addWidget(self.curl_proxy_password)
+
         general_layout.addRow(QLabel("Choose Language:"), self.language_combo)
         general_layout.addRow(QLabel("Choose Setting:"), self.setting_scope_combo)
         general_layout.addRow(self.monitor_clipboard_cb)
@@ -187,91 +218,283 @@ class SettingsWindow(QDialog):
         general_layout.addRow(self.auto_close_cb)
         general_layout.addRow(self.show_thumbnail_cb)
         general_layout.addRow(self.on_startup_cb)
-        general_layout.addRow(QLabel("Segment:"), segment_row)
+        general_layout.addRow(QLabel("Download Engine:"), download_engine)
+        general_layout.addRow(proxy_row)
+        general_layout.addRow(proxy_auth_row)
+        
         self.stack.addWidget(general_widget)
 
-    def setup_connection_tab(self):
-        conn_widget = QWidget()
-        conn_layout = QFormLayout(conn_widget)
-        conn_layout.setSpacing(16)
 
-        # Speed Limit checkbox + input
-        self.speed_checkBox = QCheckBox("Speed Limit")
-        self.speed_limit_input = QLineEdit()
-        self.speed_limit_input.setPlaceholderText("e.g., 50k, 10k...")
-        self.speed_limit_input.setEnabled(False)  # initially disabled
-        self.speed_checkBox.toggled.connect(self.speed_limit_input.setEnabled)
+    def setup_engine_config_tab(self):
+        self.engine_widget = QWidget()
+        self.engine_layout = QVBoxLayout(self.engine_widget)
 
-        # Max Concurrent Downloads
-        self.max_concurrent_combo = QComboBox()
-        self.max_concurrent_combo.addItems(["1", "2", "3", "4", "5"])
+        self.engine_tabs = QTabWidget()
 
-        # Max Connection Settings
-        self.max_conn_settings_combo = QComboBox()
-        self.max_conn_settings_combo.addItems(["8", "16", "32", "64"])
+        # === CURL CONFIG TAB ===
+        self.curl_tab = QWidget()
+        curl_layout = QVBoxLayout(self.curl_tab)
+        curl_group = QGroupBox("General")
+        curl_group_layout = QVBoxLayout()
 
-        # Proxy checkbox + input + type combo
-        self.checkBox_proxy = QCheckBox("Proxy")
-        self.proxy_input = QLineEdit()
-        self.proxy_input.setPlaceholderText("Enter proxy...")
-        self.proxy_input.setEnabled(False)
+        # Speed Limit
+        curl_speed_layout = QHBoxLayout()
+        self.curl_speed_checkBox = QCheckBox("Speed Limit")
+        self.curl_speed_checkBox.setToolTip("Enable speed limit for curl downloads.")
+        self.curl_speed_limit = QLineEdit()
+        self.curl_speed_limit.setPlaceholderText("e.g., 50k, 10k...")
+        self.curl_speed_limit.setToolTip("Set a speed limit for curl downloads.")
+        self.curl_speed_limit.setEnabled(False)  # initially disabled
+        self.curl_speed_checkBox.toggled.connect(self.curl_speed_limit.setEnabled)
+        curl_speed_layout.addWidget(self.curl_speed_checkBox)
+        curl_speed_layout.addWidget(self.curl_speed_limit)
+        curl_group_layout.addLayout(curl_speed_layout)
 
-        self.proxy_type_combo = QComboBox()
-        self.proxy_type_combo.addItems(["http", "https", "socks5"])
-        self.proxy_type_combo.setEnabled(False)
+        # Max Concurrent Downloads & Max Connections
+        # Max Concurrent Downloads row
+        curl_concurrent_layout = QHBoxLayout()
+        self.curl_conn_label = QLabel("Max Concurrent Downloads:")
+        self.curl_max_concurrent = QComboBox()
+        self.curl_max_concurrent.addItems(["1", "2", "3", "4", "5"])
+        curl_concurrent_layout.addWidget(self.curl_conn_label)
+        curl_concurrent_layout.addWidget(self.curl_max_concurrent)
+        curl_group_layout.addLayout(curl_concurrent_layout)
 
-        self.checkBox_proxy.toggled.connect(self.proxy_input.setEnabled)
-        self.checkBox_proxy.toggled.connect(self.proxy_type_combo.setEnabled)
+        # Max Connections row
+        curl_connections_layout = QHBoxLayout()
+        self.curl_conn_label2 = QLabel("Max Connections Settings:")
+        self.curl_max_connections = QComboBox()
+        self.curl_max_connections.addItems(["8", "16", "32", "64"])
+        curl_connections_layout.addWidget(self.curl_conn_label2)
+        curl_connections_layout.addWidget(self.curl_max_connections)
+        curl_group_layout.addLayout(curl_connections_layout)
 
-        # Row layout for proxy
-        proxy_row = QHBoxLayout()
-        proxy_row.addWidget(self.proxy_input)
-        proxy_row.addWidget(self.proxy_type_combo)
-
-        # Add to form layout
-        conn_layout.addRow(self.speed_checkBox, self.speed_limit_input)
-        conn_layout.addRow(QLabel("Max Concurrent Downloads:"), self.max_concurrent_combo)
-        conn_layout.addRow(QLabel("Max Connection Settings:"), self.max_conn_settings_combo)
-        conn_layout.addRow(self.checkBox_proxy, proxy_row)
-
-        # Info label under proxy
-        self.label_proxy_info = QLabel("Enter a proxy address and select its type. Example: 127.0.0.1:8080")
-        self.label_proxy_info.setStyleSheet("color: #aaa; font-size: 11px; margin-left: 4px;")
-        conn_layout.addRow("", self.label_proxy_info)
+        # Segment Size row
+        curl_segment_layout = QHBoxLayout()
+        self.curl_segment_label = QLabel("Segment Size:")
+        self.curl_segment_size = QLineEdit()
+        self.curl_segment_size.setPlaceholderText("e.g., 50k, 10k...")
+        self.curl_segment_size.setToolTip("Set the segment size for curl downloads.")
+        self.curl_segment_size_combo = QComboBox()
+        self.curl_segment_size_combo.addItems(["KB", "MB"])
+        self.curl_segment_size_combo.setToolTip("Select the unit for segment size.")
+        curl_segment_layout.addWidget(self.curl_segment_label)
+        curl_segment_layout.addWidget(self.curl_segment_size)
+        curl_segment_layout.addWidget(self.curl_segment_size_combo)
+        curl_group_layout.addLayout(curl_segment_layout)
 
         # --- Scheduled Download Retry Section ---
-        self.retry_schedule_cb = QCheckBox("Retry failed scheduled downloads")
-        #self.retry_schedule_cb.setChecked(True)
-        
+        self.curl_retry_schedule_cb = QCheckBox("Retry failed scheduled downloads")
+        self.curl_retry_count_spin = QSpinBox()
+        self.curl_retry_count_spin.setRange(1, 10)
+        self.curl_retry_count_spin.setValue(3)
+        self.curl_retry_count_spin.setEnabled(False)
 
-        self.retry_count_spin = QSpinBox()
-        self.retry_count_spin.setRange(1, 10)
-        self.retry_count_spin.setValue(3)
-        self.retry_count_spin.setEnabled(False)
-
-        self.retry_interval_spin = QSpinBox()
-        self.retry_interval_spin.setRange(1, 60)
-        self.retry_interval_spin.setValue(5)
-        self.retry_interval_spin.setEnabled(False)
+        self.curl_retry_interval_spin = QSpinBox()
+        self.curl_retry_interval_spin.setRange(1, 60)
+        self.curl_retry_interval_spin.setValue(5)
+        self.curl_retry_interval_spin.setEnabled(False)
 
         # Enable/disable retry spin boxes based on checkbox state
-        self.retry_schedule_cb.toggled.connect(self.retry_count_spin.setEnabled)
-        self.retry_schedule_cb.toggled.connect(self.retry_interval_spin.setEnabled)
+        self.curl_retry_schedule_cb.toggled.connect(self.curl_retry_count_spin.setEnabled)
+        self.curl_retry_schedule_cb.toggled.connect(self.curl_retry_interval_spin.setEnabled)
 
-        retry_layout = QHBoxLayout()
-        retry_layout.addWidget(QLabel("Max retries:"))
-        retry_layout.addWidget(self.retry_count_spin)
-        retry_layout.addSpacing(20)
-        retry_layout.addWidget(QLabel("Interval (mins):"))
-        retry_layout.addWidget(self.retry_interval_spin)
+        curl_group_layout.addWidget(self.curl_retry_schedule_cb)
 
-        conn_layout.addRow(self.retry_schedule_cb)
-        conn_layout.addRow(retry_layout)
+        self.curl_retry_row = QHBoxLayout()
+        self.curl_retry_row.addWidget(QLabel("Max retries:"))
+        self.curl_retry_row.addWidget(self.curl_retry_count_spin)
+        self.curl_retry_row.addSpacing(20)
+        self.curl_retry_row.addWidget(QLabel("Interval (mins):"))
+        self.curl_retry_row.addWidget(self.curl_retry_interval_spin)
+        curl_group_layout.addLayout(self.curl_retry_row)
+
+        curl_group.setStyleSheet("QGroupBox { border: 1px solid rgba(255, 255, 255, 0.06); }")
+        curl_group.setContentsMargins(10, 10, 10, 10)
+        curl_group.setLayout(curl_group_layout)
+        curl_layout.addWidget(curl_group)
+        self.engine_tabs.addTab(self.curl_tab, "cURL")
+
+        # === YT-DLP CONFIG TAB ===
+        self.ytdlp_tab = QWidget()
+        ytdlp_layout = QVBoxLayout(self.ytdlp_tab)
+
+        ytdlp_group = QGroupBox("General")
+        ytdlp_group_layout = QVBoxLayout()
+
+        # Output template
+        out_layout = QHBoxLayout()
+        out_label = QLabel("Output Template:")
+        self.out_template = QLineEdit("%(title)s.%(ext)s")
+        self.out_template.setToolTip("Set the naming format for downloaded files.")
+        out_layout.addWidget(out_label)
+        out_layout.addWidget(self.out_template)
+
+        # Format selection
+        format_layout = QHBoxLayout()
+        format_label = QLabel("Download Format:")
+        self.format_combo = QComboBox()
+        self.format_combo.addItems(["(bv*+ba/b)est", "(bv*+ba/b)est", 'mp4', 'mp3', 'mkv', 'webm', 'flv', 'avi'])
+        self.format_combo.setToolTip("Select which format yt-dlp should download.")
+        format_layout.addWidget(format_label)
+        format_layout.addWidget(self.format_combo)
+
+        # Proxy
+        proxy_layout = QHBoxLayout()
+        proxy_label = QLabel("Proxy:")
+        self.proxy_edit = QLineEdit()
+        self.proxy_edit.setPlaceholderText("http://127.0.0.1:8080")
+        self.proxy_edit.setToolTip("Optional: Use a proxy for downloading.")
+        proxy_layout.addWidget(proxy_label)
+        proxy_layout.addWidget(self.proxy_edit)
+        self.ffmpeg_path = QLineEdit()
+        self.ffmpeg_path.setPlaceholderText("Path to ffmpeg")
+        self.ffmpeg_path.setToolTip("Path to ffmpeg executable.")
+        proxy_layout.addWidget(self.ffmpeg_path)
+
+        # Fragments
+        frag_layout = QHBoxLayout()
+        frag_label = QLabel("Concurrent Fragments:")
+        self.frag_spin = QSpinBox()
+        self.frag_spin.setRange(1, 20)
+        self.frag_spin.setValue(5)
+        self.frag_spin.setToolTip("Number of parallel connections used by yt-dlp.")
+        frag_layout.addWidget(frag_label)
+        frag_layout.addWidget(self.frag_spin)
+        self.retries_label = QLabel("Retries:")
+        self.retries = QSpinBox()
+        self.retries.setRange(1, 10)
+        frag_layout.addWidget(self.retries_label)
+        frag_layout.addWidget(self.retries)
+
+        # YT-DLP extra options: 6 checkboxes in 2 rows of 3
+        self.enable_quiet = QCheckBox("Quiet")
+        self.enable_quiet.setToolTip("Suppress output messages.")
+        self.write_metadata = QCheckBox("Write Metadata")
+        self.write_metadata.setToolTip("Add metadata (e.g., title, artist) to the file.")
+        self.write_infojson = QCheckBox("Write Info JSON")
+        self.write_infojson.setToolTip("Save video metadata in JSON format.")
+        self.write_description = QCheckBox("Write Description")
+        self.write_description.setToolTip("Save video description in a separate file.")
+        self.write_annotations = QCheckBox("Write Annotations")
+        self.write_annotations.setToolTip("Save video annotations in a separate file.")
+        self.no_warnings = QCheckBox("No Warnings")
+        self.no_warnings.setToolTip("Suppress warnings during download.")
+
+        # Arrange checkboxes in 2 rows of 3
+        ytdlp_checkbox_row1 = QHBoxLayout()
+        ytdlp_checkbox_row1.addWidget(self.enable_quiet)
+        ytdlp_checkbox_row1.addWidget(self.write_metadata)
+        ytdlp_checkbox_row1.addWidget(self.write_infojson)
+
+        ytdlp_checkbox_row2 = QHBoxLayout()
+        ytdlp_checkbox_row2.addWidget(self.write_description)
+        ytdlp_checkbox_row2.addWidget(self.write_annotations)
+        ytdlp_checkbox_row2.addWidget(self.no_warnings)
+
+        self.cookies_path = QLineEdit()
+        self.cookies_path.setPlaceholderText("Path to cookies.txt")
+        browse_btn = QPushButton("Browse")
+        browse_btn.clicked.connect(lambda: self.cookies_path.setText(QFileDialog.getOpenFileName(self, "Select cookies.txt", "", "Text Files (*.txt)")[0]))
+        cookie_layout = QHBoxLayout()
+        cookie_layout.addWidget(QLabel("Cookies File:"))
+        cookie_layout.addWidget(self.cookies_path)
+        cookie_layout.addWidget(browse_btn)
         
 
 
-        self.stack.addWidget(conn_widget)
-        
+        # Assemble layout
+        ytdlp_group_layout.addLayout(out_layout)
+        ytdlp_group_layout.addLayout(format_layout)
+        ytdlp_group_layout.addLayout(proxy_layout)
+        ytdlp_group_layout.addLayout(frag_layout)
+        ytdlp_group_layout.addLayout(ytdlp_checkbox_row1)
+        ytdlp_group_layout.addLayout(ytdlp_checkbox_row2)
+        ytdlp_group_layout.addLayout(cookie_layout)
+        ytdlp_group.setLayout(ytdlp_group_layout)
+        ytdlp_layout.addWidget(ytdlp_group)
+        self.engine_tabs.addTab(self.ytdlp_tab, "YT-DLP")
+
+        # === ARIA2C CONFIG TAB ===
+        self.aria2c_tab = QWidget()
+        aria_layout = QVBoxLayout(self.aria2c_tab)
+        aria_group = QGroupBox("General")
+        aria_group_layout = QVBoxLayout()
+
+        # Max connections
+        max_layout = QHBoxLayout()
+        max_label = QLabel("Max connections per server:")
+        self.aria_max_spin = QSpinBox()
+        self.aria_max_spin.setRange(1, 16)
+        self.aria_max_spin.setValue(16)
+        self.aria_max_spin.setToolTip("Max simultaneous connections per download.")
+        max_layout.addWidget(max_label)
+        max_layout.addWidget(self.aria_max_spin)
+
+        # Other settings
+        self.aria_enable_dht = QCheckBox("Enable DHT")
+        self.aria_enable_dht.setToolTip("Enable peer discovery via DHT for torrents.")
+        self.aria_follow_torrent = QCheckBox("Follow torrent")
+        self.aria_follow_torrent.setToolTip("Automatically follow and fetch data from .torrent files.")
+
+        # Session save interval
+        interval_layout = QHBoxLayout()
+        interval_label = QLabel("Session Save Interval (s):")
+        self.aria_save_interval_spin = QSpinBox()
+        self.aria_save_interval_spin.setRange(10, 3600)
+        self.aria_save_interval_spin.setValue(60)
+        self.aria_save_interval_spin.setToolTip("How often to save active downloads to session file.")
+        interval_layout.addWidget(interval_label)
+        interval_layout.addWidget(self.aria_save_interval_spin)
+
+        # File allocation
+        alloc_layout = QHBoxLayout()
+        alloc_label = QLabel("File Allocation:")
+        self.aria_alloc_combo = QComboBox()
+        self.aria_alloc_combo.addItems(["none", "prealloc", "trunc", "falloc"])
+        self.aria_alloc_combo.setCurrentText("falloc")
+        self.aria_alloc_combo.setToolTip("Preallocation method: none, prealloc, trunc, falloc.")
+        alloc_layout.addWidget(alloc_label)
+        alloc_layout.addWidget(self.aria_alloc_combo)
+
+        # Split
+        split_layout = QHBoxLayout()
+        split_label = QLabel("Download Split Parts:")
+        self.aria_split_spin = QSpinBox()
+        self.aria_split_spin.setRange(1, 64)
+        self.aria_split_spin.setValue(32)
+        self.aria_split_spin.setToolTip("Split each download into this number of parts.")
+        split_layout.addWidget(split_label)
+        split_layout.addWidget(self.aria_split_spin)
+
+        # RPC Port
+        rpc_layout = QHBoxLayout()
+        rpc_label = QLabel("RPC Port:")
+        self.aria_rpc_spin = QSpinBox()
+        self.aria_rpc_spin.setRange(1024, 65535)
+        self.aria_rpc_spin.setValue(6800)
+        self.aria_rpc_spin.setToolTip("Port for the internal aria2c RPC server.")
+        rpc_layout.addWidget(rpc_label)
+        rpc_layout.addWidget(self.aria_rpc_spin)
+
+        # Assemble aria layout
+        aria_group_layout.addLayout(max_layout)
+        aria_group_layout.addWidget(self.aria_enable_dht)
+        aria_group_layout.addWidget(self.aria_follow_torrent)
+        aria_group_layout.addLayout(interval_layout)
+        aria_group_layout.addLayout(alloc_layout)
+        aria_group_layout.addLayout(split_layout)
+        aria_group_layout.addLayout(rpc_layout)
+        aria_group.setLayout(aria_group_layout)
+        aria_layout.addWidget(aria_group)
+        self.engine_tabs.addTab(self.aria2c_tab, "Aria2c")
+
+        # Add all to layout
+        self.engine_layout.addWidget(self.engine_tabs)
+        self.engine_layout.addStretch()
+        self.stack.addWidget(self.engine_widget)
+
+
 
     def setup_browser_tab(self):
         browser_widget = QWidget()
@@ -378,6 +601,47 @@ class SettingsWindow(QDialog):
             margin: 0px;
             border: none;
         }
+        QSPinBox {
+            background-color: rgba(28, 28, 30, 0.55);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 14px; 
+            height: 30px;
+        }
+        QTabWidget::pane {
+            border: none;
+        }
+        QTabBar::tab {
+            background: transparent;
+            padding: 6px 12px;
+            margin-right: 1px;
+            color: white;
+        }
+        QTabBar::tab:selected {
+            background: #005c4b;
+            border-radius: 4px;
+        }
+        QGroupBox {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        QGroupBox:title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 4px 10px;
+            color: #9eeedc;
+            font-weight: bold;
+        }
+        QToolTip {
+            color: white;
+            background-color: #444444;
+            border: 1px solid white;
+            padding: 4px;
+            border-radius: 4px;
+        }
 
         """
 
@@ -389,7 +653,13 @@ class SettingsWindow(QDialog):
         self.auto_close_cb.setChecked(config.auto_close_download_window)
         self.show_thumbnail_cb.setChecked(config.show_thumbnail)
         self.on_startup_cb.setChecked(config.on_startup)
+        self.download_engine_combo.setCurrentText(config.download_engine)
         self.setting_scope_combo.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
+        self.curl_proxy_checkBox.setChecked(config.enable_proxy)
+        self.curl_proxy_input.setText(config.proxy or '')
+        self.curl_proxy_type_combo.setCurrentText(config.proxy_type or 'http')
+        self.curl_proxy_username.setText(config.proxy_user or '')
+        self.curl_proxy_password.setText(config.proxy_pass or '')
 
         seg_size = config.segment_size // 1024
         if seg_size >= 1024:
@@ -397,21 +667,58 @@ class SettingsWindow(QDialog):
             seg_unit = 'MB'
         else:
             seg_unit = 'KB'
-        self.segment_linedit.setText(str(seg_size))
-        self.segment_unit_combo.setCurrentText(seg_unit)
+        
+        self.curl_speed_limit.setText(str(config.speed_limit))
+        self.curl_max_concurrent.setCurrentText(str(config.max_concurrent_downloads))
+        self.curl_max_connections.setCurrentText(str(config.max_connections))
+        self.curl_segment_size.setText(str(seg_size))
+        self.curl_segment_size_combo.setCurrentText(seg_unit)
+        self.curl_retry_schedule_cb.setChecked(config.retry_scheduled_enabled)
+        self.curl_retry_count_spin.setValue(config.retry_scheduled_max_tries)
+        self.curl_retry_interval_spin.setValue(config.retry_scheduled_interval_mins)
 
-        self.speed_limit_input.setText(str(config.speed_limit))
-        self.max_concurrent_combo.setCurrentText(str(config.max_concurrent_downloads))
-        self.max_conn_settings_combo.setCurrentText(str(config.max_connections))
-        self.proxy_input.setText(config.proxy or '')
-        self.proxy_type_combo.setCurrentText(config.proxy_type or 'http')
-        self.check_interval_combo.setCurrentText(str(config.update_frequency))
 
-        self.retry_schedule_cb.setChecked(config.retry_scheduled_enabled)
-        self.retry_count_spin.setValue(config.retry_scheduled_max_tries)
-        self.retry_interval_spin.setValue(config.retry_scheduled_interval_mins)
+        # YT-DLP settings
+        self.out_template.setText(config.ytdlp_config['outtmpl'])
+        self.format_combo.setCurrentText(config.ytdlp_config['merge_output_format'])
+        self.frag_spin.setValue(config.ytdlp_config['concurrent_fragment_downloads'])
+        self.retries.setValue(config.ytdlp_config['retries'])
+        self.enable_quiet.setChecked(config.ytdlp_config['quiet'])
+        self.write_metadata.setChecked(config.ytdlp_config['writemetadata'])
+        self.write_infojson.setChecked(config.ytdlp_config['writeinfojson'])
+        self.write_description.setChecked(config.ytdlp_config['writedescription'])
+        self.write_annotations.setChecked(config.ytdlp_config['writeannotations'])
+        self.no_warnings.setChecked(config.ytdlp_config['no_warnings'])
+        self.ffmpeg_path.setText(config.ytdlp_config['ffmpeg_location'] if config.ytdlp_config['ffmpeg_location'] else '')
+        if config.proxy:
+            proxy_url = config.proxy
+            if config.proxy_user and config.proxy_pass:
+                # Inject basic auth into the proxy URL
+                from urllib.parse import urlparse, urlunparse
+                parsed = urlparse(proxy_url)
+                proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
+
+                print(f"Proxy URL: {proxy_url}")
+                self.proxy_edit.setText(proxy_url if proxy_url else '')
+        else:
+            self.proxy_edit.setText('')
+       
+        self.cookies_path.setText(config.ytdlp_config['cookiesfile'] if config.ytdlp_config['cookiesfile'] else '')
+
+        # Aria2c settings
+        self.aria_max_spin.setValue(config.aria2c_config['max_connections'])
+        self.aria_enable_dht.setChecked(config.aria2c_config['enable_dht'])
+        self.aria_follow_torrent.setChecked(config.aria2c_config['follow_torrent'])
+        self.aria_save_interval_spin.setValue(config.aria2c_config['save_interval'])
+        self.aria_rpc_spin.setValue(config.aria2c_config['rpc_port'])
+        self.aria_split_spin.setValue(config.aria2c_config['split'])
+        self.aria_alloc_combo.setCurrentText(config.aria2c_config['file_allocation'])
+
+        # Browser Integration
         self.browser_integration_cb.setChecked(config.browser_integration_enabled)
 
+        # Check for updates settings
+        self.check_interval_combo.setCurrentText(str(config.update_frequency))
 
 
     
@@ -425,33 +732,81 @@ class SettingsWindow(QDialog):
         config.auto_close_download_window = self.auto_close_cb.isChecked()
         config.show_thumbnail = self.show_thumbnail_cb.isChecked()
         config.on_startup = self.on_startup_cb.isChecked()
+        config.download_engine = self.download_engine_combo.currentText()
+        config.enable_proxy = self.curl_proxy_checkBox.isChecked()
+        config.proxy = self.curl_proxy_input.text() if self.curl_proxy_checkBox.isChecked() else ""
+        config.proxy_type = self.curl_proxy_type_combo.currentText()
+        config.proxy_user = self.curl_proxy_username.text() if self.curl_proxy_checkBox.isChecked() else ""
+        config.proxy_pass = self.curl_proxy_password.text() if self.curl_proxy_checkBox.isChecked() else ""
+
        
 
         # Segment
         try:
-            seg_size = int(self.segment_linedit.text())
-            seg_multiplier = 1024 if self.segment_unit_combo.currentText() == "KB" else 1024 * 1024
+            seg_size = int(self.curl_segment_size.text())
+            seg_multiplier = 1024 if self.curl_segment_size_combo.currentText() == "KB" else 1024 * 1024
             config.segment_size = seg_size * seg_multiplier
         except ValueError:
             config.segment_size = 512 * 1024  # fallback default
 
-        # Connection settings
-        config.speed_limit = self.speed_limit_input.text()
-        config.max_concurrent_downloads = int(self.max_concurrent_combo.currentText())
-        config.max_connections = int(self.max_conn_settings_combo.currentText())
-        config.proxy = self.proxy_input.text() if self.checkBox_proxy.isChecked() else ""
-        config.proxy_type = self.proxy_type_combo.currentText()
-        config.update_frequency = int(self.check_interval_combo.currentText())
+        # Engine Config settings
 
-        config.retry_scheduled_enabled = self.retry_schedule_cb.isChecked()
-        config.retry_scheduled_max_tries = self.retry_count_spin.value()
-        config.retry_scheduled_interval_mins = self.retry_interval_spin.value()
+        # PyCurl settings
+        config.speed_limit = self.curl_speed_limit.text()
+        config.max_concurrent_downloads = int(self.curl_max_concurrent.currentText())
+        config.max_connections = int(self.curl_max_connections.currentText())
+        config.retry_scheduled_enabled = self.curl_retry_schedule_cb.isChecked()
+        config.retry_scheduled_max_tries = self.curl_retry_count_spin.value()
+        config.retry_scheduled_interval_mins = self.curl_retry_interval_spin.value()
+
+        # YT-DLP settings
+        config.ytdlp_config['outtmpl'] = self.out_template.text()
+        config.ytdlp_config['merge_output_format'] = self.format_combo.currentText()
+        config.ytdlp_config['concurrent_fragment_downloads'] = self.frag_spin.value()
+        config.ytdlp_config['retries'] = self.retries.value()
+        config.ytdlp_config['quiet'] = self.enable_quiet.isChecked()
+        config.ytdlp_config['writemetadata'] = self.write_metadata.isChecked()
+        config.ytdlp_config['writeinfojson'] = self.write_infojson.isChecked()
+        config.ytdlp_config['writedescription'] = self.write_description.isChecked()
+        config.ytdlp_config['writeannotations'] = self.write_annotations.isChecked()
+        config.ytdlp_config['no_warnings'] = self.no_warnings.isChecked()
+        config.ytdlp_config['ffmpeg_location'] = self.ffmpeg_path.text() if self.ffmpeg_path.text() else None
+        if config.proxy:
+            proxy_url = config.proxy
+            if config.proxy_user and config.proxy_pass:
+                # Inject basic auth into the proxy URL
+                from urllib.parse import urlparse, urlunparse
+                parsed = urlparse(proxy_url)
+                proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
+                config.ytdlp_config['proxy'] = proxy_url
+            else:
+                config.ytdlp_config['proxy'] = config.proxy
+        
+        config.ytdlp_config['cookiesfile'] = self.cookies_path.text() if self.cookies_path.text() else None
+
+
+        # Aria2c settings
+        config.aria2c_config['max_connections'] = self.aria_max_spin.value()
+        config.aria2c_config['enable_dht'] = self.aria_enable_dht.isChecked()
+        config.aria2c_config['follow_torrent'] = self.aria_follow_torrent.isChecked()
+        config.aria2c_config['save_interval'] = self.aria_save_interval_spin.value()
+        config.aria2c_config['rpc_port'] = self.aria_rpc_spin.value()
+        config.aria2c_config['split'] = self.aria_split_spin.value()
+        config.aria2c_config['file_allocation'] = self.aria_alloc_combo.currentText()
+        
+        
+        # Browser Integration
         config.browser_integration_enabled = self.browser_integration_cb.isChecked()
+
+        # Check for updates settings
+        config.update_frequency = int(self.check_interval_combo.currentText())
+        
 
 
 
         # Save settings to disk
-        setting.save_setting()
+        # setting.save_setting()
+        self.settings_manager.save_settings()
 
         main_window = self.parent()  # get reference to the main window
         if main_window:
@@ -496,30 +851,43 @@ class SettingsWindow(QDialog):
         # self.ok_button.setText(self.tr("OK"))
         # self.cancel_button.setText(self.tr("Cancel"))
 
-        # General Tab
         self.sidebar.item(0).setText(self.tr("General"))
-        self.sidebar.item(1).setText(self.tr("Connection"))
+        self.sidebar.item(1).setText(self.tr("Engine Config"))
         self.sidebar.item(2).setText(self.tr("Browser"))
         self.sidebar.item(3).setText(self.tr("Updates"))
 
+        # General Tab
         self.monitor_clipboard_cb.setText(self.tr("Monitor Copied URLs"))
         self.show_download_window_cb.setText(self.tr("Show Download Window"))
         self.auto_close_cb.setText(self.tr("Auto Close DL Window"))
         self.show_thumbnail_cb.setText(self.tr("Show Thumbnail"))
         self.on_startup_cb.setText(self.tr("On Startup"))
+        self.curl_proxy_checkBox.setText(self.tr("Use Proxy"))
+        self.curl_proxy_input.setPlaceholderText(self.tr("Enter proxy..."))
+        self.curl_proxy_type_combo.setItemText(0, self.tr("http"))
+        self.curl_proxy_type_combo.setItemText(1, self.tr("https"))
+        self.curl_proxy_type_combo.setItemText(2, self.tr("socks5"))
 
-        self.segment_unit_combo.setItemText(0, self.tr("KB"))
-        self.segment_unit_combo.setItemText(1, self.tr("MB"))
 
-        # Connection Tab
-        self.speed_checkBox.setText(self.tr("Speed Limit"))
-        self.checkBox_proxy.setText(self.tr("Proxy"))
-        self.label_proxy_info.setText(self.tr("Enter a proxy address and select its type. Example: 127.0.0.1:8080"))
-        self.retry_schedule_cb.setText(self.tr("Retry failed scheduled downloads"))
+        # Download Engines
+        self.curl_speed_checkBox.setText(self.tr("Speed Limit"))
+        self.curl_conn_label.setText(self.tr("Max Concurrent Downloads:"))
+        self.curl_conn_label2.setText(self.tr("Max Connections Settings:"))
+        self.curl_segment_label.setText(self.tr("Segment Size:"))
+        self.curl_segment_size.setPlaceholderText(self.tr("e.g., 50k, 10k..."))
+        self.curl_segment_size_combo.setItemText(0, self.tr("KB"))
+        self.curl_segment_size_combo.setItemText(1, self.tr("MB"))
+        self.curl_proxy_checkBox.setText(self.tr("Use Proxy"))
+        self.curl_proxy_input.setPlaceholderText(self.tr("Enter proxy..."))
+        self.curl_retry_schedule_cb.setText(self.tr("Retry failed scheduled downloads"))
+
+        
+        
+        
 
         # Retry labels
-        self.stack.widget(1).layout().labelForField(self.max_concurrent_combo).setText(self.tr("Max Concurrent Downloads:"))
-        self.stack.widget(1).layout().labelForField(self.max_conn_settings_combo).setText(self.tr("Max Connection Settings:"))
+        # self.stack.widget(1).layout().labelForField(self.max_concurrent_combo).setText(self.tr("Max Concurrent Downloads:"))
+        # self.stack.widget(1).layout().labelForField(self.max_conn_settings_combo).setText(self.tr("Max Connection Settings:"))
 
         # Updates Tab
         self.check_update_btn.setText(self.tr("Check for update"))

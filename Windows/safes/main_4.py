@@ -19,9 +19,9 @@ from collections import deque
 
 # region Third Parties import
 from PySide6.QtWidgets import QApplication, QMainWindow
-from ui_main import Ui_MainWindow  
-from table import DownloadTable    
-from setting_dialog import SettingsWindow
+from ui.ui_main import Ui_MainWindow  
+from ui.table import DownloadTable    
+from ui.setting_dialog import SettingsWindow
 
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, 
@@ -143,12 +143,12 @@ class DownloadManagerUI(QMainWindow):
         self.disabled = True  # for download button
         
 
-        widgets.toolbar_buttons["Add URL"].clicked.connect(self.retry)
+        # widgets.toolbar_buttons["Add URL"].clicked.connect(self.retry)
         widgets.toolbar_buttons["Settings"].clicked.connect(self.open_settings)
 
         widgets_settings.language_combo.currentText()
         widgets_settings.auto_close_cb.isChecked()
-        widgets_settings.max_conn_settings_combo.currentText()
+        # widgets_settings.max_conn_settings_combo.currentText()
 
 
     def retry(self):
@@ -165,7 +165,7 @@ class DownloadManagerUI(QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    window = DownloadManagerUI()
+    window = DownloadManagerUI(config.d_list)
     window.show()
     sys.exit(app.exec())
 

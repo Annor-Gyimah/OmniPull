@@ -201,6 +201,15 @@ class DownloadItem:
         self.queue_name = ""
         self.queue_position = 0  # order in queue
         self.queue_id = None  # unique identifier if you plan to support multiple queues
+        self._progress = 0  # ################# YET TO ADD TO LINUX ############
+
+        self.engine = config.download_engine
+        self.aria_gid = None
+        self.audio_gid = None
+
+
+
+
 
 
 
@@ -216,6 +225,7 @@ class DownloadItem:
                  last_known_size=self.last_known_size, last_known_progress=self.last_known_progress,
                  protocol=self.protocol, manifest_url=self.manifest_url, scheduled=self.sched, schedule_retries=self.schedule_retries,
                  in_queue=self.in_queue, queue_id=self.queue_id, queue_name=self.queue_name, queue_position=self.queue_position,
+                 engine=self.engine, aria_gid=self.aria_gid, audio_gid=self.audio_gid,
                 )
         return a
 
@@ -311,6 +321,8 @@ class DownloadItem:
 
         self.last_known_size = size  # to be loaded when restarting application
         return size
+    
+    
 
     @property
     def speed(self):
@@ -370,6 +382,10 @@ class DownloadItem:
 
         self.last_known_progress = p  # to be loaded when restarting application
         return p
+    
+    @progress.setter ################# YET TO ADD TO LINUX ############
+    def progress(self, value):
+        self._progress = value
 
     @property
     def time_left(self):

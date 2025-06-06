@@ -1071,3 +1071,682 @@
     #         self.change_page(btn=None, btnName=None, idx=1)
             
     
+
+
+# def run_aria2c_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     try:
+#         aria2 = aria2c_manager.get_api()
+#         added = aria2.add_uris([d.url], options={"dir": d.folder, "out": d.name})
+#         d.aria_gid = added.gid
+#         log(f"[Aria2c] GID: {d.aria_gid}")
+#         d.remaining_parts = 1
+#         d._downloaded = 0   
+#         d._progress = 0
+#         d.last_known_progress = 0
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)  # force update
+
+
+#         while True:
+#             download = aria2.get_download(d.aria_gid)
+#             if download is None:
+#                 log(f"[Aria2c] Download not found for GID: {d.aria_gid}")
+#                 d.status = Status.error
+#                 break
+
+#             percent = int(download.progress)
+#             d._progress = percent
+#             d.last_known_progress = percent
+
+#             d._total_size = int(download.total_length)
+#             d._downloaded = int(download.completed_length)
+#             d._speed = int(download.download_speed)
+
+#             d.remaining_time = download.eta if download.eta != -1 else 0  # optional fallback
+
+#             if emitter:
+#                 emitter.progress_changed.emit(percent)
+#                 emitter.log_updated.emit(f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
+
+#             if download.is_complete:
+#                 d.status = Status.completed
+#                 log(f"[Aria2c] Completed: {d.name}")
+#                 if emitter:
+#                     emitter.progress_changed.emit(100)
+#                     emitter.status_changed.emit("completed")
+#                 delete_folder(d.temp_folder)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             elif download.is_removed:
+#                 d.status = Status.error
+#                 log(f"[Aria2c] Error or removed: {d.name}")
+#                 if emitter:
+#                     emitter.status_changed.emit("error")
+#                 break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+# def run_aria2c_download(d, emitter=None):
+#     """Download static files using aria2c.exe."""
+#     d.status = config.Status.downloading
+#     if emitter:
+#         emitter.status_changed.emit("downloading")
+
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.q.log(f"[aria2c] Starting download: {d.name}")
+#     d.remaining_parts = 1
+
+
+#     # Reset progress info
+#     d._downloaded = 0
+#     d.remaining_parts = 1
+#     d._progress = 0
+#     d.last_known_progress = 0
+
+#     cmd = [
+#         config.aria2c_path,
+#         "--file-allocation=none",
+#         "--max-connection-per-server=5",
+#         "--allow-overwrite=true",
+#         "--summary-interval=1",
+#         "--dir", d.folder,
+#         "--out", d.name,
+#         d.url
+#     ]
+    
+
+#     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True)
+#     total_size = d.size or 1  # fallback to 1 to prevent zero division
+#     downloaded = 0
+
+#     try:
+#         for line in process.stdout:
+#             line = line.strip()
+            
+#             if emitter:
+#                 emitter.log_updated.emit(line)
+#             log(f"[aria2c] {line}")
+
+#             # Try to extract progress
+#             match = re.search(r'\((\d+)%\)', line)
+#             if match:
+#                 percent = int(match.group(1))
+#                 d._progress = percent
+#                 d.last_known_progress = percent
+#                 if emitter:
+#                     emitter.progress_changed.emit(percent)
+
+#             # Optional: fallback progress extraction by parsing downloaded size
+#             match2 = re.search(r'\[#\w+\s+([\d\.]+\w?B)/([\d\.]+\w?B)\(', line)
+#             if match2:
+#                 # Not parsed for d._downloaded currently
+#                 pass
+
+#         process.wait()
+
+#         if process.returncode == 0:
+#             log(f"[Aria2c] Completed: {d.name}")
+#             d.status = config.Status.completed
+#             d.remaining_parts = 0
+#             d._progress = 100
+#             d.last_known_progress = 100
+
+#             if emitter:
+#                 emitter.progress_changed.emit(100)
+#                 emitter.status_changed.emit("completed")
+            
+#             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+
+#         else:
+#             log(f"[Aria2c] Failed: {d.name}")
+#             d.status = config.Status.error
+#             if emitter:
+#                 emitter.status_changed.emit("error")
+
+#     except Exception as e:
+#         log(f"[Aria2c] Error: {e}")
+#         d.status = config.Status.error
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+
+
+
+# # aria2c_manager.py
+# # This script manages the aria2c download manager, providing functionality to start the RPC server,
+# # pause, resume downloads, and match download GIDs.
+# # This file is part of the application and is licensed under the MIT License.
+# import os
+# import subprocess
+# import time
+# import psutil
+# import aria2p
+
+# from modules.config import aria2c_path, sett_folder, aria2c_config
+# from modules.utils import log
+# from modules import config
+
+# class Aria2cManager:
+#     def __init__(self):
+#         self.api = None
+#         self.client = None
+
+#         self.session_file = os.path.join(sett_folder, "aria2c.session")
+#         self.initialized = False
+#         os.makedirs(sett_folder, exist_ok=True)
+#         if not os.path.exists(self.session_file):
+#             with open(self.session_file, 'w') as f:
+#                 pass
+
+#         self._kill_existing_aria2c()
+#         self._start_aria2c_with_session()
+#         self._connect_api()
+
+#     def _kill_existing_aria2c(self):
+#         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+#             try:
+#                 if 'aria2c' in proc.info['name']:
+#                     proc.terminate()
+#                     proc.wait(timeout=2)
+#                     log(f"[aria2c] Terminated existing process (PID {proc.pid})")
+#             except Exception as e:
+#                 log(f"[aria2c] Could not terminate aria2c (PID {proc.pid}): {e}")
+
+#     def ensure_initialized(self):
+#         """Only initialize if needed."""
+#         if self.initialized:
+#             return
+
+#         if not os.path.exists(config.aria2c_path):
+#             log("[aria2c] Executable missing. Skipping init.")
+#             return  # Let the app decide what to do (main.py will prompt user)
+
+#         self._init_aria2c()
+#         self.initialized = True
+
+#     def _start_aria2c_with_session(self):
+#         cmd = [
+#             config.aria2c_path,
+#             "--enable-rpc",
+#             "--rpc-listen-all=false",
+#             f"--rpc-listen-port={aria2c_config['rpc_port']}",
+#             "--rpc-allow-origin-all",
+#             "--continue=true",
+#             f"--save-session={self.session_file}",
+#             f"--input-file={self.session_file}",
+#             f"--save-session-interval={aria2c_config['save_interval']}",
+#             f"--max-connection-per-server={aria2c_config['max_connections']}",
+#             "--file-allocation=none"
+
+#         ]
+#         subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+#         log("[aria2c] Started aria2c with session support")
+#         time.sleep(1)
+
+#     def _connect_api(self):
+#         try:
+#             self.client = aria2p.Client(host="http://localhost", port=6800, secret="")
+#             self.api = aria2p.API(self.client)
+#             log("[aria2c] RPC server connected.")
+#         except Exception as e:
+#             log(f"[aria2c] Failed to connect to RPC server: {e}")
+#             self.api = None
+
+#     def get_api(self):
+#         if not self.api:
+#             self._connect_api()
+#         return self.api
+
+#     def pause(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download and not download.is_complete:
+#                 download.pause()
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to pause GID#{gid}: {e}")
+#         return False
+
+#     def resume(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download and not download.is_complete:
+#                 download.resume()  # not `unpause()`, correct method is `resume()`
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to resume GID#{gid}: {e}")
+#         return False
+
+#     def remove(self, gid):
+#         try:
+#             download = self.api.get_download(gid)
+#             if download:
+#                 download.remove(force=True, files=True)
+#                 return True
+#         except Exception as e:
+#             log(f"[aria2c] Failed to remove GID#{gid}: {e}")
+#         return False
+
+#     def force_save_session(self):
+#         try:
+#             if self.api:
+#                 result = self.api.client.call("aria2.saveSession")
+#                 log(f"[aria2c] Session save result: {result}")
+#             else:
+#                 log("[aria2c] Cannot save session. API is not available.")
+#         except Exception as e:
+#             log(f"[aria2c] Failed to save session: {e}")
+
+
+# # Global instance
+# aria2c_manager = Aria2cManager()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################### aria2c for youtube ###########################################################
+# def run_aria2c_video_audio_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     try:
+#         aria2 = aria2c_manager.get_api()
+
+#         # Use the selected stream from GUI
+#         selected_stream = getattr(d, "selected_stream", None)
+#         if selected_stream:
+#             d.url = selected_stream.url
+#             if selected_stream.height:
+#                 d.name = validate_file_name(f"{d.name}_{selected_stream.height}p.mp4")
+#             else:
+#                 d.name = validate_file_name(f"{d.name}.mp4")
+
+#         audio_is_present = bool(d.audio_url and d.audio_url != d.url)
+
+#         # Submit video
+#         added_video = aria2.add_uris([d.url], options={
+#             "dir": d.folder,
+#             "out": d.name,
+#             "pause": "false",
+#             "file-allocation": config.aria2c_config["file_allocation"],
+#             "max-connection-per-server": config.aria2c_config["max_connections"],
+#             "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
+#             "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
+#         })
+#         d.aria_gid = added_video.gid
+#         log(f"[Aria2c] Video GID assigned: {d.aria_gid}")
+
+#         # Submit audio
+#         if audio_is_present:
+#             audio_out = os.path.basename(d.audio_file)
+#             added_audio = aria2.add_uris([d.audio_url], options={
+#                 "dir": d.folder,
+#                 "out": audio_out,
+#                 "pause": "false",
+#                 "file-allocation": config.aria2c_config["file_allocation"],
+#                 "max-connection-per-server": config.aria2c_config["max_connections"],
+#             })
+#             d.audio_gid = added_audio.gid
+#             log(f"[Aria2c] Audio GID assigned: {d.audio_gid}")
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)
+
+#         video_complete = False
+#         audio_complete = not audio_is_present
+#         last_progress = -1
+
+#         while True:
+#             try:
+#                 v = aria2.get_download(d.aria_gid)
+#                 video_complete = v.is_complete
+#                 v_percent = int(v.progress)
+#             except:
+#                 v_percent = 0
+
+#             d._downloaded = int(v.completed_length)
+#             d.size = int(v.total_length) if v.total_length else 0
+#             d._speed = int(v.download_speed)
+#             d.remaining_time = v.eta if v.eta != -1 else 0
+
+#             if audio_is_present:
+#                 try:
+#                     a = aria2.get_download(d.audio_gid)
+#                     audio_complete = a.is_complete
+#                     a_percent = int(a.progress)
+#                 except:
+#                     a_percent = 0
+#             else:
+#                 a_percent = 0
+
+#             combined = (v_percent + a_percent) // (2 if audio_is_present else 1)
+#             d._progress = combined
+#             d.last_known_progress = combined
+
+#             if emitter and combined != last_progress:
+#                 emitter.progress_changed.emit(combined)
+#                 emitter.log_updated.emit(
+#                     f"⬇ {size_format(d.downloaded)} | Video: {v_percent}% | Audio: {a_percent if audio_is_present else '—'}%"
+#                 )
+#                 last_progress = combined
+
+#             # When complete, delay slightly to ensure file flush
+#             if video_complete and audio_complete:
+#                 log(f"[Aria2c] Both video and audio completed for: {d.name}")
+
+#                 video_path = os.path.join(d.folder, d.name)
+#                 safe_name = os.path.splitext(d.name)[0]
+#                 output_file = os.path.join(d.folder, f"{safe_name}.merged.mp4")
+
+#                 # In-place check
+#                 if output_file == video_path:
+#                     output_file = os.path.join(d.folder, f"{safe_name}_final.mp4")
+
+#                 # Wait for OS to flush files
+#                 for path in [video_path, d.audio_file]:
+#                     for _ in range(10):
+#                         if os.path.exists(path) and os.path.getsize(path) > 1024:
+#                             break
+#                         log(f"[Aria2c] Waiting for file write completion: {path}")
+#                         time.sleep(1)
+#                     else:
+#                         log(f"[Aria2c] ERROR: File not ready or too small: {path}")
+#                         d.status = Status.error
+#                         break
+
+#                 d.status = Status.merging_audio
+#                 loop = asyncio.new_event_loop()
+#                 asyncio.set_event_loop(loop)
+#                 error, output = loop.run_until_complete(
+#                     async_merge_video_audio(video_path, d.audio_file, output_file, d)
+#                 )
+
+#                 if error:
+#                     log(f"[Merge] FFmpeg merge failed: {output}")
+#                     d.status = Status.error
+#                     break
+
+#                 try:
+#                     if os.path.exists(d.target_file):
+#                         os.remove(d.target_file)
+#                     rename_file(output_file, d.target_file)
+#                 except Exception as e:
+#                     log(f"[Merge] Rename error: {e}")
+#                     d.status = Status.error
+#                     break
+
+#                 d.delete_tempfiles()
+#                 d.status = Status.completed
+#                 log(f"[Aria2c] Download completed for: {d.name}")
+#                 delete_folder(d.temp_folder)
+#                 if emitter:
+#                     emitter.status_changed.emit("completed")
+#                     emitter.progress_changed.emit(100)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             if d.status == Status.cancelled:
+#                 log(f"[Aria2c] Download cancelled: {d.name}")
+#                 break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
+
+
+
+
+# if d.engine in ["aria2", "aria2c"]:
+    #     log(f"[brain] aria2c selected for: {d.name}")
+
+    #     # Only re-extract if we have no pre-extracted video info
+    #     if ("youtube.com" in d.url or "youtu.be" in d.url) and not getattr(d, "vid_info", None):
+    #         log(f"[brain] Extracting stream info from YouTube URL for aria2c...")
+    #         from modules.video import get_ytdl_options, extract_info_blocking, Stream
+    #         ydl_opts = get_ytdl_options()
+    #         vid_info = extract_info_blocking(d.url, ydl_opts)
+    #         d.vid_info = vid_info
+    #     elif getattr(d, "vid_info", None):
+    #         log(f"[brain] Reusing existing vid_info for {d.name}")
+
+    #     if getattr(d, "vid_info", None):
+    #         from modules.video import Stream
+    #         streams = [Stream(f) for f in d.vid_info.get("formats", [])]
+    #         dash_streams = [s for s in streams if s.mediatype == 'dash']
+    #         audio_streams = [s for s in streams if s.mediatype == 'audio']
+
+    #         # --- Select user-requested format if valid ---
+    #         selected_stream = getattr(d, "selected_stream", None)
+    #         selected_dash = None
+
+    #         if selected_stream:
+    #             for s in dash_streams:
+    #                 if (
+    #                     s.format_id == selected_stream.format_id
+    #                     and s.url
+    #                     and "m3u8" not in s.url
+    #                     and "mpd" not in s.url
+    #                 ):
+    #                     selected_dash = s
+    #                     break
+
+    #         if not selected_dash:
+    #             selected_dash = next(
+    #                 (s for s in dash_streams if s.url and "m3u8" not in s.url and "mpd" not in s.url),
+    #                 None,
+    #             )
+
+    #         selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash or not selected_audio:
+    #             log("[brain] Could not find valid dash/audio streams — falling back to yt-dlp.")
+    #             run_ytdlp_download(d, emitter)
+    #             return
+
+    #         d.eff_url = selected_dash.url
+    #         d.audio_url = selected_audio.url
+    #         d.format_id = selected_dash.format_id
+    #         d.audio_format_id = selected_audio.format_id
+
+    #         # Sanitize title and embed quality label into name
+    #         #base_title = d.vid_info.get("title", f"yt_video_{int(time.time())}")
+    #         base_title = validate_file_name(d.vid_info.get("title"))
+    #         #quality_label = selected_dash.resolution or selected_dash.quality
+    #         d.name = f"{base_title}.mp4"
+
+    #         # Set the url for aria2c to download
+    #         d.url = d.eff_url
+
+    #         run_aria2c_video_audio_download(d, emitter)
+    #     else:
+    #         log("[Aria2c] Running normal static file download")
+    #         run_aria2c_download(d, emitter)
+    #     return
+
+
+    # if d.engine in ["aria2", "aria2c"]:
+    #     log(f"[brain] aria2c selected for: {d.name}")
+
+    #     # Extract if not already extracted
+    #     if ("youtube.com" in d.url or "youtu.be" in d.url) and not getattr(d, "vid_info", None):
+    #         log(f"[brain] Extracting stream info from YouTube URL for aria2c...")
+    #         from modules.video import get_ytdl_options, extract_info_blocking, Stream
+    #         ydl_opts = get_ytdl_options()
+    #         vid_info = extract_info_blocking(d.url, ydl_opts)
+    #         d.vid_info = vid_info
+    #     elif getattr(d, "vid_info", None):
+    #         log(f"[brain] Reusing existing vid_info for {d.name}")
+
+    #     if getattr(d, "vid_info", None):
+    #         from modules.video import Stream
+    #         streams = [Stream(f) for f in d.vid_info.get("formats", [])]
+    #         dash_streams = [s for s in streams if s.mediatype == 'dash']
+    #         audio_streams = [s for s in streams if s.mediatype == 'audio']
+
+    #         selected_stream = getattr(d, "selected_stream", None)
+    #         selected_dash = None
+    #         selected_audio = None
+
+    #         if selected_stream:
+    #             selected_dash = next((s for s in dash_streams if s.format_id == selected_stream.format_id), None)
+    #             if selected_dash:
+    #                 selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash:
+    #             selected_dash = max(dash_streams, key=lambda s: s.quality, default=None)
+    #         if not selected_audio:
+    #             selected_audio = max(audio_streams, key=lambda s: s.quality, default=None)
+
+    #         if not selected_dash or not selected_audio:
+    #             log("[brain] Could not find valid dash/audio streams — falling back to yt-dlp.")
+    #             run_ytdlp_download(d, emitter)
+    #             return
+
+    #         d.eff_url = selected_dash.url
+    #         d.audio_url = selected_audio.url
+    #         d.format_id = selected_dash.format_id
+    #         d.audio_format_id = selected_audio.format_id
+
+    #         # Set the download name and target
+    #         clean_title = validate_file_name(d.vid_info.get("title"))
+    #         d.name = f"{clean_title}.mp4"
+    #         d.url = d.eff_url
+
+    #         run_aria2c_video_audio_download(d, emitter)
+    #     else:
+    #         log("[Aria2c] Running normal static file download")
+    #         run_aria2c_download(d, emitter)
+    #     return
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def run(self):
+    #     """Run the thread to process the video URL."""
+    #     try:
+    #         # Ensure youtube-dl is loaded
+    #         if video.ytdl is None:
+    #             log('youtube-dl module still loading, please wait')
+    #             while not video.ytdl:
+    #                 time.sleep(0.1)
+    #         widgets.download_btn.setEnabled(False)
+    #         widgets.playlist_btn.setEnabled(False)
+    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
+    #         widgets.combo1.clear()
+    #         widgets.combo2.clear()
+
+    #         log(f"Extracting info for URL: {self.url}")
+    #         change_cursor('busy')
+
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             info = ydl.extract_info(self.url, download=False, process=True)
+    #             log('Media info:', info, log_level=3)
+
+    #             if info.get('_type') == 'playlist' or 'entries' in info:
+    #                 pl_info = list(info.get('entries', []))
+    #                 playlist = []
+    #                 for index, item in enumerate(pl_info):
+    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
+    #                     if url:
+    #                         playlist.append(Video(url, vid_info=item))
+    #                     # Emit progress as we process each playlist entry
+    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
+    #                 result = playlist
+    #                 self.finished.emit(result)
+
+    #             else:
+    #                 # For a single video, update progress on extraction
+    #                 result = Video(self.url, vid_info=None)
+    #                 self.progress.emit(50)  # Just after extracting the info
+    #                 time.sleep(1)  # Simulating some processing
+    #                 self.progress.emit(100)  # Video info extraction complete
+    #             self.finished.emit(result)
+    #             change_cursor('normal')
+    #             widgets.download_btn.setEnabled(True)
+    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
+
+    #     except DownloadError as e:
+    #         log('DownloadError:', e)
+    #         popup(title="Timeout", msg="Please retry the download.", type_="warning")
+    #         self.finished.emit(None)
+    #     except ExtractorError as e:
+    #         log('ExtractorError:', e)
+    #         self.finished.emit(None)
+    #     except Exception as e:
+    #         log('Unexpected error:', e)
+    #         self.finished.emit(None)
