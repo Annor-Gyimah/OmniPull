@@ -22,10 +22,10 @@
     <ROW Property="Background" Value="background" MultiBuildValue="MsiBuild:logo4.ico" Type="1" MsiKey="Background"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="Annorion"/>
-    <ROW Property="ProductCode" Value="1033:{00F8E095-4F0C-48B4-B372-30ED3807F14C} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{3F703EBE-3212-42ED-839A-693EDE43F613} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="OmniPull"/>
-    <ROW Property="ProductVersion" Value="1.2.24" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.3.0" Options="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{8FB13A03-654A-47CB-A19B-1A76A847D16B}"/>
@@ -46,20 +46,22 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="AppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="APPDAT~1|AppDataFolder" IsPseudoRoot="1"/>
     <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
     <ROW Directory="Dynamite_Dir" Directory_Parent="LocalAppDataFolder" DefaultDir="OmniPull"/>
     <ROW Directory="LocalAppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="LOCALA~1|LocalAppDataFolder" IsPseudoRoot="1"/>
     <ROW Directory="ProgramFilesFolder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~2|ProgramFilesFolder" IsPseudoRoot="1"/>
     <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~1|ProgramMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="YT_DLP_Dir" Directory_Parent="AppDataFolder" DefaultDir="OMNIPU~1|.OmniPull"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SideBySideGuidComponent">
     <ROW Component="APPDIR" Value="{11FFF809-9A63-4471-BF8D-358543C80796}"/>
     <ROW Component="ProductInformation" Value="{607838CC-7986-4875-A926-1483F399DAB6}"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="AI_CustomARPName" ComponentId="{3A088BD6-874B-49C8-AD07-EDACE1917E2F}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
-    <ROW Component="AI_ExePath" ComponentId="{4F1A2DD7-4C46-4026-A7D9-BEB5646620F5}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
+    <ROW Component="AI_CustomARPName" ComponentId="{45AF1F70-AE83-497F-AAA3-E447FA75B1DD}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
+    <ROW Component="AI_ExePath" ComponentId="{A631B31A-B9BD-46B0-A7DA-3E8F9DD87EC4}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
     <ROW Component="APPDIR" ComponentId="{11FFF809-9A63-4471-BF8D-358543C80796}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="Chrome" ComponentId="{244EBC25-5832-4B3F-BE8B-103BDDF569B7}" Directory_="APPDIR" Attributes="260" KeyPath="Chrome"/>
     <ROW Component="Dynamite" ComponentId="{B83A076B-6C47-4C8A-8F87-691018A8F689}" Directory_="Dynamite_Dir" Attributes="0"/>
@@ -74,6 +76,7 @@
     <ROW Component="_" ComponentId="{B66D5B78-1269-4730-8109-832F34E34EE4}" Directory_="APPDIR" Attributes="260" KeyPath="_"/>
     <ROW Component="__2" ComponentId="{CD6355D5-AB28-4931-AF5D-C61B80E91DB2}" Directory_="APPDIR" Attributes="260" KeyPath="__2"/>
     <ROW Component="__3" ComponentId="{28347609-22B6-4B4F-B4EE-0A5FEDB0298C}" Directory_="APPDIR" Attributes="260" KeyPath="__3"/>
+    <ROW Component="aria2c.exe" ComponentId="{2303637D-97F0-4128-ADB8-AA167FF79B94}" Directory_="YT_DLP_Dir" Attributes="256" KeyPath="aria2c.exe"/>
     <ROW Component="com.omnipull.downloader.firefox.json" ComponentId="{24C3985E-4896-4783-883F-7010599786EB}" Directory_="APPDIR" Attributes="0" KeyPath="com.omnipull.downloader.firefox.json" Type="0"/>
     <ROW Component="main.exe" ComponentId="{9BF3FDC0-B9D1-40B5-8516-4D645F56CC9B}" Directory_="APPDIR" Attributes="256" KeyPath="main.exe"/>
     <ROW Component="omnipullwatcher.exe" ComponentId="{D8CE5E3A-C367-4A97-9139-7CAED59765CC}" Directory_="APPDIR" Attributes="256" KeyPath="omnipullwatcher.exe"/>
@@ -89,6 +92,7 @@
     <ROW File="com.omnipull.downloader.firefox.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~1.JSO|com.omnipull.downloader.firefox.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\firefox\com.omnipull.downloader.firefox.json" SelfReg="false"/>
     <ROW File="com.omnipull.downloader.chrome.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~2.JSO|com.omnipull.downloader.chrome.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\chrome\com.omnipull.downloader.chrome.json" SelfReg="false"/>
     <ROW File="com.omnipull.downloader.edge.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~3.JSO|com.omnipull.downloader.edge.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\edge\com.omnipull.downloader.edge.json" SelfReg="false"/>
+    <ROW File="aria2c.exe" Component_="aria2c.exe" FileName="aria2c.exe" Attributes="0" SourcePath="..\..\AppData\Roaming\.OmniPull\aria2c.exe" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.custcomp.MsiShortcutPropertyComponent">
     <ROW MsiShortcutProperty="OmniPull_10" Shortcut_="OmniPull_1" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
@@ -101,7 +105,7 @@
     <ROW Action="AI_DetectSoftware" Sequence="151"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.2.25" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="..\Softenv\OmniPull\Windows\icons\logo4.ico" SummInfoMetadata="Page Count:450" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="OmniPull_v1.2.25" MsiPackageType="AI_ALL"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.3.0" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="..\Softenv\OmniPull\Windows\icons\logo4.ico" SummInfoMetadata="Page Count:450" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" Options="8" UseLargeSchema="true" ExeName="OmniPull_v1.3.0" MsiPackageType="AI_ALL"/>
     <ROW BuildKey="MsiBuild" BuildName="MsiBuild" BuildOrder="2" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.2.25" Languages="en" InstallationType="4" UseLargeSchema="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -276,7 +280,6 @@
     <ROW Feature_="MainFeature" Component_="AI_CustomARPName"/>
     <ROW Feature_="AI64BitFiles" Component_="main.exe"/>
     <ROW Feature_="AI64BitFiles" Component_="Dynamite"/>
-    <ROW Feature_="AI64BitFiles" Component_="AI_ExePath"/>
     <ROW Feature_="AI64BitFiles" Component_="omnipullwatcher.exe"/>
     <ROW Feature_="AI64BitFiles" Component_="Google"/>
     <ROW Feature_="AI64BitFiles" Component_="Chrome"/>
@@ -290,6 +293,8 @@
     <ROW Feature_="AI64BitFiles" Component_="Edge"/>
     <ROW Feature_="AI64BitFiles" Component_="NativeMessagingHosts_2"/>
     <ROW Feature_="AI64BitFiles" Component_="__3"/>
+    <ROW Feature_="AI64BitFiles" Component_="AI_ExePath"/>
+    <ROW Feature_="AI64BitFiles" Component_="aria2c.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="logo4.exe" SourcePath="..\Softenv\OmniPull\Windows\icons\logo4.ico" Index="0"/>

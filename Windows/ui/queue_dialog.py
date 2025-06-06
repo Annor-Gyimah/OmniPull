@@ -13,13 +13,18 @@ from ui.download_window import DownloadWindow
 from ui.queue_runner import QueueRunner
 from ui.download_worker import DownloadWorker
 import os
+from modules.settings_manager import SettingsManager
 
 class QueueDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Queues")
         self.setMinimumSize(800, 500)
-        self.queues = setting.load_queues()
+        # self.queues = setting.load_queues()
+        self.settings_manager = SettingsManager()
+        self.queues = self.settings_manager.queues
+        self.d_list = self.settings_manager.d_list
+
 
         # self.main_window.running_queues = {}  # key: queue_id, value: True/False
         # if self.queues:
@@ -346,8 +351,11 @@ class QueueDialog(QDialog):
         self.current_queue = new_name
         self.current_queue_id = new_queue_id
 
-        setting.save_queues(self.queues)
-        setting.save_d_list(self.d_list)
+        # setting.save_queues(self.queues)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.queues = self.queues
+        self.settings_manager.d_list = self.d_list
+        self.settings_manager.save_settings()
 
         # self.populate_queue_list()
         # self.populate_queue_items()
@@ -381,8 +389,12 @@ class QueueDialog(QDialog):
                 d.queue_id = new_queue_id
                 d.queue_name = new_name
 
-        setting.save_queues(self.queues)
-        setting.save_d_list(self.d_list)
+        # setting.save_queues(self.queues)
+        # setting.save_d_list(self.d_list)
+
+        self.settings_manager.queues = self.queues
+        self.settings_manager.d_list = self.d_list
+        self.settings_manager.save_settings()
 
         # self.populate_queue_list()
         # self.populate_queue_items()
@@ -545,7 +557,9 @@ class QueueDialog(QDialog):
                 d.queue_id = None
                 d.queue_name = ""
                 d.queue_position = 0
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.d_list = self.d_list
+        self.settings_manager.save_settings()
 
         # ✅ Refresh queue combo box in main UI (optional, but best UX)
         if hasattr(self.parent(), "update_queue_combobox"):
@@ -612,7 +626,9 @@ class QueueDialog(QDialog):
                     self.start_time.time().minute()
                 ) if self.enable_sched.isChecked() else None
 
-        setting.save_queues(self.queues)
+        # setting.save_queues(self.queues)
+        self.settings_manager.queues = self.queues
+        self.settings_manager.save_settings()
         config.main_window_q.put(("queue_list", ''))
         self.close()
 
@@ -843,7 +859,8 @@ class QueueDialog(QDialog):
     def on_download_finished(self, d):
         print(f"[main] Download finished: {d.name}")
         self.populate_queue_items()
-        setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
         self.on_queue_item_finished(d)  # <- call this here in on_download_finished()
 
     @Slot(str)
@@ -866,7 +883,8 @@ class QueueDialog(QDialog):
     def on_download_failed(self, d):
         print(f"[main] Download failed or cancelled: {d.name}")
         self.populate_queue_items()
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
         self.on_queue_item_finished(d)  # <- call this here in on_download_finished()
         
 
@@ -893,14 +911,16 @@ class QueueDialog(QDialog):
         Thread(target=brain.brain, daemon=True, args=(d,)).start()
 
         self.populate_queue_items()
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
         self.active_queue_threads.append(d)
         
 
     def on_queue_item_finished(self, d):
         self.current_running_item = None
         self.populate_queue_items()
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
 
 
     def delete_queue_item(self, item):
@@ -912,7 +932,9 @@ class QueueDialog(QDialog):
         )
         if confirm == QMessageBox.Yes:
             self.d_list.remove(item)
-            setting.save_d_list(self.d_list)
+            # setting.save_d_list(self.d_list)
+            self.settings_manager.d_list = self.d_list
+            self.settings_manager.save_settings()
             self.populate_queue_items()
             if hasattr(self.parent(), "populate_table"):
                 self.parent().populate_table()

@@ -1683,3 +1683,70 @@
     #         log("[Aria2c] Running normal static file download")
     #         run_aria2c_download(d, emitter)
     #     return
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def run(self):
+    #     """Run the thread to process the video URL."""
+    #     try:
+    #         # Ensure youtube-dl is loaded
+    #         if video.ytdl is None:
+    #             log('youtube-dl module still loading, please wait')
+    #             while not video.ytdl:
+    #                 time.sleep(0.1)
+    #         widgets.download_btn.setEnabled(False)
+    #         widgets.playlist_btn.setEnabled(False)
+    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
+    #         widgets.combo1.clear()
+    #         widgets.combo2.clear()
+
+    #         log(f"Extracting info for URL: {self.url}")
+    #         change_cursor('busy')
+
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             info = ydl.extract_info(self.url, download=False, process=True)
+    #             log('Media info:', info, log_level=3)
+
+    #             if info.get('_type') == 'playlist' or 'entries' in info:
+    #                 pl_info = list(info.get('entries', []))
+    #                 playlist = []
+    #                 for index, item in enumerate(pl_info):
+    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
+    #                     if url:
+    #                         playlist.append(Video(url, vid_info=item))
+    #                     # Emit progress as we process each playlist entry
+    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
+    #                 result = playlist
+    #                 self.finished.emit(result)
+
+    #             else:
+    #                 # For a single video, update progress on extraction
+    #                 result = Video(self.url, vid_info=None)
+    #                 self.progress.emit(50)  # Just after extracting the info
+    #                 time.sleep(1)  # Simulating some processing
+    #                 self.progress.emit(100)  # Video info extraction complete
+    #             self.finished.emit(result)
+    #             change_cursor('normal')
+    #             widgets.download_btn.setEnabled(True)
+    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
+
+    #     except DownloadError as e:
+    #         log('DownloadError:', e)
+    #         popup(title="Timeout", msg="Please retry the download.", type_="warning")
+    #         self.finished.emit(None)
+    #     except ExtractorError as e:
+    #         log('ExtractorError:', e)
+    #         self.finished.emit(None)
+    #     except Exception as e:
+    #         log('Unexpected error:', e)
+    #         self.finished.emit(None)

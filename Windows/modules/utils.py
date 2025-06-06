@@ -26,6 +26,7 @@ except:
     print('pillow module is missing try to install it to display video thumbnails')
 
 from modules import config
+from functools import lru_cache
 
 
 
@@ -296,7 +297,7 @@ def echo_stderr(func):
 
     return echo
 
-
+@lru_cache(maxsize=128)
 def validate_file_name(f_name):
     # filter for tkinter safe character range
     f_name = ''.join([c for c in f_name if ord(c) in range(65536)])

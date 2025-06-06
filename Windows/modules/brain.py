@@ -468,6 +468,22 @@ def run_ytdlp_download(d, emitter=None):
     d.remaining_parts = 1
     d.last_known_progress = 0
 
+    def postprocessor_hook(info):
+        if info["status"] == "finished":
+            filename = info.get("info_dict", {}).get("filepath")
+            if filename and os.path.exists(filename):
+                log(f"[yt-dlp] Postprocessing finished: {filename}")
+                d.status = Status.completed
+                d._progress = 100
+                if emitter:
+                    emitter.progress_changed.emit(100)
+                    emitter.status_changed.emit("completed")
+                delete_folder(d.temp_folder)
+                notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
+            else:
+                log(f"[yt-dlp] Postprocessor finished, but file not found: {filename}")
+
+
 
     def progress_hook(info):
         if d.status == Status.cancelled:
@@ -504,6 +520,32 @@ def run_ytdlp_download(d, emitter=None):
             #remove_metadata()
             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
             log(f"[yt-dlp] Finished downloading: {d.name}")
+        # elif info["status"] == "finished":
+        #     # Only set completed if it's the final merged file (check _filename & ext)
+        #     filename = info.get("filename", "")
+        #     ext = os.path.splitext(filename)[-1].lower()
+
+        #     # Check if it's a .mp4 or .mkv (final formats)
+        #     if ext in (".mp4", ".mkv"):
+        #         # Additional check: ensure it's NOT .fXXX.mp4 (which is usually a partial stream)
+        #         if ".f" not in os.path.basename(filename):
+        #             if os.path.exists(filename):
+        #                 log(f"[yt-dlp] Final merged file ready: {filename}")
+        #                 d.status = Status.completed
+        #                 d._progress = 100
+        #                 if emitter:
+        #                     emitter.progress_changed.emit(100)
+        #                     emitter.status_changed.emit("completed")
+        #                 delete_folder(d.temp_folder)
+        #                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
+        #             else:
+        #                 log(f"[yt-dlp] Expected final file doesn't exist yet: {filename}")
+        #         else:
+        #             log(f"[yt-dlp] Skipping intermediate stream file: {filename}")
+        #     else:
+        #         log(f"[yt-dlp] Skipping non-video finished item: {filename}")
+
+
         
             
 
@@ -531,6 +573,7 @@ def run_ytdlp_download(d, emitter=None):
     ydl_opts = {
         "outtmpl": output_path,
         "progress_hooks": [progress_hook],
+        # "postprocessor_hooks": [postprocessor_hook],
         "quiet": config.ytdlp_config["quiet"],
         "no_warnings": config.ytdlp_config["no_warnings"],
         "retries": config.ytdlp_config["retries"],

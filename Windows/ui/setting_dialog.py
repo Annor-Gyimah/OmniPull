@@ -10,6 +10,7 @@ import os, sys
 
 from modules.utils import log, delete_file
 from modules import config, setting
+from modules.settings_manager import SettingsManager
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
@@ -20,7 +21,8 @@ class SettingsWindow(QDialog):
        
 
 
-        setting.load_setting()
+        # setting.load_setting()
+        self.settings_manager = SettingsManager()
 
         self.translator = QTranslator()
 
@@ -803,7 +805,8 @@ class SettingsWindow(QDialog):
 
 
         # Save settings to disk
-        setting.save_setting()
+        # setting.save_setting()
+        self.settings_manager.save_settings()
 
         main_window = self.parent()  # get reference to the main window
         if main_window:

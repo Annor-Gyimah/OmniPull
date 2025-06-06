@@ -13,16 +13,20 @@ import psutil
 import aria2p
 from modules import config, setting
 from modules.utils import log
+from modules.settings_manager import SettingsManager
 
 class Aria2cManager:
     def __init__(self):
         self.api = None
         self.client = None
+        #self.settings_manager = SettingsManager()
         self.session_file = os.path.join(config.sett_folder, "aria2c.session")
         config.aria2c_path = os.path.join(config.sett_folder, "aria2c.exe")
-        #self._ensure_session_file()
+        self._ensure_session_file()
         #self._terminate_existing_processes()
         setting.load_setting()
+        #self.settings_manager.load_settings()
+        
         self._start_rpc_server()
         self._connect_api()
 
@@ -38,6 +42,7 @@ class Aria2cManager:
                 if proc.info['name'] and 'aria2c' in proc.info['name'].lower():
                     proc.terminate()
                     proc.wait(timeout=3)
+                    log(f'Terminated {proc.info['name']}')
             except Exception:
                 continue
 
@@ -63,7 +68,11 @@ class Aria2cManager:
             f"--save-session-interval={config.aria2c_config['save_interval']}",
             f"--max-connection-per-server={max_conn}",
             f"--file-allocation={config.aria2c_config['file_allocation']}",
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ], 
+        stdout=subprocess.DEVNULL, 
+        stderr=subprocess.DEVNULL,
+        creationflags=subprocess.CREATE_NO_WINDOW
+        )
 
         time.sleep(1.5)
 
@@ -148,6 +157,7 @@ class Aria2cManager:
                         log(f"[aria2c] Failed to remove GID#{d.gid}: {e}")
 
             result = self.api.client.call("aria2.saveSession")
+            self._terminate_existing_processes()
             log(f"[aria2c] Session saved. Result: {result}")
         except Exception as e:
             log(f"[aria2c] force_clean_and_save_session error: {e}")
@@ -169,7 +179,7 @@ class Aria2cManager:
         if not self.api:
             return
         from modules.setting import load_d_list
-        d_list = load_d_list()
+        d_list = load_d_list() # self.settings_manager.d_list # load_d_list()
         active_gids = [d.aria_gid for d in d_list if getattr(d, "aria_gid", None)]
         try:
             downloads = self.api.get_downloads()

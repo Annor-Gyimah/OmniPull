@@ -39,6 +39,7 @@ class QueueRunner(QObject):
 
         d = self.queue_items[self.index]
         log(f"[QueueRunner] Starting download for: {d.name} (index {self.index})")
+        
         self.download_started.emit(d)
 
         thread = QThread()

@@ -69,7 +69,8 @@ class SettingsManager:
             self.queues = self.load_queues()
 
             self._settings_loaded = True
-            log("Settings loaded successfully")
+            # log("Settings loaded successfully")
+            log('Loaded Application setting from', self.sett_folder)
 
         except Exception as e:
             log(f"Error loading settings: {e}")
@@ -130,7 +131,7 @@ class SettingsManager:
             # Save queues
             self.save_queues(self.queues)
 
-            log("Settings saved successfully")
+            # log("Settings saved successfully")
 
         except Exception as e:
             log(f"Error saving settings: {e}")

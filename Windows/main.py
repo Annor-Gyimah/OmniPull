@@ -28,13 +28,11 @@
 
 # region Libraries import
 import sys
-import webbrowser
 import os
-import subprocess
 import time
-import re
 from threading import Thread, Timer
 import copy
+from typing import Any
 import requests
 import asyncio
 from pathlib import Path
@@ -50,7 +48,7 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
 QCoreApplication, Qt, QTime)
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup
 
 
@@ -71,6 +69,7 @@ from modules.utils import (size_format, validate_file_name, compare_versions, lo
 from modules import config, brain, setting, video, update
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
+from modules.settings_manager import SettingsManager
 
 
 
@@ -165,61 +164,6 @@ class YouTubeThread(QThread):
         super().__init__()
         self.url = url
 
-
-    # def run(self):
-    #     """Run the thread to process the video URL."""
-    #     try:
-    #         # Ensure youtube-dl is loaded
-    #         if video.ytdl is None:
-    #             log('youtube-dl module still loading, please wait')
-    #             while not video.ytdl:
-    #                 time.sleep(0.1)
-    #         widgets.download_btn.setEnabled(False)
-    #         widgets.playlist_btn.setEnabled(False)
-    #         widgets_settings.monitor_clipboard_cb.setChecked(False)
-    #         widgets.combo1.clear()
-    #         widgets.combo2.clear()
-
-    #         log(f"Extracting info for URL: {self.url}")
-    #         change_cursor('busy')
-
-    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-    #             info = ydl.extract_info(self.url, download=False, process=True)
-    #             log('Media info:', info, log_level=3)
-
-    #             if info.get('_type') == 'playlist' or 'entries' in info:
-    #                 pl_info = list(info.get('entries', []))
-    #                 playlist = []
-    #                 for index, item in enumerate(pl_info):
-    #                     url = item.get('url') or item.get('webpage_url') or item.get('id')
-    #                     if url:
-    #                         playlist.append(Video(url, vid_info=item))
-    #                     # Emit progress as we process each playlist entry
-    #                     self.progress.emit(int((index + 1) * 100 / len(pl_info)))
-    #                 result = playlist
-    #                 self.finished.emit(result)
-
-    #             else:
-    #                 # For a single video, update progress on extraction
-    #                 result = Video(self.url, vid_info=None)
-    #                 self.progress.emit(50)  # Just after extracting the info
-    #                 time.sleep(1)  # Simulating some processing
-    #                 self.progress.emit(100)  # Video info extraction complete
-    #             self.finished.emit(result)
-    #             change_cursor('normal')
-    #             widgets.download_btn.setEnabled(True)
-    #             widgets_settings.monitor_clipboard_cb.setChecked(True)
-
-    #     except DownloadError as e:
-    #         log('DownloadError:', e)
-    #         popup(title="Timeout", msg="Please retry the download.", type_="warning")
-    #         self.finished.emit(None)
-    #     except ExtractorError as e:
-    #         log('ExtractorError:', e)
-    #         self.finished.emit(None)
-    #     except Exception as e:
-    #         log('Unexpected error:', e)
-    #         self.finished.emit(None)
 
     def run(self):
         try:
@@ -668,15 +612,18 @@ class DownloadManagerUI(QMainWindow):
         os.chdir(config.current_directory)
 
         # load stored setting from disk
-        setting.load_setting()
-        self.d_list = setting.load_d_list()
+        # setting.load_setting()
+        # self.d_list = setting.load_d_list()
+        self.settings_manager = SettingsManager()
+        self.settings_manager.load_settings()
+        self.d_list = self.settings_manager.load_d_list()
+        # self.queues = self.settings_manager.queues # self.settings_manager.load_queues()
         # self.d_list.reverse()  # 🛠 Fix one-time if the downloads.cfg is reversed
-        # setting.save_d_list(self.d_list)  # Save corrected d_list properly
+        
 
         self.ui_queues.main_window = self
 
-        
-
+        # self.ui_queues.load_queues(self.queues)
 
         widgets.folder_input.setText(config.download_folder)
 
@@ -768,9 +715,7 @@ class DownloadManagerUI(QMainWindow):
             save_path = file_dialog.selectedFiles()[0]
             
             try:
-                export_data = []
-                for d in self.d_list:
-                    export_data.append(d.get_persistent_properties())
+                export_data = [d.get_persistent_properties() for d in self.d_list]
 
                 with open(save_path, "w") as f:
                     json.dump(export_data, f, indent=4)
@@ -945,12 +890,15 @@ class DownloadManagerUI(QMainWindow):
                     QMessageBox.information(self, "Queue Scheduler", f"Queue '{q['name']}' has started automatically.")
 
     def update_queue_combobox(self):
-        self.queues = setting.load_queues()
+        # self.queues = setting.load_queues()
+        # self.queues = self.settings_manager.load_queues()
+        self.queues = self.settings_manager.queues
         widgets.combo3.clear()
         widgets.combo3.addItems(["None"] + [q["name"] for q in self.queues])
 
     def queue_combo(self):
-        self.queues = setting.load_queues()
+        # self.queues = setting.load_queues()
+        self.queues = self.settings_manager.queues
         
         if not self.queues:
             return
@@ -1115,7 +1063,7 @@ class DownloadManagerUI(QMainWindow):
         self.pending_updates[key] = value
 
     @Slot(dict)
-    def process_gui_updates(self, updates):
+    def process_gui_updates(self, updates: dict[str, Any]) -> None:
         try:
             for key, value in updates.items():
                 if key == 'filename':
@@ -1148,8 +1096,10 @@ class DownloadManagerUI(QMainWindow):
                     self.check_browser_queue()
         
             # Save settings 
-            setting.save_setting()
-            setting.save_d_list(self.d_list)
+            # setting.save_setting()
+            # setting.save_d_list(self.d_list)
+            self.settings_manager.save_settings()
+            self.settings_manager.save_d_list(self.d_list)
 
         except Exception as e:
             log('MainWindow.process_gui_updates() error:', e)
@@ -1212,6 +1162,7 @@ class DownloadManagerUI(QMainWindow):
         url = widgets.link_input.text().strip()
         if url == self.d.url:
             return
+        
 
         self.reset()
         try:
@@ -1284,7 +1235,8 @@ class DownloadManagerUI(QMainWindow):
             self.d.engine = "curl"
 
         log(f"[Engine] Using: {self.d.engine} for {self.d.name}")
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
 
     
     def get_header(self, url):
@@ -1346,16 +1298,7 @@ class DownloadManagerUI(QMainWindow):
                 reply.setIcon(QMessageBox.Question)
                 reply.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
                 reply.exec()
-                # reply = QMessageBox.warning(
-                #     self,
-                #     self.tr("Aria2c Warning"),
-                #     self.tr("You selected Aria2c for downloading a YouTube video.\n"
-                #             "This method is experimental and may not download or merge properly.\n\n"
-                #             "Do you want to continue?"),
-                #     QMessageBox.Yes | QMessageBox.No,
-                #     QMessageBox.No
-                # )
-            
+                
                 if reply == QMessageBox.No:
                     log("[Main] User cancelled YouTube download with aria2c.")
                     widgets.download_btn.setEnabled(False)
@@ -1385,7 +1328,7 @@ class DownloadManagerUI(QMainWindow):
             widgets.folder_input.setText(config.download_folder)
     
 
-    def on_filename_changed(self, text):
+    def on_filename_changed(self, text: str) -> str:
         """Handle manual changes to the filename line edit."""
 
         # Only update the download item if the change was made manually
@@ -1412,18 +1355,18 @@ class DownloadManagerUI(QMainWindow):
         # process pending jobs
         if self.pending and len(self.active_downloads) < config.max_concurrent_downloads:
             self.start_download(self.pending.popleft(), silent=True)
-    
-    
-    def start_download(self, d, silent=False, downloader=None):
+
+
+    def start_download(self, d, silent: bool = False, downloader: Any = None):
         # if self.check_time:
         #     self.check_time = False
         #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
         #     server_check.server_check_update()
-        aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
-        if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
-            log('aria2c not found, falling back to yt-dlp')
-            self.aria2c_check()
-            return
+        # aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
+        # if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
+        #     log('aria2c not found, falling back to yt-dlp')
+        #     self.aria2c_check()
+        #     return
 
         if d is None:
             return
@@ -1545,33 +1488,36 @@ class DownloadManagerUI(QMainWindow):
                     response = 'Cancel'
 
             # Handle responses
-            if response == 'Resume':
-                log('resuming')
+            match response:
+                case 'Resume':
+                    log('resuming')
 
-                # to resume, size must match, otherwise it will just overwrite
-                if d.size == d_from_list.size:
-                    log('resume is possible')
-                    # get the same segment size
-                    d.segment_size = d_from_list.segment_size
-                    d.downloaded = d_from_list.downloaded
-                else:
-                    log(f'file: {d.name} has a different size and will be downloaded from beginning')
+                    # to resume, size must match, otherwise it will just overwrite
+                    if d.size == d_from_list.size:
+                        log('resume is possible')
+                        # get the same segment size
+                        d.segment_size = d_from_list.segment_size
+                        d.downloaded = d_from_list.downloaded
+                    else:
+                        log(f'file: {d.name} has a different size and will be downloaded from beginning')
+                        d.delete_tempfiles()
+
+                    # Replace old item in download list
+                    self.d_list[found_index] = d
+                
+                case 'Overwrite':
+
+                    log('overwrite')
                     d.delete_tempfiles()
 
-                # Replace old item in download list
-                self.d_list[found_index] = d
+                    # Replace old item in download list
+                    self.d_list[found_index] = d
 
-            elif response == 'Overwrite':
-                log('overwrite')
-                d.delete_tempfiles()
+                case _:
 
-                # Replace old item in download list
-                self.d_list[found_index] = d
-
-            else:
-                log('Download cancelled by user')
-                d.status = config.Status.cancelled
-                return
+                    log('Download cancelled by user')
+                    d.status = config.Status.cancelled
+                    return
             
         # ------------------------------------------------------------------
         else:
@@ -1627,6 +1573,60 @@ class DownloadManagerUI(QMainWindow):
         return hashlib.md5(name.encode()).hexdigest()[:8]
 
 
+    # def on_download_button_clicked(self, downloader=None):
+    #     """Handle DownloadButton click event."""
+    #     if self.d.url == "":
+    #         show_information("Download Error", "Nothing to download", "Check your URL or click Retry.")
+    #         return
+        
+    #     d = copy.copy(self.d)
+    #     d.folder = config.download_folder
+
+
+    #     selected_queue = widgets.combo3.currentText()
+    #     if isinstance(self.d, Video) and selected_queue and selected_queue != "None":
+    #         show_warning("Queue Error", "YouTube and streaming videos cannot be added to a queue. Please download directly.")
+    #         return
+        
+            
+
+    #     if selected_queue and selected_queue != "None": 
+            
+                   
+                   
+    #         d.in_queue = True 
+    #         d.queue_name = selected_queue
+    #         d.queue_id = self.get_queue_id(selected_queue)
+    #         d.status = config.Status.queued
+    #         d.last_known_progress = 0
+    #         d.last_known_size = 0
+    #         d._segments = []  # Clear old segment info, don't wipe size
+
+    #         # Assign next available position in the queue
+    #         existing_positions = [
+    #             item.queue_position for item in self.d_list
+    #             if item.in_queue and item.queue_name == selected_queue
+    #         ]
+    #         d.queue_position = max(existing_positions, default=0) + 1
+
+    #         # generate unique id number for each download
+    #         d.id = len(self.d_list)
+
+    #         self.d_list.append(d)
+    #         self.settings_manager.save_d_list(self.d_list)
+    #         self.queue_update("populate_table", None)
+
+    #         title = self.tr("Added to Queue")
+    #         inform = self.tr("has been added to queue:")
+    #         msg = self.tr("Start it from the Queues Dialog.")
+    #         show_information(title, inform, msg)
+    #         self.change_page(btn=None, btnName=None, idx=1)
+    #     else:
+    #         d.queue = None
+    #         r = self.start_download(d, downloader=downloader)
+    #         if r not in ('error', 'cancelled', False):
+    #             self.change_page(btn=None, btnName=None, idx=1)
+
     def on_download_button_clicked(self, downloader=None):
         """Handle DownloadButton click event."""
         if self.d.url == "":
@@ -1636,19 +1636,101 @@ class DownloadManagerUI(QMainWindow):
         d = copy.copy(self.d)
         d.folder = config.download_folder
         selected_queue = widgets.combo3.currentText()
+
+        # Check for YouTube/streaming videos first
         if isinstance(self.d, Video) and selected_queue and selected_queue != "None":
             show_warning("Queue Error", "YouTube and streaming videos cannot be added to a queue. Please download directly.")
             return
 
+        # Check if it's a queued download
         if selected_queue and selected_queue != "None":
+            # Check if download is completed
+            if d.status == config.Status.completed:
+                show_warning(
+                    "Queue Error", 
+                    "Cannot add completed download to queue.",
+                    "This item has already been downloaded."
+                )
+                return
 
-            d.in_queue = True
+            # Check if file exists in target directory
+            target_path = os.path.join(d.folder, d.name)
+            if os.path.exists(target_path):
+                existing_queue = None
+                # Check if this file exists in any queue
+                for existing_d in self.d_list:
+                    if (existing_d.in_queue and 
+                        existing_d.name == d.name and 
+                        os.path.exists(os.path.join(existing_d.folder, existing_d.name))):
+                        existing_queue = existing_d.queue_name
+                        break
+                if existing_queue == selected_queue:
+                    # File exists and is in the same queue
+                    show_warning(
+                        "Queue Error",
+                        f"This file already exists in queue: {selected_queue} \n Please choose a different queue or rename the file. 1",
+                    )
+                    return
+                elif existing_queue:
+                    # File exists but in a different queue
+                    show_warning(
+                        "Queue Error",
+                        f"This file already exists in queue: {existing_queue} \n A file cannot be in multiple queues. Please remove it from the other queue first. 1",
+                    )
+                    return
+                else:
+                    # File exists but not in any queue
+                    show_warning(
+                        "File Exists",
+                        f"Cannot add to queue because the target file already exists: {target_path}",
+                    )
+                    return
+
+            # Check for same filename in different queues
+            # for existing_d in self.d_list:
+            #     if existing_d.in_queue and existing_d.name == d.name:
+            #         if existing_d.queue_name == selected_queue:
+            #             show_warning(
+            #                 "Queue Error",
+            #                 f"This file already exists in queue: {selected_queue} \n Please choose a different queue or rename the file. 2",
+                            
+            #             )
+            #             return
+            #         else:
+            #             show_warning(
+            #                 "Queue Error",
+            #                 f"This file already exists in queue: {existing_d.queue_name} \n A file cannot be in multiple queues. Please choose a different filename. 2",
+                            
+            #             )
+            #             return
+            for existing_d in self.d_list:
+                if existing_d.in_queue and existing_d.name == d.name:
+                    # Only block if same filename AND same target folder
+                    if existing_d.folder == d.folder:
+                        if existing_d.queue_name == selected_queue:
+                            show_warning(
+                                "Queue Error",
+                                f"This file already exists in queue: {selected_queue} \n Please choose a different filename or target folder.",
+                                
+                            )
+                            return
+                        else:
+                            show_warning(
+                                "Queue Error", 
+                                f"This file already exists in queue: {existing_d.queue_name} \n Please choose a different filename or target folder.",
+    
+                            )
+                            return
+
+
+            # If all checks pass, proceed with queue setup
+            d.in_queue = True 
             d.queue_name = selected_queue
             d.queue_id = self.get_queue_id(selected_queue)
             d.status = config.Status.queued
             d.last_known_progress = 0
             d.last_known_size = 0
-            d._segments = []  # Clear old segment info, don't wipe size
+            d._segments = []  # Clear old segment info
 
             # Assign next available position in the queue
             existing_positions = [
@@ -1657,12 +1739,10 @@ class DownloadManagerUI(QMainWindow):
             ]
             d.queue_position = max(existing_positions, default=0) + 1
 
-            # generate unique id number for each download
+            # Add to download list
             d.id = len(self.d_list)
-
-
             self.d_list.append(d)
-            setting.save_d_list(self.d_list)
+            self.settings_manager.save_d_list(self.d_list)
             self.queue_update("populate_table", None)
 
             title = self.tr("Added to Queue")
@@ -1670,7 +1750,9 @@ class DownloadManagerUI(QMainWindow):
             msg = self.tr("Start it from the Queues Dialog.")
             show_information(title, inform, msg)
             self.change_page(btn=None, btnName=None, idx=1)
+        
         else:
+            # Direct download
             d.queue = None
             r = self.start_download(d, downloader=downloader)
             if r not in ('error', 'cancelled', False):
@@ -2348,16 +2430,7 @@ class DownloadManagerUI(QMainWindow):
     
     
 
-    # def show_information(self, title, inform, msg):
-    #     information_box = QMessageBox(self)
-    #     information_box.setStyleSheet(get_msgbox_style("information"))
-    #     information_box.setText(msg)
-    #     information_box.setWindowTitle(title)
-    #     information_box.setInformativeText(inform)
-    #     information_box.setIcon(QMessageBox.Information)
-    #     information_box.setStandardButtons(QMessageBox.Ok)
-    #     information_box.exec()
-    #     return
+    
 
     # endregion
 
@@ -2484,11 +2557,13 @@ class DownloadManagerUI(QMainWindow):
 
         widgets.toolbar_buttons['Pause'].setEnabled(False)
         widgets.toolbar_buttons['Resume'].setEnabled(True)
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
         self.populate_table()
 
 
     def delete_btn(self):
+        """Delete selected downloads from the download table"""
         # Get all selected rows
         selected_rows = [index.row() for index in widgets.table.selectedIndexes()]
         selected_rows = list(set(selected_rows))  # Remove duplicates, as some items may be selected in multiple columns
@@ -2551,6 +2626,8 @@ class DownloadManagerUI(QMainWindow):
             log(f"Error deleting items: {e}")
 
     def delete_all_downloads(self):
+        """Delete all downloads on the download table"""
+
         # Check if there are any active downloads
         if self.active_downloads:
             show_critical(
@@ -2590,6 +2667,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.table.setRowCount(0)
     
     def refresh_link_btn(self):
+        """Refresh a download list item for a re-download or resume especially for streaming media"""
         selected_row = widgets.table.currentRow()
         if selected_row < 0 or selected_row >= widgets.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
@@ -2632,7 +2710,7 @@ class DownloadManagerUI(QMainWindow):
                 d.status = config.Status.cancelled
             self.pending.clear()
 
-            setting.save_d_list(self.d_list)
+            # setting.save_d_list(self.d_list)
             self.populate_table()
             show_information("Stopped", "All active downloads have been cancelled.", "")
 
@@ -2808,7 +2886,8 @@ class DownloadManagerUI(QMainWindow):
             i_item.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             widgets.table.setItem(row_idx, 8, i_item)
 
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
         self.table_thread.quit()
 
 
@@ -2850,7 +2929,6 @@ class DownloadManagerUI(QMainWindow):
                         
 
                     elif d.progress is None:
-                        print("Progress is None")
                         if d.status == "queued":
                             color = "#9C27B0"
                         elif d.status == "error":
@@ -2876,7 +2954,6 @@ class DownloadManagerUI(QMainWindow):
 
     def setup_context_menu_actions(self):
         icon = lambda name: QIcon(os.path.join(os.path.dirname(__file__), "icons", name))
-
         self.action_open_file = QAction(icon("cil-file.png"), self.tr("Open File"))
         self.action_open_location = QAction(icon("cil-folder.png"), self.tr("Open File Location"))
         self.action_watch_downloading = QAction(icon("cil-media-play.png"), self.tr("Watch while downloading"))
@@ -3037,7 +3114,8 @@ class DownloadManagerUI(QMainWindow):
 
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
-            setting.save_d_list(self.d_list)
+            # setting.save_d_list(self.d_list)
+            self.settings_manager.save_d_list(self.d_list)
             self.selected_d.status = config.Status.scheduled
             self.selected_d.sched = response
 
@@ -3126,8 +3204,9 @@ class DownloadManagerUI(QMainWindow):
                 ]
                 d.queue_position = max(existing_positions, default=0) + 1
 
-                setting.save_d_list(self.d_list)
-                setting.save_queues(self.queues)
+                # setting.save_d_list(self.d_list)
+                # setting.save_queues(self.queues)
+                self.settings_manager.save_queues(self.queues)
                 self.populate_table()
                 self.refresh_table_row(d)
 
@@ -3149,7 +3228,7 @@ class DownloadManagerUI(QMainWindow):
         d.queue_position = 0
         d.status = config.Status.cancelled
 
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
         self.populate_table()
         self.refresh_table_row(d)
 
