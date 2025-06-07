@@ -16,8 +16,12 @@
         <file>icons/d_window.png</file>
         <file>icons/download.png</file>
         <file>icons/folder.png</file>
+        <file>icons/firefox.svg</file>
         <file>icons/general.svg</file>
+        <file>icons/google-chrome.svg</file>
         <file>icons/logo1.png</file>
+        <file>icons/logo4.png</file>
+        <file>icons/microsoft-edge.svg</file>
         <file>icons/multi_trash.svg</file>
         <file>icons/pause.svg</file>
         <file>icons/playlist.png</file>

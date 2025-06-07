@@ -4,6 +4,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 from modules import config
 class PopulateTableWorker(QObject):
     data_ready = Signal(list)
+    finished = Signal()
 
     def __init__(self, d_list):
         super().__init__()

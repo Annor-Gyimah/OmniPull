@@ -18,6 +18,7 @@ import uuid
 import json
 import pyperclip as clipboard
 from getmac import get_mac_address
+from notifypy import Notify
 import psutil
 try:
     from PIL import Image
@@ -25,16 +26,30 @@ except:
     print('pillow module is missing try to install it to display video thumbnails')
 
 from modules import config
+from functools import lru_cache
 
 
 
-def notify(msg, title='', timeout=5):
+def resource_path2(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
+
+def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
+        notification = Notify()
+        notification.application_name = f"{config.APP_NAME}"
+        notification.title = f"{title}"
+        notification.message = f"{msg}"
+        #notification.icon = resource_path2("logo1.png")
+        notification.send(block=False)
+        #plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
-        handle_exceptions(f'plyer notification: {e}')
+        handle_exceptions(f'notifypy notification: {e}')
 
 
 def handle_exceptions(error):
@@ -282,7 +297,7 @@ def echo_stderr(func):
 
     return echo
 
-
+@lru_cache(maxsize=128)
 def validate_file_name(f_name):
     # filter for tkinter safe character range
     f_name = ''.join([c for c in f_name if ord(c) in range(65536)])

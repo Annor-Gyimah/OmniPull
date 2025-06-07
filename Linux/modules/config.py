@@ -11,7 +11,6 @@ from queue import Queue
 import os
 import sys
 import platform
-
 from modules.version import __version__
 
 
@@ -45,6 +44,10 @@ machine_id = None
 # application exit flag
 terminate = False 
 
+# download engine
+download_engine = 'yt-dlp'  # download engine to be used, aria2c or yt-dlp
+
+
 # settings parameters
 current_theme = DEFAULT_THEME
 all_themes = []
@@ -76,9 +79,11 @@ update_frequency_map = {'every day': 1, 'every week': 7, 'every month': 30}
 confirm_update = False
 
 # proxy
-proxy = ''  # must be string example: 127.0.0.1:8080
+proxy = '1.34.120.197:46052'  # must be string example: 127.0.0.1:8080
 proxy_type = 'http'  # socks4, socks5
 raw_proxy = ''  # unprocessed from user input
+proxy_user = ""  # optional
+proxy_pass = ""  # optional
 enable_proxy = False
 
 # logging
@@ -110,6 +115,46 @@ ffmpeg_actual_path = "/usr/bin/ffmpeg"
 ffmpeg_actual_path_2 = "/usr/bin/"
 ffmpeg_download_folder = sett_folder
 
+# aria2c
+aria2_download_folder = sett_folder
+aria2_actual_path = None
+aria2_verified = False  # aria2c is verified or not
+aria2c_path = aria2_actual_path 
+#os.path.join('Miscellaneous', 'aria2c.exe')
+aria2c_config = {
+    "max_connections": 1,
+    "enable_dht": True,
+    "follow_torrent": False,
+    "save_interval": 10,
+    "file_allocation": "falloc",
+    "split": 32,
+    "rpc_port": 6800
+}
+
+
+ytdlp_fragments = 5  # default number of threads/fragments
+ytdlp_config = {
+    "concurrent_fragment_downloads": 5,
+    "merge_output_format": "mp4",
+    "outtmpl": '%(title)s.%(ext)s',
+    "retries": 3,
+    "ffmpeg_location": os.path.join(sett_folder, 'ffmpeg.exe'),
+    "postprocessors": [
+        {
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4'
+        }
+    ],
+    'quiet': True,
+    'writeinfojson': True,
+    'writedescription': True,
+    'writeannotations': True,
+    "writemetadata": True,
+    "no_warnings": True,
+    "cookiesfile": ""
+}
+
+
 # downloads
 active_downloads = set()  # indexes for active downloading items
 d_list = []
@@ -118,10 +163,11 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme','machine_id', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+settings_keys = ['current_theme','machine_id', 'download_engine', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
-                 'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
-                 'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins']
+                 'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
+                 'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
+                 'aria2_verified', 'ytdlp_config']
 
 # -------------------------------------------------------------------------------------
 

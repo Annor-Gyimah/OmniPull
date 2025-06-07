@@ -5,15 +5,19 @@ import re
 import shlex
 import subprocess
 import sys
-import tarfile
+import zipfile
+import shutil
 import time
+import asyncio
 from threading import Thread
 from urllib.parse import urljoin
 import copy
+import platform
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
+from modules.threadpool import executor
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
-    delete_file, download, process_thumbnail
+    delete_file, download, process_thumbnail, popup
 
 # youtube-dl
 ytdl = None  # youtube-dl will be imported in a separate thread to save loading time
@@ -42,22 +46,33 @@ def get_ytdl_options():
         'no_warnings': False,
         'logger': Logger(),
         'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
-        'listformats': True,
+        # 'listformats': True,
+        # 'no_check_certificate': True,
+        # 'cookiefile': os.path.join(config.sett_folder, 'youtube_cookies.txt'),
+        # 'extractor_args': {
+        #     'youtube': ['visitor_data=yt.visitor_data_value', 'client=ANDROID'],
+        # }
         
     }
     if config.proxy:
-        ydl_opts['proxy'] = config.proxy
+        proxy_url = config.proxy
+        if config.proxy_user and config.proxy_pass:
+            # Inject basic auth into the proxy URL
+            from urllib.parse import urlparse, urlunparse
+            parsed = urlparse(proxy_url)
+            proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
 
-    # website authentication
-    # ydl_opts['username'] = ''
-    # ydl_opts['password'] = ''
+        ydl_opts['proxy'] = proxy_url
 
-        # if config.log_level >= 3:
-    #     ydl_opts['verbose'] = True  # it make problem with Frozen PyIDM, extractor doesn't work
-    # elif config.log_level <= 1:
-    #     ydl_opts['quiet'] = True  # it doesn't work
 
     return ydl_opts
+
+
+def extract_info_blocking(url, ydl_opts):
+    import yt_dlp as ytdl
+    with ytdl.YoutubeDL(ydl_opts) as ydl:
+        return ydl.extract_info(url, download=False, process=True)
+
 
 class Video(DownloadItem):
     """represent a youtube video object, interface for youtube-dl"""
@@ -70,8 +85,9 @@ class Video(DownloadItem):
 
         # let youtube-dl fetch video info
         if self.vid_info is None:
-            with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                self.vid_info = ydl.extract_info(self.url, download=False, process=True)
+            raise ValueError("vid_info must be provided when using Video.__init__. Use Video.create() instead.")
+            # with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+            #     self.vid_info = ydl.extract_info(self.url, download=False, process=True)
 
         self.webpage_url = url  # self.vid_info.get('webpage_url')
         self.title = validate_file_name(self.vid_info.get('title', f'video{int(time.time())}'))
@@ -103,6 +119,21 @@ class Video(DownloadItem):
     def setup(self):
         self._process_streams()
 
+
+    @classmethod
+    async def create(cls, url, get_size=True):
+        loop = asyncio.get_running_loop()
+        ydl_opts = get_ytdl_options()
+        vid_info = await loop.run_in_executor(executor, extract_info_blocking, url, ydl_opts)
+        return cls(url, vid_info=vid_info, get_size=get_size)
+    
+    @classmethod
+    async def extract_metadata(cls, url):
+        loop = asyncio.get_running_loop()
+        ydl_opts = get_ytdl_options()
+        return await loop.run_in_executor(executor, extract_info_blocking, url, ydl_opts)
+
+
     def url_expired(self) -> bool:
         """
         Check if video or audio stream URL is likely expired.
@@ -115,21 +146,23 @@ class Video(DownloadItem):
 
     def _process_streams(self):
         """ Create Stream object lists"""
-        # if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
-        #     log("Error: No video formats found in vid_info")
-        #     return
+        
+    
+        if not self.vid_info or 'formats' not in self.vid_info:
+            log(f"[Video] Skipping: no 'formats' found for {self.url}")
+            self._streams = {}
+            self.stream_names = []
+            self.selected_stream = None
+            return
+        
 
-        # try:
-        #     all_streams = [Stream(x) for x in self.vid_info['formats']]
-        # except Exception as e:
-        #     log(f"Error creating Stream objects: {e}")
-        #     return
+        
+    
         all_streams = [Stream(x) for x in self.vid_info['formats']]
 
         # prepare some categories
         normal_streams = {stream.raw_name: stream for stream in all_streams if stream.mediatype == 'normal'}
         dash_streams = {stream.raw_name: stream for stream in all_streams if stream.mediatype == 'dash'}
-        
 
         # normal streams will overwrite same streams names in dash
         video_streams = {**dash_streams, **normal_streams}
@@ -388,10 +421,10 @@ def download_ffmpeg(destination=config.sett_folder):
     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
     if platform.machine().endswith('64'):
         # 64 bit link
-        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'
+        url = 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip'
     else:
         # 32 bit link
-        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz'
+        url = 'https://www.videohelp.com/download/ffmpeg-4.3.1-win32-static.zip'
 
     log('downloading: ', url)
 
@@ -399,7 +432,7 @@ def download_ffmpeg(destination=config.sett_folder):
     # print('config.sett_folder = ', config.sett_folder)
     d = DownloadItem(url=url, folder=config.ffmpeg_download_folder)
     d.update(url)
-    d.name = 'ffmpeg.tar.xz'  # must rename it for unzip to find it
+    d.name = 'ffmpeg.zip'  # must rename it for unzip to find it
     # print('d.folder = ', d.folder)
 
     # post download
@@ -409,57 +442,219 @@ def download_ffmpeg(destination=config.sett_folder):
     config.main_window_q.put(('download', (d, False)))
 
 
-def unzip_ffmpeg():
-    log('Unzip FFmpeg:', 'Unzipping')
+def download_aria2c_with_wget(url, save_dir, filename):
+    """Download aria2c.zip using python-wget and update GUI progress if emitter is provided."""
+    os.makedirs(save_dir, exist_ok=True)
+    output_path = os.path.join(save_dir, filename)
+    import wget
 
     try:
-        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.tar.xz')
-        
-        # Extract using tarfile for .tar.xz files
-        with tarfile.open(file_name, 'r:xz') as tar_ref:
-            tar_ref.extractall(config.ffmpeg_download_folder)
-
-        log('FFmpeg update:', 'Deleted zip file')
-        delete_file(file_name)
-        log('FFmpeg update:', 'FFmpeg is ready at: ', config.ffmpeg_download_folder)
+        log(f"[aria2c] Downloading aria2c from {url}")
+        downloaded_path = wget.download(url, out=output_path)
+        log(f"[aria2c] Download complete: {downloaded_path}")
+        if os.path.exists(output_path):
+            unzip_aria2c()
+        return True
     except Exception as e:
-        log('Unzip FFmpeg: error ', e)
+        log(f"[aria2c] Download failed: {e}")
+        return False
+
+def download_aria2c(destination=config.sett_folder):
+    import platform
+    if platform.machine().endswith('64'):
+        url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip'
+        #url = 'http://localhost/lite/aria2c.zip'
+    else:
+        url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-32bit-build1.zip'
+
+    filename = "aria2c.zip"
+    download_aria2c_with_wget(url, destination, filename)
+
+
+
+
+
+
+def unzip_ffmpeg():
+    log('unzip_ffmpeg:', 'unzipping')
+
+    try:
+        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
+            zip_ref.extractall(config.ffmpeg_download_folder)
+
+        log('ffmpeg update:', 'delete zip file')
+        delete_file(file_name)
+        log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
+    except Exception as e:
+        log('unzip_ffmpeg: error ', e)
+
+
+
+def unzip_aria2c():
+    log('unzip_aria2c:', 'unzipping')
+    config.aria2_download_folder = config.sett_folder
+    try:
+        file_name = os.path.join(config.aria2_download_folder, 'aria2c.zip')
+
+        # Extract the zip
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:
+            zip_ref.extractall(config.aria2_download_folder)
+
+        # Find the extracted folder (assumes only one folder is extracted)
+        extracted_items = os.listdir(config.aria2_download_folder)
+        extracted_folder = next((item for item in extracted_items
+                                 if os.path.isdir(os.path.join(config.aria2_download_folder, item)) and 'aria2' in item), None)
+
+        if extracted_folder:
+            extracted_folder_path = os.path.join(config.aria2_download_folder, extracted_folder)
+            exe_path = os.path.join(extracted_folder_path, 'aria2c.exe')
+            dest_path = os.path.join(config.aria2_download_folder, 'aria2c.exe')
+
+            # Move aria2c.exe to the parent folder
+            if os.path.exists(exe_path):
+                shutil.move(exe_path, dest_path)
+                log('aria2c update:', f'aria2c.exe moved to {config.aria2_download_folder}')
+            else:
+                log('aria2c update:', 'aria2c.exe not found in extracted folder')
+            shutil.rmtree(extracted_folder_path)
+
+        # Delete zip file
+        log('aria2c update:', 'delete zip file')
+        delete_file(file_name)
+        # os.removedirs(extracted_folder)
+
+        log('aria2c update:', 'aria2c is ready at:', config.aria2_download_folder)
+        config.aria2_verified = True
+        param = dict(title='Aria2c Update', msg='Aria2c is now available. Please try download again.', type_='info')
+        config.main_window_q.put(('popup', param))
+
+    except Exception as e:
+        log('unzip_aria2c: error', e)
+
 
 
 def check_ffmpeg():
-    """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
-    and finally system-wide"""
+    """Check for ffmpeg availability, and cache result to avoid re-checking."""
+
+    # ✅ If previously verified, skip check
+    if config.ffmpeg_verified:
+        return True
 
     log('Checking FFmpeg availability...')
     found = False
 
-    # Search in current app directory then default setting folder
     try:
         for folder in [config.current_directory, config.global_sett_folder]:
+            if not folder: continue  # skip if not set
             for file in os.listdir(folder):
-                if file == 'ffmpeg':
-                    found = True
-                    config.ffmpeg_actual_path = os.path.join(folder, file)
-                    break
-            if found:  # Break outer loop
+                if file.lower().startswith("ffmpeg"):
+                    full_path = os.path.join(folder, file)
+                    if os.path.isfile(full_path):
+                        found = True
+                        config.ffmpeg_actual_path = full_path
+                        break
+            if found:
                 break
     except Exception as e:
-        log(f"Error while checking directories: {e}")
+        log(f"Error while checking folders for ffmpeg: {e}")
 
-    # Search in the system path
+    # Try system PATH
     if not found:
-        cmd = 'which ffmpeg'
-        error, output = run_command(cmd, verbose=False)
-        if not error:
+        from shutil import which
+        path = which("ffmpeg")
+        if path:
+            config.ffmpeg_actual_path = os.path.realpath(path)
             found = True
-            config.ffmpeg_actual_path = os.path.realpath(output.strip())
 
     if found:
-        log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
+        config.ffmpeg_verified = True  # ✅ Cache success
+        log('FFmpeg found:', config.ffmpeg_actual_path)
         return True
     else:
-        log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
+        config.ffmpeg_actual_path = None
+        log('FFmpeg not found. Will prompt user.')
         return False
+    
+
+def check_aria2_exe():
+    """Check for aria2c availability, and cache result to avoid re-checking."""
+
+    # ✅ If previously verified, skip check
+    if config.aria2_verified:
+        return True
+
+    log('Checking aria2c availability...')
+    found = False
+
+
+    try:
+        for folder in [config.current_directory, config.global_sett_folder]:
+            if not folder: continue  # skip if not set
+            for file in os.listdir(folder):
+                if file.lower().startswith("aria2c.exe"):
+                    full_path = os.path.join(folder, file)
+                    if os.path.isfile(full_path):
+                        found = True
+                        config.aria2_actual_path = full_path
+                        break
+            if found:
+                break
+    except Exception as e:
+        log(f"Error while checking folders for aria2c: {e}")
+
+    # Try system PATH
+    if not found:
+        from shutil import which
+        path = which("aria2c")
+        if path:
+            config.aria2_actual_path = os.path.realpath(path)
+            found = True
+
+    if found:
+        config.aria2_verified = True  # ✅ Cache success
+        log('aria2c found:', config.aria2_actual_path)
+        return True
+    else:
+        config.aria2_actual_path = None
+        log('aria2c not found. Will prompt user.')
+        return False
+
+
+# def check_ffmpeg():
+#     """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
+#     and finally system-wide"""
+
+#     log('Checking FFmpeg availability...')
+#     found = False
+
+#     # Search in current app directory then default setting folder
+#     try:
+#         for folder in [config.current_directory, config.global_sett_folder]:
+#             for file in os.listdir(folder):
+#                 if file == 'ffmpeg':
+#                     found = True
+#                     config.ffmpeg_actual_path = os.path.join(folder, file)
+#                     break
+#             if found:  # Break outer loop
+#                 break
+#     except Exception as e:
+#         log(f"Error while checking directories: {e}")
+
+#     # Search in the system path
+#     if not found:
+#         cmd = 'which ffmpeg'
+#         error, output = run_command(cmd, verbose=False)
+#         if not error:
+#             found = True
+#             config.ffmpeg_actual_path = os.path.realpath(output.strip())
+
+#     if found:
+#         log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
+#         return True
+#     else:
+#         log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
+#         return False
 
 def is_download_complete(d):
     return all(seg.completed for seg in d.segments)
@@ -503,7 +698,7 @@ def import_ytdl():
     config.ytdl_VERSION = ytdl.version.__version__
 
     load_time = time.time() - start
-    log(f'youtube-dl load_time= {load_time}')
+    log(f'yt-dlp load_time= {load_time}')
 
 
 def parse_bytes(bytestr):
@@ -902,6 +1097,7 @@ def post_process_hls(d):
         create_local_m3u8(remote_video_m3u8_file, local_video_m3u8_file, names, crypt_key_names)
     except Exception as e:
         log('post_process_hls()> error', e)
+        popup(title="Filename Error", msg="Please retry the download however the filename should not contain special characters.", type_="critical")
         return False
 
     if d.type == 'dash':
