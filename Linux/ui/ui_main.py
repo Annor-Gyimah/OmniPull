@@ -1,19 +1,18 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
-    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
+    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
     QHeaderView, QMenu, QButtonGroup, QSizePolicy
 )
 from PySide6.QtGui import QIcon
 from random import randint
 import os
 import psutil
-from PySide6.QtCore import QPropertyAnimation, QPoint, QEasingCurve, QTimer, QCoreApplication
 import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setWindowTitle("Download Manager Clone")
+        MainWindow.setWindowTitle("Download Manager")
         MainWindow.resize(1250, 750)
         MainWindow.setMinimumSize(800, 600)
 
@@ -70,6 +69,7 @@ class Ui_MainWindow(object):
         self.browser_extension_menu = QMenu("Browser Extension", self.tools_menu)
         self.tools_menu.addMenu(self.browser_extension_menu)
 
+        # Assuming icons are under :/icons/ in your .qrc file
         self.chrome_action = self.browser_extension_menu.addAction(
             QIcon(":/icons/google-chrome.svg"), "Chrome"
         )
@@ -310,13 +310,13 @@ class Ui_MainWindow(object):
         left_layout.setAlignment(Qt.AlignCenter)
 
         self.thumbnail = QLabel()
-        self.thumbnail.setPixmap(QIcon("icons/thumbnail-default.png").pixmap(400, 350))
+        self.thumbnail.setPixmap(QIcon(":/icons/thumbnail-default.png").pixmap(400, 350))
         self.thumbnail.setAlignment(Qt.AlignCenter)
         self.thumbnail.setFixedSize(400, 350)
         self.thumbnail.setStyleSheet("border-radius: 8px;")
         left_layout.addWidget(self.thumbnail)
 
-        content_row.addWidget(left_frame, stretch=2)
+        
 
         # RIGHT PANEL
         right_frame = QFrame()
@@ -472,6 +472,22 @@ class Ui_MainWindow(object):
         button_row.addWidget(self.download_btn)
         right_layout.addLayout(button_row)
 
+
+        # NEW: Middle Frame
+        middle_frame = QFrame()
+        middle_frame.setFrameShape(QFrame.StyledPanel)
+        middle_layout = QVBoxLayout(middle_frame)
+        middle_layout.setContentsMargins(12, 12, 12, 12)
+        middle_layout.setSpacing(8)
+
+        # Optional placeholder content
+        middle_label = QLabel("Subtitles / Extras")
+        middle_label.setStyleSheet("color: white;")
+        middle_layout.addWidget(middle_label)
+
+        # content_row.addWidget(middle_frame, stretch=1)  # 👈 NEW PANEL
+        content_row.addWidget(left_frame, stretch=1)
+       
         content_row.addWidget(right_frame, stretch=1)
 
         # === WRAP CONTENT IN CONTAINER THAT STRETCHES

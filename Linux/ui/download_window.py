@@ -5,8 +5,9 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 
-from PySide6.QtCore import QTimer, Qt, Slot
-from modules.utils import truncate, size_format, size_splitter, time_format
+from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
+import threading
+from modules.utils import truncate, size_format, size_splitter, time_format, log
 from modules import config
 
 
@@ -60,12 +61,14 @@ class DownloadWindow(QWidget):
             }
         """)
         self.d = d
-        self.q = d.q
+        #self.q = d.q
         self.timeout = 10
         self.timer = 0
         self._progress_mode = 'determinate'
         self.init_ui()
         self.resize(500, 330)
+        self.setWindowTitle("Download Window")
+        
 
     @property
     def progress_mode(self):
@@ -186,6 +189,24 @@ class DownloadWindow(QWidget):
         self.timer.stop()
         super().close()
 
+    def closeEvent(self, event):
+        try:
+            if hasattr(self, "timer") and self.timer.isActive():
+                self.timer.stop()
+        except Exception as e:
+            log(f"[DownloadWindow] Failed to stop timer: {e}")
+
+        # try:
+        #     self.disconnect()  # Only if you've connected custom signals manually
+        # except Exception as e:
+        #     log(f"[DownloadWindow] Failed to disconnect signals: {e}")
+
+        super().closeEvent(event)
+
+
+    # def close(self):
+    #     # Safely post a close event to run in main thread
+    #     QCoreApplication.postEvent(self, QEvent(QEvent.Close))
     
     @Slot(float)
     def on_progress_changed(self, value):

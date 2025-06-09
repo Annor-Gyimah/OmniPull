@@ -11,10 +11,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.url) {
     chrome.runtime.sendNativeMessage("com.omnipull.downloader", { url: message.url }, (response) => {
       if (chrome.runtime.lastError) {
-        // App not running / native host not responding
-        alert("⚠️ Can't connect to OmniPull. Please make sure the app is running and browser integration is enabled.");
-        return;
+        console.error("Native messaging error:", chrome.runtime.lastError.message);
+        alert("Can't connect to OmniPull app. Ensure it’s running and browser integration is enabled.");
       }
+
 
       if (response && response.status === "queued") {
         chrome.notifications.create({

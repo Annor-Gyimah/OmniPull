@@ -1,27 +1,38 @@
 {
-    "manifest_version": 2,
-    "name": "OmniPull Downloader",
-    "description": "Send download links to OmniPull desktop app",
-    "version": "1.0",
-    "permissions": [
-      "contextMenus",
-      "nativeMessaging",
-      "notifications"
-    ],
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": true
-    },
-    "icons": {
-      "128": "icons/logo4.png"
-    },
-
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"],
-        "run_at": "document_idle"
-      }
-    ]
+  "manifest_version": 2,
+  "name": "OmniPull Downloader",
+  "description": "Send download links to OmniPull desktop app",
+  "version": "1.0",
+  "permissions": [
+    "contextMenus",
+    "nativeMessaging",
+    "notifications"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "icons": {
+    "128": "icons/logo4.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "applications": {
+    "gecko": {
+      "id": "omnipull@annorion.dev",
+      "strict_min_version": "57.0"
+    }
+  },
+  "web_accessible_resources": [
+  {
+    "resources": ["icons/logo4.png"],
+    "matches": ["<all_urls>"]
   }
-  
+]
+
+}
