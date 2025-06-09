@@ -1,0 +1,29 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+
+# The type of the thing this desktop file refers to (e.g. can be Link)
+Type=Application
+
+# The application name.
+Name=OmniPull
+
+# Tooltip comment to show in menus.
+Comment= An open source (Internet Download Manager) with multi-connections and high speed engine.
+
+# The path (folder) in which the executable is run
+# Path=/opt/main
+
+# The executable (can include arguments)
+Exec=/opt/omnipull/main
+
+Terminal = False
+
+Icon=/usr/share/icons/hicolor/scalable/apps/logo1.png
+
+# The icon for the entry, using the name from `hicolor/scalable` without the extension.
+# You can also use a full path to a file in /opt.
+
+
+Categories=Network
+
+

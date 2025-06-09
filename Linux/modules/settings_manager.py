@@ -39,13 +39,16 @@ class SettingsManager:
 
     def _ensure_config_files_exist(self):
         """Ensure all required config files exist"""
-        required_files = ['setting.cfg', 'downloads.cfg', 'queues.cfg', 'log.txt']
+        required_files = ['setting.cfg', 'downloads.cfg', 'queues.cfg', 'log.txt', '.omnipull_url_queue.json']
         for file in required_files:
             path = os.path.join(self.sett_folder, file)
             if not os.path.exists(path):
                 with open(path, 'w') as f:
                     if file.endswith('.cfg'):
                         json.dump([] if 'queues' in file or 'downloads' in file else {}, f)
+                    elif file.endswith('.json'):
+                        # Create an empty queue file
+                        json.dump([], f)
                     else:
                         f.write("")
 

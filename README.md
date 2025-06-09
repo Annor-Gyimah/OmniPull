@@ -62,7 +62,30 @@ OmniPull is a powerful, cross-platform download manager built with Python and Py
 - **Auto-Resume**: Recover from interrupted downloads
 - **File Organization**: Customizable download locations
 
+
+
 ## 📦 Installation
+
+OmniPull is cross-platform and runs on Windows and Linux.
+
+### 🪟 Windows Installation
+
+You can [download the latest OmniPull installer for Windows](https://github.com/Annor-Gyimah/omnipull/releases) from the Releases section. Just run the installer and follow the on-screen instructions.
+
+- After installation, launch OmniPull from the Start Menu or desktop shortcut.
+- No additional configuration is needed. `aria2c` is included and ready to go.
+
+---
+
+### 🐧 Linux Installation
+
+See the full instructions in the [Linux README](Linux/README.linux.md) to learn how to:
+
+- Build and run the app on Debian-based systems
+- Bundle `aria2c` into the package
+- Create a `.deb` installer with `fpm`
+
+### Script Kiddies
 
 ```bash
 # Clone the repository
@@ -76,7 +99,10 @@ pip install -r requirements.txt
 
 # Run the application
 python main.py
+
 ```
+
+
 
 ## 🌐 Browser Integration
 OmniPull integrates with major browsers through extensions:

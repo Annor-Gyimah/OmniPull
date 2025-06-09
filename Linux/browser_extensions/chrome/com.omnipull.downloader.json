@@ -3,5 +3,7 @@
   "description": "Native messaging host for OmniPull",
   "path": "/opt/omnipull/omnipull-watcher",
   "type": "stdio",
-  "allowed_extensions": ["omnipull@annorion.dev"]
+  "allowed_origins": [
+    "chrome-extension://hmmaalgjpkikpfbefceckngnklkcceik/"
+  ]
 }

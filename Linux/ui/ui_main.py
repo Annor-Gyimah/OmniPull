@@ -1,19 +1,18 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
-    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
+    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
     QHeaderView, QMenu, QButtonGroup, QSizePolicy
 )
 from PySide6.QtGui import QIcon
 from random import randint
 import os
 import psutil
-from PySide6.QtCore import QPropertyAnimation, QPoint, QEasingCurve, QTimer, QCoreApplication
 import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setWindowTitle("Download Manager Clone")
+        MainWindow.setWindowTitle("Download Manager")
         MainWindow.resize(1250, 750)
         MainWindow.setMinimumSize(800, 600)
 

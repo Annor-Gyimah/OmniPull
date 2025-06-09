@@ -41,15 +41,26 @@ def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        notification = Notify()
-        notification.application_name = f"{config.APP_NAME}"
-        notification.title = f"{title}"
-        notification.message = f"{msg}"
-        #notification.icon = resource_path2("logo1.png")
-        notification.send(block=False)
-        #plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
+        plyer.notification.notify(title=title, message=msg, app_name=config.APP_NAME)
     except Exception as e:
+        log(f"Notification error: {e}", log_level=1)
+        print(f"Notification error: {e}")
         handle_exceptions(f'notifypy notification: {e}')
+
+# def notify(msg, title='', timeout=2):
+#     log(f"notify() called with title: {title}, message: {msg}", log_level=3)
+#     try:
+#         notification = Notify()
+#         notification.application_name = f"{config.APP_NAME}"
+#         notification.title = f"{title}"
+#         notification.message = f"{msg}"
+#         notification.icon = "../icons/logo1.png" #resource_path2("../icons/logo1.png")
+#         notification.send()
+#     except Exception as e:
+#         log(f"Notification error: {e}", log_level=1)
+#         handle_exceptions(f'notifypy notification: {e}')
+
+# Global variable to track initialization
 
 
 def handle_exceptions(error):

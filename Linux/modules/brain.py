@@ -690,7 +690,7 @@ def file_manager(d, keep_segments=False, emitter=None):
             if emitter:
                 emitter.status_changed.emit("completed")
                 emitter.progress_changed.emit(100.0)
-            notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+            #notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
             break
 
 

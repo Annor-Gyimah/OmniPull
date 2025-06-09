@@ -21,10 +21,9 @@ class Aria2cManager:
         self.api = None
         self.client = None
         #self.settings_manager = SettingsManager()
-        self.home_folder = os.path.expanduser('~')
         self.session_path =  Path.home() / ".config" / config.APP_NAME
         self.session_file = self.session_path / "aria2c.session"
-        config.aria2c_path = "/usr/bin/aria2c" 
+        config.aria2c_path = "/opt/omnipull/aria2c"
         self._ensure_session_file()
         setting.load_setting()
         #self.settings_manager.load_settings()

@@ -20,9 +20,9 @@ class QueueDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Queues")
         self.setMinimumSize(800, 500)
-        # self.queues = setting.load_queues()
+        #self.queues = setting.load_queues()
         self.settings_manager = SettingsManager()
-        self.queues = self.settings_manager.queues
+        self.queues = self.settings_manager.load_queues()
         self.d_list = self.settings_manager.d_list
 
 
@@ -33,6 +33,8 @@ class QueueDialog(QDialog):
         #     self.populate_queue_items()
         # else:
         #     self.current_queue_id = None
+
+
 
 
 

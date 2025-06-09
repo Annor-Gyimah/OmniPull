@@ -64,7 +64,7 @@ from ui.user_guide_dialog import UserGuideDialog
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning)
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
-from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format, truncate, 
+from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
     notify, run_command, handle_exceptions, popup)
 from modules import config, brain, setting, video, update
 from modules.downloaditem import DownloadItem
@@ -697,6 +697,7 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer = QTimer(self)
         self.scheduler_timer.timeout.connect(self.check_scheduled_queues)
         self.scheduler_timer.start(60000)  # Every 60 seconds
+        #notify("Test Notification", "App Test")
     
 
         
@@ -2372,12 +2373,31 @@ class DownloadManagerUI(QMainWindow):
                                 f'{s3} {config.aria2c_path} {s3a} \n'
                                 f"{s4}")
         return False
+
+    def get_browser_queue_file(self):
+        if os.name == 'nt':
+            # Windows uses AppData/Roaming for user-specific data
+            # Use correct case for 'AppData' and ensure slashes are correct
+            queue_file = Path.home() / "AppData/Roaming/OmniPull/.omnipull_url_queue.json"
+        else:
+            # Linux and macOS use .config for user-specific data
+            queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
+        # if config.operating_system == 'Windows':
+        #     # Use correct case for 'AppData' and ensure slashes are correct
+        #     queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
+        # else:
+        #     queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
+        return queue_file
+
+
     
     def check_browser_queue(self):
         if not config.browser_integration_enabled:
             return
-
-        queue_file = Path.home() / "APPData/Roaming/.OmniPull/.omnipull_url_queue.json"
+        
+        """Check if there are URLs in the browser queue file and process them."""
+        queue_file = self.get_browser_queue_file()
+        import json
         if queue_file.exists():
             try:
                 with open(queue_file) as f:
@@ -2388,7 +2408,10 @@ class DownloadManagerUI(QMainWindow):
                         widgets.link_input.setText(url)
                         self.url_text_change()
                 # Clear the queue after processing
-                queue_file.unlink()
+                # queue_file.unlink()
+                with open(queue_file, 'w') as f:
+                    json.dump([], f)
+
             except Exception as e:
                 log(f"Failed to process browser queue: {e}")
     
@@ -2951,16 +2974,16 @@ class DownloadManagerUI(QMainWindow):
     
 
     def setup_context_menu_actions(self):
-        icon = lambda name: QIcon(os.path.join(os.path.dirname(__file__), "icons", name))
-        self.action_open_file = QAction(icon("cil-file.png"), self.tr("Open File"))
-        self.action_open_location = QAction(icon("cil-folder.png"), self.tr("Open File Location"))
-        self.action_watch_downloading = QAction(icon("cil-media-play.png"), self.tr("Watch while downloading"))
-        self.action_schedule_download = QAction(icon("cil-schedule.png"), self.tr("Schedule download"))
-        self.action_cancel_schedule = QAction(icon("cil-x.png"), self.tr("Cancel schedule!"))
-        self.action_file_properties = QAction(icon("cil-info.png"), self.tr("File Properties"))
-        self.action_add_to_queue = QAction(icon("cil-medical-cross.png"), self.tr("Add to Queue"))
-        self.action_remove_from_queue = QAction(icon("cil-minus.png"), self.tr("Remove from Queue"))
-        self.action_file_checksum = QAction(icon('cil-info.png'), self.tr("File CheckSum!"))
+        #icon = lambda name: QIcon(os.path.join(os.path.dirname(__file__), "icons", name))
+        self.action_open_file = QAction(QIcon(":/icons/cil-file.png"), self.tr("Open File"))
+        self.action_open_location = QAction(QIcon(":/icons/cil-folder.png"), self.tr("Open File Location"))
+        self.action_watch_downloading = QAction(QIcon(":/icons/cil-media-play.png"), self.tr("Watch while downloading"))
+        self.action_schedule_download = QAction(QIcon(":/icons/cil-schedule.png"), self.tr("Schedule download"))
+        self.action_cancel_schedule = QAction(QIcon(":/icons/cil-x.png"), self.tr("Cancel schedule!"))
+        self.action_file_properties = QAction(QIcon(":/icons/cil-info.png"), self.tr("File Properties"))
+        self.action_add_to_queue = QAction(QIcon(":/icons/cil-medical-cross.png"), self.tr("Add to Queue"))
+        self.action_remove_from_queue = QAction(QIcon(":/icons/cil-minus.png"), self.tr("Remove from Queue"))
+        self.action_file_checksum = QAction(QIcon(':/icons/cil-info.png'), self.tr("File CheckSum!"))
         # Connect triggers
         self.action_open_file.triggered.connect(self.open_item)
         self.action_open_location.triggered.connect(self.open_file_location)

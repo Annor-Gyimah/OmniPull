@@ -22,7 +22,7 @@ class QueueDialog(QDialog):
         self.setMinimumSize(800, 500)
         # self.queues = setting.load_queues()
         self.settings_manager = SettingsManager()
-        self.queues = self.settings_manager.queues
+        self.queues = self.settings_manager.load_queues()
         self.d_list = self.settings_manager.d_list
 
 

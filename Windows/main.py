@@ -2953,16 +2953,16 @@ class DownloadManagerUI(QMainWindow):
     
 
     def setup_context_menu_actions(self):
-        icon = lambda name: QIcon(os.path.join(os.path.dirname(__file__), "icons", name))
-        self.action_open_file = QAction(icon("cil-file.png"), self.tr("Open File"))
-        self.action_open_location = QAction(icon("cil-folder.png"), self.tr("Open File Location"))
-        self.action_watch_downloading = QAction(icon("cil-media-play.png"), self.tr("Watch while downloading"))
-        self.action_schedule_download = QAction(icon("cil-schedule.png"), self.tr("Schedule download"))
-        self.action_cancel_schedule = QAction(icon("cil-x.png"), self.tr("Cancel schedule!"))
-        self.action_file_properties = QAction(icon("cil-info.png"), self.tr("File Properties"))
-        self.action_add_to_queue = QAction(icon("cil-medical-cross.png"), self.tr("Add to Queue"))
-        self.action_remove_from_queue = QAction(icon("cil-minus.png"), self.tr("Remove from Queue"))
-        self.action_file_checksum = QAction(icon('cil-info.png'), self.tr("File CheckSum!"))
+        # icon = lambda name: QIcon(os.path.join(os.path.dirname(__file__), "icons", name))
+        self.action_open_file = QAction(QIcon(":/icons/cil-file.png"), self.tr("Open File"))
+        self.action_open_location = QAction(QIcon(":/icons/cil-folder.png"), self.tr("Open File Location"))
+        self.action_watch_downloading = QAction(QIcon(":/icons/cil-media-play.png"), self.tr("Watch while downloading"))
+        self.action_schedule_download = QAction(QIcon(":/icons/cil-schedule.png"), self.tr("Schedule download"))
+        self.action_cancel_schedule = QAction(QIcon(":/icons/cil-x.png"), self.tr("Cancel schedule!"))
+        self.action_file_properties = QAction(QIcon(":/icons/cil-info.png"), self.tr("File Properties"))
+        self.action_add_to_queue = QAction(QIcon(":/icons/cil-medical-cross.png"), self.tr("Add to Queue"))
+        self.action_remove_from_queue = QAction(QIcon(":/icons/cil-minus.png"), self.tr("Remove from Queue"))
+        self.action_file_checksum = QAction(QIcon(':/icons/cil-info.png'), self.tr("File CheckSum!"))
         # Connect triggers
         self.action_open_file.triggered.connect(self.open_item)
         self.action_open_location.triggered.connect(self.open_file_location)
