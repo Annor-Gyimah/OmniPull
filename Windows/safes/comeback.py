@@ -1750,3 +1750,115 @@
     #     except Exception as e:
     #         log('Unexpected error:', e)
     #         self.finished.emit(None)
+
+
+
+
+
+
+# def run_ytdlp_download(d, emitter=None):
+#     log(f"[yt-dlp] Starting download: {d.name}")
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+    
+
+#     def progress_hook(info):
+#         if d.status == Status.cancelled:
+
+#             raise yt_dlp.utils.DownloadCancelled("User cancelled download.")
+
+#         if info["status"] == "downloading":
+#             percent = info.get("_percent_str", "0%").strip().replace('%', '')
+#             percent = re.sub(r'\x1b\[[0-9;]*m', '', percent)
+#             d._progress = float(percent)
+
+#             d.downloaded = info.get("downloaded_bytes", 0)
+#             d.size = info.get("total_bytes") or info.get("total_bytes_estimate", 0)
+
+#             # d._downloaded = info.get("downloaded_bytes", 0)
+#             # d._total_size = info.get("total_bytes") or info.get("total_bytes_estimate", 0)
+#             d._speed = info.get("speed", 0)
+#             d.remaining_time = info.get("eta", 0)
+
+#             if emitter:
+#                 emitter.progress_changed.emit(int(d._progress))
+#                 emitter.status_changed.emit("downloading")
+#                 emitter.log_updated.emit(
+#                     f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}"
+#                 )
+
+#         elif info["status"] == "finished":
+#             d.status = Status.completed
+#             d._progress = 100
+#             if emitter:
+#                 emitter.progress_changed.emit(100)
+#                 emitter.status_changed.emit("completed")
+#             delete_folder(d.temp_folder)
+#             #remove_metadata()
+#             notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
+#             log(f"[yt-dlp] Finished downloading: {d.name}")
+
+
+        
+
+#     output_path = os.path.join(d.folder, d.name)
+#     ffmpeg_path = os.path.join(config.sett_folder, "ffmpeg.exe")
+
+#     format_code = None
+#     if getattr(d, "format_id", None) and getattr(d, "audio_format_id", None):
+#         format_code = f"{d.format_id}+{d.audio_format_id}"
+#         log(f'There is video {d.format_id} and audio here {d.audio_format_id} and format code is {format_code}')
+#     elif getattr(d, "format_id", None):
+#         format_code = d.format_id  # fallback if no audio
+#         log(f'Falling back with no audio. {format_code}')
+
+#     if config.proxy:
+#         proxy_url = config.proxy
+#         if config.proxy_user and config.proxy_pass:
+#             # Inject basic auth into the proxy URL
+#             from urllib.parse import urlparse, urlunparse
+#             parsed = urlparse(proxy_url)
+#             proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
+
+#         ydl_opts['proxy'] = proxy_url
+
+
+
+#     ydl_opts = {
+#         "outtmpl": output_path,
+#         "progress_hooks": [progress_hook],
+#         "quiet": config.ytdlp_config["quiet"],
+#         "no_warnings": config.ytdlp_config["no_warnings"],
+#         "retries": config.ytdlp_config["retries"],
+#         "continuedl": True,  # resumes from partial
+#         "nopart": True,      # disable .part file
+#         "concurrent_fragment_downloads": config.ytdlp_config["concurrent_fragment_downloads"],
+#         "ffmpeg_location": ffmpeg_path,
+#         "format": format_code,
+#         "writeinfojson": config.ytdlp_config["writeinfojson"],
+#         "writedescription": config.ytdlp_config["writedescription"],
+#         "writeannotations": config.ytdlp_config["writeannotations"],
+#         "writemetadata": config.ytdlp_config["writemetadata"],
+#         "merge_output_format": config.ytdlp_config['merge_output_format'],  # Ensure proper format
+#         "proxy": proxy_url if config.proxy else None,
+    
+#         "cookiesfile": config.ytdlp_config["cookiesfile"],
+#     }
+
+#     try:
+#         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+#             ydl.download([d.url])
+#     except yt_dlp.utils.DownloadCancelled:
+#         log(f"[yt-dlp] Cancelled by user: {d.name}")
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[yt-dlp] Error: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+#     finally:
+#         log(f"[yt-dlp] Done processing {d.name}")
+#         if emitter:
+#             emitter.log_updated.emit(f"[yt-dlp] Done processing {d.name}")

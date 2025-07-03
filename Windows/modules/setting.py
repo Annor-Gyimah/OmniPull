@@ -71,7 +71,7 @@ def locate_setting_folder():
         try:
             os.makedirs(config.global_sett_folder, exist_ok=True)
         except Exception as e:
-            log(f"[Settings] Could not create global folder: {e}")
+            log(f"[Settings] Could not create global folder: {e}", log_level=3)
             return config.current_directory
 
     return config.global_sett_folder
@@ -139,9 +139,9 @@ def load_d_list():
             d.live_connections = 0
 
     except FileNotFoundError:
-        log('downloads.cfg file not found')
+        log('downloads.cfg file not found', log_level=3)
     except Exception as e:
-        log(f'load_d_list()>: {e}')
+        log(f'load_d_list()>: {e}', log_level=3)
     finally:
         if not isinstance(d_list, list):
             d_list = []
@@ -161,7 +161,7 @@ def save_d_list(d_list):
             try:
                 json.dump(data, f)
             except Exception as e:
-                print('error save d_list:', e)
+                log('error save d_list:', e)
         #log('list saved')
     except Exception as e:
         handle_exceptions(e)
@@ -170,13 +170,13 @@ def save_d_list(d_list):
 def load_setting():
     settings = {}
     try:
-        log('Load Application setting from', config.sett_folder)
+        log(f'Load Application setting from {config.sett_folder}', log_level=1)
         file = os.path.join(config.sett_folder, 'setting.cfg')
         with open(file, 'r') as f:
             settings = json.load(f)
 
     except FileNotFoundError:
-        log('setting.cfg not found')
+        log('setting.cfg not found', log_level=2)
     except Exception as e:
         handle_exceptions(e)
     finally:
@@ -215,7 +215,7 @@ def load_queues():
             return json.load(f)
 
     except Exception as e:
-        log(f"Error loading queues.cfg: {e}")
+        log(f"Error loading queues.cfg: {e}", log_level=3)
         return []
     
 
@@ -226,7 +226,7 @@ def save_queues(queues):
         with open(QUEUES_CFG_FILE, 'w') as f:
             json.dump(queues, f, indent=2)
     except Exception as e:
-        log(f"Error saving queues.cfg: {e}")
+        log(f"Error saving queues.cfg: {e}", log_level=3)
 
 # Example queue entry structure:
 # {

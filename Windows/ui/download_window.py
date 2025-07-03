@@ -1,12 +1,9 @@
 
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
-                               QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
-                               QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
-                               QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
-                               QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
+from PySide6.QtWidgets import ( 
+    QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
+    QHBoxLayout, QWidget, QFrame)
 
 from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
-import threading
 from modules.utils import truncate, size_format, size_splitter, time_format, log
 from modules import config
 
@@ -67,7 +64,8 @@ class DownloadWindow(QWidget):
         self._progress_mode = 'determinate'
         self.init_ui()
         self.resize(500, 330)
-        self.setWindowTitle("Download Window")
+        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+        self.setWindowTitle(self.tr("Download Window"))
         
 
     @property
@@ -140,10 +138,12 @@ class DownloadWindow(QWidget):
 
     def update_gui(self):
         name = truncate(self.d.name, 50)
-        out = (f"\n File: {name} \n"
-               f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
-               f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
-               f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
+        ug1, ug2, ug3, ug4 = self.tr('File:'), self.tr('Downloaded:'), self.tr('Speed:'), self.tr('Live Connections:')
+        ug5, ug6, ug7 = self.tr('out of'), self.tr('- Remaining parts:'), self.tr('left')
+        out = (f"\n {ug1} {name} \n"
+               f"\n {ug2} {size_format(self.d.downloaded)} {ug5} {size_format(self.d.total_size)} \n"
+               f"\n {ug3} {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} {ug7} \n"
+               f"\n {ug4} {self.d.live_connections} {ug6} {self.d.remaining_parts} \n")
         self.out_label.setText(out)
 
         if self.d.progress:
@@ -194,7 +194,7 @@ class DownloadWindow(QWidget):
             if hasattr(self, "timer") and self.timer.isActive():
                 self.timer.stop()
         except Exception as e:
-            log(f"[DownloadWindow] Failed to stop timer: {e}")
+            log(f"[DownloadWindow] Failed to stop timer: {e}", log_level=3)
 
         # try:
         #     self.disconnect()  # Only if you've connected custom signals manually

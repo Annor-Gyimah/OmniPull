@@ -87,10 +87,10 @@ def get_changelog():
 
             return latest_version, contents
         else:
-            log("check_for_update() --> couldn't check for update, url is unreachable")
+            log(f"check_for_update() --> couldn't check for update, url is unreachable", log_level=1)
             return None
     except httpx.RequestError as e:
-        log(f"An error occurred while fetching the changelog: {e}")
+        log(f"An error occurred while fetching the changelog: {e}", log_level=3)
         return None, None
     
     
@@ -133,20 +133,20 @@ def update():
 
     try:
         # Download update files to the temporary directory
-        log("Downloading update files...")
+        log(f"Downloading update files...", log_level=1)
         wget.download(update_script_url, update_script_path)
         wget.download(main_zip_url, download_path)
         if os.path.exists(cleanup_script_path):
             pass
         else:
             wget.download(cleanup_script_url, cleanup_script_path)
-        log("\nDownload completed.")
+        log(f"\nDownload completed.", log_level=1)
 
         # Extract the downloaded tar.gz file in the temporary directory
-        log("Extracting update package...")
+        log(f"Extracting update package...", log_level=1)
         with zipfile.ZipFile(download_path, 'r') as zip_ref:  # extract zip file
             zip_ref.extractall(temp_dir)
-        log("Extraction completed.")
+        log(f"Extraction completed.", log_level=1)
 
         source_file = os.path.join(temp_dir, "main.exe")
         update_command = f'"{update_script_path}" "{source_file}"'
@@ -191,16 +191,16 @@ def update():
                 shell=True,
                 check=True
             )
-            log("Update scheduled to run on the next reboot.")
+            log(f"Update scheduled to run on the next reboot.", log_level=3)
             config.confirm_update = True
             # end_time = current_time + timedelta(seconds=5)
             # popup(msg=f"Ending the application in {end_time}", title=config.APP_NAME, type_="quit_app")
 
         except subprocess.CalledProcessError as e:
-            log(f"Failed to schedule update: {e}")
+            log(f"Failed to schedule update: {e}", log_level=3)
             config.confirm_update = False
     except Exception as e:
-        log(f"An error occurred during update: {e}")
+        log(f"An error occurred during update: {e}", log_level=3)
         
         popup(
             msg="Windows Defender real-time protection is enabled. "

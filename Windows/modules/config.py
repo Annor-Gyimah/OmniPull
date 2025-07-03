@@ -20,6 +20,7 @@ APP_NAME = 'OmniPull'
 APP_VERSION = __version__ 
 APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
+APP_FONT_DPI = 120
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
 DEFAULT_THEME = 'DarkGrey2'
 DEFAULT_CONNECTIONS = 64
@@ -29,7 +30,7 @@ DEFAULT_CONCURRENT_CONNECTIONS = 3
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
 DEFAULT_LOG_LEVEL = 3
  
-APP_LATEST_VERSION = None  # get value from update module
+APP_LATEST_VERSION = ''  # get value from update module
 ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
 ytdl_LATEST_VERSION = None  # get value from update module
 
@@ -59,8 +60,10 @@ auto_close_download_window = True
 segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
 on_startup = False
+hide_app = False
 
 # connection / network
+enable_speed_limit = False
 speed_limit = 0  # in kbytes, zero == no limit  todo: make it in bytes instead of kb
 max_concurrent_downloads = DEFAULT_CONCURRENT_CONNECTIONS
 max_connections = DEFAULT_CONNECTIONS
@@ -78,6 +81,7 @@ update_frequency = 7  # 'every day'=1, every week=7, every month=30 and so on
 last_update_check = 0  # day number in the year range from 1 to 366
 update_frequency_map = {'every day': 1, 'every week': 7, 'every month': 30}
 confirm_update = False
+# version_check_number = None
 
 # proxy
 proxy = '1.34.120.197:46052'  # must be string example: 127.0.0.1:8080
@@ -92,6 +96,7 @@ log_entry = ''  # one log line
 max_log_size = 1024 * 1024 * 5  # 5 MB
 log_level = DEFAULT_LOG_LEVEL  # standard=1, verbose=2, debug=3
 log_recorder_q = Queue()
+show_all_logs = False
 # -------------------------------------------------------------------------------------
 
 # folders
@@ -165,9 +170,9 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme','machine_id', 'download_engine', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
-                 'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
-                 'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
+settings_keys = ['current_theme','machine_id', 'download_engine', 'APP_FONT_DPI', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+                 'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
+                 'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
                  'aria2_verified', 'ytdlp_config']
 

@@ -4,526 +4,949 @@
 <context>
     <name>DownloadManagerUI</name>
     <message>
-        <location filename="../../main.py" line="750"/>
+        <location filename="../../main.py" line="934"/>
         <source>Retry</source>
         <translation type="unfinished">다시 시도</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="751"/>
+        <location filename="../../main.py" line="935"/>
+        <location filename="../../main.py" line="951"/>
         <source>Open</source>
         <translation type="unfinished">열기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="752"/>
+        <location filename="../../main.py" line="936"/>
         <source>CHOOSE FOLDER</source>
         <translation type="unfinished">폴더 선택</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="753"/>
+        <location filename="../../main.py" line="937"/>
         <source>FILENAME</source>
         <translation type="unfinished">파일명</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="754"/>
+        <location filename="../../main.py" line="938"/>
         <source>Place download link here</source>
         <translation type="unfinished">여기에 다운로드 링크를 붙여넣으세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="755"/>
+        <location filename="../../main.py" line="939"/>
         <source>Filename goes here</source>
         <translation type="unfinished">파일 이름을 여기에 입력하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="756"/>
+        <location filename="../../main.py" line="940"/>
         <source>Playlist</source>
         <translation type="unfinished">재생목록</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="757"/>
-        <location filename="../../main.py" line="2062"/>
-        <location filename="../../main.py" line="2152"/>
+        <location filename="../../main.py" line="941"/>
+        <location filename="../../main.py" line="2139"/>
+        <location filename="../../main.py" line="2253"/>
+        <location filename="../../main.py" line="2383"/>
         <source>Download</source>
         <translation type="unfinished">다운로드</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="758"/>
+        <location filename="../../main.py" line="942"/>
         <source>Size:</source>
         <translation type="unfinished">크기:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="759"/>
-        <location filename="../../main.py" line="3387"/>
+        <location filename="../../main.py" line="943"/>
+        <location filename="../../main.py" line="3392"/>
         <source>Type:</source>
         <translation type="unfinished">유형:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="760"/>
-        <location filename="../../main.py" line="3388"/>
+        <location filename="../../main.py" line="944"/>
+        <location filename="../../main.py" line="3393"/>
         <source>Protocol:</source>
         <translation type="unfinished">프로토콜:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="761"/>
-        <location filename="../../main.py" line="3386"/>
+        <location filename="../../main.py" line="945"/>
+        <location filename="../../main.py" line="3391"/>
         <source>Resumable:</source>
         <translation type="unfinished">재개 가능:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1404"/>
+        <location filename="../../main.py" line="1524"/>
         <source>Folder Error</source>
         <translation type="unfinished">폴더 오류</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1412"/>
+        <location filename="../../main.py" line="1532"/>
         <source>destination folder</source>
         <translation type="unfinished">목적지 폴더</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1413"/>
+        <location filename="../../main.py" line="1533"/>
         <source>does not exist</source>
         <translation type="unfinished">존재하지 않음</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1413"/>
+        <location filename="../../main.py" line="1533"/>
         <source>Please enter a valid folder name</source>
         <translation type="unfinished">유효한 폴더 이름을 입력하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1418"/>
+        <location filename="../../main.py" line="1538"/>
         <source>you don&apos;t have enough permission for destination folder</source>
         <translation type="unfinished">목적지 폴더에 대한 권한이 충분하지 않습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1423"/>
+        <location filename="../../main.py" line="1543"/>
         <source>problem in destination folder</source>
         <translation type="unfinished">목적지 폴더에 문제가 있습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1427"/>
+        <location filename="../../main.py" line="1547"/>
+        <location filename="../../main.py" line="1722"/>
         <source>Download Error</source>
         <translation type="unfinished">다운로드 오류</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1427"/>
+        <location filename="../../main.py" line="1547"/>
         <source>File name is invalid. Please enter a valid filename</source>
         <translation type="unfinished">파일 이름이 유효하지 않습니다. 유효한 파일 이름을 입력하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1437"/>
         <source>File Overwrite</source>
-        <translation type="unfinished">파일 덮어쓰기</translation>
+        <translation type="obsolete">파일 덮어쓰기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1472"/>
+        <location filename="../../main.py" line="1590"/>
         <source>File with the same name:</source>
         <translation type="unfinished">같은 이름의 파일:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1473"/>
+        <location filename="../../main.py" line="1591"/>
         <source>already exists in download list</source>
         <translation type="unfinished">이미 다운로드 목록에 존재합니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1474"/>
+        <location filename="../../main.py" line="1592"/>
         <source>Do you want to resume this file?</source>
         <translation type="unfinished">이 파일을 재개하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1475"/>
+        <location filename="../../main.py" line="1593"/>
         <source>Resume ==&gt; continue if it has been partially downloaded ...</source>
         <translation type="unfinished">재개 ==&gt; 파일이 부분적으로 다운로드되었으면 계속 진행...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1476"/>
+        <location filename="../../main.py" line="1594"/>
         <source>Overwrite ==&gt; delete old downloads and overwrite existing item... </source>
         <translation type="unfinished">덮어쓰기 ==&gt; 이전 다운로드를 삭제하고 기존 항목을 덮어씁니다...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1477"/>
+        <location filename="../../main.py" line="1595"/>
         <source>Note: if you need a fresh download, you have to change file name </source>
         <translation type="unfinished">참고: 새 다운로드가 필요하면 파일 이름을 변경해야 합니다.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1478"/>
+        <location filename="../../main.py" line="1596"/>
         <source>or target folder, or delete the same entry from the download list.</source>
         <translation type="unfinished">또는 대상 폴더를 변경하거나 다운로드 목록에서 동일한 항목을 삭제해야 합니다.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1489"/>
+        <location filename="../../main.py" line="1607"/>
         <source>File Already Exists</source>
         <translation type="unfinished">파일이 이미 존재합니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1493"/>
+        <location filename="../../main.py" line="1611"/>
         <source>Resume</source>
         <translation type="unfinished">재개</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1443"/>
-        <location filename="../../main.py" line="1494"/>
+        <location filename="../../main.py" line="1612"/>
         <source>Overwrite</source>
         <translation type="unfinished">덮어쓰기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1433"/>
-        <source>File with the same name already exists in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1436"/>
-        <source>Do you want to overwrite the file?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1444"/>
-        <location filename="../../main.py" line="1495"/>
-        <location filename="../../main.py" line="2063"/>
-        <location filename="../../main.py" line="2153"/>
-        <location filename="../../main.py" line="3745"/>
+        <location filename="../../main.py" line="1613"/>
+        <location filename="../../main.py" line="2140"/>
+        <location filename="../../main.py" line="2271"/>
+        <location filename="../../main.py" line="2401"/>
+        <location filename="../../main.py" line="3840"/>
         <source>Cancel</source>
         <translation type="unfinished">취소</translation>
     </message>
     <message>
+        <location filename="../../main.py" line="1722"/>
         <source>Nothing to download</source>
-        <translation type="obsolete">다운로드할 항목이 없습니다</translation>
+        <translation type="unfinished">다운로드할 항목이 없습니다</translation>
     </message>
     <message>
         <source>It might be a web page or an invalid URL link. Check your link or click &quot;Retry&quot;.</source>
         <translation type="obsolete">웹 페이지이거나 유효하지 않은 URL 링크일 수 있습니다. 링크를 확인하거나 &quot;다시 시도&quot;를 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1698"/>
+        <location filename="../../main.py" line="1826"/>
         <source>Added to Queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1699"/>
-        <source>has been added to queue:</source>
+        <location filename="../../main.py" line="829"/>
+        <source>Clear Downloads</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1700"/>
+        <location filename="../../main.py" line="829"/>
+        <source>No completed downloads to clear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="829"/>
+        <source>All downloads are still active or paused.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="844"/>
+        <source>No completed downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="947"/>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="948"/>
+        <source>Export Downloads List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="949"/>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="952"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="954"/>
+        <source>Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="955"/>
+        <source>Resume All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="957"/>
+        <source>Clear Completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="960"/>
+        <source>View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="961"/>
+        <source>Refresh Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="962"/>
+        <source>Sort By</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="963"/>
+        <source>Sort by Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="964"/>
+        <source>Sort by Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="965"/>
+        <source>Sort by Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="967"/>
+        <source>Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="968"/>
+        <source>Settings</source>
+        <translation type="unfinished">설정</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="969"/>
+        <source>Browser Extension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="972"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="973"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="974"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="975"/>
+        <source>User Guide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1012"/>
+        <source>Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1013"/>
+        <source>has started automatically</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1013"/>
+        <source>Queue Scheduler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1432"/>
+        <source>Aria2c Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1433"/>
+        <source>This method is experimental and may not download or merge properly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1434"/>
+        <source>Do you want to continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1436"/>
+        <source>You selected Aria2c for downloading a YouTube video.
+{oyf1}
+
+{oyf2}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1722"/>
+        <source>Check your URL or click Retry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1731"/>
+        <location filename="../../main.py" line="1738"/>
+        <location filename="../../main.py" line="1757"/>
+        <location filename="../../main.py" line="1766"/>
+        <location filename="../../main.py" line="1788"/>
+        <location filename="../../main.py" line="1795"/>
+        <source>Queue Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1731"/>
+        <source>YouTube and streaming videos cannot be added to a queue. Please download directly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1738"/>
+        <source>Cannot add completed download to queue.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1738"/>
+        <source>This item has already been downloaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1754"/>
+        <source>This file already exists in queue:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1755"/>
+        <source>Please choose a different queue or rename the file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1765"/>
+        <source>A file cannot be in multiple queues. Please remove it from the other queue first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1775"/>
+        <source>File Exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1827"/>
+        <source>{item} has been added to queue:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1828"/>
         <source>Start it from the Queues Dialog.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1913"/>
-        <location filename="../../main.py" line="1925"/>
+        <location filename="../../main.py" line="1990"/>
+        <location filename="../../main.py" line="2002"/>
         <source>Playlist Download</source>
         <translation type="unfinished">재생목록 다운로드</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1914"/>
+        <location filename="../../main.py" line="1991"/>
         <source>Please check the URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1916"/>
+        <location filename="../../main.py" line="1993"/>
         <source>Playlist is empty, nothing to download.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2004"/>
+        <location filename="../../main.py" line="2081"/>
         <source>Select All</source>
         <translation type="unfinished">전체 선택</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2008"/>
+        <location filename="../../main.py" line="2085"/>
         <source>Apply to all:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2123"/>
-        <location filename="../../main.py" line="2184"/>
+        <location filename="../../main.py" line="2132"/>
+        <source>Please click on the video streams to select the video resolution and then click on the checkboxes to select the video in this playlist and click on &apos;Download&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2205"/>
+        <location filename="../../main.py" line="2319"/>
         <source>FFmpeg is missing</source>
         <translation type="unfinished">FFmpeg이 없습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2129"/>
+        <location filename="../../main.py" line="2230"/>
         <source>&quot;ffmpeg&quot; is missing!! and needs to be downloaded:</source>
         <translation type="unfinished">&quot;ffmpeg&quot;이 없습니다!! 다운로드가 필요합니다:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2133"/>
+        <location filename="../../main.py" line="2234"/>
+        <location filename="../../main.py" line="2364"/>
         <source>Recommended:</source>
         <translation type="unfinished">추천:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2134"/>
+        <location filename="../../main.py" line="2235"/>
+        <location filename="../../main.py" line="2365"/>
         <source>Local folder:</source>
         <translation type="unfinished">로컬 폴더:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2181"/>
+        <location filename="../../main.py" line="2316"/>
         <source>&quot;ffmpeg&quot; is required to merge an audio stream with your video.</source>
         <translation type="unfinished">&quot;ffmpeg&quot;은 오디오 스트림을 비디오와 결합하는 데 필요합니다.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2181"/>
+        <location filename="../../main.py" line="2316"/>
+        <location filename="../../main.py" line="2444"/>
         <source>Executable must be found at</source>
         <translation type="unfinished">실행 파일은 다음 위치에 있어야 합니다:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2182"/>
+        <location filename="../../main.py" line="2317"/>
         <source>folder or add the ffmpeg path to system PATH.</source>
         <translation type="unfinished">폴더 또는 ffmpeg 경로를 시스템 PATH에 추가하세요.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2183"/>
+        <location filename="../../main.py" line="2318"/>
         <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install ffmpeg&apos; on Linux or &apos;brew install ffmpeg&apos; on MacOS.</source>
         <translation type="unfinished">Linux에서는 &apos;sudo apt-get update&apos;와 &apos;sudo apt-get install ffmpeg&apos;를 실행하고, MacOS에서는 &apos;brew install ffmpeg&apos;를 실행하세요.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2759"/>
-        <location filename="../../main.py" line="2808"/>
-        <location filename="../../main.py" line="2841"/>
-        <location filename="../../main.py" line="2898"/>
-        <location filename="../../main.py" line="2938"/>
-        <location filename="../../main.py" line="2957"/>
-        <location filename="../../main.py" line="3446"/>
-        <location filename="../../main.py" line="3676"/>
+        <location filename="../../main.py" line="2335"/>
+        <location filename="../../main.py" line="2447"/>
+        <source>aria2c is missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2360"/>
+        <source>&quot;aria2c&quot; is missing!! and needs to be downloaded:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2444"/>
+        <source>&quot;aria2c&quot; is required to download files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2445"/>
+        <source>folder or add the aria2c path to system PATH.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2446"/>
+        <source>Please do &apos;sudo apt-get update&apos; and &apos;sudo apt-get install aria2&apos; on Linux or &apos;brew install aria2&apos; on MacOS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2527"/>
+        <location filename="../../main.py" line="2596"/>
+        <location filename="../../main.py" line="2697"/>
+        <location filename="../../main.py" line="2748"/>
+        <location filename="../../main.py" line="2806"/>
+        <location filename="../../main.py" line="2845"/>
+        <location filename="../../main.py" line="2933"/>
+        <location filename="../../main.py" line="3319"/>
+        <location filename="../../main.py" line="3351"/>
+        <location filename="../../main.py" line="3368"/>
         <source>Error</source>
         <translation type="unfinished">오류</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2759"/>
+        <location filename="../../main.py" line="2527"/>
         <source>Could not refresh stream info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2808"/>
-        <location filename="../../main.py" line="2938"/>
-        <location filename="../../main.py" line="2957"/>
-        <location filename="../../main.py" line="3676"/>
+        <location filename="../../main.py" line="2596"/>
+        <location filename="../../main.py" line="2697"/>
+        <location filename="../../main.py" line="2845"/>
+        <location filename="../../main.py" line="2933"/>
+        <location filename="../../main.py" line="3319"/>
+        <location filename="../../main.py" line="3351"/>
+        <location filename="../../main.py" line="3368"/>
         <source>No download item selected</source>
         <translation type="unfinished">다운로드 항목이 선택되지 않았습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2841"/>
-        <location filename="../../main.py" line="2900"/>
+        <location filename="../../main.py" line="2748"/>
+        <location filename="../../main.py" line="2808"/>
         <source>Can&apos;t delete items while downloading. Stop or cancel all downloads first!</source>
         <translation type="unfinished">다운로드 중에는 항목을 삭제할 수 없습니다. 모든 다운로드를 중지하거나 취소하세요!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2845"/>
-        <location filename="../../main.py" line="3298"/>
+        <location filename="../../main.py" line="2752"/>
+        <location filename="../../main.py" line="3252"/>
         <source>Warning!!!</source>
         <translation type="unfinished">경고!!!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2846"/>
+        <location filename="../../main.py" line="2753"/>
         <source>Are you sure you want to delete these items?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2850"/>
+        <location filename="../../main.py" line="2757"/>
         <source>Delete files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2880"/>
+        <location filename="../../main.py" line="2787"/>
         <source>File:</source>
         <translation type="unfinished">파일:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2881"/>
+        <location filename="../../main.py" line="2788"/>
         <source>has been deleted.</source>
         <translation type="unfinished">삭제되었습니다.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2905"/>
+        <location filename="../../main.py" line="2813"/>
         <source>Delete all items and their progress temp files</source>
         <translation type="unfinished">모든 항목과 진행 중인 임시 파일을 삭제하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2906"/>
+        <location filename="../../main.py" line="2814"/>
         <source>Type the word &apos;delete&apos; and hit OK to proceed.</source>
         <translation type="unfinished">&apos;delete&apos;를 입력하고 확인을 눌러 진행하세요.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2910"/>
+        <location filename="../../main.py" line="2818"/>
         <source>Warning!!</source>
         <translation type="unfinished">경고!!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3044"/>
+        <location filename="../../main.py" line="956"/>
+        <location filename="../../main.py" line="2870"/>
+        <source>Stop All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2870"/>
+        <source>There are no active downloads to stop.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2875"/>
+        <source>Stop All Downloads?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2876"/>
+        <source>Some downloads are currently active (Downloading, Pending, Merging).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2877"/>
+        <source>Do you want to stop all?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2891"/>
+        <source>Stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2891"/>
+        <source>All active downloads have been cancelled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="2908"/>
         <source>No Downloads to Schedule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3045"/>
+        <location filename="../../main.py" line="2909"/>
         <source>No valid downloads found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3047"/>
+        <location filename="../../main.py" line="2911"/>
         <source>There are currently no downloads with status &apos;Pending&apos; or &apos;Cancelled&apos; that can be scheduled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3051"/>
+        <location filename="../../main.py" line="2915"/>
         <source>Download scheduled for...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3063"/>
+        <location filename="../../main.py" line="2927"/>
         <source>Schedule Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3070"/>
+        <location filename="../../main.py" line="3141"/>
         <source>Open File</source>
         <translation type="unfinished">파일 열기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3071"/>
+        <location filename="../../main.py" line="3142"/>
+        <source>Open File With</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3143"/>
         <source>Open File Location</source>
         <translation type="unfinished">파일 위치 열기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3072"/>
+        <location filename="../../main.py" line="3144"/>
         <source>Watch while downloading</source>
         <translation type="unfinished">다운로드 중에 보기</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3073"/>
+        <location filename="../../main.py" line="3145"/>
         <source>Schedule download</source>
         <translation type="unfinished">다운로드 예약</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3074"/>
+        <location filename="../../main.py" line="3146"/>
         <source>Cancel schedule!</source>
         <translation type="unfinished">예약 취소!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3075"/>
-        <location filename="../../main.py" line="3400"/>
+        <location filename="../../main.py" line="3147"/>
+        <location filename="../../main.py" line="3405"/>
         <source>File Properties</source>
         <translation type="unfinished">파일 속성</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3077"/>
+        <location filename="../../main.py" line="3148"/>
         <source>Add to Queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3078"/>
+        <location filename="../../main.py" line="3149"/>
         <source>Remove from Queue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3298"/>
+        <location filename="../../main.py" line="3150"/>
+        <source>File CheckSum!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3151"/>
+        <source>Delete from Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3250"/>
+        <location filename="../../main.py" line="3265"/>
+        <location filename="../../main.py" line="3287"/>
+        <source>File Not Found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3250"/>
+        <source>The selected file could not be found or has been deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3252"/>
         <source>This download is not yet completed</source>
         <translation type="unfinished">이 다운로드는 아직 완료되지 않았습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3381"/>
+        <location filename="../../main.py" line="3265"/>
+        <source>The file does not exist:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3287"/>
+        <source>The selected file has been deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3289"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3289"/>
+        <source>This download is not yet completed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3300"/>
+        <source>Too Early</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3300"/>
+        <source>Please wait until at least &apos;30%&apos; is downloaded before watching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3386"/>
         <source>Name:</source>
         <translation type="unfinished">이름：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3382"/>
+        <location filename="../../main.py" line="3387"/>
         <source>Folder:</source>
         <translation type="unfinished">폴더：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3383"/>
+        <location filename="../../main.py" line="3388"/>
         <source>Progress:</source>
         <translation type="unfinished">진행 상황：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3384"/>
+        <location filename="../../main.py" line="3389"/>
         <source>Total size:</source>
         <translation type="unfinished">전체 크기：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3385"/>
+        <location filename="../../main.py" line="3390"/>
         <source>Status:</source>
         <translation type="unfinished">상태：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3390"/>
+        <location filename="../../main.py" line="3395"/>
         <source>Webpage url:</source>
         <translation type="unfinished">웹페이지 URL：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3445"/>
         <source>Error while creating global settings folder</source>
-        <translation type="unfinished">전역 설정 폴더 생성 중 오류</translation>
+        <translation type="obsolete">전역 설정 폴더 생성 중 오류</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3446"/>
         <source>Local folder will be used instead</source>
-        <translation type="unfinished">로컬 폴더가 대신 사용됩니다</translation>
+        <translation type="obsolete">로컬 폴더가 대신 사용됩니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3682"/>
+        <location filename="../../main.py" line="2939"/>
         <source>To open download window offline</source>
         <translation type="unfinished">오프라인 상태에서 다운로드 창을 열려면</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3683"/>
+        <location filename="../../main.py" line="2940"/>
         <source>go to setting tab, then uncheck auto close download window</source>
         <translation type="unfinished">설정 탭으로 이동한 후 다운로드 창 자동 종료 옵션을 해제하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3683"/>
+        <location filename="../../main.py" line="2940"/>
         <source>Information</source>
         <translation type="unfinished">정보</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3706"/>
+        <location filename="../../main.py" line="3410"/>
+        <location filename="../../main.py" line="3462"/>
+        <location filename="../../main.py" line="3485"/>
+        <location filename="../../main.py" line="3597"/>
+        <source>No Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3410"/>
+        <source>Please select a download to add to the queue.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3421"/>
+        <source>Streaming Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3421"/>
+        <source>Streaming or YouTube downloads cannot be added to Queues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3426"/>
+        <source>No Queues Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3428"/>
+        <source>You haven&apos;t created any queues yet. Please create one from the Queue Manager.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3434"/>
+        <source>Select Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3435"/>
+        <source>Choose a queue to add to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3462"/>
+        <source>Please select a download to remove from the queue.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3485"/>
+        <source>Please select a completed download first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3493"/>
+        <source>Invalid Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3493"/>
+        <source>Checksum is only available for completed downloads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3503"/>
+        <source>Checksum Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3503"/>
+        <source>Failed to compute checksum for file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3539"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3558"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3586"/>
+        <source>COPIED !!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3597"/>
+        <source>Please select a download to remove.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="3755"/>
         <source>Current version: </source>
         <translation type="unfinished">현재 버전: </translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3707"/>
+        <location filename="../../main.py" line="3756"/>
         <source>Server version: </source>
         <translation type="unfinished">서버 버전: </translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3708"/>
-        <location filename="../../main.py" line="3716"/>
+        <location filename="../../main.py" line="3757"/>
+        <location filename="../../main.py" line="3765"/>
         <source>App Update</source>
         <translation type="unfinished">앱 업데이트</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3709"/>
+        <location filename="../../main.py" line="3758"/>
         <source>App is up-to-date</source>
         <translation type="unfinished">앱이 최신 상태입니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3714"/>
+        <location filename="../../main.py" line="3763"/>
         <source>Couldn&apos;t check for update</source>
         <translation type="unfinished">업데이트를 확인할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3715"/>
+        <location filename="../../main.py" line="3764"/>
         <source>Check your internet connection</source>
         <translation type="unfinished">인터넷 연결을 확인하세요</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3725"/>
+        <location filename="../../main.py" line="3801"/>
         <source>Update Application</source>
         <translation type="unfinished">애플리케이션 업데이트</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3732"/>
+        <location filename="../../main.py" line="3808"/>
         <source>New version available:</source>
         <translation type="unfinished">새로운 버전이 있습니다:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3744"/>
+        <location filename="../../main.py" line="3820"/>
         <source>Update</source>
         <translation type="unfinished">업데이트</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3777"/>
+        <location filename="../../main.py" line="3889"/>
         <source>Update scheduled to run on the next reboot.</source>
         <translation type="unfinished">업데이트는 다음 재부팅 시 실행되도록 예약되었습니다.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3777"/>
+        <location filename="../../main.py" line="3889"/>
         <source>Please you can reboot now to install updates.</source>
         <translation type="unfinished">이제 업데이트를 설치하려면 재부팅하세요.</translation>
     </message>
@@ -536,161 +959,728 @@
     </message>
 </context>
 <context>
+    <name>QueueDialog</name>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="182"/>
+        <source>General</source>
+        <translation type="unfinished">일반</translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="186"/>
+        <source>Queue name is:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="199"/>
+        <source>Automatic Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="206"/>
+        <source>Scheduler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="208"/>
+        <source>Enable Scheduler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="211"/>
+        <source>Auto Start Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="234"/>
+        <source>Pos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="234"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="234"/>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="234"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="234"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="271"/>
+        <source>Move Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="272"/>
+        <source>Move Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="283"/>
+        <source>Config</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="284"/>
+        <source>Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="287"/>
+        <location filename="../../ui/queue_dialog.py" line="621"/>
+        <location filename="../../ui/queue_dialog.py" line="679"/>
+        <location filename="../../ui/queue_dialog.py" line="692"/>
+        <location filename="../../ui/queue_dialog.py" line="700"/>
+        <location filename="../../ui/queue_dialog.py" line="756"/>
+        <location filename="../../ui/queue_dialog.py" line="864"/>
+        <source>Start Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="289"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="335"/>
+        <location filename="../../ui/queue_dialog.py" line="379"/>
+        <source>Duplicate Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="335"/>
+        <source>A queue with this name already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="378"/>
+        <source>A queue named</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="379"/>
+        <source>already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="525"/>
+        <source>Queue Deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="525"/>
+        <source>Queue was successfully deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="608"/>
+        <location filename="../../ui/queue_dialog.py" line="675"/>
+        <location filename="../../ui/queue_dialog.py" line="715"/>
+        <source>Stop Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="691"/>
+        <source>Empty Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="691"/>
+        <source>This queue has no downloads to start.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="699"/>
+        <source>Nothing to Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="699"/>
+        <source>All items are completed or failed. Nothing to download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="815"/>
+        <source>Are you sure want to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="816"/>
+        <source>from this queue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/queue_dialog.py" line="818"/>
+        <source>Confirm Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ScheduleDialog</name>
     <message>
         <source>Scheduling Download Item</source>
         <translation type="vanished">다운로드 항목 예약</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3821"/>
         <source>Schedule Download</source>
-        <translation>다운로드 예약</translation>
+        <translation type="vanished">다운로드 예약</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3891"/>
         <source>Hours:</source>
-        <translation>시간:</translation>
+        <translation type="vanished">시간:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3897"/>
         <source>Minutes:</source>
-        <translation>분:</translation>
+        <translation type="vanished">분:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3916"/>
         <source>Ok</source>
-        <translation>확인</translation>
+        <translation type="vanished">확인</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3920"/>
         <source>Cancel</source>
-        <translation>취소</translation>
+        <translation type="vanished">취소</translation>
     </message>
 </context>
 <context>
     <name>SettingsWindow</name>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="507"/>
+        <location filename="../../ui/setting_dialog.py" line="175"/>
+        <location filename="../../ui/setting_dialog.py" line="894"/>
         <source>Monitor Copied URLs</source>
         <translation>복사된 URL 모니터링</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="497"/>
+        <location filename="../../ui/setting_dialog.py" line="18"/>
+        <location filename="../../ui/setting_dialog.py" line="884"/>
         <source>Settings</source>
         <translation>설정</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="502"/>
+        <location filename="../../ui/setting_dialog.py" line="59"/>
+        <location filename="../../ui/setting_dialog.py" line="352"/>
+        <location filename="../../ui/setting_dialog.py" line="451"/>
+        <location filename="../../ui/setting_dialog.py" line="888"/>
         <source>General</source>
         <translation>일반</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="503"/>
         <source>Connection</source>
-        <translation>연결</translation>
+        <translation type="vanished">연결</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="504"/>
+        <location filename="../../ui/setting_dialog.py" line="60"/>
+        <location filename="../../ui/setting_dialog.py" line="889"/>
+        <source>Engine Config</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="61"/>
+        <location filename="../../ui/setting_dialog.py" line="890"/>
         <source>Browser</source>
         <translation>브라우저</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="505"/>
+        <location filename="../../ui/setting_dialog.py" line="62"/>
+        <location filename="../../ui/setting_dialog.py" line="891"/>
         <source>Updates</source>
         <translation>업데이트</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="508"/>
+        <location filename="../../ui/setting_dialog.py" line="94"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="115"/>
+        <source>Cancel</source>
+        <translation type="unfinished">취소</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="176"/>
+        <source>Check to monitor clipboard for copied URLS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="177"/>
+        <location filename="../../ui/setting_dialog.py" line="895"/>
         <source>Show Download Window</source>
         <translation>다운로드 창 표시</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="509"/>
+        <location filename="../../ui/setting_dialog.py" line="178"/>
+        <source>Check to show download window whilst downloading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="183"/>
+        <location filename="../../ui/setting_dialog.py" line="896"/>
         <source>Auto Close DL Window</source>
         <translation>다운로드 창 자동 닫기</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="510"/>
+        <location filename="../../ui/setting_dialog.py" line="184"/>
+        <source>Check to close the download window when download is done.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="185"/>
+        <location filename="../../ui/setting_dialog.py" line="897"/>
         <source>Show Thumbnail</source>
         <translation>썸네일 표시</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="511"/>
+        <location filename="../../ui/setting_dialog.py" line="186"/>
+        <source>Check to show downloaded thumbnail of download item during URL processing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="191"/>
+        <location filename="../../ui/setting_dialog.py" line="898"/>
         <source>On Startup</source>
         <translation>시작 시</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="513"/>
+        <location filename="../../ui/setting_dialog.py" line="192"/>
+        <source>Check for app to autostart when PC booted to desktop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="193"/>
+        <location filename="../../ui/setting_dialog.py" line="899"/>
+        <source>Show all logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="194"/>
+        <source>Check to see all logs regardless the level.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="206"/>
+        <location filename="../../ui/setting_dialog.py" line="900"/>
+        <location filename="../../ui/setting_dialog.py" line="915"/>
+        <source>Use Proxy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="212"/>
+        <source>Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="214"/>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="215"/>
+        <source>Enable proxy for downloads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="216"/>
+        <source>Enter the proxy address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="217"/>
+        <source>Select the proxy type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="235"/>
+        <source>Proxy Username:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="237"/>
+        <source>Proxy Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="273"/>
+        <source>Enable speed limit for curl downloads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="275"/>
+        <location filename="../../ui/setting_dialog.py" line="912"/>
+        <source>e.g., 50k, 10k...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="276"/>
+        <source>Set a speed limit for curl downloads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="295"/>
+        <location filename="../../ui/setting_dialog.py" line="910"/>
+        <source>Max Connections Settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="304"/>
+        <location filename="../../ui/setting_dialog.py" line="911"/>
+        <source>Segment Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="307"/>
+        <source>Set the segment size for curl downloads.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="310"/>
+        <source>Select the unit for segment size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="335"/>
+        <source>Max retries:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="338"/>
+        <source>Interval (Days):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="357"/>
+        <source>Output Template:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="359"/>
+        <source>Set the naming format for downloaded files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="365"/>
+        <source>Download Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="368"/>
+        <source>Select which format yt-dlp should download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="374"/>
+        <source>Proxy:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="377"/>
+        <source>Optional: Use a proxy for downloading.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="381"/>
+        <source>Path to ffmpeg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="382"/>
+        <source>Path to ffmpeg executable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="387"/>
+        <source>Concurrent Fragments:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="391"/>
+        <source>Number of parallel connections used by yt-dlp.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="394"/>
+        <source>Retries:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="401"/>
+        <source>Quiet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="402"/>
+        <source>Suppress output messages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="403"/>
+        <source>Write Metadata</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="404"/>
+        <source>Add metadata (e.g., title, artist) to the file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="405"/>
+        <source>Write Info JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="406"/>
+        <source>Save video metadata in JSON format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="407"/>
+        <source>Write Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="408"/>
+        <source>Save video description in a separate file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="409"/>
+        <source>Write Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="410"/>
+        <source>Save video annotations in a separate file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="411"/>
+        <source>No Warnings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="412"/>
+        <source>Suppress warnings during download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="426"/>
+        <source>Path to cookies.txt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="427"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="428"/>
+        <source>Select cookies.txt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="428"/>
+        <source>Text Files (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="430"/>
+        <source>Cookies File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="456"/>
+        <source>Max connections per server:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="460"/>
+        <source>Max simultaneous connections per download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="465"/>
+        <source>Enable DHT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="466"/>
+        <source>Enable peer discovery via DHT for torrents.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="467"/>
+        <source>Follow torrent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="468"/>
+        <source>Automatically follow and fetch data from .torrent files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="472"/>
+        <source>Session Save Interval (s):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="476"/>
+        <source>How often to save active downloads to session file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="486"/>
+        <source>Preallocation method: none, prealloc, trunc, falloc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="492"/>
+        <source>Download Split Parts:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="496"/>
+        <source>Split each download into this number of parts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="502"/>
+        <source>RPC Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="506"/>
+        <source>Port for the internal aria2c RPC server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="534"/>
+        <source>Enable Browser Integration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="549"/>
+        <source>App Version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="901"/>
+        <location filename="../../ui/setting_dialog.py" line="916"/>
+        <source>Enter proxy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="902"/>
+        <source>http</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="903"/>
+        <source>https</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="904"/>
+        <source>socks5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="913"/>
         <source>KB</source>
         <translation>KB</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="514"/>
+        <location filename="../../ui/setting_dialog.py" line="914"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="517"/>
+        <location filename="../../ui/setting_dialog.py" line="272"/>
+        <location filename="../../ui/setting_dialog.py" line="908"/>
         <source>Speed Limit</source>
         <translation>속도 제한</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="518"/>
         <source>Proxy</source>
-        <translation>프록시</translation>
+        <translation type="vanished">프록시</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="519"/>
         <source>Enter a proxy address and select its type. Example: 127.0.0.1:8080</source>
-        <translation>프록시 주소를 입력하고 유형을 선택하세요. 예: 127.0.0.1:8080</translation>
+        <translation type="vanished">프록시 주소를 입력하고 유형을 선택하세요. 예: 127.0.0.1:8080</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="520"/>
+        <location filename="../../ui/setting_dialog.py" line="317"/>
+        <location filename="../../ui/setting_dialog.py" line="917"/>
         <source>Retry failed scheduled downloads</source>
         <translation>실패한 예약 다운로드 재시도</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="523"/>
+        <location filename="../../ui/setting_dialog.py" line="286"/>
+        <location filename="../../ui/setting_dialog.py" line="909"/>
         <source>Max Concurrent Downloads:</source>
         <translation>최대 동시 다운로드 수:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="524"/>
         <source>Max Connection Settings:</source>
-        <translation>최대 연결 설정:</translation>
+        <translation type="vanished">최대 연결 설정:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="527"/>
+        <location filename="../../ui/setting_dialog.py" line="550"/>
+        <location filename="../../ui/setting_dialog.py" line="928"/>
         <source>Check for update</source>
         <translation>업데이트 확인</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="528"/>
+        <location filename="../../ui/setting_dialog.py" line="553"/>
+        <location filename="../../ui/setting_dialog.py" line="929"/>
         <source>Check for update every (days):</source>
         <translation>매 (일)마다 업데이트 확인:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="531"/>
+        <location filename="../../ui/setting_dialog.py" line="932"/>
         <source>Choose Language:</source>
         <translation>언어 선택:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="532"/>
+        <location filename="../../ui/setting_dialog.py" line="933"/>
         <source>Choose Setting:</source>
         <translation>설정 선택:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="579"/>
+        <location filename="../../ui/setting_dialog.py" line="957"/>
+        <source>Folder:</source>
+        <translation type="unfinished">폴더：</translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="958"/>
+        <source>will be created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="959"/>
+        <source>Create Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../ui/setting_dialog.py" line="972"/>
         <source>Error while creating global settings folder</source>
         <translation type="unfinished">전역 설정 폴더 생성 중 오류</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="580"/>
+        <location filename="../../ui/setting_dialog.py" line="973"/>
         <source>Local folder will be used instead</source>
         <translation type="unfinished">로컬 폴더가 대신 사용됩니다</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="580"/>
+        <location filename="../../ui/setting_dialog.py" line="974"/>
         <source>Error</source>
         <translation type="unfinished">오류</translation>
     </message>

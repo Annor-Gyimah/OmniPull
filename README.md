@@ -5,10 +5,14 @@
 </p>
 
 <div align="center">
-    
-    [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-    [![Python](https://img.shields.io/badge/python-3.8+-blue)](https://python.org)
-    [![PySide6](https://img.shields.io/badge/PySide6-6.0+-green)](https://wiki.qt.io/Qt_for_Python)
+
+[![Build Status](https://github.com/soimort/you-get/workflows/develop/badge.svg)](https://github.com/soimort/you-get/actions)
+
+[![PyPI version](https://badge.fury.io/py/ytsage.svg)](https://badge.fury.io/py/ytsage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Downloads](https://static.pepy.tech/badge/ytsage)](https://pepy.tech/project/ytsage)
+[![Total Downloads](https://static.pepy.tech/badge/ytsage/month)](https://pepy.tech/project/ytsage)
     
 </div>
 

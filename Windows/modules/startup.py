@@ -17,7 +17,7 @@ def checkStartUp():
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
         # check if the startup exists
-        if os.path.exists(home_address + "/.config/autostart/main.desktop"):
+        if os.path.exists(home_address + "/.config/autostart/omnipull.desktop"):
             return True
         else:
             return False
@@ -57,18 +57,18 @@ def addStartUp():
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
         entry = '''
-[Desktop Entry]
-Name=Dynamite Download Manager
-Comment=Download Manager
-GenericName=Download Manager
-Keywords=Internet;WWW;Web;
-Terminal=false
-Type=Application
-Categories=Qt;Network;
-StartupNotify=true
-Exec=/opt/main/main --tray
-Icon=Dynamite
-Path=/opt/main
+            [Desktop Entry]
+            Name=Dynamite Download Manager
+            Comment=Download Manager
+            GenericName=Download Manager
+            Keywords=Internet;WWW;Web;
+            Terminal=false
+            Type=Application
+            Categories=Qt;Network;
+            StartupNotify=true
+            Exec=/opt/main/main --tray
+            Icon=Dynamite
+            Path=/opt/main
         '''
 
         # check if the autostart directory exists & create entry
@@ -132,7 +132,7 @@ def removeStartUp():
     # check if it is linux
     if os_type in OS.UNIX_LIKE:
         # remove it
-        os.remove(home_address + "/.config/autostart/main.desktop")
+        os.remove(home_address + "/.config/autostart/omnipull.desktop")
 
     # check if it is mac OS
     elif os_type == OS.OSX:
