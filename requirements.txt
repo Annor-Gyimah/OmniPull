@@ -1,0 +1,10 @@
+beautifulsoup4==4.13.4
+getmac==0.9.5
+plyer==2.1.0
+psutil==7.0.0
+pycurl==7.45.6
+pyperclip==1.9.0
+pywin32==310
+Requests==2.32.4
+wget==3.2
+yt_dlp==2025.6.9

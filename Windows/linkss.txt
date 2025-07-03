@@ -37,5 +37,10 @@ https://youtu.be/aknpen3j7yk
 
 https://www.youtube.com/watch?v=FNbIGbX9-Ak&list=RDEMBQN5z0khgQcV8OPC2LwX7A
 
+https://www.linuxmint.com/torrents/linuxmint-22.1-cinnamon-64bit.iso.torrent
+
+
+pyinstaller update_service.py --onefile --noconsole --hidden-import=win32timezone --hidden-import=win32com
+
 
 How do I use Cython or Rust bindings in python and also Native modules via cytpes or cffi

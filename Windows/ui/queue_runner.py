@@ -24,7 +24,7 @@ class QueueRunner(QObject):
         self.start_next()
 
     def start_next(self):
-        log(f"[QueueRunner] start_next() called at index: {self.index}")
+        log(f"[QueueRunner] start_next() called at index: {self.index}", log_level=2)
 
         while self.index < len(self.queue_items):
             d = self.queue_items[self.index]
@@ -33,12 +33,12 @@ class QueueRunner(QObject):
             self.index += 1
 
         if self.index >= len(self.queue_items):
-            log(f"[QueueRunner] Queue {self.queue_id} completed.")
+            log(f"[QueueRunner] Queue {self.queue_id} completed.", log_level=2)
             self.queue_finished.emit(self.queue_id)
             return
 
         d = self.queue_items[self.index]
-        log(f"[QueueRunner] Starting download for: {d.name} (index {self.index})")
+        log(f"[QueueRunner] Starting download for: {d.name} (index {self.index})", log_level=2)
         
         self.download_started.emit(d)
 
@@ -54,8 +54,8 @@ class QueueRunner(QObject):
         thread.started.connect(worker.run)
         thread.finished.connect(thread.deleteLater)
 
-        log(f"[QueueRunner] Thread object: {thread}, Worker: {worker}")
-        log(f"[QueueRunner] thread.isRunning: {thread.isRunning()}")
+        log(f"[QueueRunner] Thread object: {thread}, Worker: {worker}", log_level=2)
+        log(f"[QueueRunner] thread.isRunning: {thread.isRunning()}", log_level=2)
 
         thread.start()
 
@@ -64,7 +64,7 @@ class QueueRunner(QObject):
         #     self._show_popup(d, worker)
         # DEBUGGING SIGNALS
         def log_unhandled_thread_error():
-            log(f"[QueueRunner] Thread {d.name} finished unexpectedly without emitting signal.")
+            log(f"[QueueRunner] Thread {d.name} finished unexpectedly without emitting signal.", log_level=2)
 
         thread.finished.connect(log_unhandled_thread_error)
         self.threads.append(thread)
@@ -102,7 +102,7 @@ class QueueRunner(QObject):
         #     QTimer.singleShot(300, show_window)
 
     def handle_finished(self, d):
-        log(f"[QueueRunner] Successfully finished: {d.name}")
+        log(f"[QueueRunner] Successfully finished: {d.name}", log_level=2)
         self._close_window(d)
 
         self.download_finished.emit(d)
@@ -113,7 +113,7 @@ class QueueRunner(QObject):
         self.start_next()
 
     def handle_failed(self, d):
-        log(f"[QueueRunner] Download failed or cancelled: {d.name}")
+        log(f"[QueueRunner] Download failed or cancelled: {d.name}", log_level=2)
         self._close_window(d)
 
         self.download_failed.emit(d)
@@ -134,7 +134,7 @@ class QueueRunner(QObject):
                     win = main_window.download_windows.pop(d.id)
                     win.close()
                 except Exception as e:
-                    log(f"[QueueRunner] Failed to close DownloadWindow for {d.name}: {e}")
+                    log(f"[QueueRunner] Failed to close DownloadWindow for {d.name}: {e}", log_level=2)
 
 
     def _show_popup(self, d, worker):

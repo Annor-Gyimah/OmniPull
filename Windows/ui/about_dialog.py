@@ -128,7 +128,8 @@ class AboutDialog(QDialog):
         label1 = QLabel("OmniPull")
         label1.setObjectName("Title")
 
-        label2 = QLabel("ODM is a python open source Internet Download Manager with multi-connections,\nhigh speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.")
+        ab1, ab2 = self.tr('ODM is a python open source Internet Download Manager with multi-connections'), self.tr('high speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.')
+        label2 = QLabel(f"{ab1},\n {ab2}")
         label2.setWordWrap(True)
 
         label3 = QLabel("GPL v2 License")
@@ -139,6 +140,8 @@ class AboutDialog(QDialog):
         # Icon bar (5 icons)
         icon_bar = QHBoxLayout()
         icon_bar.setSpacing(12)
+
+        icon_list = {}
 
         icon_map = {
             "github": "icons/github.png",
@@ -164,6 +167,14 @@ class AboutDialog(QDialog):
             """)
             if os.path.exists(icon):
                 btn.setIcon(QIcon(icon))
+            icon_list[label] = btn
+            btn.setCursor(QCursor(Qt.PointingHandCursor))
+            if label == "github":
+                btn.clicked.connect(lambda: webbrowser.open("https://github.com/Annor-Gyimah/OmniPull"))
+            elif label == "telegram":
+                btn.clicked.connect(lambda: webbrowser.open("https://t.me/your_channel"))
+            elif label == "browser":
+                btn.clicked.connect(lambda: webbrowser.open("https://pyiconicdownloader.com"))
             icon_bar.addWidget(btn)
 
         # Add widgets to layout
@@ -193,4 +204,7 @@ class AboutDialog(QDialog):
         main_layout.addWidget(left_container, 2)
         main_layout.addWidget(divider)
         main_layout.addWidget(right_container, 4)
+
+
+    
 

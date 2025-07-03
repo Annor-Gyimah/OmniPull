@@ -252,16 +252,13 @@ def time_format(t, tail=''):
         return t
 
 
-def log(*args, log_level=1):
-    if log_level > config.log_level:
-        return
 
-    text = ''
-    for arg in args:
-        text += str(arg)
-        text += ' '
-    text = text[:-1]  # remove last space
-    text = '>> ' + text
+def log(*args, log_level=1):
+    if not config.show_all_logs:
+        if log_level < config.log_level:
+            return
+
+    text = '>> ' + ' '.join(str(arg) for arg in args)
 
     try:
         print(text)
@@ -270,6 +267,8 @@ def log(*args, log_level=1):
         config.main_window_q.put(('log', text + '\n'))
     except Exception as e:
         print(e)
+
+
 
 
 def echo_stdout(func):
@@ -345,11 +344,11 @@ def delete_folder(folder, verbose=False):
     try:
         shutil.rmtree(folder)
         if verbose:
-            log('done deleting folder:', folder)
+            log('done deleting folder:', folder, log_level=1)
         return True
     except Exception as e:
         if verbose:
-            log('delete_folder()> ', e)
+            log(f'delete_folder()> {e}', log_level=3)
         return False
 
 
@@ -357,11 +356,11 @@ def delete_file(file, verbose=False):
     try:
         os.unlink(file)
         if verbose:
-            log('done deleting file:', file)
+            log(f'done deleting file: {file}', log_level=1)
         return True
     except Exception as e:
         if verbose:
-            log('delete_file()> ', e)
+            log(f'delete_file()> {e}', log_level=3)
         return False
 
 
@@ -371,10 +370,10 @@ def rename_file(oldname=None, newname=None):
 
     try:
         os.rename(oldname, newname)
-        log('done renaming file:', oldname, '... to:', newname)
+        log(f"done renaming file:', {oldname}, '... to: {newname}", log_level=1)
         return True
     except Exception as e:
-        log('rename_file()> ', e)
+        log(f'rename_file()> {e}', log_level=1)
         return False
 
 
@@ -394,7 +393,7 @@ def run_command(cmd, verbose=True, shell=False, hide_window=False, d=None):
     """
 
     if verbose:
-        log('running command:', cmd)
+        log(f'running command: {cmd}', log_level=1)
 
     error, output = True, f'error running command {cmd}'
 
@@ -427,7 +426,7 @@ def run_command(cmd, verbose=True, shell=False, hide_window=False, d=None):
 
             # monitor kill switch
             if d and d.status == config.Status.cancelled:
-                log('terminate run_command()>', cmd)
+                log(f'terminate run_command()> cmd', log_level=2)
                 process.kill()
                 return 1, 'Cancelled by user'
 
@@ -464,9 +463,9 @@ def update_object(obj, new_values):
             try:
                 setattr(obj, k, v)
             except AttributeError:  # in case of read only attribute
-                log(f"update_object(): can't update property: {k}, with value: {v}")
+                log(f"update_object(): can't update property: {k}, with value: {v}", log_level=3)
             except Exception as e:
-                log(f'update_object(): error, {e}, property: {k}, value: {v}')
+                log(f'update_object(): error, {e}, property: {k}, value: {v}', log_level=3)
     return obj
 
 
@@ -680,7 +679,7 @@ def load_json(file=None):
             data = json.load(f)
         return data
     except Exception as e:
-        log('load_json() > error: ', e)
+        log(f'load_json() > error: {e}', log_level=3)
         return None
 
 
@@ -689,7 +688,7 @@ def save_json(file=None, data=None):
         with open(file, 'w') as f:
             json.dump(data, f)
     except Exception as e:
-        log('save_json() > error: ', e)
+        log(f'save_json() > error: {e}', log_level=3)
 
 
 def log_recorder():
@@ -737,7 +736,7 @@ def process_thumbnail(url):
         # dummy operation will kick in error if module not PIL found
         _ = Image.Image()
     except:
-        log('pillow module is missing try to install it to display video thumbnails')
+        log('pillow module is missing try to install it to display video thumbnails', log_level=3)
         return None
 
     try:
@@ -776,7 +775,7 @@ def process_thumbnail(url):
 
         return img_str
     except Exception as e:
-        log('process_thumbnail()> error', e)
+        log(f'process_thumbnail()> error {e}', log_level=3)
         return None
     
 def get_available_interfaces():

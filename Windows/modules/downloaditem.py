@@ -57,10 +57,11 @@ class Communication:
 
     def log(self, *args):
         """print log msgs to download window"""
-        s = ''
-        for arg in args:
-            s += str(arg)
-            s += ' '
+        s = ' '
+        s = s.join(str(arg) for arg in args)
+        # for arg in args:
+        #     s += str(arg)
+        #     s += ' '
         s = s[:-1]  # remove last space
 
         if s[-1] != '\n':
@@ -126,6 +127,7 @@ class DownloadItem:
         self.url = url
         self.eff_url = ''
         self.playlist_url = ''
+        self.original_url = self.url  # <- Add this to store original YouTube link
 
         self.size = 0
         self.resumable = False
@@ -216,8 +218,8 @@ class DownloadItem:
 
     def get_persistent_properties(self):
         """return a dict of important parameters to be saved in file"""
-        a = dict(id=self.id, _name=self._name, folder=self.folder, url=self.url, eff_url=self.eff_url,
-                 playlist_url=self.playlist_url, size=self.size, resumable=self.resumable,
+        a = dict(id=self.id, _name=self._name, ext=self.ext, folder=self.folder, url=self.url, eff_url=self.eff_url,
+                 playlist_url=self.playlist_url, original_url=self.original_url, size=self.size, resumable=self.resumable,
                  _segment_size=self._segment_size, _downloaded=self._downloaded, _status=self._status,
                  remaining_parts=self.remaining_parts, audio_url=self.audio_url, audio_size=self.audio_size,
                  type=self.type, fragments=self.fragments, fragment_base_url=self.fragment_base_url,
@@ -321,6 +323,10 @@ class DownloadItem:
 
         self.last_known_size = size  # to be loaded when restarting application
         return size
+    
+    @total_size.setter
+    def total_size(self, value):
+        self._total_size = value
     
     
 
@@ -468,11 +474,19 @@ class DownloadItem:
         self._segment_size = value if value <= self.size else self.size
         # print('segment size = ', self._segment_size)
 
+    # @property
+    # def sched_string(self):
+    #     # t = time.localtime(self.sched)
+    #     # return f"⏳({t.tm_hour}:{t.tm_min})"
+    #     return f"{self.sched[0]:02}:{self.sched[1]:02}"
+
+
     @property
     def sched_string(self):
-        # t = time.localtime(self.sched)
-        # return f"⏳({t.tm_hour}:{t.tm_min})"
-        return f"{self.sched[0]:02}:{self.sched[1]:02}"
+        _, t = self.sched
+        return t  # e.g., "01:21"
+    
+    
 
     def update(self, url):
         """get headers and update properties (eff_url, name, ext, size, type, resumable, status code/description)"""
@@ -482,7 +496,7 @@ class DownloadItem:
 
         self.url = url
         headers = get_headers(url)
-        print('update d parameters:', headers)
+        log(f'update d parameters: headers', log_level=3)
 
         # update headers only if no other update thread created with different url
         if url == self.url:
@@ -520,7 +534,7 @@ class DownloadItem:
             ext = os.path.splitext(name)[1]
             if not ext:  # if no ext in file name
                 ext = mimetypes.guess_extension(content_type, strict=False) if content_type not in ('N/A', None) else ''
-
+                
                 if ext:
                     name += ext
 
@@ -532,7 +546,7 @@ class DownloadItem:
             self.size = size
             self.type = content_type
             self.resumable = resumable
-        print('done', url)
+        log(f'Done with url {url}', log_level=1)
 
     def __repr__(self):
         """used with functions like print, it will return all properties in this object"""

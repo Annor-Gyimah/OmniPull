@@ -6,14 +6,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QIcon
 from random import randint
-import os
 import psutil
-from PySide6.QtCore import QPropertyAnimation, QPoint, QEasingCurve, QTimer, QCoreApplication
 import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setWindowTitle("Download Manager Clone")
+        MainWindow.setWindowTitle("Download Manager")
         MainWindow.resize(1250, 750)
         MainWindow.setMinimumSize(800, 600)
 
@@ -35,15 +33,19 @@ class Ui_MainWindow(object):
         self.menubar = QMenuBar()
 
         # TASK
-        self.task_menu = self.menubar.addMenu("Task")
-        self.task_menu.addAction("Add New Download")
-        self.task_menu.addAction("Import List")
+        # self.task_menu = self.menubar.addMenu("Task")
+        # self.task_menu.addAction("Add New Download")
+        # self.task_menu.addAction("Import List")
 
         # FILE
         self.file_menu = self.menubar.addMenu("File")
-        self.file_menu.addAction("Open File")
-        self.file_menu.addAction("Export Downloads List")
-        self.file_menu.addAction("Exit")
+        self.open_file_menu = QMenu("Open", self.file_menu)
+        self.file_menu.addMenu(self.open_file_menu)
+        self.open_file_menu.addAction("")
+        
+        # self.file_menu.addAction("Open File")
+        self.export_dl = self.file_menu.addAction("Export Downloads List")
+        self.quitt = self.file_menu.addAction("Exit")
 
         # DOWNLOADS
         self.downloads_menu = self.menubar.addMenu("Downloads")
@@ -751,6 +753,25 @@ class Ui_MainWindow(object):
         self.status_layout.addWidget(self.speed_value)
         self.status_layout.addStretch(1)
         self.version_value = QLabel("")
+        self.version_value.setStyleSheet("""
+            color: #4CAF50;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: rgba(76, 175, 80, 0.1);
+        """)
+        # self.version_value.setStyleSheet(
+        #     """
+
+        #     color: #F44336;
+        #     padding: 6px 16px;
+        #     border-radius: 10px;
+        #     background: rgba(244, 67, 54, 0.1);
+            
+
+
+        #     """
+        # )
         self.status_layout.addWidget(self.version_value)
 
         # Wrapper frame to enforce the same horizontal margins as content_frame
