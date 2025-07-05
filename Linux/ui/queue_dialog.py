@@ -1,18 +1,19 @@
-# Page 1 - Queue Dialog (Improved)
+import sys, os
 from PySide6.QtWidgets import (
     QDialog, QListWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QLineEdit, QSpinBox, QCheckBox, QTimeEdit, QTabWidget, QWidget, QFrame, QGroupBox,
     QListWidgetItem, QTableWidgetItem, QMessageBox,
 )
-from PySide6.QtCore import QThread, Slot, QTime, Qt
+from PySide6.QtCore import Slot, QTime, Qt
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 
 from modules import setting, config, brain
+from modules.utils import log
 from threading import Thread
 from ui.download_window import DownloadWindow
 from ui.queue_runner import QueueRunner
 from ui.download_worker import DownloadWorker
-import os
 from modules.settings_manager import SettingsManager
 
 class QueueDialog(QDialog):
@@ -20,7 +21,7 @@ class QueueDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Queues")
         self.setMinimumSize(800, 500)
-        #self.queues = setting.load_queues()
+        # self.queues = setting.load_queues()
         self.settings_manager = SettingsManager()
         self.queues = self.settings_manager.load_queues()
         self.d_list = self.settings_manager.d_list
@@ -33,9 +34,7 @@ class QueueDialog(QDialog):
         #     self.populate_queue_items()
         # else:
         #     self.current_queue_id = None
-
-
-
+        self.translator = QTranslator()
 
 
 
@@ -151,7 +150,7 @@ class QueueDialog(QDialog):
 
         # Left: Queue List
         self.queue_list = QListWidget()
-        self.queue_list.addItems(["Main", "addl"])
+        self.queue_list.addItems(["Main", "Main2"])
         self.queue_list.setMaximumWidth(100)
 
         left_buttons_layout = QHBoxLayout()
@@ -180,11 +179,11 @@ class QueueDialog(QDialog):
         self.config_tab = QWidget()
         config_layout = QVBoxLayout(self.config_tab)
 
-        general_box = QGroupBox("General")
+        general_box = QGroupBox(self.tr("General"))
         general_layout = QVBoxLayout()
 
         name_layout = QHBoxLayout()
-        name_label = QLabel("Queue name is:")
+        name_label = QLabel(self.tr("Queue name is:"))
         self.name_edit = QLineEdit("Main")
         name_layout.addWidget(name_label)
         name_layout.addWidget(self.name_edit)
@@ -197,19 +196,19 @@ class QueueDialog(QDialog):
         max_layout.addWidget(max_label)
         max_layout.addWidget(self.max_spin)
 
-        self.auto_stop = QCheckBox("Automatic Stop")
+        self.auto_stop = QCheckBox(self.tr("Automatic Stop"))
 
         general_layout.addLayout(name_layout)
         general_layout.addLayout(max_layout)
         general_layout.addWidget(self.auto_stop)
         general_box.setLayout(general_layout)
 
-        scheduler_box = QGroupBox("Scheduler")
+        scheduler_box = QGroupBox(self.tr("Scheduler"))
         scheduler_layout = QVBoxLayout()
-        self.enable_sched = QCheckBox("Enable Scheduler")
+        self.enable_sched = QCheckBox(self.tr("Enable Scheduler"))
 
         time_layout = QHBoxLayout()
-        time_label = QLabel("Auto Start Time")
+        time_label = QLabel(self.tr("Auto Start Time"))
         self.start_time = QTimeEdit(QTime(0, 0))
         time_layout.addWidget(time_label)
         time_layout.addWidget(self.start_time)
@@ -232,7 +231,7 @@ class QueueDialog(QDialog):
 
         self.queue_items_table = QTableWidget()
         self.queue_items_table.setColumnCount(5)
-        self.queue_items_table.setHorizontalHeaderLabels(["Pos", "Name", "Size", "Status", "Delete"])
+        self.queue_items_table.setHorizontalHeaderLabels([self.tr("Pos"), self.tr("Name"), self.tr("Size"), self.tr("Status"), self.tr("Delete")])
 
         # Optional: Set consistent column widths
         self.queue_items_table.setColumnWidth(0, 40)   # Queue position
@@ -269,8 +268,9 @@ class QueueDialog(QDialog):
 
 
         self.move_buttons_layout = QHBoxLayout()
-        self.up_button = QPushButton("↑ Move Up")
-        self.down_button = QPushButton("↓ Move Down")
+        movu, movd = self.tr('Move Up'), self.tr('Move Down')
+        self.up_button = QPushButton(f"↑ {movu}")
+        self.down_button = QPushButton(f"↓ {movd}")
         self.up_button.clicked.connect(self.move_selected_row_up)
         self.down_button.clicked.connect(self.move_selected_row_down)
         self.move_buttons_layout.addWidget(self.up_button)
@@ -280,13 +280,13 @@ class QueueDialog(QDialog):
         self.items_tab_layout.addWidget(self.queue_items_table)
         self.items_tab_layout.addLayout(self.move_buttons_layout)
 
-        self.tabs.addTab(self.config_tab, "Config")
-        self.tabs.addTab(self.items_tab, "Items")
+        self.tabs.addTab(self.config_tab, self.tr("Config"))
+        self.tabs.addTab(self.items_tab, self.tr("Items"))
 
         # Bottom buttons
-        self.start_stop_queue_btn = QPushButton("Start Queue")
+        self.start_stop_queue_btn = QPushButton(self.tr("Start Queue"))
         self.start_stop_queue_btn.clicked.connect(self.toggle_queue_download)
-        self.close_btn = QPushButton("Close")
+        self.close_btn = QPushButton(self.tr("Close"))
         self.close_btn.clicked.connect(self.save_and_close)
 
 
@@ -314,6 +314,9 @@ class QueueDialog(QDialog):
         self.name_edit.textChanged.connect(self.on_name_edit_changed)
         self.queue_list.itemChanged.connect(self.on_queue_name_edited)
 
+        self.current_language = config.lang
+        self.apply_language(self.current_language)
+
 
     
 
@@ -329,7 +332,7 @@ class QueueDialog(QDialog):
         # Prevent duplicate names
         for i, q in enumerate(self.queues):
             if i != row and q["name"].strip().lower() == new_name.lower():
-                QMessageBox.warning(self, "Duplicate Name", "A queue with this name already exists.")
+                QMessageBox.warning(self, self.tr("Duplicate Name"), self.tr("A queue with this name already exists."))
                 self.name_edit.setText(self.queues[row]["name"])
                 return
 
@@ -372,7 +375,8 @@ class QueueDialog(QDialog):
 
         for i, q in enumerate(self.queues):
             if i != row and q["name"].strip().lower() == new_name.lower():
-                QMessageBox.warning(self, "Duplicate Name", f"A queue named '{new_name}' already exists.")
+                oqne1, oqne2 = self.tr('A queue named'), self.tr('already exists.')
+                QMessageBox.warning(self, self.tr("Duplicate Name"), f"{oqne1} '{new_name}' {oqne2}")
                 item.setText(self.queues[row]["name"])
                 return
 
@@ -404,49 +408,7 @@ class QueueDialog(QDialog):
 
 
         
-    # def on_queue_name_edited(self, item):
-    #     row = self.queue_list.row(item)
-    #     new_name = item.text().strip()
-
-    #     if row >= 0 and row < len(self.queues):
-    #         # Prevent duplicate names
-    #         for i, q in enumerate(self.queues):
-    #             if i != row and q["name"].strip().lower() == new_name.lower():
-    #                 QMessageBox.warning(self, "Duplicate Name", f"A queue named '{new_name}' already exists.")
-    #                 item.setText(self.queues[row]["name"])  # revert name
-    #                 return
-
-    #         old_name = self.queues[row]["name"]
-    #         queue_id = self.queues[row].get("id")
-
-    #         # Update queue data
-    #         self.queues[row]["name"] = new_name
-    #         self.name_edit.setText(new_name)
-    #         self.current_queue = new_name
-    #         self.current_queue_id = queue_id
-
-    #         # Update all download items with matching queue_id
-    #         print(queue_id)
-    #         for d in self.d_list:
-    #             if d.queue_id == queue_id:
-    #                 d.queue = new_name
-    #                 d.queue_name = new_name
-
-    #         setting.save_queues(self.queues)
-    #         setting.save_d_list(self.d_list)
-
-
     
-      
-
-
-
-
-    
-
-
-
-
     def move_selected_row_up(self):
         selected_row = self.queue_items_table.currentRow()
         if selected_row <= 0:
@@ -515,25 +477,7 @@ class QueueDialog(QDialog):
         })
 
 
-    # def delete_selected_queue(self):
-    #     row = self.queue_list.currentRow()
-    #     if row < 0 or row >= len(self.queues):
-    #         return
-
-    #     # Remove from the internal list and the UI list
-    #     del self.queues[row]
-    #     self.queue_list.takeItem(row)
-
-    #     # Update the config tab display
-    #     if self.queue_list.count() > 0:
-    #         self.queue_list.setCurrentRow(0)
-    #         self.update_queue_config(0)
-    #     else:
-    #         self.name_edit.clear()
-    #         self.max_spin.setValue(1)
-    #         self.auto_stop.setChecked(False)
-    #         self.enable_sched.setChecked(False)
-    #         self.start_time.setTime(QTime(0, 0))
+    
 
         
     def delete_selected_queue(self):
@@ -578,7 +522,7 @@ class QueueDialog(QDialog):
             self.enable_sched.setChecked(False)
             self.start_time.setTime(QTime(0, 0))
 
-        QMessageBox.information(self, "Queue Deleted", "Queue was successfully deleted.")
+        QMessageBox.information(self, self.tr("Queue Deleted"), self.tr("Queue was successfully deleted."))
 
     def populate_queue_list(self):
         self.queue_list.clear()
@@ -661,7 +605,7 @@ class QueueDialog(QDialog):
 
         # Update button label according to the queue's state
         if self.main_window.running_queues.get(self.current_queue_id, False):
-            self.start_stop_queue_btn.setText("Stop Queue")
+            self.start_stop_queue_btn.setText(self.tr("Stop Queue"))
             self.delete_button.setEnabled(False)
             self.name_edit.setEnabled(False)
             self.max_spin.setEnabled(False)
@@ -674,7 +618,7 @@ class QueueDialog(QDialog):
             self.down_button.setEnabled(False)
 
         else:
-            self.start_stop_queue_btn.setText("Start Queue")
+            self.start_stop_queue_btn.setText(self.tr("Start Queue"))
             self.delete_button.setEnabled(True)
             self.name_edit.setEnabled(True)
             self.max_spin.setEnabled(True)
@@ -686,35 +630,7 @@ class QueueDialog(QDialog):
             self.up_button.setEnabled(True)
             self.down_button.setEnabled(True)
 
-
-
-    # def populate_queue_items(self):
-    #     self.queue_items_table.setRowCount(0)
-
-    #     # Get relevant downloads
-    #     items = [
-    #         d for d in self.d_list
-    #         if d.in_queue and d.queue_id == self.current_queue_id
-    #     ]
-
-    #     # Sort by queue position
-    #     items.sort(key=lambda d: d.queue_position)
-
-    #     self.queue_items_table.setRowCount(len(items))
-    #     btn = QPushButton("🗑")
-    #     btn.setFixedSize(30, 25)
-    #     btn.setStyleSheet("color: red; font-weight: bold;")
-    #     btn.clicked.connect(lambda _, row=row, item=item: self.delete_queue_item(item))
-    #     self.queue_items_table.setCellWidget(row, column_index, btn)
-
-
-
-    #     for row, d in enumerate(items):
-    #         self.queue_items_table.setItem(row, 0, QTableWidgetItem(str(d.queue_position)))
-    #         self.queue_items_table.setItem(row, 1, QTableWidgetItem(d.name))
-    #         self.queue_items_table.setItem(row, 2, QTableWidgetItem(f"{d.size/1024/1024:.2f} MB"))
-    #         self.queue_items_table.setItem(row, 3, QTableWidgetItem(str(d.status)))
-
+    
     def populate_queue_items(self):
         self.queue_items_table.setRowCount(0)
 
@@ -756,47 +672,13 @@ class QueueDialog(QDialog):
         queue_id = self.current_queue_id
         if not self.main_window.running_queues.get(queue_id, False):
             self.main_window.running_queues[queue_id] = True
-            self.start_stop_queue_btn.setText("Stop Queue")
+            self.start_stop_queue_btn.setText(self.tr("Stop Queue"))
             self.start_queue_downloads()
         else:
             self.main_window.running_queues[queue_id] = False
-            self.start_stop_queue_btn.setText("Start Queue")
+            self.start_stop_queue_btn.setText(self.tr("Start Queue"))
             self.stop_queue_downloads()
 
-   
-
-    # def start_queue_downloads(self):
-    #     if self.queue_processing:
-    #         return
-
-    #     self.queue_processing = True
-    #     queue_id = self.current_queue_id
-    #     items = self.get_sorted_queue_items()
-    #     all_items = self.get_sorted_queue_items()
-    #     if not items:
-    #         QMessageBox.warning(self, "Empty Queue", "This queue has no downloads to start.")
-    #         self.start_stop_queue_btn.setText("Start Queue")
-    #         return 
-        
-    #     # 🔥 NEW: Filter only items that are queued
-    #     items_to_download = [d for d in all_items if d.status in (config.Status.queued, config.Status.pending)]
-
-    #     if not items_to_download:
-    #         QMessageBox.warning(self, "Nothing to Download", "All items are completed or failed. Nothing to download.")
-    #         return
-
-    #     self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
-    #     self.queue_runner.download_started.connect(self.on_first_download_started)
-    #     self.queue_runner.download_finished.connect(self.on_download_finished)
-    #     self.queue_runner.download_failed.connect(self.on_download_failed)   # <-- add this
-    #     self.queue_runner.download_finished.connect(self.on_queue_item_finished)
-    #     self.queue_runner.queue_finished.connect(self.on_queue_finished)
-    #     self.queue_runner.start()
-
-    #     self.main_window.running_queues[queue_id] = True
-    #     self.start_stop_queue_btn.setText("Stop Queue")
-
-    #     self.accept()  # ✅ Closes the dialog right after queue starts
 
 
     def start_queue_downloads(self):
@@ -806,16 +688,16 @@ class QueueDialog(QDialog):
         all_items = self.get_sorted_queue_items()
 
         if not all_items:
-            QMessageBox.warning(self, "Empty Queue", "This queue has no downloads to start.")
-            self.start_stop_queue_btn.setText("Start Queue")
+            QMessageBox.warning(self, self.tr("Empty Queue"), self.tr("This queue has no downloads to start."))
+            self.start_stop_queue_btn.setText(self.tr("Start Queue"))
             return
 
         # 🔥 NEW: Filter only items that are queued
         items_to_download = [d for d in all_items if d.status in (config.Status.queued, config.Status.pending)]
 
         if not items_to_download:
-            QMessageBox.warning(self, "Nothing to Download", "All items are completed or failed. Nothing to download.")
-            self.start_stop_queue_btn.setText("Start Queue")
+            QMessageBox.warning(self, self.tr("Nothing to Download"), self.tr("All items are completed or failed. Nothing to download."))
+            self.start_stop_queue_btn.setText(self.tr("Start Queue"))
             return
 
         self.queue_processing = True
@@ -830,7 +712,7 @@ class QueueDialog(QDialog):
         self.queue_runner.start()
 
         self.main_window.running_queues[queue_id] = True
-        self.start_stop_queue_btn.setText("Stop Queue")
+        self.start_stop_queue_btn.setText(self.tr("Stop Queue"))
 
         self.accept()
 
@@ -844,7 +726,8 @@ class QueueDialog(QDialog):
                 if d.status in (config.Status.downloading, config.Status.pending, config.Status.queued):
                     d.status = config.Status.queued
 
-        setting.save_d_list(self.d_list)
+        # setting.save_d_list(self.d_list)
+        self.settings_manager.save_d_list(self.d_list)
         self.populate_queue_items()
 
         # If a runner is active, terminate its thread safely
@@ -859,7 +742,7 @@ class QueueDialog(QDialog):
 
     # Example slot methods:
     def on_download_finished(self, d):
-        print(f"[main] Download finished: {d.name}")
+        log(f"[main] Download finished: {d.name}", log_level=1)
         self.populate_queue_items()
         self.settings_manager.save_d_list(self.d_list)
         # setting.save_d_list(self.d_list)
@@ -870,7 +753,7 @@ class QueueDialog(QDialog):
         if queue_id == self.current_queue_id:
             self.queue_processing = False
             self.main_window.running_queues[self.current_queue_id] = False
-            self.start_stop_queue_btn.setText("Start Queue")
+            self.start_stop_queue_btn.setText(self.tr("Start Queue"))
 
 
         
@@ -883,7 +766,7 @@ class QueueDialog(QDialog):
 
 
     def on_download_failed(self, d):
-        print(f"[main] Download failed or cancelled: {d.name}")
+        log(f"[main] Download failed or cancelled: {d.name}", log_level=1)
         self.populate_queue_items()
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
@@ -899,7 +782,10 @@ class QueueDialog(QDialog):
         # Update item to get segments, headers
         d.update(d.url)
         segments = d.segments  # <-- This line ensures segments are initialized
-        os.makedirs(d.temp_folder, exist_ok=True)
+
+        if d.engine not in ['aria2c', 'aria2', 'yt-dlp']:
+            os.makedirs(d.temp_folder, exist_ok=True)
+        # os.makedirs(d.temp_folder, exist_ok=True)
         
 
 
@@ -926,10 +812,11 @@ class QueueDialog(QDialog):
 
 
     def delete_queue_item(self, item):
+        dqi1, dqi2 = self.tr('Are you sure want to delete'), self.tr('from this queue?')
         confirm = QMessageBox.question(
             self,
-            "Confirm Delete",
-            f"Are you sure you want to delete {item.name} from this queue?",
+            self.tr("Confirm Delete"),
+            f"{dqi1} {item.name} {dqi2}",
             QMessageBox.Yes | QMessageBox.No
         )
         if confirm == QMessageBox.Yes:
@@ -941,7 +828,155 @@ class QueueDialog(QDialog):
             if hasattr(self.parent(), "populate_table"):
                 self.parent().populate_table()
 
+    
+    def resource_path2(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
 
+
+    def apply_language(self, language):
+        QCoreApplication.instance().removeTranslator(self.translator)
+
+        file_map = {
+            "French": "app_fr.qm",
+            "Spanish": "app_es.qm",
+            "Chinese": "app_zh.qm",
+            "Korean": "app_ko.qm",
+            "Japanese": "app_ja.qm",
+            "English": "app_en.qm",
+        }
+
+        if language in file_map:
+            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
+            if self.translator.load(qm_path):
+                QCoreApplication.instance().installTranslator(self.translator)
+                
+            else:
+                log(f"[Language] Failed to load {qm_path}", log_level=1)
+
+       
+
+        self.retrans()
+
+    def retrans(self):
+        self.setWindowTitle("Queues")
+        self.start_stop_queue_btn.setText(self.tr('Start Queue'))
+
+
+
+
+# def on_queue_name_edited(self, item):
+#     row = self.queue_list.row(item)
+#     new_name = item.text().strip()
+
+#     if row >= 0 and row < len(self.queues):
+#         # Prevent duplicate names
+#         for i, q in enumerate(self.queues):
+#             if i != row and q["name"].strip().lower() == new_name.lower():
+#                 QMessageBox.warning(self, "Duplicate Name", f"A queue named '{new_name}' already exists.")
+#                 item.setText(self.queues[row]["name"])  # revert name
+#                 return
+
+#         old_name = self.queues[row]["name"]
+#         queue_id = self.queues[row].get("id")
+
+#         # Update queue data
+#         self.queues[row]["name"] = new_name
+#         self.name_edit.setText(new_name)
+#         self.current_queue = new_name
+#         self.current_queue_id = queue_id
+
+#         # Update all download items with matching queue_id
+#         print(queue_id)
+#         for d in self.d_list:
+#             if d.queue_id == queue_id:
+#                 d.queue = new_name
+#                 d.queue_name = new_name
+
+#         setting.save_queues(self.queues)
+#         setting.save_d_list(self.d_list)
+
+# def delete_selected_queue(self):
+#     row = self.queue_list.currentRow()
+#     if row < 0 or row >= len(self.queues):
+#         return
+
+#     # Remove from the internal list and the UI list
+#     del self.queues[row]
+#     self.queue_list.takeItem(row)
+
+#     # Update the config tab display
+#     if self.queue_list.count() > 0:
+#         self.queue_list.setCurrentRow(0)
+#         self.update_queue_config(0)
+#     else:
+#         self.name_edit.clear()
+#         self.max_spin.setValue(1)
+#         self.auto_stop.setChecked(False)
+#         self.enable_sched.setChecked(False)
+#         self.start_time.setTime(QTime(0, 0))
+
+# def populate_queue_items(self):
+#     self.queue_items_table.setRowCount(0)
+
+#     # Get relevant downloads
+#     items = [
+#         d for d in self.d_list
+#         if d.in_queue and d.queue_id == self.current_queue_id
+#     ]
+
+#     # Sort by queue position
+#     items.sort(key=lambda d: d.queue_position)
+
+#     self.queue_items_table.setRowCount(len(items))
+#     btn = QPushButton("🗑")
+#     btn.setFixedSize(30, 25)
+#     btn.setStyleSheet("color: red; font-weight: bold;")
+#     btn.clicked.connect(lambda _, row=row, item=item: self.delete_queue_item(item))
+#     self.queue_items_table.setCellWidget(row, column_index, btn)
+
+
+
+#     for row, d in enumerate(items):
+#         self.queue_items_table.setItem(row, 0, QTableWidgetItem(str(d.queue_position)))
+#         self.queue_items_table.setItem(row, 1, QTableWidgetItem(d.name))
+#         self.queue_items_table.setItem(row, 2, QTableWidgetItem(f"{d.size/1024/1024:.2f} MB"))
+#         self.queue_items_table.setItem(row, 3, QTableWidgetItem(str(d.status)))
+
+
+# def start_queue_downloads(self):
+#     if self.queue_processing:
+#         return
+
+#     self.queue_processing = True
+#     queue_id = self.current_queue_id
+#     items = self.get_sorted_queue_items()
+#     all_items = self.get_sorted_queue_items()
+#     if not items:
+#         QMessageBox.warning(self, "Empty Queue", "This queue has no downloads to start.")
+#         self.start_stop_queue_btn.setText("Start Queue")
+#         return 
+    
+#     # 🔥 NEW: Filter only items that are queued
+#     items_to_download = [d for d in all_items if d.status in (config.Status.queued, config.Status.pending)]
+
+#     if not items_to_download:
+#         QMessageBox.warning(self, "Nothing to Download", "All items are completed or failed. Nothing to download.")
+#         return
+
+#     self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
+#     self.queue_runner.download_started.connect(self.on_first_download_started)
+#     self.queue_runner.download_finished.connect(self.on_download_finished)
+#     self.queue_runner.download_failed.connect(self.on_download_failed)   # <-- add this
+#     self.queue_runner.download_finished.connect(self.on_queue_item_finished)
+#     self.queue_runner.queue_finished.connect(self.on_queue_finished)
+#     self.queue_runner.start()
+
+#     self.main_window.running_queues[queue_id] = True
+#     self.start_stop_queue_btn.setText("Stop Queue")
+
+#     self.accept()  # ✅ Closes the dialog right after queue starts
 
 # def run_download_with_qthread(self, d):
 #         self.download_thread = QThread()

@@ -39,16 +39,13 @@ class SettingsManager:
 
     def _ensure_config_files_exist(self):
         """Ensure all required config files exist"""
-        required_files = ['setting.cfg', 'downloads.cfg', 'queues.cfg', 'log.txt', '.omnipull_url_queue.json']
+        required_files = ['setting.cfg', 'downloads.cfg', 'queues.cfg', 'log.txt']
         for file in required_files:
             path = os.path.join(self.sett_folder, file)
             if not os.path.exists(path):
                 with open(path, 'w') as f:
                     if file.endswith('.cfg'):
                         json.dump([] if 'queues' in file or 'downloads' in file else {}, f)
-                    elif file.endswith('.json'):
-                        # Create an empty queue file
-                        json.dump([], f)
                     else:
                         f.write("")
 
@@ -73,10 +70,10 @@ class SettingsManager:
 
             self._settings_loaded = True
             # log("Settings loaded successfully")
-            log('Loaded Application setting from', self.sett_folder)
+            log(f'Loaded Application setting from {self.sett_folder}', log_level=1)
 
         except Exception as e:
-            log(f"Error loading settings: {e}")
+            log(f"Error loading settings: {e}", log_level=3)
 
     def load_d_list(self):
         """Load download list from file"""
@@ -89,16 +86,33 @@ class SettingsManager:
                 
                 for dict_ in data:
                     d = update_object(DownloadItem(), dict_)
+                    d.sched = dict_.get('scheduled', None) 
+                    d.queue_position = int(dict_.get("queue_position", 0))
                     if d:
                         d_list.append(d)
 
             self._clean_d_list(d_list)
         except FileNotFoundError:
-            log(f"downloads.cfg not found!")
+            log(f"downloads.cfg not found!", log_level=2)
         except Exception as e:
-            log(f"Error loading download list: {e}")
+            log(f"Error loading download list: {e}", log_level=3)
         
         return d_list
+    
+    def load_refresh_table(self):
+        import re
+        try:
+            old_file_path = os.path.join(self.sett_folder, 'downloads.cfg')
+            os.remove if os.path.exists(old_file_path) else print('Good')
+            new_file_path = os.path.exists(self.sett_folder, 'downloads_copy.cfg')
+            if new_file_path := os.rename(new_file_path, old_file_path):
+                self.load_d_list()
+                log('[Table Refreshed] Table has been refreshed!!!')
+            else:
+                log('[Table Refresh Error] Unable to refresh')
+        except Exception as e:
+            log(f'[Error] Unable to refresh {e}')
+
 
     def _clean_d_list(self, d_list):
         """Clean and update download list statuses"""
@@ -137,7 +151,7 @@ class SettingsManager:
             # log("Settings saved successfully")
 
         except Exception as e:
-            log(f"Error saving settings: {e}")
+            log(f"Error saving settings: {e}", log_level=3)
 
     def save_d_list(self, d_list):
         """Save download list to file"""
@@ -146,7 +160,7 @@ class SettingsManager:
             with open(os.path.join(self.sett_folder, 'downloads.cfg'), 'w') as f:
                 json.dump(data, f)
         except Exception as e:
-            log(f"Error saving download list: {e}")
+            log(f"Error saving download list: {e}", log_level=3)
 
     def load_queues(self):
         """Load queues from file"""
@@ -156,7 +170,7 @@ class SettingsManager:
                 with open(queue_path, 'r') as f:
                     return json.load(f)
         except Exception as e:
-            log(f"Error loading queues: {e}")
+            log(f"Error loading queues: {e}", log_level=3)
         return []
 
     def save_queues(self, queues):
@@ -165,7 +179,7 @@ class SettingsManager:
             with open(os.path.join(self.sett_folder, 'queues.cfg'), 'w') as f:
                 json.dump(queues, f, indent=2)
         except Exception as e:
-            log(f"Error saving queues: {e}")
+            log(f"Error saving queues: {e}", log_level=3)
 
     def get_setting(self, key, default=None):
         """Get a specific setting value"""
