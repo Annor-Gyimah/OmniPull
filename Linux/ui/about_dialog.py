@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QFrame, QGraphicsBlurEffect, QWidget, QSizePolicy,
 )
 from PySide6.QtGui import QPixmap, QCursor, QIcon
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 import webbrowser
 import os
 from modules import config
@@ -141,30 +141,57 @@ class AboutDialog(QDialog):
         icon_bar = QHBoxLayout()
         icon_bar.setSpacing(12)
 
+        icon_list = {}
+
         icon_map = {
-            "github": "icons/github.png",
+            "github": ":/icons/github.svg",
             "telegram": "icons/telegram.png",
-            "browser": "icons/browser.png"
+            "browser": ":/icons/internet-web-browser.svg",
 
         }
 
+        # for icon in icon_map.values():
+        #     btn = QPushButton()
+        #     btn.setFixedSize(34, 34)
+        #     btn.setIcon(QIcon(icon))
+        #     btn.setIconSize(QSize(24, 24))
+        #     btn.setStyleSheet("""
+        #         QPushButton {
+        #             background-color: transparent;
+        #             border: none;
+        #         }
+        #         QPushButton:hover {
+        #             background-color: rgba(0, 255, 180, 0.1);
+        #             border-radius: 6px;
+        #         }
+        #     """)
+        #     icon_bar.addWidget(btn)
+
         for label, icon in icon_map.items():
-            btn = QPushButton(icon)
+            btn = QPushButton()
             btn.setFixedSize(34, 34)
+            btn.setIcon(QIcon(icon))
+            btn.setIconSize(QSize(24, 24))
             btn.setStyleSheet("""
                 QPushButton {
-                    background-color: rgba(40, 60, 50, 0.3);
-                    color: white;
-                    border: 1px solid rgba(0, 255, 180, 0.1);
-                    border-radius: 8px;
-                    font-size: 16px;
+                    background-color: transparent;
+                    border: none;
                 }
                 QPushButton:hover {
-                    background-color: rgba(0, 255, 180, 0.2);
+                    background-color: rgba(0, 255, 180, 0.1);
+                    border-radius: 6px;
                 }
             """)
-            if os.path.exists(icon):
-                btn.setIcon(QIcon(icon))
+            # if os.path.exists(icon):
+            #     btn.setIcon(QIcon(icon))
+            icon_list[label] = btn
+            btn.setCursor(QCursor(Qt.PointingHandCursor))
+            if label == "github":
+                btn.clicked.connect(lambda: webbrowser.open("https://github.com/Annor-Gyimah/OmniPull"))
+            elif label == "telegram":
+                btn.clicked.connect(lambda: webbrowser.open("https://t.me/your_channel"))
+            elif label == "browser":
+                btn.clicked.connect(lambda: webbrowser.open("https://pyiconicdownloader.com"))
             icon_bar.addWidget(btn)
 
         # Add widgets to layout

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
     QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
-    QGroupBox,  QTabWidget, QScrollArea, QFileDialog
+    QGroupBox,  QTabWidget, QFileDialog
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -15,7 +15,7 @@ from modules.settings_manager import SettingsManager
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Settings")
+        self.setWindowTitle(self.tr("Settings"))
         self.setFixedSize(720, 500)
         self.setStyleSheet(self.dark_stylesheet())
        
@@ -56,15 +56,15 @@ class SettingsWindow(QDialog):
         """)
 
         icon_map = {
-            "General": "icons/general.png",
-            "Engine Config": "icons/cil-link.png",
-            "Browser": "icons/extension.png",
-            "Updates": "icons/updates.svg",
+            self.tr("General"): "icons/general.png",
+            self.tr("Engine Config"): "icons/cil-link.png",
+            self.tr("Browser"): "icons/extension.png",
+            self.tr("Updates"): "icons/updates.svg",
         }
 
         for key, icon in icon_map.items():
             translated_text = self.tr(key)
-            item = QListWidgetItem(QIcon(icon), translated_text)
+            item = QListWidgetItem(translated_text)
             self.sidebar.addItem(item)
 
 
@@ -91,7 +91,7 @@ class SettingsWindow(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setAlignment(Qt.AlignRight)
 
-        self.ok_button = QPushButton("OK")
+        self.ok_button = QPushButton(self.tr("OK"))
         self.ok_button.clicked.connect(self.accept)
         self.ok_button.setCursor(Qt.PointingHandCursor)
         self.ok_button.setStyleSheet("""
@@ -112,7 +112,7 @@ class SettingsWindow(QDialog):
             }
         """)
 
-        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         self.cancel_button.setCursor(Qt.PointingHandCursor)
         self.cancel_button.setStyleSheet("""
@@ -160,35 +160,73 @@ class SettingsWindow(QDialog):
         general_layout = QFormLayout(general_widget)
         general_layout.setSpacing(16)
 
+        self.qt_font_dpi = QComboBox()
+        self.qt_font_dpi.setToolTip(self.tr('Set value for DPI. Restart app to reflect.'))
+        self.qt_font_dpi.addItems([str(i) for i in range(90, 151)])
+
         self.language_combo = QComboBox()
+        self.language_combo.setToolTip(self.tr('Select your preferred language'))
         self.language_combo.addItems(["English","Chinese", "Spanish", "Korean", "French", "Japanese"])
 
         self.setting_scope_combo = QComboBox()
+        self.setting_scope_combo.setToolTip(self.tr('Set settings to Global or Local. Recommend: Global.'))
         self.setting_scope_combo.addItems(["Global", "Local"])
 
-        self.monitor_clipboard_cb = QCheckBox("Monitor Copied URLs")
-        self.show_download_window_cb = QCheckBox("Show Download Window")
-        self.auto_close_cb = QCheckBox("Auto Close DL Window")
-        self.show_thumbnail_cb = QCheckBox("Show Thumbnail")
-        self.on_startup_cb = QCheckBox("On Startup")
+        # Create container layouts for each row of checkboxes
+        row1_layout = QHBoxLayout()
+        row2_layout = QHBoxLayout()
+        row3_layout = QHBoxLayout()
+        row4_layout = QHBoxLayout()
+
+        # First row
+        self.monitor_clipboard_cb = QCheckBox(self.tr("Monitor Copied URLs"))
+        self.monitor_clipboard_cb.setToolTip(self.tr("Check to monitor clipboard for copied URLS"))
+        self.show_download_window_cb = QCheckBox(self.tr("Show Download Window"))
+        self.show_download_window_cb.setToolTip(self.tr("Check to show download window whilst downloading"))
+        row1_layout.addWidget(self.monitor_clipboard_cb)
+        row1_layout.addWidget(self.show_download_window_cb)
+
+        # Second row
+        self.auto_close_cb = QCheckBox(self.tr("Auto Close DL Window"))
+        self.auto_close_cb.setToolTip(self.tr("Check to close the download window when download is done.")) 
+        self.show_thumbnail_cb = QCheckBox(self.tr("Show Thumbnail"))
+        self.show_thumbnail_cb.setToolTip(self.tr("Check to show downloaded thumbnail of download item during URL processing."))
+        row2_layout.addWidget(self.auto_close_cb)
+        row2_layout.addWidget(self.show_thumbnail_cb)
+
+        # Third row
+        self.on_startup_cb = QCheckBox(self.tr("On Startup"))
+        self.on_startup_cb.setToolTip(self.tr("Check for app to autostart when PC booted to desktop"))
+        self.show_all_logs = QCheckBox(self.tr("Show all logs"))
+        self.show_all_logs.setToolTip(self.tr("Check to see all logs regardless the level."))
+        row3_layout.addWidget(self.on_startup_cb)
+        row3_layout.addWidget(self.show_all_logs)
+
+        # Fourth row
+        self.hide_app_cb = QCheckBox(self.tr("Hide App"))
+        self.hide_app_cb.setToolTip(self.tr("Check to hide app under the system tray on close"))
+        row3_layout.addWidget(self.hide_app_cb)
+
+        
+
 
 
         download_engine = QComboBox()
         download_engine.addItems(["yt-dlp", "aria2", "wget", "curl"])
         self.download_engine_combo = download_engine
 
-        self.curl_proxy_checkBox = QCheckBox("Use Proxy")
+        self.curl_proxy_checkBox = QCheckBox(self.tr("Use Proxy"))
         self.curl_proxy_input = QLineEdit()
         self.curl_proxy_input.setPlaceholderText("http://127.0.0.1:8080")
         self.curl_proxy_type_combo = QComboBox()
         self.curl_proxy_type_combo.addItems(["http", "https", "socks5"])
         self.curl_proxy_username = QLineEdit()
-        self.curl_proxy_username.setPlaceholderText("Username")
+        self.curl_proxy_username.setPlaceholderText(self.tr("Username"))
         self.curl_proxy_password = QLineEdit()
-        self.curl_proxy_password.setPlaceholderText("Password")
-        self.curl_proxy_checkBox.setToolTip("Enable proxy for curl downloads.")
-        self.curl_proxy_input.setToolTip("Enter the proxy address.")
-        self.curl_proxy_type_combo.setToolTip("Select the proxy type.")
+        self.curl_proxy_password.setPlaceholderText(self.tr("Password"))
+        self.curl_proxy_checkBox.setToolTip(self.tr("Enable proxy for downloads."))
+        self.curl_proxy_input.setToolTip(self.tr("Enter the proxy address."))
+        self.curl_proxy_type_combo.setToolTip(self.tr("Select the proxy type."))
         self.curl_proxy_input.setEnabled(False)
         self.curl_proxy_type_combo.setEnabled(False)
         self.curl_proxy_username.setEnabled(False)
@@ -206,18 +244,24 @@ class SettingsWindow(QDialog):
 
         # Username/password row
         proxy_auth_row = QHBoxLayout()
-        proxy_auth_row.addWidget(QLabel("Proxy Username:"))
+        proxy_auth_row.addWidget(QLabel(self.tr("Proxy Username:")))
         proxy_auth_row.addWidget(self.curl_proxy_username)
-        proxy_auth_row.addWidget(QLabel("Proxy Password:"))
+        proxy_auth_row.addWidget(QLabel(self.tr("Proxy Password:")))
         proxy_auth_row.addWidget(self.curl_proxy_password)
 
+        general_layout.addRow(QLabel("QT FONT DPI:"), self.qt_font_dpi)
         general_layout.addRow(QLabel("Choose Language:"), self.language_combo)
         general_layout.addRow(QLabel("Choose Setting:"), self.setting_scope_combo)
-        general_layout.addRow(self.monitor_clipboard_cb)
-        general_layout.addRow(self.show_download_window_cb)
-        general_layout.addRow(self.auto_close_cb)
-        general_layout.addRow(self.show_thumbnail_cb)
-        general_layout.addRow(self.on_startup_cb)
+        # general_layout.addRow(self.monitor_clipboard_cb)
+        # general_layout.addRow(self.show_download_window_cb)
+        # general_layout.addRow(self.auto_close_cb)
+        # general_layout.addRow(self.show_thumbnail_cb)
+        # general_layout.addRow(self.on_startup_cb)
+        # Add rows to general_layout
+        general_layout.addRow(row1_layout)
+        general_layout.addRow(row2_layout) 
+        general_layout.addRow(row3_layout)
+        # general_layout.addRow(row4_layout)
         general_layout.addRow(QLabel("Download Engine:"), download_engine)
         general_layout.addRow(proxy_row)
         general_layout.addRow(proxy_auth_row)
@@ -239,11 +283,11 @@ class SettingsWindow(QDialog):
 
         # Speed Limit
         curl_speed_layout = QHBoxLayout()
-        self.curl_speed_checkBox = QCheckBox("Speed Limit")
-        self.curl_speed_checkBox.setToolTip("Enable speed limit for curl downloads.")
+        self.curl_speed_checkBox = QCheckBox(self.tr("Speed Limit"))
+        self.curl_speed_checkBox.setToolTip(self.tr("Enable speed limit for curl downloads."))
         self.curl_speed_limit = QLineEdit()
-        self.curl_speed_limit.setPlaceholderText("e.g., 50k, 10k...")
-        self.curl_speed_limit.setToolTip("Set a speed limit for curl downloads.")
+        self.curl_speed_limit.setPlaceholderText(self.tr("e.g., 50k, 10k..."))
+        self.curl_speed_limit.setToolTip(self.tr("Set a speed limit for curl downloads."))
         self.curl_speed_limit.setEnabled(False)  # initially disabled
         self.curl_speed_checkBox.toggled.connect(self.curl_speed_limit.setEnabled)
         curl_speed_layout.addWidget(self.curl_speed_checkBox)
@@ -253,7 +297,7 @@ class SettingsWindow(QDialog):
         # Max Concurrent Downloads & Max Connections
         # Max Concurrent Downloads row
         curl_concurrent_layout = QHBoxLayout()
-        self.curl_conn_label = QLabel("Max Concurrent Downloads:")
+        self.curl_conn_label = QLabel(self.tr("Max Concurrent Downloads:"))
         self.curl_max_concurrent = QComboBox()
         self.curl_max_concurrent.addItems(["1", "2", "3", "4", "5"])
         curl_concurrent_layout.addWidget(self.curl_conn_label)
@@ -262,7 +306,7 @@ class SettingsWindow(QDialog):
 
         # Max Connections row
         curl_connections_layout = QHBoxLayout()
-        self.curl_conn_label2 = QLabel("Max Connections Settings:")
+        self.curl_conn_label2 = QLabel(self.tr("Max Connections Settings:"))
         self.curl_max_connections = QComboBox()
         self.curl_max_connections.addItems(["8", "16", "32", "64"])
         curl_connections_layout.addWidget(self.curl_conn_label2)
@@ -271,20 +315,20 @@ class SettingsWindow(QDialog):
 
         # Segment Size row
         curl_segment_layout = QHBoxLayout()
-        self.curl_segment_label = QLabel("Segment Size:")
+        self.curl_segment_label = QLabel(self.tr("Segment Size:"))
         self.curl_segment_size = QLineEdit()
         self.curl_segment_size.setPlaceholderText("e.g., 50k, 10k...")
-        self.curl_segment_size.setToolTip("Set the segment size for curl downloads.")
+        self.curl_segment_size.setToolTip(self.tr("Set the segment size for curl downloads."))
         self.curl_segment_size_combo = QComboBox()
         self.curl_segment_size_combo.addItems(["KB", "MB"])
-        self.curl_segment_size_combo.setToolTip("Select the unit for segment size.")
+        self.curl_segment_size_combo.setToolTip(self.tr("Select the unit for segment size."))
         curl_segment_layout.addWidget(self.curl_segment_label)
         curl_segment_layout.addWidget(self.curl_segment_size)
         curl_segment_layout.addWidget(self.curl_segment_size_combo)
         curl_group_layout.addLayout(curl_segment_layout)
 
         # --- Scheduled Download Retry Section ---
-        self.curl_retry_schedule_cb = QCheckBox("Retry failed scheduled downloads")
+        self.curl_retry_schedule_cb = QCheckBox(self.tr("Retry failed scheduled downloads"))
         self.curl_retry_count_spin = QSpinBox()
         self.curl_retry_count_spin.setRange(1, 10)
         self.curl_retry_count_spin.setValue(3)
@@ -302,10 +346,10 @@ class SettingsWindow(QDialog):
         curl_group_layout.addWidget(self.curl_retry_schedule_cb)
 
         self.curl_retry_row = QHBoxLayout()
-        self.curl_retry_row.addWidget(QLabel("Max retries:"))
+        self.curl_retry_row.addWidget(QLabel(self.tr("Max retries:")))
         self.curl_retry_row.addWidget(self.curl_retry_count_spin)
         self.curl_retry_row.addSpacing(20)
-        self.curl_retry_row.addWidget(QLabel("Interval (mins):"))
+        self.curl_retry_row.addWidget(QLabel(self.tr("Interval (Days):")))
         self.curl_retry_row.addWidget(self.curl_retry_interval_spin)
         curl_group_layout.addLayout(self.curl_retry_row)
 
@@ -319,67 +363,67 @@ class SettingsWindow(QDialog):
         self.ytdlp_tab = QWidget()
         ytdlp_layout = QVBoxLayout(self.ytdlp_tab)
 
-        ytdlp_group = QGroupBox("General")
+        ytdlp_group = QGroupBox(self.tr("General"))
         ytdlp_group_layout = QVBoxLayout()
 
         # Output template
         out_layout = QHBoxLayout()
-        out_label = QLabel("Output Template:")
+        out_label = QLabel(self.tr("Output Template:"))
         self.out_template = QLineEdit("%(title)s.%(ext)s")
-        self.out_template.setToolTip("Set the naming format for downloaded files.")
+        self.out_template.setToolTip(self.tr("Set the naming format for downloaded files."))
         out_layout.addWidget(out_label)
         out_layout.addWidget(self.out_template)
 
         # Format selection
         format_layout = QHBoxLayout()
-        format_label = QLabel("Download Format:")
+        format_label = QLabel(self.tr("Download Format:"))
         self.format_combo = QComboBox()
         self.format_combo.addItems(["(bv*+ba/b)est", "(bv*+ba/b)est", 'mp4', 'mp3', 'mkv', 'webm', 'flv', 'avi'])
-        self.format_combo.setToolTip("Select which format yt-dlp should download.")
+        self.format_combo.setToolTip(self.tr("Select which format yt-dlp should download."))
         format_layout.addWidget(format_label)
         format_layout.addWidget(self.format_combo)
 
         # Proxy
         proxy_layout = QHBoxLayout()
-        proxy_label = QLabel("Proxy:")
+        proxy_label = QLabel(self.tr("Proxy:"))
         self.proxy_edit = QLineEdit()
         self.proxy_edit.setPlaceholderText("http://127.0.0.1:8080")
-        self.proxy_edit.setToolTip("Optional: Use a proxy for downloading.")
+        self.proxy_edit.setToolTip(self.tr("Optional: Use a proxy for downloading."))
         proxy_layout.addWidget(proxy_label)
         proxy_layout.addWidget(self.proxy_edit)
         self.ffmpeg_path = QLineEdit()
-        self.ffmpeg_path.setPlaceholderText("Path to ffmpeg")
-        self.ffmpeg_path.setToolTip("Path to ffmpeg executable.")
+        self.ffmpeg_path.setPlaceholderText(self.tr("Path to ffmpeg"))
+        self.ffmpeg_path.setToolTip(self.tr("Path to ffmpeg executable."))
         proxy_layout.addWidget(self.ffmpeg_path)
 
         # Fragments
         frag_layout = QHBoxLayout()
-        frag_label = QLabel("Concurrent Fragments:")
+        frag_label = QLabel(self.tr("Concurrent Fragments:"))
         self.frag_spin = QSpinBox()
         self.frag_spin.setRange(1, 20)
         self.frag_spin.setValue(5)
-        self.frag_spin.setToolTip("Number of parallel connections used by yt-dlp.")
+        self.frag_spin.setToolTip(self.tr("Number of parallel connections used by yt-dlp."))
         frag_layout.addWidget(frag_label)
         frag_layout.addWidget(self.frag_spin)
-        self.retries_label = QLabel("Retries:")
+        self.retries_label = QLabel(self.tr("Retries:"))
         self.retries = QSpinBox()
         self.retries.setRange(1, 10)
         frag_layout.addWidget(self.retries_label)
         frag_layout.addWidget(self.retries)
 
         # YT-DLP extra options: 6 checkboxes in 2 rows of 3
-        self.enable_quiet = QCheckBox("Quiet")
-        self.enable_quiet.setToolTip("Suppress output messages.")
-        self.write_metadata = QCheckBox("Write Metadata")
-        self.write_metadata.setToolTip("Add metadata (e.g., title, artist) to the file.")
-        self.write_infojson = QCheckBox("Write Info JSON")
-        self.write_infojson.setToolTip("Save video metadata in JSON format.")
-        self.write_description = QCheckBox("Write Description")
-        self.write_description.setToolTip("Save video description in a separate file.")
-        self.write_annotations = QCheckBox("Write Annotations")
-        self.write_annotations.setToolTip("Save video annotations in a separate file.")
-        self.no_warnings = QCheckBox("No Warnings")
-        self.no_warnings.setToolTip("Suppress warnings during download.")
+        self.enable_quiet = QCheckBox(self.tr("Quiet"))
+        self.enable_quiet.setToolTip(self.tr("Suppress output messages."))
+        self.write_metadata = QCheckBox(self.tr("Write Metadata"))
+        self.write_metadata.setToolTip(self.tr("Add metadata (e.g., title, artist) to the file."))
+        self.write_infojson = QCheckBox(self.tr("Write Info JSON"))
+        self.write_infojson.setToolTip(self.tr("Save video metadata in JSON format."))
+        self.write_description = QCheckBox(self.tr("Write Description"))
+        self.write_description.setToolTip(self.tr("Save video description in a separate file."))
+        self.write_annotations = QCheckBox(self.tr("Write Annotations"))
+        self.write_annotations.setToolTip(self.tr("Save video annotations in a separate file."))
+        self.no_warnings = QCheckBox(self.tr("No Warnings"))
+        self.no_warnings.setToolTip(self.tr("Suppress warnings during download."))
 
         # Arrange checkboxes in 2 rows of 3
         ytdlp_checkbox_row1 = QHBoxLayout()
@@ -393,11 +437,11 @@ class SettingsWindow(QDialog):
         ytdlp_checkbox_row2.addWidget(self.no_warnings)
 
         self.cookies_path = QLineEdit()
-        self.cookies_path.setPlaceholderText("Path to cookies.txt")
-        browse_btn = QPushButton("Browse")
-        browse_btn.clicked.connect(lambda: self.cookies_path.setText(QFileDialog.getOpenFileName(self, "Select cookies.txt", "", "Text Files (*.txt)")[0]))
+        self.cookies_path.setPlaceholderText(self.tr("Path to cookies.txt"))
+        browse_btn = QPushButton(self.tr("Browse"))
+        browse_btn.clicked.connect(lambda: self.cookies_path.setText(QFileDialog.getOpenFileName(self, self.tr("Select cookies.txt"), "", self.tr("Text Files (*.txt)"))[0]))
         cookie_layout = QHBoxLayout()
-        cookie_layout.addWidget(QLabel("Cookies File:"))
+        cookie_layout.addWidget(QLabel(self.tr("Cookies File:")))
         cookie_layout.addWidget(self.cookies_path)
         cookie_layout.addWidget(browse_btn)
         
@@ -418,32 +462,32 @@ class SettingsWindow(QDialog):
         # === ARIA2C CONFIG TAB ===
         self.aria2c_tab = QWidget()
         aria_layout = QVBoxLayout(self.aria2c_tab)
-        aria_group = QGroupBox("General")
+        aria_group = QGroupBox(self.tr("General"))
         aria_group_layout = QVBoxLayout()
 
         # Max connections
         max_layout = QHBoxLayout()
-        max_label = QLabel("Max connections per server:")
+        max_label = QLabel(self.tr("Max connections per server:"))
         self.aria_max_spin = QSpinBox()
         self.aria_max_spin.setRange(1, 16)
         self.aria_max_spin.setValue(16)
-        self.aria_max_spin.setToolTip("Max simultaneous connections per download.")
+        self.aria_max_spin.setToolTip(self.tr("Max simultaneous connections per download."))
         max_layout.addWidget(max_label)
         max_layout.addWidget(self.aria_max_spin)
 
         # Other settings
-        self.aria_enable_dht = QCheckBox("Enable DHT")
-        self.aria_enable_dht.setToolTip("Enable peer discovery via DHT for torrents.")
-        self.aria_follow_torrent = QCheckBox("Follow torrent")
-        self.aria_follow_torrent.setToolTip("Automatically follow and fetch data from .torrent files.")
+        self.aria_enable_dht = QCheckBox(self.tr("Enable DHT"))
+        self.aria_enable_dht.setToolTip(self.tr("Enable peer discovery via DHT for torrents."))
+        self.aria_follow_torrent = QCheckBox(self.tr("Follow torrent"))
+        self.aria_follow_torrent.setToolTip(self.tr("Automatically follow and fetch data from .torrent files."))
 
         # Session save interval
         interval_layout = QHBoxLayout()
-        interval_label = QLabel("Session Save Interval (s):")
+        interval_label = QLabel(self.tr("Session Save Interval (s):"))
         self.aria_save_interval_spin = QSpinBox()
         self.aria_save_interval_spin.setRange(10, 3600)
         self.aria_save_interval_spin.setValue(60)
-        self.aria_save_interval_spin.setToolTip("How often to save active downloads to session file.")
+        self.aria_save_interval_spin.setToolTip(self.tr("How often to save active downloads to session file."))
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.aria_save_interval_spin)
 
@@ -453,27 +497,27 @@ class SettingsWindow(QDialog):
         self.aria_alloc_combo = QComboBox()
         self.aria_alloc_combo.addItems(["none", "prealloc", "trunc", "falloc"])
         self.aria_alloc_combo.setCurrentText("falloc")
-        self.aria_alloc_combo.setToolTip("Preallocation method: none, prealloc, trunc, falloc.")
+        self.aria_alloc_combo.setToolTip(self.tr("Preallocation method: none, prealloc, trunc, falloc."))
         alloc_layout.addWidget(alloc_label)
         alloc_layout.addWidget(self.aria_alloc_combo)
 
         # Split
         split_layout = QHBoxLayout()
-        split_label = QLabel("Download Split Parts:")
+        split_label = QLabel(self.tr("Download Split Parts:"))
         self.aria_split_spin = QSpinBox()
         self.aria_split_spin.setRange(1, 64)
         self.aria_split_spin.setValue(32)
-        self.aria_split_spin.setToolTip("Split each download into this number of parts.")
+        self.aria_split_spin.setToolTip(self.tr("Split each download into this number of parts."))
         split_layout.addWidget(split_label)
         split_layout.addWidget(self.aria_split_spin)
 
         # RPC Port
         rpc_layout = QHBoxLayout()
-        rpc_label = QLabel("RPC Port:")
+        rpc_label = QLabel(self.tr("RPC Port:"))
         self.aria_rpc_spin = QSpinBox()
         self.aria_rpc_spin.setRange(1024, 65535)
         self.aria_rpc_spin.setValue(6800)
-        self.aria_rpc_spin.setToolTip("Port for the internal aria2c RPC server.")
+        self.aria_rpc_spin.setToolTip(self.tr("Port for the internal aria2c RPC server."))
         rpc_layout.addWidget(rpc_label)
         rpc_layout.addWidget(self.aria_rpc_spin)
 
@@ -501,7 +545,7 @@ class SettingsWindow(QDialog):
         browser_layout = QFormLayout(browser_widget)
         browser_layout.setSpacing(16)
 
-        self.browser_integration_cb = QCheckBox("Enable Browser Integration")
+        self.browser_integration_cb = QCheckBox(self.tr("Enable Browser Integration"))
         browser_layout.addRow(self.browser_integration_cb)
 
         self.stack.addWidget(browser_widget)
@@ -515,10 +559,12 @@ class SettingsWindow(QDialog):
         self.check_interval_combo = QComboBox()
         self.check_interval_combo.addItems(["1", "3", "7", "14"])
 
-        self.version_label = QLabel(f"App Version: {config.APP_VERSION}")
-        self.check_update_btn = QPushButton("Check for update")
+        sut1 = self.tr('App Version:')
+        self.version_label = QLabel(f"{sut1} {config.APP_VERSION}")
+        self.check_update_btn = QPushButton(self.tr("Check for update"))
 
-        updates_layout.addRow(QLabel("Check for update every (days):"), self.check_interval_combo)
+    
+        updates_layout.addRow(QLabel(self.tr("Check for update every (days):")), self.check_interval_combo)
         updates_layout.addRow(self.version_label)
         updates_layout.addRow(self.check_update_btn)
         self.stack.addWidget(updates_widget)
@@ -647,12 +693,15 @@ class SettingsWindow(QDialog):
 
     
     def load_values(self, config):
+        self.qt_font_dpi.setCurrentText(str(config.APP_FONT_DPI))
         self.language_combo.setCurrentText(str(config.lang))
         self.monitor_clipboard_cb.setChecked(config.monitor_clipboard)
         self.show_download_window_cb.setChecked(config.show_download_window)
         self.auto_close_cb.setChecked(config.auto_close_download_window)
         self.show_thumbnail_cb.setChecked(config.show_thumbnail)
         self.on_startup_cb.setChecked(config.on_startup)
+        self.show_all_logs.setChecked(config.show_all_logs)
+        self.hide_app_cb.setChecked(config.hide_app)
         self.download_engine_combo.setCurrentText(config.download_engine)
         self.setting_scope_combo.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
         self.curl_proxy_checkBox.setChecked(config.enable_proxy)
@@ -668,6 +717,7 @@ class SettingsWindow(QDialog):
         else:
             seg_unit = 'KB'
         
+        self.curl_speed_checkBox.setChecked(config.enable_speed_limit)
         self.curl_speed_limit.setText(str(config.speed_limit))
         self.curl_max_concurrent.setCurrentText(str(config.max_concurrent_downloads))
         self.curl_max_connections.setCurrentText(str(config.max_connections))
@@ -726,12 +776,15 @@ class SettingsWindow(QDialog):
         """Override the accept method to apply and save settings when OK is clicked."""
 
         self.settings_folder()  
+        config.APP_FONT_DPI = self.qt_font_dpi.currentText()
         config.lang = self.language_combo.currentText()
         config.monitor_clipboard = self.monitor_clipboard_cb.isChecked()
         config.show_download_window = self.show_download_window_cb.isChecked()
         config.auto_close_download_window = self.auto_close_cb.isChecked()
         config.show_thumbnail = self.show_thumbnail_cb.isChecked()
         config.on_startup = self.on_startup_cb.isChecked()
+        config.show_all_logs = self.show_all_logs.isChecked()
+        config.hide_app = self.hide_app_cb.isChecked()
         config.download_engine = self.download_engine_combo.currentText()
         config.enable_proxy = self.curl_proxy_checkBox.isChecked()
         config.proxy = self.curl_proxy_input.text() if self.curl_proxy_checkBox.isChecked() else ""
@@ -752,6 +805,7 @@ class SettingsWindow(QDialog):
         # Engine Config settings
 
         # PyCurl settings
+        config.enable_speed_limit = self.curl_speed_checkBox.isChecked()
         config.speed_limit = self.curl_speed_limit.text()
         config.max_concurrent_downloads = int(self.curl_max_concurrent.currentText())
         config.max_connections = int(self.curl_max_connections.currentText())
@@ -862,6 +916,8 @@ class SettingsWindow(QDialog):
         self.auto_close_cb.setText(self.tr("Auto Close DL Window"))
         self.show_thumbnail_cb.setText(self.tr("Show Thumbnail"))
         self.on_startup_cb.setText(self.tr("On Startup"))
+        self.show_all_logs.setText(self.tr("Show all logs"))
+        self.hide_app_cb.setText(self.tr('Hide App'))
         self.curl_proxy_checkBox.setText(self.tr("Use Proxy"))
         self.curl_proxy_input.setPlaceholderText(self.tr("Enter proxy..."))
         self.curl_proxy_type_combo.setItemText(0, self.tr("http"))
@@ -919,9 +975,10 @@ class SettingsWindow(QDialog):
 
             if not os.path.isdir(config.global_sett_folder):
                 try:
+                    sf1, sf2 = self.tr('Folder:'), self.tr('will be created')
                     choice = QMessageBox.question(
-                        self, 'Create Folder',
-                        f'Folder: {config.global_sett_folder}\nwill be created',
+                        self, self.tr('Create Folder'),
+                        f'{sf1} {config.global_sett_folder}\n {sf2}',
                         QMessageBox.Ok | QMessageBox.Cancel
                     )
 
@@ -931,11 +988,12 @@ class SettingsWindow(QDialog):
                         raise Exception('Operation Cancelled by User')
 
                 except Exception as e:
-                    log('global setting folder error:', e)
+                    log(f'global setting folder error: {e}', log_level=3)
                     config.sett_folder = config.current_directory
+                    sf3, sf4 = self.tr('Error while creating global settings folder'), self.tr('Local folder will be used instead')
                     QMessageBox.critical(
                         self, self.tr('Error'),
-                        f'Error while creating global settings folder\n"{config.global_sett_folder}"\n{str(e)}\nLocal folder will be used instead'
+                        f'{sf3} \n"{config.global_sett_folder}"\n{str(e)}\n {sf4}'
                     )
                     self.setting_scope_combo.setCurrentText('Local')
 

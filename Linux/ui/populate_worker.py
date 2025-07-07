@@ -1,5 +1,3 @@
-# ui/populate_worker.py
-
 from PySide6.QtCore import QObject, Signal, Slot
 from modules import config
 class PopulateTableWorker(QObject):
@@ -20,9 +18,11 @@ class PopulateTableWorker(QObject):
                 d.in_queue = False
                 d.queue_position = 0
 
+            
+
             row_data = {
                 'id': d.id,
-                'name': d.name,
+                'name': d.name[:-8] if d.name.endswith('.torrent') else d.name,
                 'progress': d.progress or 0,
                 'speed': getattr(d, 'speed', 0),
                 'time_left': getattr(d, 'time_left', ''),
@@ -31,7 +31,6 @@ class PopulateTableWorker(QObject):
                 'status': d.status,
                 'i': "✔"  if d.status == config.Status.completed else d.i, 
                 'folder': getattr(d, 'folder', ''),
-                'file_name': str(d.name),
             }
             prepared_rows.append(row_data)
 
