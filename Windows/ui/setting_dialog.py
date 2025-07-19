@@ -295,7 +295,6 @@ class SettingsWindow(QDialog):
         curl_group_layout.addLayout(curl_speed_layout)
 
         # Max Concurrent Downloads & Max Connections
-        # Max Concurrent Downloads row
         curl_concurrent_layout = QHBoxLayout()
         self.curl_conn_label = QLabel(self.tr("Max Concurrent Downloads:"))
         self.curl_max_concurrent = QComboBox()
@@ -304,7 +303,6 @@ class SettingsWindow(QDialog):
         curl_concurrent_layout.addWidget(self.curl_max_concurrent)
         curl_group_layout.addLayout(curl_concurrent_layout)
 
-        # Max Connections row
         curl_connections_layout = QHBoxLayout()
         self.curl_conn_label2 = QLabel(self.tr("Max Connections Settings:"))
         self.curl_max_connections = QComboBox()
@@ -313,7 +311,6 @@ class SettingsWindow(QDialog):
         curl_connections_layout.addWidget(self.curl_max_connections)
         curl_group_layout.addLayout(curl_connections_layout)
 
-        # Segment Size row
         curl_segment_layout = QHBoxLayout()
         self.curl_segment_label = QLabel(self.tr("Segment Size:"))
         self.curl_segment_size = QLineEdit()
@@ -339,7 +336,6 @@ class SettingsWindow(QDialog):
         self.curl_retry_interval_spin.setValue(5)
         self.curl_retry_interval_spin.setEnabled(False)
 
-        # Enable/disable retry spin boxes based on checkbox state
         self.curl_retry_schedule_cb.toggled.connect(self.curl_retry_count_spin.setEnabled)
         self.curl_retry_schedule_cb.toggled.connect(self.curl_retry_interval_spin.setEnabled)
 
@@ -363,8 +359,26 @@ class SettingsWindow(QDialog):
         self.ytdlp_tab = QWidget()
         ytdlp_layout = QVBoxLayout(self.ytdlp_tab)
 
-        ytdlp_group = QGroupBox(self.tr("General"))
-        ytdlp_group_layout = QVBoxLayout()
+        # Extraction Options groupbox
+        extraction_group = QGroupBox(self.tr("Extraction Options"))
+        extraction_group_layout = QHBoxLayout()
+
+        self.no_playlist_cb = QCheckBox(self.tr("No Playlist"))
+        self.no_playlist_cb.setToolTip(self.tr("Download only the video, not the entire playlist."))
+        self.ignore_errors_cb = QCheckBox(self.tr("Ignore Errors"))
+        self.ignore_errors_cb.setToolTip(self.tr("Continue downloading even if errors occur."))
+        self.list_formats_cb = QCheckBox(self.tr("List Formats"))
+        self.list_formats_cb.setToolTip(self.tr("List available formats for the video instead of downloading."))
+
+        extraction_group_layout.addWidget(self.no_playlist_cb)
+        extraction_group_layout.addWidget(self.ignore_errors_cb)
+        extraction_group_layout.addWidget(self.list_formats_cb)
+        extraction_group.setLayout(extraction_group_layout)
+        ytdlp_layout.addWidget(extraction_group)
+
+        # Download Options groupbox
+        download_group = QGroupBox(self.tr("Download Options"))
+        download_group_layout = QVBoxLayout()
 
         # Output template
         out_layout = QHBoxLayout()
@@ -425,7 +439,6 @@ class SettingsWindow(QDialog):
         self.no_warnings = QCheckBox(self.tr("No Warnings"))
         self.no_warnings.setToolTip(self.tr("Suppress warnings during download."))
 
-        # Arrange checkboxes in 2 rows of 3
         ytdlp_checkbox_row1 = QHBoxLayout()
         ytdlp_checkbox_row1.addWidget(self.enable_quiet)
         ytdlp_checkbox_row1.addWidget(self.write_metadata)
@@ -444,19 +457,18 @@ class SettingsWindow(QDialog):
         cookie_layout.addWidget(QLabel(self.tr("Cookies File:")))
         cookie_layout.addWidget(self.cookies_path)
         cookie_layout.addWidget(browse_btn)
-        
 
+        # Assemble download options layout
+        download_group_layout.addLayout(out_layout)
+        download_group_layout.addLayout(format_layout)
+        download_group_layout.addLayout(proxy_layout)
+        download_group_layout.addLayout(frag_layout)
+        download_group_layout.addLayout(ytdlp_checkbox_row1)
+        download_group_layout.addLayout(ytdlp_checkbox_row2)
+        download_group_layout.addLayout(cookie_layout)
+        download_group.setLayout(download_group_layout)
+        ytdlp_layout.addWidget(download_group)
 
-        # Assemble layout
-        ytdlp_group_layout.addLayout(out_layout)
-        ytdlp_group_layout.addLayout(format_layout)
-        ytdlp_group_layout.addLayout(proxy_layout)
-        ytdlp_group_layout.addLayout(frag_layout)
-        ytdlp_group_layout.addLayout(ytdlp_checkbox_row1)
-        ytdlp_group_layout.addLayout(ytdlp_checkbox_row2)
-        ytdlp_group_layout.addLayout(cookie_layout)
-        ytdlp_group.setLayout(ytdlp_group_layout)
-        ytdlp_layout.addWidget(ytdlp_group)
         self.engine_tabs.addTab(self.ytdlp_tab, "YT-DLP")
 
         # === ARIA2C CONFIG TAB ===
@@ -465,7 +477,6 @@ class SettingsWindow(QDialog):
         aria_group = QGroupBox(self.tr("General"))
         aria_group_layout = QVBoxLayout()
 
-        # Max connections
         max_layout = QHBoxLayout()
         max_label = QLabel(self.tr("Max connections per server:"))
         self.aria_max_spin = QSpinBox()
@@ -475,13 +486,11 @@ class SettingsWindow(QDialog):
         max_layout.addWidget(max_label)
         max_layout.addWidget(self.aria_max_spin)
 
-        # Other settings
         self.aria_enable_dht = QCheckBox(self.tr("Enable DHT"))
         self.aria_enable_dht.setToolTip(self.tr("Enable peer discovery via DHT for torrents."))
         self.aria_follow_torrent = QCheckBox(self.tr("Follow torrent"))
         self.aria_follow_torrent.setToolTip(self.tr("Automatically follow and fetch data from .torrent files."))
 
-        # Session save interval
         interval_layout = QHBoxLayout()
         interval_label = QLabel(self.tr("Session Save Interval (s):"))
         self.aria_save_interval_spin = QSpinBox()
@@ -491,7 +500,6 @@ class SettingsWindow(QDialog):
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.aria_save_interval_spin)
 
-        # File allocation
         alloc_layout = QHBoxLayout()
         alloc_label = QLabel("File Allocation:")
         self.aria_alloc_combo = QComboBox()
@@ -501,7 +509,6 @@ class SettingsWindow(QDialog):
         alloc_layout.addWidget(alloc_label)
         alloc_layout.addWidget(self.aria_alloc_combo)
 
-        # Split
         split_layout = QHBoxLayout()
         split_label = QLabel(self.tr("Download Split Parts:"))
         self.aria_split_spin = QSpinBox()
@@ -511,7 +518,6 @@ class SettingsWindow(QDialog):
         split_layout.addWidget(split_label)
         split_layout.addWidget(self.aria_split_spin)
 
-        # RPC Port
         rpc_layout = QHBoxLayout()
         rpc_label = QLabel(self.tr("RPC Port:"))
         self.aria_rpc_spin = QSpinBox()
@@ -521,7 +527,6 @@ class SettingsWindow(QDialog):
         rpc_layout.addWidget(rpc_label)
         rpc_layout.addWidget(self.aria_rpc_spin)
 
-        # Assemble aria layout
         aria_group_layout.addLayout(max_layout)
         aria_group_layout.addWidget(self.aria_enable_dht)
         aria_group_layout.addWidget(self.aria_follow_torrent)
@@ -533,7 +538,6 @@ class SettingsWindow(QDialog):
         aria_layout.addWidget(aria_group)
         self.engine_tabs.addTab(self.aria2c_tab, "Aria2c")
 
-        # Add all to layout
         self.engine_layout.addWidget(self.engine_tabs)
         self.engine_layout.addStretch()
         self.stack.addWidget(self.engine_widget)
@@ -729,6 +733,9 @@ class SettingsWindow(QDialog):
 
 
         # YT-DLP settings
+        self.no_playlist_cb.setChecked(config.ytdlp_config['no_playlist'])
+        self.ignore_errors_cb.setChecked(config.ytdlp_config['ignore_errors'])
+        self.list_formats_cb.setChecked(config.ytdlp_config['list_formats'])
         self.out_template.setText(config.ytdlp_config['outtmpl'])
         self.format_combo.setCurrentText(config.ytdlp_config['merge_output_format'])
         self.frag_spin.setValue(config.ytdlp_config['concurrent_fragment_downloads'])
@@ -814,6 +821,9 @@ class SettingsWindow(QDialog):
         config.retry_scheduled_interval_mins = self.curl_retry_interval_spin.value()
 
         # YT-DLP settings
+        config.ytdlp_config['no_playlist'] = self.no_playlist_cb.isChecked()
+        config.ytdlp_config['ignore_errors'] = self.ignore_errors_cb.isChecked()
+        config.ytdlp_config['list_formats'] = self.list_formats_cb.isChecked()
         config.ytdlp_config['outtmpl'] = self.out_template.text()
         config.ytdlp_config['merge_output_format'] = self.format_combo.currentText()
         config.ytdlp_config['concurrent_fragment_downloads'] = self.frag_spin.value()
