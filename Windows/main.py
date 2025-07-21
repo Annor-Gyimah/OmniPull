@@ -20,8 +20,6 @@
 #     - Customizable settings and language support
 #     - Robust error handling and update mechanism
 #
-#   This project is open for educational and personal use. For contributions,
-#   bug reports, or feature requests, please contact the developer.
 #
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
@@ -42,7 +40,7 @@ import shutil
 import platform
 from collections import deque
 from datetime import datetime, timedelta
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region Third Parties import
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
@@ -179,6 +177,8 @@ class YouTubeThread(QThread):
             log(f'Unexpected error: {e}', log_level=3)
             self.finished.emit(None)
 
+
+
     
     async def _run_async(self):
         try:
@@ -192,6 +192,9 @@ class YouTubeThread(QThread):
             log(f"[AsyncYTDL] Extracting info for URL: {self.url}", log_level=1)
             # video_obj = await video.Video.create(self.url)
             vid_info = await video.Video.extract_metadata(self.url)  # we'll split out this helper
+
+           
+
 
 
             if vid_info.get('_type') == 'playlist':
@@ -1305,9 +1308,26 @@ class DownloadManagerUI(QMainWindow):
             log(f"Clipboard error due to incorrect data type or attribute access: {str(e)}", log_level=2)
 
 
+    def clean_url(self, original_url):
+        parsed = urlparse(original_url)
+        query = parse_qs(parsed.query)
+        
+        # Keep only the video ID (v=)
+        clean_query = {}
+        if 'v' in query:
+            clean_query['v'] = query['v']
+
+        # Rebuild the cleaned URL
+        new_query = urlencode(clean_query, doseq=True)
+        cleaned_url = urlunparse(parsed._replace(query=new_query))
+        return cleaned_url
+
     def url_text_change(self):
         """Handle URL changes in the QLineEdit."""
         url = widgets.link_input.text().strip()
+
+        url = self.clean_url(url) if config.ytdlp_config['no_playlist'] else url
+
         if url == self.d.url:
             return
         
@@ -2035,7 +2055,7 @@ class DownloadManagerUI(QMainWindow):
                 );
                 color: white;
                 border-radius: 14px;
-            }
+            } 
             QCheckBox, QLabel, QComboBox, QPushButton {
                 font-size: 13px;
                 background: transparent;
@@ -2083,13 +2103,22 @@ class DownloadManagerUI(QMainWindow):
             QPushButton:hover {
                 background-color: rgba(0, 192, 128, 0.6);
             }
-            QScrollArea {
-                border: none;
-            }
             QWidget#scroll_item_row {
                 background-color: rgba(255, 255, 255, 0.02);
                 border-radius: 6px;
                 padding: 6px;
+            }
+                             
+            QWidget#scrollContent {
+            background-color: transparent;  /* or try a dark color like #111 for solid */
+            }
+
+            QScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+            QScrollArea > QWidget > QWidget {
+                background-color: transparent;
             }
         """)
 
@@ -2113,6 +2142,7 @@ class DownloadManagerUI(QMainWindow):
         master_widget = QWidget()
         master_widget.setLayout(master_layout)
         master_widget.setStyleSheet("background-color: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 6px;")
+        # master_widget.setStyleSheet("background-color: red; padding: 6px; border-radius: 6px;")
 
         layout.addWidget(master_widget)
 
@@ -2180,7 +2210,13 @@ class DownloadManagerUI(QMainWindow):
             chosen = []
             for i, video in enumerate(self.playlist):
                 selected = stream_combos[i].currentText()
+                # video.selected_stream = video.raw_streams[selected]
+
+                if not selected or selected not in video.raw_streams:
+                    log(f"[Playlist] Skipping {video.title} — no format selected.")
+                    continue  # ⬅ safely skip this video
                 video.selected_stream = video.raw_streams[selected]
+
                 if video_checkboxes[i].isChecked():
                     chosen.append(video)
 
@@ -3337,15 +3373,15 @@ class DownloadManagerUI(QMainWindow):
 
         self.action_open_file = create_action(":/icons/cil-file.png", self.tr("Open File"), "Ctrl+O", self.open_item)
         self.action_open_file_with = create_action(":/icons/cil-file.png", self.tr("Open File With"), "Ctrl+A", self.open_item_with)
-        self.action_open_location = create_action(":/icons/cil-folder.png", self.tr("Open File Location"), "Ctrl+L", self.open_file_location)
-        self.action_watch_downloading = create_action(":/icons/cil-media-play.png", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
-        self.action_schedule_download = create_action(":/icons/cil-schedule.png", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
-        self.action_cancel_schedule = create_action(":/icons/cil-x.png", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
-        self.action_file_properties = create_action(":/icons/cil-info.png", self.tr("File Properties"), "Ctrl+P", self.file_properties)
-        self.action_add_to_queue = create_action(":/icons/cil-medical-cross.png", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
-        self.action_remove_from_queue = create_action(":/icons/cil-minus.png", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
-        self.action_file_checksum = create_action(":/icons/cil-info.png", self.tr("File CheckSum!"), "Ctrl+H", self.start_file_checksum)
-        self.action_pop_file_from_table = create_action(":/icons/cil-delete.png", self.tr("Delete from Table"), "Ctrl+D", self.pop_download_item)
+        self.action_open_location = create_action(":/icons/folder.png", self.tr("Open File Location"), "Ctrl+L", self.open_file_location)
+        self.action_watch_downloading = create_action(":/icons/vlc.svg", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
+        self.action_schedule_download = create_action(":/icons/schedule.svg", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
+        self.action_cancel_schedule = create_action(":/icons/cancel-schedule.svg", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
+        self.action_file_properties = create_action(":/icons/info.svg", self.tr("File Properties"), "Ctrl+P", self.file_properties)
+        self.action_add_to_queue = create_action(":/icons/add-queue.svg", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
+        self.action_remove_from_queue = create_action(":/icons/remove-queue.svg", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
+        self.action_file_checksum = create_action(":/icons/info.svg", self.tr("File CheckSum!"), "Ctrl+H", self.start_file_checksum)
+        self.action_pop_file_from_table = create_action(":/icons/trash.svg", self.tr("Delete from Table"), "Ctrl+D", self.pop_download_item)
 
         
     def is_playable_media(self, d):
@@ -3817,6 +3853,8 @@ class DownloadManagerUI(QMainWindow):
             color = QtGui.QColor(156, 39, 176)  # Purple
         elif status == config.Status.deleted:
             color = QtGui.QColor(158, 158, 158)  # Grey
+        elif status == config.Status.merging:
+            color = QtGui.QColor(255, 109, 0)  # Deep Orange
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white
 
@@ -3962,7 +4000,7 @@ class DownloadManagerUI(QMainWindow):
         for d in self.d_list:
             if d.status == config.Status.scheduled and getattr(d, "sched", None):
                 sched_date, sched_time = d.sched  # Assuming ('2025-07-02', '01:31:15')
-                # print(f"Scheduled for: {sched_date}, {sched_time}")
+                
 
                 if sched_date == current_date_str and sched_time == current_time_str:
                     log(f"Scheduled time matched for {d.name}, attempting download...", log_level=1)
@@ -4028,8 +4066,9 @@ class DownloadManagerUI(QMainWindow):
                 #show_information('Updates', '', 'Updates available')
                 self.handle_update()
                 
-            # updaet global values
-            config.APP_LATEST_VERSION = latest_version
+            # update global values
+            config.APP_LATEST_VERSION = latest_version if latest_version is not None else config.APP_VERSION
+            
             self.new_version_description = version_description
 
         else:

@@ -39,8 +39,19 @@ https://www.youtube.com/watch?v=FNbIGbX9-Ak&list=RDEMBQN5z0khgQcV8OPC2LwX7A
 
 https://www.linuxmint.com/torrents/linuxmint-22.1-cinnamon-64bit.iso.torrent
 
+https://youtu.be/pyPKJlk6g3E?list=RDyUVVCRiymEk
+
 
 pyinstaller update_service.py --onefile --noconsole --hidden-import=win32timezone --hidden-import=win32com
 
 
 How do I use Cython or Rust bindings in python and also Native modules via cytpes or cffi
+
+yt-dlp==2024.10.20.232914.dev0
+
+
+
+I like it. But the Navbar items, like features, download reviews etc must connect to their individual pages when I click on them. Like when I click on the features it should scroll down to the features section and the whole website should be responsive.  Also, lets create a section for something like old versions be creative and let it synergize with our current app. Also, I dont like the whole glossy green color. Lets change it to a modern template dark design with electrifying colors.
+
+
+There is an issue I want us to address. The issue is when downloading a playlist with curl, after the segments have been downloaded, instead of the status to change to merging_audio, it reaches 100% and it says downloading, then the log for that particuular video in the playlist says log(f'file_manager {d.num}: quitting'), same for other videos in the youtube playlist.

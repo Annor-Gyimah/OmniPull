@@ -53,7 +53,7 @@ mutagen==1.47.0
 mypy==1.16.0
 mypy_extensions==1.1.0
 notify_py==0.3.43
--e git+ssh://git@github.com/Annor-Gyimah/OmniPull.git@2a0fe1ac707da79af3eaaf20dded8b54cffb6405#egg=OmniPull&subdirectory=windows
+
 packaging==25.0
 pathspec==0.12.1
 pbr==6.1.1

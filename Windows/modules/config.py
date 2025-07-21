@@ -11,7 +11,6 @@ from queue import Queue
 import os
 import sys
 import platform
-import aria2p
 from modules.version import __version__
 
 
@@ -141,6 +140,9 @@ aria2c_config = {
 
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
+    "no_playlist": True,
+    'list_formats': True,
+    'ignore_errors': True,
     "concurrent_fragment_downloads": 5,
     "merge_output_format": "mp4",
     "outtmpl": '%(title)s.%(ext)s',

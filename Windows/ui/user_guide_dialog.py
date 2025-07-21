@@ -1,6 +1,7 @@
 # user_guide_dialog.py
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QPushButton, QScrollArea, QWidget
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QPushButton, QScrollArea, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 class UserGuideDialog(QDialog):
     def __init__(self, parent=None):
@@ -89,6 +90,20 @@ class UserGuideDialog(QDialog):
             border: none;
         }
 
+        QWidget#scrollContent {
+            background-color: transparent;  /* or try a dark color like #111 for solid */
+        }
+
+        QScrollArea {
+            background-color: transparent;
+            border: none;
+        }
+        QScrollArea > QWidget > QWidget {
+            background-color: transparent;
+        }
+
+
+
         """
 
     def setup_ui(self):
@@ -97,11 +112,12 @@ class UserGuideDialog(QDialog):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
+        scroll_content.setObjectName("scrollContent")
         scroll_layout = QVBoxLayout(scroll_content)
 
         sections = [
             ("💡 Getting Started",
-             "• Use the '+' button or 'Add New Download' from the Task menu to enter a download URL.\n"
+             "• Copy a download link which gets automatically detected from clipboard. \n"
              "• Choose a folder to save the file.\n"
              "• For YouTube videos or playlists, OmniPull automatically detects available formats."),
 
@@ -140,15 +156,53 @@ class UserGuideDialog(QDialog):
              "• Use the menubar or toolbar buttons to manage all downloads at once."),
         ]
 
-        for title, body in sections:
-            title_label = QLabel(title)
-            title_label.setStyleSheet("font-weight: bold; font-size: 15px; margin-top: 12px;")
-            text = QLabel(body)
-            text.setWordWrap(True)
-            text.setStyleSheet("font-size: 13px; margin-bottom: 8px;")
+        icon_paths = {
+            "Getting Started": ":/icons/started.svg",
+            "Download Management": ":/icons/d_window.png",
+            "Queues": ":/icons/queues.png",
+            "Scheduling": ":/icons/gnome-schedule.svg",
+            "YouTube & Streaming": ":/icons/youtube.svg",
+            "Browser Extension": ":/icons/internet-web-browser.svg",
+            "Settings": ":/icons/setting.svg",
+            "Updates": ":/icons/system-upgrade.svg",
+            "Tips": ":/icons/tips.svg"
+        }
 
-            scroll_layout.addWidget(title_label)
-            scroll_layout.addWidget(text)
+        for title, body in sections:
+            section_name = title.split(' ', 1)[-1]  # Get name without emoji
+            icon_path = icon_paths.get(section_name)
+
+            # Layout for title row
+            title_row = QHBoxLayout()
+
+            if icon_path:
+                icon_label = QLabel()
+                pixmap = QPixmap(icon_path).scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                icon_label.setPixmap(pixmap)
+                icon_label.setFixedSize(21, 21)
+                title_row.addWidget(icon_label)
+
+            text_label = QLabel(section_name)
+            text_label.setStyleSheet("font-weight: bold; font-size: 15px; margin-top: 2px;")
+            title_row.addWidget(text_label)
+            title_row.addStretch()
+
+            scroll_layout.addLayout(title_row)
+
+            body_label = QLabel(body)
+            body_label.setWordWrap(True)
+            body_label.setStyleSheet("font-size: 13px; margin-bottom: 8px;")
+            scroll_layout.addWidget(body_label)
+
+        # for title, body in sections:
+        #     title_label = QLabel(title)
+        #     title_label.setStyleSheet("font-weight: bold; font-size: 15px; margin-top: 12px;")
+        #     text = QLabel(body)
+        #     text.setWordWrap(True)
+        #     text.setStyleSheet("font-size: 13px; margin-bottom: 8px;")
+
+        #     scroll_layout.addWidget(title_label)
+        #     scroll_layout.addWidget(text)
 
         scroll_content.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_content)

@@ -1,11 +1,12 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
-    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
+    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
     QHeaderView, QMenu, QButtonGroup, QSizePolicy
 )
 from PySide6.QtGui import QIcon
 from random import randint
+import os
 import psutil
 import resources_rc
 
@@ -91,7 +92,7 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("About")
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
-
+        # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)
         self.main_layout.addWidget(self.top_frame)
@@ -547,14 +548,16 @@ class Ui_MainWindow(object):
             btn.setStyleSheet("""
                 QPushButton {
                     background-color: rgba(30, 40, 30, 0.2);
-                    border: 1px solid rgba(0, 255, 180, 0.08);
                     border-radius: 10px;
                     padding: 6px;
+                    border: none;
                 }
                 QPushButton:hover {
                     background-color: rgba(0, 255, 180, 0.15);
                 }
             """)
+            
+                    
             self.toolbar_buttons[label] = btn
             self.toolbar_layout.addWidget(btn)
 
@@ -753,6 +756,7 @@ class Ui_MainWindow(object):
         self.status_layout.addWidget(self.speed_value)
         self.status_layout.addStretch(1)
         self.version_value = QLabel("")
+        self.status_layout.addWidget(self.version_value)
         self.version_value.setStyleSheet("""
             color: #4CAF50;
             font-weight: bold;
@@ -760,19 +764,6 @@ class Ui_MainWindow(object):
             border-radius: 10px;
             background: rgba(76, 175, 80, 0.1);
         """)
-        # self.version_value.setStyleSheet(
-        #     """
-
-        #     color: #F44336;
-        #     padding: 6px 16px;
-        #     border-radius: 10px;
-        #     background: rgba(244, 67, 54, 0.1);
-            
-
-
-        #     """
-        # )
-        self.status_layout.addWidget(self.version_value)
 
         # Wrapper frame to enforce the same horizontal margins as content_frame
         self.status_wrapper = QFrame()
