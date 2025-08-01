@@ -25,7 +25,6 @@
     ],
     "browser_specific_settings": {
       "gecko": {
-        "id": "omnipull@annorion.com",
         "strict_min_version": "91.0"
       }
     }

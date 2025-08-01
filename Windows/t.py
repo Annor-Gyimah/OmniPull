@@ -1,25 +1,28 @@
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
-import yt_dlp as ytdl
+import subprocess
+import json
+import struct
 
-def clean_url(original_url):
-    parsed = urlparse(original_url)
-    query = parse_qs(parsed.query)
-    
-    # Keep only the video ID (v=)
-    clean_query = {}
-    if 'v' in query:
-        clean_query['v'] = query['v']
+message = json.dumps({"url": "https://s2.profdeski.com/Kijin.Gentoushou/Kijin.Gentoushou.01.720p.PS.Bia2Anime.mkv"}).encode('utf-8')
+length = struct.pack('=I', len(message))
 
-    # Rebuild the cleaned URL
-    new_query = urlencode(clean_query, doseq=True)
-    cleaned_url = urlunparse(parsed._replace(query=new_query))
-    return cleaned_url
+proc = subprocess.Popen(
+    ['C:\\Program Files\\Annorion\\OmniPull\\omnipull-watcher.exe'],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE
+)
 
+proc.stdin.write(length)
+proc.stdin.write(message)
+proc.stdin.flush()
 
-raw_url = "https://www.youtube.com/watch?v=U4hjdq3Tsc8&list=RDyUVVCRiymEk&index=22"
-cleaned = clean_url(raw_url)
-print(cleaned)
+response_length_bytes = proc.stdout.read(4)
 
-url = cleaned
-info = ytdl.YoutubeDL().extract_info(url, download=False)
-print(info)
+if len(response_length_bytes) < 4:
+    print("❌ No response from native app")
+    stderr_output = proc.stderr.read().decode()
+    print("STDERR:", stderr_output)
+else:
+    response_length = struct.unpack('=I', response_length_bytes)[0]
+    response = proc.stdout.read(response_length).decode('utf-8')
+    print("✅ Native app response:", response)

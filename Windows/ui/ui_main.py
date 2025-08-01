@@ -92,6 +92,7 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("About")
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
+        self.help_menu.addAction("Visual Tutorials")
         # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)
@@ -376,21 +377,21 @@ class Ui_MainWindow(object):
         self.combo3.setFixedWidth(360)
 
         combo1_row = QHBoxLayout()
-        combo1_label = QLabel("Download Item:")
-        combo1_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo1_row.addWidget(combo1_label)
+        self.combo1_label = QLabel("Download Item:")
+        self.combo1_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo1_row.addWidget(self.combo1_label)
         combo1_row.addWidget(self.combo1)
 
         combo2_row = QHBoxLayout()
-        combo2_label = QLabel("Resolution:")
-        combo2_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo2_row.addWidget(combo2_label)
+        self.combo2_label = QLabel("Resolution:")
+        self.combo2_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo2_row.addWidget(self.combo2_label)
         combo2_row.addWidget(self.combo2)
 
         combo3_row = QHBoxLayout()
-        combo3_label = QLabel("Queue:")
-        combo3_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo3_row.addWidget(combo3_label)
+        self.combo3_label = QLabel("Queue:")
+        self.combo3_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo3_row.addWidget(self.combo3_label)
         combo3_row.addWidget(self.combo3)
 
         right_layout.addLayout(combo1_row)

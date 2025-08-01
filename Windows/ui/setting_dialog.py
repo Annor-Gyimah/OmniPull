@@ -212,7 +212,7 @@ class SettingsWindow(QDialog):
 
 
         download_engine = QComboBox()
-        download_engine.addItems(["yt-dlp", "aria2", "wget", "curl"])
+        download_engine.addItems(["yt-dlp", "aria2", "curl"])
         self.download_engine_combo = download_engine
 
         self.curl_proxy_checkBox = QCheckBox(self.tr("Use Proxy"))
@@ -262,7 +262,7 @@ class SettingsWindow(QDialog):
         general_layout.addRow(row2_layout) 
         general_layout.addRow(row3_layout)
         # general_layout.addRow(row4_layout)
-        general_layout.addRow(QLabel("Download Engine:"), download_engine)
+        general_layout.addRow(QLabel(self.tr("Download Engine:")), download_engine)
         general_layout.addRow(proxy_row)
         general_layout.addRow(proxy_auth_row)
         
@@ -501,7 +501,7 @@ class SettingsWindow(QDialog):
         interval_layout.addWidget(self.aria_save_interval_spin)
 
         alloc_layout = QHBoxLayout()
-        alloc_label = QLabel("File Allocation:")
+        alloc_label = QLabel(self.tr("File Allocation:"))
         self.aria_alloc_combo = QComboBox()
         self.aria_alloc_combo.addItems(["none", "prealloc", "trunc", "falloc"])
         self.aria_alloc_combo.setCurrentText("falloc")

@@ -45,13 +45,14 @@ from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 # region Third Parties import
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
 QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
-QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel)
+QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel,
+QGraphicsDropShadowEffect)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
 QCoreApplication, Qt, QTime)
 from PySide6 import QtGui, QtWidgets
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
 
 
 from ui.about_dialog import AboutDialog
@@ -63,13 +64,14 @@ from ui.setting_dialog import SettingsWindow
 from ui.ui_main import Ui_MainWindow 
 from ui.user_guide_dialog import UserGuideDialog
 from ui.tray_icon import TrayIconManager
+from ui.tutorial_window import TutorialOverlay, tutorial_steps
 
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format)
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
     notify, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update
+from modules import config, brain, setting, video, update, setting
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
@@ -398,6 +400,7 @@ class LogRecorderThread(QThread):
                 self.msleep(100)
 
 
+
 class MarqueeLabel(QLabel):
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
@@ -561,6 +564,7 @@ class DownloadManagerUI(QMainWindow):
         self.yt_thread = None # Setup YouTube thread and connect signals
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
         self.setup()
+        # self.check_and_show_tutorial()
 
         # url
         self.url_timer = None  # usage: Timer(0.5, self.refresh_headers, args=[self.d.url])
@@ -729,6 +733,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[0].triggered.connect(self.show_about_dialog)
         widgets.help_menu.actions()[1].triggered.connect(self.start_update)
         widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
+        widgets.help_menu.actions()[3].triggered.connect(self.show_visual_tutorial)
         widgets.toolbar_buttons["Queues"].clicked.connect(self.show_queue_dialog)
 
 
@@ -756,8 +761,19 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer.start(60000)  # Every 60 seconds
     
 
-        
-        
+    def show_visual_tutorial(self):
+        """Show a visual tutorial overlay with multiple steps."""
+        tutorial_steps = [
+            ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
+            ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
+            ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
+            ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
+        ]
+
+
+        overlay = TutorialOverlay(self, tutorial_steps)
+        overlay.show()
+
 
 
     # region Menu bar     
@@ -830,7 +846,7 @@ class DownloadManagerUI(QMainWindow):
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
         "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID",  # <-- replace
-        "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/YOUR_EXTENSION_NAME/",
+        "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
         "Edge": "https://microsoftedge.microsoft.com/addons/detail/YOUR_EXTENSION_ID"
     }
 
@@ -961,6 +977,9 @@ class DownloadManagerUI(QMainWindow):
         widgets.filename_label.setText(self.tr("FILENAME"))
         widgets.link_input.setPlaceholderText(self.tr("Place download link here"))
         widgets.filename_input.setPlaceholderText(self.tr("Filename goes here"))
+        widgets.combo1_label.setText(self.tr("Download Item:"))
+        widgets.combo2_label.setText(self.tr("Resolution:"))
+        widgets.combo3_label.setText(self.tr("Queue:"))
         widgets.playlist_btn.setText(self.tr("Playlist"))
         widgets.download_btn.setText(self.tr("Download"))
         widgets.size_label.setText(self.tr("Size:"))
@@ -997,6 +1016,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[0].setText(self.tr('About'))
         widgets.help_menu.actions()[1].setText(self.tr('Check for Updates'))
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
+        widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
 
         
         
@@ -4257,6 +4277,10 @@ if __name__ == "__main__":
     window.show()
     # Optionally, run a method after the main window is initialized
     QTimer.singleShot(0, video.import_ytdl)
+
+    if not getattr(config, "tutorial_completed", False):
+        window.tutorial = TutorialOverlay(window, tutorial_steps)
+
     sys.exit(app.exec())
 
 

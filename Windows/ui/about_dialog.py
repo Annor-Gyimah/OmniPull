@@ -132,7 +132,7 @@ class AboutDialog(QDialog):
         label2 = QLabel("ODM is a python open source Internet Download Manager with multi-connections,\nhigh speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.")
         label2.setWordWrap(True)
 
-        label3 = QLabel("GPL v2 License")
+        label3 = QLabel("GPL v3 License")
         label4 = QLabel("Created by: Emmanuel Gyimah Annor")
         label5 = QLabel("Inspiration")
         label6 = QLabel("PyIDM - by Mahmoud Elshahat")

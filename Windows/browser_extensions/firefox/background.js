@@ -61,47 +61,4 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   });
 });
 
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   if (message.url) {
-//     console.log("[PyIconic] Received message from content.js:", message.url); // ✅ Add this
-
-//     chrome.runtime.sendNativeMessage("com.pyiconic.downloader", { url: message.url }, (response) => {
-//       console.log("[PyIconic] Response from native app:", response); // ✅ Log this
-//       if (!chrome.runtime.lastError && response.status === "queued") {
-//         chrome.notifications.create({
-//           type: "basic",
-//           iconUrl: "icons/icon128.png",
-//           title: "PyIconic",
-//           message: `Download started for:\n${response.url}`
-//         });
-//       } else {
-//         chrome.notifications.create({
-//           type: "basic",
-//           iconUrl: "icons/icon128.png",
-//           title: "PyIconic Downloader",
-//           message: "Failed to send URL to PyIconic app."
-//         });
-//       }
-//     });
-//   }
-// });
-
-
-
-
-
-
-
-  
-  // chrome.contextMenus.onClicked.addListener((info, tab) => {
-  //   const message = { url: info.linkUrl };
-  //   chrome.runtime.sendNativeMessage("com.pyiconic.downloader", message, (response) => {
-  //     if (chrome.runtime.lastError) {
-  //       console.error("Native Messaging Error:", chrome.runtime.lastError.message);
-  //     } else {
-  //       console.log("Response from PyIconic:", response);
-  //     }
-  //   });
-  // });
   

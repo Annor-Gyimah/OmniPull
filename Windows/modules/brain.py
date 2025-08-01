@@ -181,6 +181,164 @@ def brain(d=None, emitter=None):
 
 
 
+# def run_aria2c_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     aria2 = aria2c_manager.get_api()
+
+#     is_torrent_file = d.url.endswith(".torrent") or d.name.endswith(".torrent")
+#     is_magnet_link = d.url.startswith("magnet:?")
+
+#     try:
+#         download = None
+#         if d.aria_gid:
+#             try:
+#                 download = aria2.get_download(d.aria_gid)
+#                 if download is None or download.status == 'removed':
+#                     raise Exception("GID not found or removed")
+#                 if download.status == 'paused':
+#                     download.resume()
+#             except Exception as e:
+#                 log(f"[Aria2c] Resume failed or GID not valid: {e}")
+#                 d.aria_gid = None  # fallback to new
+
+#         if not d.aria_gid:
+#             options = {
+#                 "dir": d.folder,
+#                 "pause": "false",
+#                 "file-allocation": config.aria2c_config["file_allocation"],
+#                 "max-connection-per-server": config.aria2c_config["max_connections"],
+#                 "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
+#                 "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
+#             }
+
+#             if is_torrent_file:
+#                 torrent_path = os.path.join(d.folder, d.name)
+#                 log(f"[Aria2c] Downloading .torrent file: {torrent_path}")
+#                 response = requests.get(d.url)
+#                 response.raise_for_status()
+#                 with open(torrent_path, 'wb') as f:
+#                     f.write(response.content)
+
+#                 added = aria2.add_torrent(torrent_path, options=options)
+#                 d.aria_gid = added.gid
+#                 log(f"[Aria2c] Initial GID (metadata): {d.aria_gid}")
+
+#                 # 🔁 Poll until real payload GID is assigned via followed_by
+#                 for _ in range(15):
+#                     try:
+#                         meta_dl = aria2.get_download(d.aria_gid)
+#                         if meta_dl.followed_by:
+#                             real_gid = meta_dl.followed_by[0]
+#                             log(f"[Aria2c] Found real GID: {real_gid}")
+#                             d.aria_gid = real_gid
+
+#                             # --- PATCH: Reset progress and size for real payload ---
+#                             d.progress = 0
+#                             d.downloaded = 0
+#                             d.total_size = 0
+#                             # ------------------------------------------------------
+
+#                             break
+#                     except Exception as e:
+#                         log(f"[Aria2c] Waiting for followed_by GID...: {e}")
+#                     time.sleep(1)
+   
+#             elif is_magnet_link:
+#                 added = aria2.add_magnet(d.url, options=options)
+#                 log(f"[Aria2c] Added magnet link: {d.url}")
+
+#             else:
+#                 options["out"] = d.name
+#                 added = aria2.add_uris([d.url], options=options)
+#                 log(f'[Aria2c] The else statement took control {added}')
+
+#             d.aria_gid = added.gid
+#             log(f"[Aria2c] New GID assigned: {d.aria_gid}")
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)
+
+#         while True:
+#             try:
+#                 download = aria2.get_download(d.aria_gid)
+#             except Exception as e:
+#                 log(f"[Aria2c] Error fetching download: {e}")
+#                 d.status = Status.error
+#                 break
+
+#             # --- Aggregate progress for torrents and normal files ---
+#             if download.files and len(download.files) > 1:
+#                 d.total_size = sum(int(f.length) for f in download.files)
+#                 d.downloaded = sum(int(f.completed_length) for f in download.files)
+#             else:
+#                 d.total_size = int(download.total_length)
+#                 d.downloaded = int(download.completed_length)
+
+#             if d.total_size > 0:
+#                 d.progress = int((d.downloaded / d.total_size) * 100)
+#             else:
+#                 d.progress = 0
+
+
+
+#             # ...emit signals, update GUI, etc...
+
+#             d.last_known_progress = d._progress
+#             d._speed = int(download.download_speed)
+#             d.remaining_time = download.eta if download.eta != -1 else 0
+
+#             # Print debug info
+#             #print(f"[Aria2c] Total size: {size_format(d.total_size)}, Downloaded: {size_format(completed_size)}, Progress: {d._progress}%")
+
+#             if emitter:
+#                 emitter.progress_changed.emit(d._progress)
+#                 emitter.log_updated.emit(f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
+
+#             if download.is_complete:
+#                 d.status = Status.completed
+#                 d.progress = 100
+#                 log(f"[Aria2c] Completed: {d.name}")
+#                 if emitter:
+#                     emitter.progress_changed.emit(100)
+#                     emitter.status_changed.emit("completed")
+#                 delete_folder(d.temp_folder)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             elif download.is_removed:
+#                 d.status = Status.error
+#                 log(f"[Aria2c] Error or removed: {d.name}")
+#                 if emitter:
+#                     emitter.status_changed.emit("error")
+#                 break
+
+#             elif download.is_paused:
+#                 if d.status == Status.cancelled:
+#                     log(f"brain() cancelled manually for: {d.name}")
+#                     if d.in_queue:
+#                         d.status = Status.queued
+#                     break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+
+
 def run_aria2c_download(d, emitter=None):
     log(f"[Aria2c] Starting: {d.name}")
     d.status = Status.downloading
@@ -226,81 +384,130 @@ def run_aria2c_download(d, emitter=None):
 
                 added = aria2.add_torrent(torrent_path, options=options)
                 d.aria_gid = added.gid
-                log(f"[Aria2c] Initial GID (metadata): {d.aria_gid}")
+                log(f"[Aria2c] Initial torrent GID: {d.aria_gid}")
 
-                # 🔁 Poll until real payload GID is assigned via followed_by
-                for _ in range(15):
-                    try:
-                        meta_dl = aria2.get_download(d.aria_gid)
-                        if meta_dl.followed_by:
-                            real_gid = meta_dl.followed_by[0]
-                            log(f"[Aria2c] Found real GID: {real_gid}")
-                            d.aria_gid = real_gid
-
-                            # --- PATCH: Reset progress and size for real payload ---
-                            d.progress = 0
-                            d.downloaded = 0
-                            d.total_size = 0
-                            # ------------------------------------------------------
-
-                            break
-                    except Exception as e:
-                        log(f"[Aria2c] Waiting for followed_by GID...: {e}")
-                    time.sleep(1)
-   
             elif is_magnet_link:
                 added = aria2.add_magnet(d.url, options=options)
-                log(f"[Aria2c] Added magnet link: {d.url}")
+                d.aria_gid = added.gid
+                log(f"[Aria2c] Magnet GID: {d.aria_gid}")
 
             else:
                 options["out"] = d.name
                 added = aria2.add_uris([d.url], options=options)
-                log(f'[Aria2c] The else statement took control {added}')
-
-            d.aria_gid = added.gid
-            log(f"[Aria2c] New GID assigned: {d.aria_gid}")
+                d.aria_gid = added.gid
+                log(f'[Aria2c] Regular download GID: {d.aria_gid}')
 
         if emitter:
             emitter.status_changed.emit("downloading")
             emitter.progress_changed.emit(0)
 
+        # For torrents, we need to handle potential GID changes
+        torrent_content_gid_found = False
+        last_active_downloads_check = 0
+        
         while True:
             try:
                 download = aria2.get_download(d.aria_gid)
             except Exception as e:
-                log(f"[Aria2c] Error fetching download: {e}")
-                d.status = Status.error
-                break
+                log(f"[Aria2c] Error fetching download with GID {d.aria_gid}: {e}")
+                
+                # For torrents, the original GID might complete and a new one starts
+                # Let's check all active downloads to find the actual content download
+                if (is_torrent_file or is_magnet_link) and not torrent_content_gid_found:
+                    try:
+                        all_downloads = aria2.get_active()
+                        log(f"[Aria2c] Checking {len(all_downloads)} active downloads for torrent content")
+                        
+                        for dl in all_downloads:
+                            # Look for downloads with substantial size (actual content)
+                            if int(dl.total_length) > 100*1024*1024:  # > 100MB indicates content
+                                log(f"[Aria2c] Found content download - GID: {dl.gid}, Size: {dl.total_length}")
+                                d.aria_gid = dl.gid
+                                torrent_content_gid_found = True
+                                download = dl
+                                break
+                        
+                        if not torrent_content_gid_found:
+                            # Also check waiting downloads
+                            waiting_downloads = aria2.get_waiting()
+                            for dl in waiting_downloads:
+                                if int(dl.total_length) > 100*1024*1024:
+                                    log(f"[Aria2c] Found waiting content download - GID: {dl.gid}, Size: {dl.total_length}")
+                                    d.aria_gid = dl.gid
+                                    torrent_content_gid_found = True
+                                    download = dl
+                                    break
+                        
+                        if not torrent_content_gid_found:
+                            log(f"[Aria2c] No content download found yet, waiting...")
+                            time.sleep(2)
+                            continue
+                            
+                    except Exception as e2:
+                        log(f"[Aria2c] Error checking active downloads: {e2}")
+                        time.sleep(2)
+                        continue
+                else:
+                    d.status = Status.error
+                    break
 
-            # --- Aggregate progress for torrents and normal files ---
+            # Skip tiny downloads (likely .torrent file itself)
+            if (is_torrent_file or is_magnet_link) and not torrent_content_gid_found:
+                if int(download.total_length) < 100*1024*1024:  # Less than 100MB
+                    log(f"[Aria2c] Skipping small download (likely .torrent file): {download.total_length} bytes")
+                    
+                    # Check if this download is complete, then look for the content download
+                    if download.status == "complete":
+                        log(f"[Aria2c] .torrent file download complete, looking for content download...")
+                        # The actual content download should start soon, let's wait and check
+                        time.sleep(1)
+                        continue
+                    elif download.status in ["active", "waiting"]:
+                        if emitter:
+                            emitter.log_updated.emit(f"⏳ Downloading .torrent file...")
+                        time.sleep(1)
+                        continue
+                    elif download.status == "error":
+                        log(f"[Aria2c] Error downloading .torrent file")
+                        d.status = Status.error
+                        break
+                else:
+                    # This is actually the content download
+                    torrent_content_gid_found = True
+                    log(f"[Aria2c] Found content download with original GID: {d.aria_gid}")
+
+            # Now we're tracking the actual content download
+            log(f"[Aria2c] Tracking download - GID: {d.aria_gid}, Status: {download.status}, Size: {download.total_length}")
+
+            # Calculate progress based on actual content
             if download.files and len(download.files) > 1:
+                # Multiple files
                 d.total_size = sum(int(f.length) for f in download.files)
                 d.downloaded = sum(int(f.completed_length) for f in download.files)
             else:
+                # Single file
                 d.total_size = int(download.total_length)
                 d.downloaded = int(download.completed_length)
 
+            # Calculate progress
             if d.total_size > 0:
                 d.progress = int((d.downloaded / d.total_size) * 100)
             else:
                 d.progress = 0
 
-
-
-            # ...emit signals, update GUI, etc...
-
+            # Update internal progress tracking
             d.last_known_progress = d._progress
             d._speed = int(download.download_speed)
             d.remaining_time = download.eta if download.eta != -1 else 0
 
-            # Print debug info
-            #print(f"[Aria2c] Total size: {size_format(d.total_size)}, Downloaded: {size_format(completed_size)}, Progress: {d._progress}%")
+            # Show progress updates
+            if d.total_size > 0:
+                if emitter:
+                    emitter.progress_changed.emit(d.progress)
+                    emitter.log_updated.emit(f"⬇ {size_format(d._speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
 
-            if emitter:
-                emitter.progress_changed.emit(d._progress)
-                emitter.log_updated.emit(f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
-
-            if download.is_complete:
+            # Check completion status
+            if download.status == "complete":
                 d.status = Status.completed
                 d.progress = 100
                 log(f"[Aria2c] Completed: {d.name}")
@@ -311,14 +518,21 @@ def run_aria2c_download(d, emitter=None):
                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
                 break
 
-            elif download.is_removed:
+            elif download.status == "removed":
                 d.status = Status.error
                 log(f"[Aria2c] Error or removed: {d.name}")
                 if emitter:
                     emitter.status_changed.emit("error")
                 break
 
-            elif download.is_paused:
+            elif download.status == "error":
+                d.status = Status.error
+                log(f"[Aria2c] Download error: {d.name}")
+                if emitter:
+                    emitter.status_changed.emit("error")
+                break
+
+            elif download.status == "paused":
                 if d.status == Status.cancelled:
                     log(f"brain() cancelled manually for: {d.name}")
                     if d.in_queue:
