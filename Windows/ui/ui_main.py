@@ -93,6 +93,7 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
         self.help_menu.addAction("Visual Tutorials")
+        self.help_menu.addAction("Report Issue")
         # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)

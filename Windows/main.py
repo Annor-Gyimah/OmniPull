@@ -734,6 +734,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[1].triggered.connect(self.start_update)
         widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
         widgets.help_menu.actions()[3].triggered.connect(self.show_visual_tutorial)
+        widgets.help_menu.actions()[4].triggered.connect(self.open_github_issues)
         widgets.toolbar_buttons["Queues"].clicked.connect(self.show_queue_dialog)
 
 
@@ -763,15 +764,15 @@ class DownloadManagerUI(QMainWindow):
 
     def show_visual_tutorial(self):
         """Show a visual tutorial overlay with multiple steps."""
-        tutorial_steps = [
-            ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
-            ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
-            ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
-            ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
-        ]
+        # tutorial_steps = [
+        #     ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
+        #     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
+        #     ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
+        #     ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
+        # ]
 
 
-        overlay = TutorialOverlay(self, tutorial_steps)
+        overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
         overlay.show()
 
 
@@ -857,6 +858,14 @@ class DownloadManagerUI(QMainWindow):
             show_information("Opening Browser", f"Redirecting you to install the {browser_name} extension.", "Follow the instructions there.")
         else:
             show_warning("Extension Error", f"No URL available for {browser_name}.")
+
+    def open_github_issues(self):
+        """Open the GitHub issues page in the default browser."""
+        url = 'https://github.com/Annor-Gyimah/OmniPull/issues'
+        if url:
+            QDesktopServices.openUrl(QUrl(url))
+            show_information("Opening Browser", f"Redirecting you to github. Please let us know if you encounter any issues.", "Follow the instructions there.")
+            
 
     def clear_all_completed_downloads(self):
         """
@@ -3637,6 +3646,7 @@ class DownloadManagerUI(QMainWindow):
         if d:
             d_name = self.tr("Name:")
             d_folder = self.tr("Folder:")
+            d_engine = self.tr("Download Engine:")
             d_progress = self.tr("Progress:")
             d_total_size = self.tr("Total size:")
             d_status = self.tr("Status:")
@@ -3647,6 +3657,7 @@ class DownloadManagerUI(QMainWindow):
 
             text = f'{d_name} {d.name} \n' \
                 f'{d_folder} {d.folder} \n' \
+                f'{d_engine} {d.engine} \n'  \
                 f'{d_progress} {d.progress}% \n' \
                 f'{d_total_size} {size_format(d.downloaded)} \n' \
                 f'{d_total_size} {size_format(d.total_size)} \n' \
@@ -4015,8 +4026,6 @@ class DownloadManagerUI(QMainWindow):
         current_date_str = now.strftime("%Y-%m-%d")
         current_time_str = now.strftime("%H:%M:%S")
 
-        # print(f"Current datetime: {current_date_str}, {current_time_str}")
-
         for d in self.d_list:
             if d.status == config.Status.scheduled and getattr(d, "sched", None):
                 sched_date, sched_time = d.sched  # Assuming ('2025-07-02', '01:31:15')
@@ -4026,7 +4035,7 @@ class DownloadManagerUI(QMainWindow):
                     log(f"Scheduled time matched for {d.name}, attempting download...", log_level=1)
                     result = self.start_download(d, silent=True)
 
-                    if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
+                    if d.status in [config.Status.failed, config.Status.scheduled, config.Status.cancelled, config.Status.error]:
                         log(f"Scheduled download failed for {d.name}.", log_level=3)
 
                         if config.retry_scheduled_enabled:
@@ -4034,17 +4043,19 @@ class DownloadManagerUI(QMainWindow):
                             if d.schedule_retries < config.retry_scheduled_max_tries:
                                 d.schedule_retries += 1
                                 retry_time = now + timedelta(minutes=config.retry_scheduled_interval_mins)
+                                log(f"The retry time is {retry_time}")
                                 d.sched = (
                                     retry_time.strftime("%Y-%m-%d"),
                                     retry_time.strftime("%H:%M:%S")
                                 )
                                 d.status = config.Status.scheduled
                                 log(f"Retrying {d.name} at {d.sched[0]}, {d.sched[1]} [Attempt {d.schedule_retries}]", log_level=2)
+                                show_information(title="Scheduled Retry", inform="", msg=f"Retrying {d.name} at {d.sched[0]}, {d.sched[1]} [Attempt {d.schedule_retries}]")
                             else:
-                                d.status = config.Status.failed
+                                d.status = config.Status.cancelled
                                 log(f"{d.name} has reached max retries.", log_level=2)
                         else:
-                            d.status = config.Status.failed
+                            d.status = config.Status.cancelled
 
         self.queue_update("populate_table", None)
     

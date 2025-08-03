@@ -345,7 +345,7 @@ class SettingsWindow(QDialog):
         self.curl_retry_row.addWidget(QLabel(self.tr("Max retries:")))
         self.curl_retry_row.addWidget(self.curl_retry_count_spin)
         self.curl_retry_row.addSpacing(20)
-        self.curl_retry_row.addWidget(QLabel(self.tr("Interval (Days):")))
+        self.curl_retry_row.addWidget(QLabel(self.tr("Interval (Minutes):")))
         self.curl_retry_row.addWidget(self.curl_retry_interval_spin)
         curl_group_layout.addLayout(self.curl_retry_row)
 

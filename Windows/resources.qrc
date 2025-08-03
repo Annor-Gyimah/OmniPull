@@ -57,9 +57,12 @@
         <file>icons/youtube.svg</file>
         <file>tutorial_images/step1.png</file>
         <file>tutorial_images/step2.png</file>
+        <file>tutorial_images/step2a.png</file>
+        <file>tutorial_images/step2b.png</file>
+        <file>tutorial_images/step2c.png</file>
+        <file>tutorial_images/step2d.png</file>
+        <file>tutorial_images/step2e.png</file>
         <file>tutorial_images/step3.png</file>
-        <file>tutorial_images/step4.png</file>
-        
         
     </qresource>
 </RCC>
