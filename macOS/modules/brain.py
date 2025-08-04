@@ -886,7 +886,7 @@ def run_ytdlp_download(d, emitter=None):
 
     # Define paths
     output_path = os.path.join(d.folder, d.name)
-    ffmpeg_path = os.path.join(config.sett_folder, "ffmpeg.exe")
+    ffmpeg_path = config.ffmpeg_actual_path
 
     # Prepare format code
     format_code = None

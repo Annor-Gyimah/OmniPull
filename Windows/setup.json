@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "C:/Users/USER/Desktop/Softenv/OmniPull/Windows/main.py"
+   "value": "C:/Users/Annorion/Desktop/softenv/OmniPull/Windows/main.py"
   },
   {
    "optionDest": "onefile",
@@ -19,7 +19,7 @@
   },
   {
    "optionDest": "icon_file",
-   "value": "C:/Users/USER/Desktop/Softenv/OmniPull/Windows/icons/logo4.ico"
+   "value": "C:/Users/Annorion/Desktop/softenv/OmniPull/Windows/icons/logo4.ico"
   },
   {
    "optionDest": "clean_build",
@@ -59,7 +59,7 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/USER/Desktop/Softenv/OmniPull/Windows/icons/logo1.png;."
+   "value": "C:/Users/Annorion/Desktop/softenv/OmniPull/Windows/icons/logo1.png;."
   }
  ],
  "nonPyinstallerOptions": {

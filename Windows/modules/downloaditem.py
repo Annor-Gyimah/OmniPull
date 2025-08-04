@@ -276,7 +276,14 @@ class DownloadItem:
                     audio_segments = [
                         Segment(name=os.path.join(self.temp_folder, str(i) + '_audio'), num=i, range=x,
                                 size=get_seg_size(x), url=self.audio_url, tempfile=self.audio_file)
-                        for i, x in enumerate(range_list)]
+                        for i, x in enumerate(range_list) if get_seg_size(x) > 0
+                    ]
+
+
+                    # audio_segments = [
+                    #     Segment(name=os.path.join(self.temp_folder, str(i) + '_audio'), num=i, range=x,
+                    #             size=get_seg_size(x), url=self.audio_url, tempfile=self.audio_file)
+                    #     for i, x in enumerate(range_list)]
 
                 # append to main list
                 self._segments += audio_segments
@@ -389,7 +396,7 @@ class DownloadItem:
         self.last_known_progress = p  # to be loaded when restarting application
         return p
     
-    @progress.setter ################# YET TO ADD TO LINUX ############
+    @progress.setter 
     def progress(self, value):
         self._progress = value
 

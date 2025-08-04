@@ -7,12 +7,13 @@
 <div align="center">
 
 [![Build Status](https://github.com/soimort/you-get/workflows/develop/badge.svg)](https://github.com/soimort/you-get/actions)
+![GitHub Release](https://img.shields.io/github/v/release/Annor-Gyimah/Li-Dl)
+![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/Li-Dl)
 
-[![PyPI version](https://badge.fury.io/py/ytsage.svg)](https://badge.fury.io/py/ytsage)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![Downloads](https://static.pepy.tech/badge/ytsage)](https://pepy.tech/project/ytsage)
-[![Total Downloads](https://static.pepy.tech/badge/ytsage/month)](https://pepy.tech/project/ytsage)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/latest/total)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/total)
+
     
 </div>
 

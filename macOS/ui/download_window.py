@@ -22,7 +22,7 @@ class DownloadWindow(QWidget):
                 );
                 color: white;
                 border-radius: 14px;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: 'Monaco';
                 font-size: 12px;
             }
             QLabel {

@@ -4,7 +4,8 @@ import struct
 import json
 import os
 
-QUEUE_PATH = os.path.expanduser("~/APPData/Roaming/.OmniPull/.omnipull_url_queue.json")
+#QUEUE_PATH = os.path.expanduser("~/APPData/Roaming/.OmniPull/.omnipull_url_queue.json")
+QUEUE_PATH = os.path.expanduser("~/AppData/Roaming/.OmniPull/.omnipull_url_queue.json")
 
 
 # Initialize queue file if it doesn't exist

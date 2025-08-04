@@ -44,6 +44,7 @@ machine_id = None
 
 # application exit flag
 terminate = False 
+tutorial_completed = False
 
 # download engine
 download_engine = 'yt-dlp'  # download engine to be used, aria2c or yt-dlp
@@ -114,10 +115,10 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # ffmpeg
 #ffmpeg_actual_path = None
-ffmpeg_actual_path = "/usr/bin/ffmpeg"
+ffmpeg_actual_path = "/usr/local/bin/ffmpeg"
 ##ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/usr/bin/ffmpeg")
 #ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
-ffmpeg_actual_path_2 = global_sett_folder
+ffmpeg_actual_path_2 = "/usr/local/bin/ffmpeg"
 ffmpeg_download_folder = sett_folder
 ffmpeg_verified = False # ffmpeg is verified or not
 
@@ -140,6 +141,9 @@ aria2c_config = {
 
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
+    "no_playlist": True,
+    'list_formats': True,
+    'ignore_errors': True,
     "concurrent_fragment_downloads": 5,
     "merge_output_format": "mp4",
     "outtmpl": '%(title)s.%(ext)s',
@@ -168,12 +172,14 @@ d_list = []
 # queues
 main_window_q = Queue()  # queue for Main application window
 
+
 # settings parameters to be saved on disk
-settings_keys = ['current_theme','machine_id', 'download_engine', 'APP_FONT_DPI', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_engine', 'APP_FONT_DPI', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
                  'aria2_verified', 'ytdlp_config']
+
 
 # -------------------------------------------------------------------------------------
 

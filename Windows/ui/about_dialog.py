@@ -3,17 +3,18 @@ from PySide6.QtWidgets import (
     QFrame, QGraphicsBlurEffect, QWidget, QSizePolicy,
 )
 from PySide6.QtGui import QPixmap, QCursor, QIcon
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 import webbrowser
 import os
 from modules import config
-import resources_rc  
+import resources_rc
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(f"About {config.APP_NAME}")
         self.setFixedSize(650, 360)
+        # self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         # === Frosted Glass Blur ===
         blur = QGraphicsBlurEffect()
@@ -84,7 +85,7 @@ class AboutDialog(QDialog):
         left_layout.setAlignment(Qt.AlignTop)
 
         logo = QLabel()
-        pix = QPixmap(":/icons/logo4.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pix = QPixmap(":/icons/logo1.png").scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(pix)
         logo.setAlignment(Qt.AlignCenter)
 
@@ -128,11 +129,10 @@ class AboutDialog(QDialog):
         label1 = QLabel("OmniPull")
         label1.setObjectName("Title")
 
-        ab1, ab2 = self.tr('ODM is a python open source Internet Download Manager with multi-connections'), self.tr('high speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.')
-        label2 = QLabel(f"{ab1},\n {ab2}")
+        label2 = QLabel("ODM is a python open source Internet Download Manager with multi-connections,\nhigh speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.")
         label2.setWordWrap(True)
 
-        label3 = QLabel("GPL v2 License")
+        label3 = QLabel("GPL v3 License")
         label4 = QLabel("Created by: Emmanuel Gyimah Annor")
         label5 = QLabel("Inspiration")
         label6 = QLabel("PyIDM - by Mahmoud Elshahat")
@@ -144,29 +144,46 @@ class AboutDialog(QDialog):
         icon_list = {}
 
         icon_map = {
-            "github": "icons/github.png",
+            "github": ":/icons/github.svg",
             "telegram": "icons/telegram.png",
-            "browser": "icons/browser.png"
+            "browser": ":/icons/internet-web-browser.svg",
 
         }
 
+        # for icon in icon_map.values():
+        #     btn = QPushButton()
+        #     btn.setFixedSize(34, 34)
+        #     btn.setIcon(QIcon(icon))
+        #     btn.setIconSize(QSize(24, 24))
+        #     btn.setStyleSheet("""
+        #         QPushButton {
+        #             background-color: transparent;
+        #             border: none;
+        #         }
+        #         QPushButton:hover {
+        #             background-color: rgba(0, 255, 180, 0.1);
+        #             border-radius: 6px;
+        #         }
+        #     """)
+        #     icon_bar.addWidget(btn)
+
         for label, icon in icon_map.items():
-            btn = QPushButton(icon)
+            btn = QPushButton()
             btn.setFixedSize(34, 34)
+            btn.setIcon(QIcon(icon))
+            btn.setIconSize(QSize(24, 24))
             btn.setStyleSheet("""
                 QPushButton {
-                    background-color: rgba(40, 60, 50, 0.3);
-                    color: white;
-                    border: 1px solid rgba(0, 255, 180, 0.1);
-                    border-radius: 8px;
-                    font-size: 16px;
+                    background-color: transparent;
+                    border: none;
                 }
                 QPushButton:hover {
-                    background-color: rgba(0, 255, 180, 0.2);
+                    background-color: rgba(0, 255, 180, 0.1);
+                    border-radius: 6px;
                 }
             """)
-            if os.path.exists(icon):
-                btn.setIcon(QIcon(icon))
+            # if os.path.exists(icon):
+            #     btn.setIcon(QIcon(icon))
             icon_list[label] = btn
             btn.setCursor(QCursor(Qt.PointingHandCursor))
             if label == "github":
@@ -204,7 +221,4 @@ class AboutDialog(QDialog):
         main_layout.addWidget(left_container, 2)
         main_layout.addWidget(divider)
         main_layout.addWidget(right_container, 4)
-
-
-    
 

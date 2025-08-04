@@ -1,11 +1,12 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
-    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QFileDialog, QComboBox, QTextEdit,
+    QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
     QHeaderView, QMenu, QButtonGroup, QSizePolicy
 )
 from PySide6.QtGui import QIcon
 from random import randint
+import os
 import psutil
 import resources_rc
 
@@ -91,7 +92,9 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("About")
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
-
+        self.help_menu.addAction("Visual Tutorials")
+        self.help_menu.addAction("Report Issue")
+        # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)
         self.main_layout.addWidget(self.top_frame)
@@ -375,21 +378,21 @@ class Ui_MainWindow(object):
         self.combo3.setFixedWidth(360)
 
         combo1_row = QHBoxLayout()
-        combo1_label = QLabel("Download Item:")
-        combo1_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo1_row.addWidget(combo1_label)
+        self.combo1_label = QLabel("Download Item:")
+        self.combo1_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo1_row.addWidget(self.combo1_label)
         combo1_row.addWidget(self.combo1)
 
         combo2_row = QHBoxLayout()
-        combo2_label = QLabel("Resolution:")
-        combo2_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo2_row.addWidget(combo2_label)
+        self.combo2_label = QLabel("Resolution:")
+        self.combo2_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo2_row.addWidget(self.combo2_label)
         combo2_row.addWidget(self.combo2)
 
         combo3_row = QHBoxLayout()
-        combo3_label = QLabel("Queue:")
-        combo3_label.setStyleSheet("color: #ccc; font-size: 12px;")
-        combo3_row.addWidget(combo3_label)
+        self.combo3_label = QLabel("Queue:")
+        self.combo3_label.setStyleSheet("color: #ccc; font-size: 12px;")
+        combo3_row.addWidget(self.combo3_label)
         combo3_row.addWidget(self.combo3)
 
         right_layout.addLayout(combo1_row)
@@ -547,14 +550,16 @@ class Ui_MainWindow(object):
             btn.setStyleSheet("""
                 QPushButton {
                     background-color: rgba(30, 40, 30, 0.2);
-                    border: 1px solid rgba(0, 255, 180, 0.08);
                     border-radius: 10px;
                     padding: 6px;
+                    border: none;
                 }
                 QPushButton:hover {
                     background-color: rgba(0, 255, 180, 0.15);
                 }
             """)
+            
+                    
             self.toolbar_buttons[label] = btn
             self.toolbar_layout.addWidget(btn)
 
@@ -671,13 +676,14 @@ class Ui_MainWindow(object):
         self.log_level_combo.addItems(["1", "2", "3"])
         self.log_level_combo.setStyleSheet("""
             QComboBox {
-                background-color: #2b2b2b;
-                color: white;
-                border: 1px solid #444;
-                padding: 4px;
-                border-radius: 4px;
+            background-color: #2b2b2b;
+            color: white;
+            border: 1px solid #444;
+            padding: 4px;
+            border-radius: 4px;
             }
         """)
+        self.log_level_combo.setFixedWidth(100)
 
         self.log_clear_btn = QPushButton("Clear")
         self.log_clear_btn.setStyleSheet("""
@@ -712,7 +718,7 @@ class Ui_MainWindow(object):
                 border-radius: 16px;
                 color: white;
                 border: 1px solid #333;
-                font-family: Consolas, Courier New, monospace;
+                font-family: Monaco, Courier New, monospace;
                 font-size: 12px;
                 padding: 10px;
             }
@@ -753,6 +759,7 @@ class Ui_MainWindow(object):
         self.status_layout.addWidget(self.speed_value)
         self.status_layout.addStretch(1)
         self.version_value = QLabel("")
+        self.status_layout.addWidget(self.version_value)
         self.version_value.setStyleSheet("""
             color: #4CAF50;
             font-weight: bold;
@@ -760,19 +767,6 @@ class Ui_MainWindow(object):
             border-radius: 10px;
             background: rgba(76, 175, 80, 0.1);
         """)
-        # self.version_value.setStyleSheet(
-        #     """
-
-        #     color: #F44336;
-        #     padding: 6px 16px;
-        #     border-radius: 10px;
-        #     background: rgba(244, 67, 54, 0.1);
-            
-
-
-        #     """
-        # )
-        self.status_layout.addWidget(self.version_value)
 
         # Wrapper frame to enforce the same horizontal margins as content_frame
         self.status_wrapper = QFrame()

@@ -20,8 +20,6 @@
 #     - Customizable settings and language support
 #     - Robust error handling and update mechanism
 #
-#   This project is open for educational and personal use. For contributions,
-#   bug reports, or feature requests, please contact the developer.
 #
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
@@ -33,7 +31,7 @@ import time
 from threading import Thread, Timer
 import copy
 from typing import Any
-# import requests
+import requests
 import asyncio
 from pathlib import Path
 import json
@@ -42,18 +40,19 @@ import shutil
 import platform
 from collections import deque
 from datetime import datetime, timedelta
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region Third Parties import
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
 QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
-QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel)
+QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel,
+QGraphicsDropShadowEffect)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
 QCoreApplication, Qt, QTime)
 from PySide6 import QtGui, QtWidgets
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
 
 
 from ui.about_dialog import AboutDialog
@@ -65,13 +64,14 @@ from ui.setting_dialog import SettingsWindow
 from ui.ui_main import Ui_MainWindow 
 from ui.user_guide_dialog import UserGuideDialog
 from ui.tray_icon import TrayIconManager
+from ui.tutorial_window import TutorialOverlay, tutorial_steps
 
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format)
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
     notify, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update
+from modules import config, brain, setting, video, update, setting
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
@@ -88,6 +88,29 @@ widgets_about = None
 
 
 
+class InternetChecker(QThread):
+    """
+    This class for checking the internet
+    """
+    # Define a signal to send the result back to the main thread
+    internet_status_changed = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.is_connected = False  # Add a flag to store the connection status
+
+    def run(self):
+        """Runs the internet check in the background."""
+        url = "https://www.google.com"
+        timeout = 10
+        try:
+            # Requesting URL to check for internet connectivity
+            requests.get(url, timeout=timeout)
+            self.is_connected = True  # Update the connection status
+            self.internet_status_changed.emit(True)
+        except (requests.ConnectionError, requests.Timeout):
+            self.is_connected = False  # Update the connection status
+            self.internet_status_changed.emit(False)
 
 
 class SingleInstanceApp:
@@ -156,6 +179,8 @@ class YouTubeThread(QThread):
             log(f'Unexpected error: {e}', log_level=3)
             self.finished.emit(None)
 
+
+
     
     async def _run_async(self):
         try:
@@ -169,6 +194,9 @@ class YouTubeThread(QThread):
             log(f"[AsyncYTDL] Extracting info for URL: {self.url}", log_level=1)
             # video_obj = await video.Video.create(self.url)
             vid_info = await video.Video.extract_metadata(self.url)  # we'll split out this helper
+
+           
+
 
 
             if vid_info.get('_type') == 'playlist':
@@ -365,11 +393,13 @@ class LogRecorderThread(QThread):
                         self.buffer = ''  # Reset buffer
 
                 # Sleep briefly to prevent high CPU usage
-                self.msleep(100)  # QThread's msleep is more precise than time.sleep
+                self.msleep(10)  # QThread's msleep is more precise than time.sleep
 
             except Exception as e:
                 self.error_signal.emit(f'Log recorder error: {str(e)}')
-                self.msleep(100)
+                self.msleep(10)
+        log("[LogRecorderThread] Exiting run loop", log_level=1)
+
 
 
 class MarqueeLabel(QLabel):
@@ -438,7 +468,7 @@ class DownloadManagerUI(QMainWindow):
             QLabel, QPushButton {
                 color: white;
                 font-size: 13px;
-                font-family: 'Segoe UI';
+                font-family: 'Monaco';
             }
             QPushButton {
                 padding: 6px 12px;
@@ -535,6 +565,7 @@ class DownloadManagerUI(QMainWindow):
         self.yt_thread = None # Setup YouTube thread and connect signals
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
         self.setup()
+        # self.check_and_show_tutorial()
 
         # url
         self.url_timer = None  # usage: Timer(0.5, self.refresh_headers, args=[self.d.url])
@@ -703,6 +734,8 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[0].triggered.connect(self.show_about_dialog)
         widgets.help_menu.actions()[1].triggered.connect(self.start_update)
         widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
+        widgets.help_menu.actions()[3].triggered.connect(self.show_visual_tutorial)
+        widgets.help_menu.actions()[4].triggered.connect(self.open_github_issues)
         widgets.toolbar_buttons["Queues"].clicked.connect(self.show_queue_dialog)
 
 
@@ -730,8 +763,19 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer.start(60000)  # Every 60 seconds
     
 
-        
-        
+    def show_visual_tutorial(self):
+        """Show a visual tutorial overlay with multiple steps."""
+        # tutorial_steps = [
+        #     ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
+        #     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
+        #     ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
+        #     ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
+        # ]
+
+
+        overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
+        overlay.show()
+
 
 
     # region Menu bar     
@@ -804,7 +848,7 @@ class DownloadManagerUI(QMainWindow):
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
         "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID",  # <-- replace
-        "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/YOUR_EXTENSION_NAME/",
+        "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
         "Edge": "https://microsoftedge.microsoft.com/addons/detail/YOUR_EXTENSION_ID"
     }
 
@@ -815,6 +859,14 @@ class DownloadManagerUI(QMainWindow):
             show_information("Opening Browser", f"Redirecting you to install the {browser_name} extension.", "Follow the instructions there.")
         else:
             show_warning("Extension Error", f"No URL available for {browser_name}.")
+
+    def open_github_issues(self):
+        """Open the GitHub issues page in the default browser."""
+        url = 'https://github.com/Annor-Gyimah/OmniPull/issues'
+        if url:
+            QDesktopServices.openUrl(QUrl(url))
+            show_information("Opening Browser", f"Redirecting you to github. Please let us know if you encounter any issues.", "Follow the instructions there.")
+            
 
     def clear_all_completed_downloads(self):
         """
@@ -935,6 +987,9 @@ class DownloadManagerUI(QMainWindow):
         widgets.filename_label.setText(self.tr("FILENAME"))
         widgets.link_input.setPlaceholderText(self.tr("Place download link here"))
         widgets.filename_input.setPlaceholderText(self.tr("Filename goes here"))
+        widgets.combo1_label.setText(self.tr("Download Item:"))
+        widgets.combo2_label.setText(self.tr("Resolution:"))
+        widgets.combo3_label.setText(self.tr("Queue:"))
         widgets.playlist_btn.setText(self.tr("Playlist"))
         widgets.download_btn.setText(self.tr("Download"))
         widgets.size_label.setText(self.tr("Size:"))
@@ -971,6 +1026,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[0].setText(self.tr('About'))
         widgets.help_menu.actions()[1].setText(self.tr('Check for Updates'))
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
+        widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
 
         
         
@@ -1282,9 +1338,26 @@ class DownloadManagerUI(QMainWindow):
             log(f"Clipboard error due to incorrect data type or attribute access: {str(e)}", log_level=2)
 
 
+    def clean_url(self, original_url):
+        parsed = urlparse(original_url)
+        query = parse_qs(parsed.query)
+        
+        # Keep only the video ID (v=)
+        clean_query = {}
+        if 'v' in query:
+            clean_query['v'] = query['v']
+
+        # Rebuild the cleaned URL
+        new_query = urlencode(clean_query, doseq=True)
+        cleaned_url = urlunparse(parsed._replace(query=new_query))
+        return cleaned_url
+
     def url_text_change(self):
         """Handle URL changes in the QLineEdit."""
         url = widgets.link_input.text().strip()
+
+        url = self.clean_url(url) if config.ytdlp_config['no_playlist'] else url
+
         if url == self.d.url:
             return
         
@@ -2012,7 +2085,7 @@ class DownloadManagerUI(QMainWindow):
                 );
                 color: white;
                 border-radius: 14px;
-            }
+            } 
             QCheckBox, QLabel, QComboBox, QPushButton {
                 font-size: 13px;
                 background: transparent;
@@ -2060,13 +2133,22 @@ class DownloadManagerUI(QMainWindow):
             QPushButton:hover {
                 background-color: rgba(0, 192, 128, 0.6);
             }
-            QScrollArea {
-                border: none;
-            }
             QWidget#scroll_item_row {
                 background-color: rgba(255, 255, 255, 0.02);
                 border-radius: 6px;
                 padding: 6px;
+            }
+                             
+            QWidget#scrollContent {
+            background-color: transparent;  /* or try a dark color like #111 for solid */
+            }
+
+            QScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+            QScrollArea > QWidget > QWidget {
+                background-color: transparent;
             }
         """)
 
@@ -2090,6 +2172,7 @@ class DownloadManagerUI(QMainWindow):
         master_widget = QWidget()
         master_widget.setLayout(master_layout)
         master_widget.setStyleSheet("background-color: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 6px;")
+        # master_widget.setStyleSheet("background-color: red; padding: 6px; border-radius: 6px;")
 
         layout.addWidget(master_widget)
 
@@ -2157,7 +2240,13 @@ class DownloadManagerUI(QMainWindow):
             chosen = []
             for i, video in enumerate(self.playlist):
                 selected = stream_combos[i].currentText()
+                # video.selected_stream = video.raw_streams[selected]
+
+                if not selected or selected not in video.raw_streams:
+                    log(f"[Playlist] Skipping {video.title} — no format selected.")
+                    continue  # ⬅ safely skip this video
                 video.selected_stream = video.raw_streams[selected]
+
                 if video_checkboxes[i].isChecked():
                     chosen.append(video)
 
@@ -2511,9 +2600,12 @@ class DownloadManagerUI(QMainWindow):
             config.terminate = True
             # Gracefully close all threads
             for thread in self.background_threads:
-                if thread and thread.isRunning():
+                if isinstance(thread, QThread) and thread.isRunning():
+                    log(f"Thread {type(thread).__name__} (id={id(thread)}) is still running, attempting to quit...", log_level=1)
                     thread.quit()
                     thread.wait(2000)  # wait max 2 seconds
+                else:
+                    log(f"Thread {type(thread).__name__} (id={id(thread)}) is already stopped.", log_level=1)
             # self.background_threads.clear()
             
             aria2c_manager.cleanup_orphaned_paused_downloads()
@@ -3314,15 +3406,15 @@ class DownloadManagerUI(QMainWindow):
 
         self.action_open_file = create_action(":/icons/cil-file.png", self.tr("Open File"), "Ctrl+O", self.open_item)
         self.action_open_file_with = create_action(":/icons/cil-file.png", self.tr("Open File With"), "Ctrl+A", self.open_item_with)
-        self.action_open_location = create_action(":/icons/cil-folder.png", self.tr("Open File Location"), "Ctrl+L", self.open_file_location)
-        self.action_watch_downloading = create_action(":/icons/cil-media-play.png", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
-        self.action_schedule_download = create_action(":/icons/cil-schedule.png", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
-        self.action_cancel_schedule = create_action(":/icons/cil-x.png", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
-        self.action_file_properties = create_action(":/icons/cil-info.png", self.tr("File Properties"), "Ctrl+P", self.file_properties)
-        self.action_add_to_queue = create_action(":/icons/cil-medical-cross.png", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
-        self.action_remove_from_queue = create_action(":/icons/cil-minus.png", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
-        self.action_file_checksum = create_action(":/icons/cil-info.png", self.tr("File CheckSum!"), "Ctrl+H", self.start_file_checksum)
-        self.action_pop_file_from_table = create_action(":/icons/cil-delete.png", self.tr("Delete from Table"), "Ctrl+D", self.pop_download_item)
+        self.action_open_location = create_action(":/icons/folder.png", self.tr("Open File Location"), "Ctrl+L", self.open_file_location)
+        self.action_watch_downloading = create_action(":/icons/vlc.svg", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
+        self.action_schedule_download = create_action(":/icons/schedule.svg", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
+        self.action_cancel_schedule = create_action(":/icons/cancel-schedule.svg", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
+        self.action_file_properties = create_action(":/icons/info.svg", self.tr("File Properties"), "Ctrl+P", self.file_properties)
+        self.action_add_to_queue = create_action(":/icons/add-queue.svg", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
+        self.action_remove_from_queue = create_action(":/icons/remove-queue.svg", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
+        self.action_file_checksum = create_action(":/icons/info.svg", self.tr("File CheckSum!"), "Ctrl+H", self.start_file_checksum)
+        self.action_pop_file_from_table = create_action(":/icons/trash.svg", self.tr("Delete from Table"), "Ctrl+D", self.pop_download_item)
 
         
     def is_playable_media(self, d):
@@ -3558,6 +3650,7 @@ class DownloadManagerUI(QMainWindow):
         if d:
             d_name = self.tr("Name:")
             d_folder = self.tr("Folder:")
+            d_engine = self.tr("Download Engine:")
             d_progress = self.tr("Progress:")
             d_total_size = self.tr("Total size:")
             d_status = self.tr("Status:")
@@ -3568,6 +3661,7 @@ class DownloadManagerUI(QMainWindow):
 
             text = f'{d_name} {d.name} \n' \
                 f'{d_folder} {d.folder} \n' \
+                f'{d_engine} {d.engine} \n'  \
                 f'{d_progress} {d.progress}% \n' \
                 f'{d_total_size} {size_format(d.downloaded)} \n' \
                 f'{d_total_size} {size_format(d.total_size)} \n' \
@@ -3794,6 +3888,8 @@ class DownloadManagerUI(QMainWindow):
             color = QtGui.QColor(156, 39, 176)  # Purple
         elif status == config.Status.deleted:
             color = QtGui.QColor(158, 158, 158)  # Grey
+        elif status == config.Status.merging:
+            color = QtGui.QColor(255, 109, 0)  # Deep Orange
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white
 
@@ -3934,18 +4030,16 @@ class DownloadManagerUI(QMainWindow):
         current_date_str = now.strftime("%Y-%m-%d")
         current_time_str = now.strftime("%H:%M:%S")
 
-        # print(f"Current datetime: {current_date_str}, {current_time_str}")
-
         for d in self.d_list:
             if d.status == config.Status.scheduled and getattr(d, "sched", None):
                 sched_date, sched_time = d.sched  # Assuming ('2025-07-02', '01:31:15')
-                # print(f"Scheduled for: {sched_date}, {sched_time}")
+                
 
                 if sched_date == current_date_str and sched_time == current_time_str:
                     log(f"Scheduled time matched for {d.name}, attempting download...", log_level=1)
                     result = self.start_download(d, silent=True)
 
-                    if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
+                    if d.status in [config.Status.failed, config.Status.scheduled, config.Status.cancelled, config.Status.error]:
                         log(f"Scheduled download failed for {d.name}.", log_level=3)
 
                         if config.retry_scheduled_enabled:
@@ -3953,17 +4047,19 @@ class DownloadManagerUI(QMainWindow):
                             if d.schedule_retries < config.retry_scheduled_max_tries:
                                 d.schedule_retries += 1
                                 retry_time = now + timedelta(minutes=config.retry_scheduled_interval_mins)
+                                log(f"The retry time is {retry_time}")
                                 d.sched = (
                                     retry_time.strftime("%Y-%m-%d"),
                                     retry_time.strftime("%H:%M:%S")
                                 )
                                 d.status = config.Status.scheduled
                                 log(f"Retrying {d.name} at {d.sched[0]}, {d.sched[1]} [Attempt {d.schedule_retries}]", log_level=2)
+                                show_information(title="Scheduled Retry", inform="", msg=f"Retrying {d.name} at {d.sched[0]}, {d.sched[1]} [Attempt {d.schedule_retries}]")
                             else:
-                                d.status = config.Status.failed
+                                d.status = config.Status.cancelled
                                 log(f"{d.name} has reached max retries.", log_level=2)
                         else:
-                            d.status = config.Status.failed
+                            d.status = config.Status.cancelled
 
         self.queue_update("populate_table", None)
     
@@ -4005,8 +4101,9 @@ class DownloadManagerUI(QMainWindow):
                 #show_information('Updates', '', 'Updates available')
                 self.handle_update()
                 
-            # updaet global values
-            config.APP_LATEST_VERSION = latest_version
+            # update global values
+            config.APP_LATEST_VERSION = latest_version if latest_version is not None else config.APP_VERSION
+            
             self.new_version_description = version_description
 
         else:
@@ -4050,7 +4147,7 @@ class DownloadManagerUI(QMainWindow):
                 background-color: #121212;
                 color: white;
                 border-radius: 12px;
-                font-family: 'Segoe UI';
+                font-family: 'Monaco';
                 font-size: 13px;
                 border: 1px solid #3A3F44;
             }
@@ -4067,7 +4164,7 @@ class DownloadManagerUI(QMainWindow):
                 border-radius: 16px;
                 color: white;
                 border: 1px solid #333;
-                font-family: Consolas, Courier New, monospace;
+                font-family: Monaco, Courier New, monospace;
                 font-size: 12px;
                 padding: 10px;
             }
@@ -4182,7 +4279,7 @@ def ask_for_sched_time(msg=''):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(":/icons/logo1.png"))
-    app_id = "omnipull.exe"
+    app_id = "omnipull"
     single_instance = SingleInstanceApp(app_id)
 
     if single_instance.is_running():
@@ -4195,6 +4292,10 @@ if __name__ == "__main__":
     window.show()
     # Optionally, run a method after the main window is initialized
     QTimer.singleShot(0, video.import_ytdl)
+
+    if not getattr(config, "tutorial_completed", False):
+        window.tutorial = TutorialOverlay(window, tutorial_steps)
+
     sys.exit(app.exec())
 
 
