@@ -21,7 +21,7 @@ class Aria2cManager:
         self.client = None
         #self.settings_manager = SettingsManager()
         self.session_file = os.path.join(config.sett_folder, "aria2c.session")
-        config.aria2c_path = os.path.join(config.sett_folder, "aria2c.exe")
+        config.aria2c_path = os.path.join(config.sett_folder, "aria2c")
         self._ensure_session_file()
         #self._terminate_existing_processes()
         setting.load_setting()
@@ -36,14 +36,28 @@ class Aria2cManager:
             with open(self.session_file, 'w') as f:
                 pass
 
+    #def _terminate_existing_processes(self):
+    #    for proc in psutil.process_iter(['pid', 'name']):
+    #        try:
+    #            if proc.info['name'] and 'aria2c' in proc.info['name'].lower():
+    #                proc.terminate()
+    #                proc.wait(timeout=3)
+    #                log(f"Terminated {proc.info['name']}", log_level=1)
+    #        except Exception:
+    #            continue
+
     def _terminate_existing_processes(self):
-        for proc in psutil.process_iter(['pid', 'name']):
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
-                if proc.info['name'] and 'aria2c' in proc.info['name'].lower():
+                name = proc.info.get('name', '').lower()
+                cmdline = ' '.join(proc.info.get('cmdline', [])).lower()
+
+                if 'aria2c' in name or 'aria2c' in cmdline:
                     proc.terminate()
                     proc.wait(timeout=3)
-                    log(f"Terminated {proc.info['name']}", log_level=1)
-            except Exception:
+                    log(f"[Aria2c] Terminated process: PID={proc.pid}, name={name}", log_level=1)
+
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
 
     def _start_rpc_server(self):
