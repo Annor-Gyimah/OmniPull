@@ -7,12 +7,12 @@ from modules import config, setting
 
 
 tutorial_steps = [
-    ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
+    ("Welcome to OmniPull", "Your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
     ("Download Table", "View on the download table, completed downloads, paused downloads, queued downloads, scheduled downloads, pending downloads, etc.", ":/tutorial_images/step2.png"),
     ("Toolbar Options", "Download operations like pause, resume, cancel, delete, schedule all etc on single downloads or a batch downloads.", ":/tutorial_images/step2a.png"),
     ("Table Options", "Schedule, open completed downloads, view download file properties, add downloads to queues etc.", ":/tutorial_images/step2b.png"),
-    ("Schedule Download Dialog", "Schedule downloads at specific dates and time at your own convieniece.", ":/tutorial_images/step2c.png"),
-    ("Settings Panel", "Customize your experience in the settings panel, selection of desired language, download engines, customizing download engines, checking for updates,etc.", ":/tutorial_images/step2d.png"),
+    ("Schedule Download Dialog", "Schedule downloads at specific dates and time at your own convenience.", ":/tutorial_images/step2c.png"),
+    ("Settings Panel", "Customize your experience in the settings panel, selection of desired language, download engines, customizing download engines, checking for updates,etc. Please change the QT FONT DPI value for it to suit your window display.", ":/tutorial_images/step2d.png"),
     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2e.png"),
     ("Terminal Logs", "See detailed events like processing of youtube links and other site links, errors, and important informations.", ":/tutorial_images/step3.png"),
 ]
