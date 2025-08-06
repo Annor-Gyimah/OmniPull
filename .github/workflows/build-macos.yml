@@ -79,6 +79,7 @@ jobs:
       - name: Create DMG from .app
         run: |
           cd dist
+          ls -la  # Verify files present
           create-dmg \
             --volname "OmniPull" \
             --window-pos 200 120 \
