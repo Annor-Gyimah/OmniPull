@@ -29,7 +29,7 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
 
-      - name: Run PyInstaller
+      - name: Build OmniPull with PyInstaller
         run: |
           pyinstaller main.py \
             --noconfirm \
@@ -39,15 +39,19 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:translations"
 
-      - name: Create .app structure
+      - name: Create OmniPull.app manually
         run: |
-          mkdir -p dist/OmniPull.app/Contents/MacOS
-          cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
+          mkdir -p OmniPull.app/Contents/MacOS
+          cp dist/OmniPull OmniPull.app/Contents/MacOS/OmniPull
+          mv OmniPull.app dist/
+
+      - name: List dist/ contents for verification
+        run: ls -R dist/
 
       - name: Install create-dmg
         run: npm install -g create-dmg
 
-      - name: Create DMG
+      - name: Create DMG from .app
         run: |
           create-dmg \
             --volname "OmniPull" \
@@ -55,12 +59,11 @@ jobs:
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
-            --icon "dist/OmniPull.app" 200 190 \
-            --app-drop-link 600 185 \
+            --icon "OmniPull.app" 200 190 \
             --hide-extension "OmniPull.app" \
+            --app-drop-link 600 185 \
             "dist/OmniPull.dmg" \
             "dist/"
-
 
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v4
