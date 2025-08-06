@@ -43,8 +43,9 @@ jobs:
         run: |
           mkdir -p OmniPull.app/Contents/MacOS
           cp dist/OmniPull OmniPull.app/Contents/MacOS/OmniPull
-          rm -rf dist/OmniPull.app  # Remove existing app bundle if any
+          rm -rf dist/OmniPull.app
           mv OmniPull.app dist/
+
 
 
       - name: List dist/ contents for verification
@@ -56,17 +57,17 @@ jobs:
       - name: Create DMG from .app
         run: |
           cd dist
+          ls -la  # Verify files present
           create-dmg \
             --volname "OmniPull" \
-            --background "../icons/logo4.png" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
             --icon "OmniPull.app" 200 190 \
-            --hide-extension "OmniPull.app" \
             --app-drop-link 600 185 \
             "OmniPull.dmg" \
             "."
+
 
 
       - name: Upload DMG as artifact
