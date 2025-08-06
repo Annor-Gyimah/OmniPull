@@ -43,7 +43,9 @@ jobs:
         run: |
           mkdir -p OmniPull.app/Contents/MacOS
           cp dist/OmniPull OmniPull.app/Contents/MacOS/OmniPull
+          rm -rf dist/OmniPull.app  # Remove existing app bundle if any
           mv OmniPull.app dist/
+
 
       - name: List dist/ contents for verification
         run: ls -R dist/
