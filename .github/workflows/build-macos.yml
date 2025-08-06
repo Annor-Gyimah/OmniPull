@@ -39,14 +39,14 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:translations"
 
-      - name: Create proper OmniPull.app bundle
+      - name: Create valid OmniPull.app bundle
         run: |
           rm -rf dist/OmniPull.app
           mkdir -p dist/OmniPull.app/Contents/MacOS
+
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
 
-          # Add Info.plist (basic one)
-          cat > dist/OmniPull.app/Contents/Info.plist <<EOF
+          cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -70,11 +70,16 @@ jobs:
 
 
 
+
       - name: List dist/ contents for verification
         run: ls -R dist/
 
       - name: Install create-dmg
         run: npm install -g create-dmg
+
+      - name: Verify app bundle structure
+        run: ls -R dist/OmniPull.app
+
 
       - name: Create DMG from .app
         run: |
