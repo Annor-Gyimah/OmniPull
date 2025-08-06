@@ -39,12 +39,34 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:translations"
 
-      - name: Create OmniPull.app manually
+      - name: Create proper OmniPull.app bundle
         run: |
-          mkdir -p OmniPull.app/Contents/MacOS
-          cp dist/OmniPull OmniPull.app/Contents/MacOS/OmniPull
           rm -rf dist/OmniPull.app
-          mv OmniPull.app dist/
+          mkdir -p dist/OmniPull.app/Contents/MacOS
+          cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
+
+          # Add Info.plist (basic one)
+          cat > dist/OmniPull.app/Contents/Info.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleName</key>
+              <string>OmniPull</string>
+              <key>CFBundleDisplayName</key>
+              <string>OmniPull</string>
+              <key>CFBundleExecutable</key>
+              <string>OmniPull</string>
+              <key>CFBundleIdentifier</key>
+              <string>com.omnipull.app</string>
+              <key>CFBundleVersion</key>
+              <string>1.0</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+          </dict>
+          </plist>
+          EOF
+
 
 
 
@@ -57,7 +79,6 @@ jobs:
       - name: Create DMG from .app
         run: |
           cd dist
-          ls -la  # Verify files present
           create-dmg \
             --volname "OmniPull" \
             --window-pos 200 120 \
