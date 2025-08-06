@@ -80,20 +80,24 @@ jobs:
       - name: Verify app bundle structure
         run: ls -R dist/OmniPull.app
 
+      - name: Ensure OmniPull is executable
+        run: chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
+        
+      - name: Show contents of dist/
+        run: ls -lh dist/
+
 
       - name: Create DMG from .app
         run: |
           cd dist
           ls -la  # Verify files present
-          create-dmg \
-            --volname "OmniPull" \
+          create-dmg --volname "OmniPull" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
             --icon "OmniPull.app" 200 190 \
             --app-drop-link 600 185 \
-            "OmniPull.dmg" \
-            "."
+            OmniPull.dmg .
 
 
 
