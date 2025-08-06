@@ -55,17 +55,19 @@ jobs:
 
       - name: Create DMG from .app
         run: |
+          cd dist
           create-dmg \
             --volname "OmniPull" \
-            --background "icons/logo4.png" \
+            --background "../icons/logo4.png" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
             --icon "OmniPull.app" 200 190 \
             --hide-extension "OmniPull.app" \
             --app-drop-link 600 185 \
-            "dist/OmniPull.dmg" \
-            "dist/"
+            "OmniPull.dmg" \
+            "."
+
 
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v4
