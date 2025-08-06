@@ -36,7 +36,7 @@ jobs:
             --onefile \
             --windowed \
             --name OmniPull \
-            --icon icons/icon.icns \
+            --icon icons/logo.icns \
             --add-data "modules/translations:translations"
 
       - name: Create .app structure
