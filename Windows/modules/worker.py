@@ -152,6 +152,10 @@ class Worker:
     def set_options(self):
         agent = USER_AGENT
         self.c.setopt(pycurl.USERAGENT, agent)
+
+        if not self.seg.url:
+            raise ValueError(f"[Worker] Invalid URL in segment: {self.seg.name} (URL is None)")
+
         self.c.setopt(pycurl.URL, self.seg.url)
 
         range_ = self.resume_range or self.seg.range

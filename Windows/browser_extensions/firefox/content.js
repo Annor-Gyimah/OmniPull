@@ -5,9 +5,20 @@ function isDownloadable(link) {
 
   function createOmniPullButton(text = "Download with OmniPull") {
     const btn = document.createElement("button");
-    const ICON_URL = chrome.runtime.getURL("icons/logo4.png");
 
-    btn.innerHTML = `<img src="${ICON_URL}" style="width:14px; height:14px; vertical-align:middle; margin-right:6px;"> ${text}`;
+    const ICON_URL = chrome.runtime.getURL("icons/logo4.png");
+    const img = document.createElement("img");
+    img.src = ICON_URL;
+    img.style.width = "14px";
+    img.style.height = "14px";
+    img.style.verticalAlign = "middle";
+    img.style.marginRight = "6px";
+
+    const span = document.createElement("span");
+    span.textContent = text;
+
+    btn.appendChild(img);
+    btn.appendChild(span);
 
     Object.assign(btn.style, {
       display: "inline-flex",
@@ -38,7 +49,7 @@ function isDownloadable(link) {
 
     return btn;
   }
-  
+
   
   function injectDownloadButtons() {
     const links = document.querySelectorAll('a');
@@ -48,17 +59,6 @@ function isDownloadable(link) {
       if (isDownloadable(link)) {
         const btn = createOmniPullButton();
 
-        // btn.innerHTML = `<img src="${ICON_URL}" style="width:16px; height:16px; vertical-align:middle; margin-right:6px;"> ${text}`;
-        // btn.style.display = "inline-flex";
-        // btn.style.alignItems = "center";
-        // btn.style.marginLeft = "10px";
-        // btn.style.padding = "6px 10px";
-        // btn.style.backgroundColor = "#1e88e5";
-        // btn.style.color = "white";
-        // btn.style.border = "none";
-        // btn.style.borderRadius = "4px";
-        // btn.style.fontSize = "13px";
-        // btn.style.cursor = "pointer";
         
   
         btn.onclick = () => {

@@ -9,10 +9,8 @@ import zipfile
 import shutil
 import time
 import asyncio
-from threading import Thread
 from urllib.parse import urljoin
 import copy
-import platform
 from modules import config
 from modules.downloaditem import DownloadItem, Segment
 from modules.threadpool import executor
@@ -43,15 +41,12 @@ class Logger(object):
 def get_ytdl_options():
     ydl_opts = {
         'prefer_insecure': True, 
-        'no_warnings': False,
+        'no_warnings': config.ytdlp_config.get('no_warnings', True),
         'logger': Logger(),
         'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
-        # 'listformats': True,
-        # 'no_check_certificate': True,
-        # 'cookiefile': os.path.join(config.sett_folder, 'youtube_cookies.txt'),
-        # 'extractor_args': {
-        #     'youtube': ['visitor_data=yt.visitor_data_value', 'client=ANDROID'],
-        # }
+        'listformats': config.ytdlp_config.get('list_formats', False),
+        'noplaylist': config.ytdlp_config.get('no_playlist', True),
+        'ignore_errors': config.ytdlp_config.get('ignore_errors', True)
         
     }
     if config.proxy:
@@ -64,6 +59,7 @@ def get_ytdl_options():
 
         ydl_opts['proxy'] = proxy_url
 
+    ydl_opts['no_playlist'] = True
 
     return ydl_opts
 

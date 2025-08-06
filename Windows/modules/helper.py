@@ -125,7 +125,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
-            "Schedule All": False,
+            "Schedule All": True,
             "Settings": True,
             "Download Window": False,
         },
