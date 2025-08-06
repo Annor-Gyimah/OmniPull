@@ -21,7 +21,7 @@
 #     - Robust error handling and update mechanism
 #
 #
-#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved..
 #####################################################################################
 
 # region Libraries import
