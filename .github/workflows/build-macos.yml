@@ -29,7 +29,7 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
 
-      - name: Build OmniPull with PyInstaller
+      - name: Build OmniPull executable with PyInstaller
         run: |
           pyinstaller main.py \
             --noconfirm \
@@ -39,13 +39,14 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:translations"
 
-      - name: Create valid OmniPull.app bundle
+      - name: Create OmniPull.app bundle manually
         run: |
           rm -rf dist/OmniPull.app
           mkdir -p dist/OmniPull.app/Contents/MacOS
-
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
+          chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
 
+          # Add basic Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -67,39 +68,18 @@ jobs:
           </plist>
           EOF
 
-
-
-
-
-      - name: List dist/ contents for verification
-        run: ls -R dist/
-
-      - name: Install create-dmg
-        run: npm install -g create-dmg
-
-      - name: Verify app bundle structure
+      - name: Verify .app structure
         run: ls -R dist/OmniPull.app
 
-      - name: Ensure OmniPull is executable
-        run: chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
-        
-      - name: Show contents of dist/
-        run: ls -lh dist/
+      - name: Install appdmg
+        run: npm install -g appdmg
 
+      - name: Prepare for DMG creation
+        run: cp -R dist/OmniPull.app OmniPull.app
 
-      - name: Create DMG from .app
+      - name: Create DMG using appdmg
         run: |
-          cd dist
-          ls -la  # Verify files present
-          create-dmg --volname "OmniPull" \
-            --window-pos 200 120 \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --icon "OmniPull.app" 200 190 \
-            --app-drop-link 600 185 \
-            OmniPull.dmg .
-
-
+          appdmg appdmg.json dist/OmniPull.dmg
 
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v4
