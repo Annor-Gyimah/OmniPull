@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-macos:
-    runs-on: macos-13  # Safer fallback for Intel + older macOS support
+    runs-on: macos-13  # Compatible with older Intel Macs like Big Sur
 
     defaults:
       run:
@@ -37,14 +37,17 @@ jobs:
             --windowed \
             --name OmniPull \
             --icon icons/logo.icns \
-            --add-data "modules/translations:translations"
+            --add-data "modules/translations:modules/translations"
 
       - name: Create OmniPull.app bundle manually
         run: |
           rm -rf dist/OmniPull.app
           mkdir -p dist/OmniPull.app/Contents/MacOS
+          mkdir -p dist/OmniPull.app/Contents/Resources
+
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
+          cp icons/logo.icns dist/OmniPull.app/Contents/Resources/logo.icns
 
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
@@ -63,18 +66,20 @@ jobs:
               <string>1.0</string>
               <key>CFBundlePackageType</key>
               <string>APPL</string>
+              <key>CFBundleIconFile</key>
+              <string>logo</string>
           </dict>
           </plist>
           EOF
 
-      - name: Verify app bundle structure
+      - name: Verify .app structure
         run: ls -R dist/OmniPull.app
 
       - name: Install appdmg
         run: npm install -g appdmg
 
       - name: Confirm background image exists
-        run: ls -l icons/logo4.png
+        run: ls -l assets/background.png || echo "No background image found"
 
       - name: Prepare for DMG creation
         run: cp -R dist/OmniPull.app OmniPull.app

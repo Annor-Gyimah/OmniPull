@@ -58,6 +58,7 @@ class Aria2cManager:
                     log(f"[Aria2c] Terminated process: PID={proc.pid}, name={name}", log_level=1)
 
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                log(f"[Aria2c] Failed to terminate process PID={proc.pid}: {proc.info.get('name', 'unknown')}", log_level=3)
                 continue
 
     def _start_rpc_server(self):
