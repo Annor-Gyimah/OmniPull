@@ -94,7 +94,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omnipull-intel-app
-          path: macOS/dist/OmniPull.app
+          path: dist/OmniPull.app
 
   build-arm:
     name: Build Apple Silicon (arm64)
@@ -177,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omnipull-arm-app
-          path: macOS/dist/OmniPull.app
+          path: dist/OmniPull.app 
 
   merge-and-dmg:
     name: Merge & Package Universal DMG
