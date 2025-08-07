@@ -90,11 +90,18 @@ jobs:
           ls -R dist/OmniPull.app
           file dist/OmniPull.app/Contents/MacOS/OmniPull
 
+      - name: Stage Intel app
+        run: |
+          mkdir -p ../upload/intel
+          cp -R dist/OmniPull.app ../upload/intel/OmniPull.app
+
       - name: Upload Intel .app
         uses: actions/upload-artifact@v4
         with:
           name: omnipull-intel-app
-          path: dist/OmniPull.app
+          path: upload/intel/OmniPull.app
+          if-no-files-found: error
+
 
   build-arm:
     name: Build Apple Silicon (arm64)
@@ -173,11 +180,18 @@ jobs:
           ls -R dist/OmniPull.app
           file dist/OmniPull.app/Contents/MacOS/OmniPull
 
+      - name: Stage ARM app
+        run: |
+          mkdir -p ../upload/arm
+          cp -R dist/OmniPull.app ../upload/arm/OmniPull.app
+
       - name: Upload ARM .app
         uses: actions/upload-artifact@v4
         with:
           name: omnipull-arm-app
-          path: dist/OmniPull.app 
+          path: upload/arm/OmniPull.app
+          if-no-files-found: error
+
 
   merge-and-dmg:
     name: Merge & Package Universal DMG
