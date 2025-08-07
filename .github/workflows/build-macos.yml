@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-macos:
-    runs-on: macos-latest
+    runs-on: macos-13  # Safer fallback for Intel + older macOS support
 
     defaults:
       run:
@@ -29,9 +29,9 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
 
-      - name: Build OmniPull executable with PyInstaller
+      - name: Build OmniPull executable for Intel (x86_64)
         run: |
-          pyinstaller main.py \
+          arch -x86_64 pyinstaller main.py \
             --noconfirm \
             --onefile \
             --windowed \
@@ -46,7 +46,6 @@ jobs:
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
 
-          # Add basic Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -68,11 +67,14 @@ jobs:
           </plist>
           EOF
 
-      - name: Verify .app structure
+      - name: Verify app bundle structure
         run: ls -R dist/OmniPull.app
 
       - name: Install appdmg
         run: npm install -g appdmg
+
+      - name: Confirm background image exists
+        run: ls -l icons/logo4.png
 
       - name: Prepare for DMG creation
         run: cp -R dist/OmniPull.app OmniPull.app
