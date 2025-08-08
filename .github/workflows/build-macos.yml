@@ -1,4 +1,4 @@
-name: Build OmniPull macOS DMGs (Split Intel/ARM + aria2c)
+name: Build OmniPull macOS DMGs (Split Intel/ARM + auto-aria2c)
 
 on:
   workflow_dispatch:
@@ -33,17 +33,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps (PyInstaller + aria2c)
+      - name: Install deps (PyInstaller + aria2)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
 
-          # Install aria2 via Homebrew (Intel runners use /usr/local)
-          if ! command -v brew >/dev/null 2>&1; then
-            echo "Homebrew not found on Intel runner (unexpected)."
-            exit 1
-          fi
+          # Homebrew (Intel uses /usr/local; should already exist on GitHub macOS-13)
           brew update
           brew install aria2 || true
 
@@ -68,7 +64,6 @@ jobs:
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
           cp icons/logo.icns dist/OmniPull.app/Contents/Resources/logo.icns
 
-          # Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -86,7 +81,7 @@ jobs:
           </plist>
           EOF
 
-          # Bundle native Intel aria2c
+          # Find Homebrew aria2c (Intel runner usually /usr/local/bin/aria2c)
           ARIA_BIN="$(command -v aria2c || true)"
           if [ -z "$ARIA_BIN" ]; then
             echo "WARNING: aria2c not found; skipping bundling (Intel)."
@@ -142,17 +137,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps (PyInstaller + aria2c)
+      - name: Install deps (PyInstaller + aria2)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
 
-          # Apple Silicon runners have Homebrew at /opt/homebrew
-          if ! command -v brew >/dev/null 2>&1; then
-            echo "Homebrew not found on ARM runner (unexpected)."
-            exit 1
-          fi
+          # Homebrew on Apple Silicon is /opt/homebrew; present on macos-latest (arm64)
           brew update
           brew install aria2 || true
 
@@ -177,7 +168,6 @@ jobs:
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
           cp icons/logo.icns dist/OmniPull.app/Contents/Resources/logo.icns
 
-          # Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -195,7 +185,7 @@ jobs:
           </plist>
           EOF
 
-          # Bundle native ARM aria2c (Homebrew on ARM is /opt/homebrew/bin/aria2c)
+          # Find Homebrew aria2c (ARM runner usually /opt/homebrew/bin/aria2c)
           ARIA_BIN="$(command -v aria2c || true)"
           if [ -z "$ARIA_BIN" ]; then
             echo "WARNING: aria2c not found; skipping bundling (ARM)."

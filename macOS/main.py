@@ -76,6 +76,8 @@ from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
 
+aria2c_manager.ensure_aria2c_installed("OmniPull")
+
 
 
 os.environ["QT_FONT_DPI"] = f"{config.APP_FONT_DPI}"  # FIX Problem for High DPI and Scale above 100%
@@ -765,12 +767,6 @@ class DownloadManagerUI(QMainWindow):
 
     def show_visual_tutorial(self):
         """Show a visual tutorial overlay with multiple steps."""
-        # tutorial_steps = [
-        #     ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
-        #     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
-        #     ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
-        #     ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
-        # ]
 
 
         overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
