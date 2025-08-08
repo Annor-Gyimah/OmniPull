@@ -1,4 +1,4 @@
-name: Build OmniPull Universal macOS DMG
+name: Build OmniPull macOS DMGs (Split Intel/ARM + aria2c)
 
 on:
   workflow_dispatch:
@@ -8,13 +8,13 @@ on:
         required: true
         default: "macOS"
       version:
-        description: "App version (optional, e.g., 1.2.25)"
+        description: "App version (optional, e.g., 1.2.26)"
         required: false
         default: ""
 
 jobs:
-  build-intel:
-    name: Build Intel (x86_64)
+  build-intel-dmg:
+    name: Intel DMG (x86_64)
     runs-on: macos-13
     env:
       BUILD_REF: ${{ github.event.inputs.branch }}
@@ -33,11 +33,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps
+      - name: Install deps (PyInstaller + aria2c)
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
           pip install -r requirements.txt
+          pip install pyinstaller
+
+          # Install aria2 via Homebrew (Intel runners use /usr/local)
+          if ! command -v brew >/dev/null 2>&1; then
+            echo "Homebrew not found on Intel runner (unexpected)."
+            exit 1
+          fi
+          brew update
+          brew install aria2 || true
 
       - name: Build x86_64 with PyInstaller
         run: |
@@ -49,57 +57,73 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:modules/translations"
 
-      - name: Create .app (Intel)
+      - name: Create .app (Intel) + bundle aria2c
         run: |
+          APP_VERSION="${VERSION:-1.0}"
           rm -rf dist/OmniPull.app
           mkdir -p dist/OmniPull.app/Contents/MacOS
-          mkdir -p dist/OmniPull.app/Contents/Resources
+          mkdir -p dist/OmniPull.app/Contents/Resources/bin
 
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
           cp icons/logo.icns dist/OmniPull.app/Contents/Resources/logo.icns
 
-          APP_VERSION="${VERSION:-1.2.25}"
+          # Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-              <key>CFBundleName</key>
-              <string>OmniPull</string>
-              <key>CFBundleDisplayName</key>
-              <string>OmniPull</string>
-              <key>CFBundleExecutable</key>
-              <string>OmniPull</string>
-              <key>CFBundleIdentifier</key>
-              <string>com.omnipull.app</string>
-              <key>CFBundleShortVersionString</key>
-              <string>${APP_VERSION}</string>
-              <key>CFBundleVersion</key>
-              <string>${APP_VERSION}</string>
-              <key>CFBundlePackageType</key>
-              <string>APPL</string>
-              <key>CFBundleIconFile</key>
-              <string>logo</string>
+              <key>CFBundleName</key><string>OmniPull</string>
+              <key>CFBundleDisplayName</key><string>OmniPull</string>
+              <key>CFBundleExecutable</key><string>OmniPull</string>
+              <key>CFBundleIdentifier</key><string>com.omnipull.app</string>
+              <key>CFBundleShortVersionString</key><string>${APP_VERSION}</string>
+              <key>CFBundleVersion</key><string>${APP_VERSION}</string>
+              <key>CFBundlePackageType</key><string>APPL</string>
+              <key>CFBundleIconFile</key><string>logo</string>
           </dict>
           </plist>
           EOF
 
-      - name: Zip Intel app (preserve resource forks)
-        run: |
-          cd dist
-          ditto -c -k --sequesterRsrc --keepParent OmniPull.app OmniPull-intel.zip
-          ls -lh OmniPull-intel.zip
+          # Bundle native Intel aria2c
+          ARIA_BIN="$(command -v aria2c || true)"
+          if [ -z "$ARIA_BIN" ]; then
+            echo "WARNING: aria2c not found; skipping bundling (Intel)."
+          else
+            echo "Bundling aria2c from $ARIA_BIN"
+            cp "$ARIA_BIN" dist/OmniPull.app/Contents/Resources/bin/aria2c
+            chmod +x dist/OmniPull.app/Contents/Resources/bin/aria2c
+          fi
 
-      - name: Upload Intel zip
+      - name: Verify Intel app
+        run: |
+          ls -R dist/OmniPull.app
+          file dist/OmniPull.app/Contents/MacOS/OmniPull
+          file dist/OmniPull.app/Contents/Resources/bin/aria2c || true
+
+      - name: Install appdmg
+        run: npm install -g appdmg
+
+      - name: Create Intel DMG
+        run: |
+          mkdir -p dist
+          rm -rf OmniPull.app
+          cp -R dist/OmniPull.app OmniPull.app
+          test -f appdmg.json || { echo "Missing appdmg.json"; exit 1; }
+          rm -f dist/OmniPull-Intel.dmg
+          appdmg appdmg.json dist/OmniPull-Intel.dmg
+          ls -lh dist/OmniPull-Intel.dmg
+
+      - name: Upload Intel DMG
         uses: actions/upload-artifact@v4
         with:
-          name: omnipull-intel-zip
-          path: macOS/dist/OmniPull-intel.zip
+          name: OmniPull-Intel-${{ github.event.inputs.branch }}-${{ github.sha }}
+          path: macOS/dist/OmniPull-Intel.dmg
           if-no-files-found: error
 
-  build-arm:
-    name: Build Apple Silicon (arm64)
+  build-arm-dmg:
+    name: Apple Silicon DMG (arm64)
     runs-on: macos-latest
     env:
       BUILD_REF: ${{ github.event.inputs.branch }}
@@ -118,11 +142,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps
+      - name: Install deps (PyInstaller + aria2c)
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
           pip install -r requirements.txt
+          pip install pyinstaller
+
+          # Apple Silicon runners have Homebrew at /opt/homebrew
+          if ! command -v brew >/dev/null 2>&1; then
+            echo "Homebrew not found on ARM runner (unexpected)."
+            exit 1
+          fi
+          brew update
+          brew install aria2 || true
 
       - name: Build arm64 with PyInstaller
         run: |
@@ -134,154 +166,67 @@ jobs:
             --icon icons/logo.icns \
             --add-data "modules/translations:modules/translations"
 
-      - name: Create .app (ARM)
+      - name: Create .app (ARM) + bundle aria2c
         run: |
+          APP_VERSION="${VERSION:-1.0}"
           rm -rf dist/OmniPull.app
           mkdir -p dist/OmniPull.app/Contents/MacOS
-          mkdir -p dist/OmniPull.app/Contents/Resources
+          mkdir -p dist/OmniPull.app/Contents/Resources/bin
 
           cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
           chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
           cp icons/logo.icns dist/OmniPull.app/Contents/Resources/logo.icns
 
-          APP_VERSION="${VERSION:-1.2.25}"
+          # Info.plist
           cat <<EOF > dist/OmniPull.app/Contents/Info.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-              <key>CFBundleName</key>
-              <string>OmniPull</string>
-              <key>CFBundleDisplayName</key>
-              <string>OmniPull</string>
-              <key>CFBundleExecutable</key>
-              <string>OmniPull</string>
-              <key>CFBundleIdentifier</key>
-              <string>com.omnipull.app</string>
-              <key>CFBundleShortVersionString</key>
-              <string>${APP_VERSION}</string>
-              <key>CFBundleVersion</key>
-              <string>${APP_VERSION}</string>
-              <key>CFBundlePackageType</key>
-              <string>APPL</string>
-              <key>CFBundleIconFile</key>
-              <string>logo</string>
+              <key>CFBundleName</key><string>OmniPull</string>
+              <key>CFBundleDisplayName</key><string>OmniPull</string>
+              <key>CFBundleExecutable</key><string>OmniPull</string>
+              <key>CFBundleIdentifier</key><string>com.omnipull.app</string>
+              <key>CFBundleShortVersionString</key><string>${APP_VERSION}</string>
+              <key>CFBundleVersion</key><string>${APP_VERSION}</string>
+              <key>CFBundlePackageType</key><string>APPL</string>
+              <key>CFBundleIconFile</key><string>logo</string>
           </dict>
           </plist>
           EOF
 
-      - name: Zip ARM app (preserve resource forks)
+          # Bundle native ARM aria2c (Homebrew on ARM is /opt/homebrew/bin/aria2c)
+          ARIA_BIN="$(command -v aria2c || true)"
+          if [ -z "$ARIA_BIN" ]; then
+            echo "WARNING: aria2c not found; skipping bundling (ARM)."
+          else
+            echo "Bundling aria2c from $ARIA_BIN"
+            cp "$ARIA_BIN" dist/OmniPull.app/Contents/Resources/bin/aria2c
+            chmod +x dist/OmniPull.app/Contents/Resources/bin/aria2c
+          fi
+
+      - name: Verify ARM app
         run: |
-          cd dist
-          ditto -c -k --sequesterRsrc --keepParent OmniPull.app OmniPull-arm.zip
-          ls -lh OmniPull-arm.zip
-
-      - name: Upload ARM zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: omnipull-arm-zip
-          path: macOS/dist/OmniPull-arm.zip
-          if-no-files-found: error
-
-  merge-and-dmg:
-    name: Merge & Package Universal DMG
-    runs-on: macos-latest
-    needs: [build-intel, build-arm]
-    env:
-      BUILD_REF: ${{ github.event.inputs.branch }}
-      VERSION: ${{ github.event.inputs.version }}
-    defaults:
-      run:
-        working-directory: macOS
-    steps:
-      - name: Checkout (for assets)
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.BUILD_REF || 'macOS' }}
-
-      - name: Download Intel zip
-        uses: actions/download-artifact@v4
-        with:
-          name: omnipull-intel-zip
-          path: macOS/artifacts/intel
-
-      - name: Download ARM zip
-        uses: actions/download-artifact@v4
-        with:
-          name: omnipull-arm-zip
-          path: macOS/artifacts/arm
-
-      - name: Unzip artifacts
-        run: |
-          mkdir -p extracted/intel extracted/arm
-          ditto -x -k artifacts/intel/OmniPull-intel.zip extracted/intel
-          ditto -x -k artifacts/arm/OmniPull-arm.zip extracted/arm
-          echo "INTEL tree:"
-          ls -R extracted/intel
-          echo "ARM tree:"
-          ls -R extracted/arm
-
-      - name: Prepare Universal app base (copy Intel)
-        run: |
-          rm -rf dist_universal
-          mkdir -p dist_universal
-          cp -R "extracted/intel/OmniPull.app" "dist_universal/OmniPull.app"
-
-      - name: Lipo merge (x86_64 + arm64)
-        run: |
-          INTEL_BIN="extracted/intel/OmniPull.app/Contents/MacOS/OmniPull"
-          ARM_BIN="extracted/arm/OmniPull.app/Contents/MacOS/OmniPull"
-          OUT_BIN="dist_universal/OmniPull.app/Contents/MacOS/OmniPull"
-
-          lipo -create "$INTEL_BIN" "$ARM_BIN" -output "$OUT_BIN"
-          chmod +x "$OUT_BIN"
-          echo "Result:"
-          lipo -info "$OUT_BIN"
+          ls -R dist/OmniPull.app
+          file dist/OmniPull.app/Contents/MacOS/OmniPull
+          file dist/OmniPull.app/Contents/Resources/bin/aria2c || true
 
       - name: Install appdmg
         run: npm install -g appdmg
 
-      - name: check working dir and files
+      - name: Create Apple Silicon DMG
         run: |
-          pwd
-          ls -la
-          echo "---- dist_universal ----"
-          ls -R dist_universal || true
-          echo "---- appdmg.json ----"
-          sed -n '1,120p' appdmg.json
-
-
-      - name: Create DMG
-        run: |
-          # Ensure output dir exists
           mkdir -p dist
-
-          # Make sure we have the app next to appdmg.json
           rm -rf OmniPull.app
-          cp -R dist_universal/OmniPull.app OmniPull.app
+          cp -R dist/OmniPull.app OmniPull.app
+          test -f appdmg.json || { echo "Missing appdmg.json"; exit 1; }
+          rm -f dist/OmniPull-AppleSilicon.dmg
+          appdmg appdmg.json dist/OmniPull-AppleSilicon.dmg
+          ls -lh dist/OmniPull-AppleSilicon.dmg
 
-          # Sanity checks
-          test -f appdmg.json || { echo "ERROR: appdmg.json missing in macOS/"; exit 1; }
-          if grep -q '"background"' appdmg.json; then
-            BG=$(node -e "console.log(require('fs').readFileSync('appdmg.json','utf8').match(/\"background\"\\s*:\\s*\"([^\"]+)\"/)[1])") || true
-            if [ -n "$BG" ] && [ ! -f "$BG" ]; then
-              echo "ERROR: background image referenced in appdmg.json not found: $BG"
-              exit 1
-            fi
-          fi
-
-          # Remove old dmg if any
-          rm -f dist/OmniPull-Universal.dmg
-
-          # Build DMG (target path under dist/)
-          appdmg appdmg.json dist/OmniPull-Universal.dmg
-
-          # Prove it exists
-          ls -lh dist/OmniPull-Universal.dmg
-
-
-      - name: Upload Universal DMG
+      - name: Upload Apple Silicon DMG
         uses: actions/upload-artifact@v4
         with:
-          name: OmniPull-Universal-${{ github.event.inputs.branch }}-${{ github.sha }}
-          path: macOS/dist/OmniPull-Universal.dmg
+          name: OmniPull-AppleSilicon-${{ github.event.inputs.branch }}-${{ github.sha }}
+          path: macOS/dist/OmniPull-AppleSilicon.dmg
+          if-no-files-found: error

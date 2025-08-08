@@ -166,3 +166,4 @@ Linux/package/
 Linux/omnipull-v_1.2.24_amd64.deb
 
 macOS/third_party/
+.github/workflows/Build_macos_universal.yml
