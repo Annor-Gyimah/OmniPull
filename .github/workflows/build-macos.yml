@@ -241,12 +241,44 @@ jobs:
       - name: Install appdmg
         run: npm install -g appdmg
 
+      - name: check working dir and files
+        run: |
+          pwd
+          ls -la
+          echo "---- dist_universal ----"
+          ls -R dist_universal || true
+          echo "---- appdmg.json ----"
+          sed -n '1,120p' appdmg.json
+
+
       - name: Create DMG
         run: |
-          rm -f dist/OmniPull-Universal.dmg
+          # Ensure output dir exists
+          mkdir -p dist
+
+          # Make sure we have the app next to appdmg.json
           rm -rf OmniPull.app
           cp -R dist_universal/OmniPull.app OmniPull.app
+
+          # Sanity checks
+          test -f appdmg.json || { echo "ERROR: appdmg.json missing in macOS/"; exit 1; }
+          if grep -q '"background"' appdmg.json; then
+            BG=$(node -e "console.log(require('fs').readFileSync('appdmg.json','utf8').match(/\"background\"\\s*:\\s*\"([^\"]+)\"/)[1])") || true
+            if [ -n "$BG" ] && [ ! -f "$BG" ]; then
+              echo "ERROR: background image referenced in appdmg.json not found: $BG"
+              exit 1
+            fi
+          fi
+
+          # Remove old dmg if any
+          rm -f dist/OmniPull-Universal.dmg
+
+          # Build DMG (target path under dist/)
           appdmg appdmg.json dist/OmniPull-Universal.dmg
+
+          # Prove it exists
+          ls -lh dist/OmniPull-Universal.dmg
+
 
       - name: Upload Universal DMG
         uses: actions/upload-artifact@v4
