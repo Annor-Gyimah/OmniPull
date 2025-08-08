@@ -60,6 +60,11 @@ cp "$DIST_DIR/$APP_NAME" "$MACOS_DIR/$APP_NAME"
 chmod +x "$MACOS_DIR/$APP_NAME"
 cp "$ICON_PATH" "$RES_DIR/logo.icns"
 
+mkdir -p dist/OmniPull.app/Contents/Resources/bin
+cp third_party/aria2c/aria2c dist/OmniPull.app/Contents/Resources/bin/aria2c
+chmod +x dist/OmniPull.app/Contents/Resources/bin/aria2c
+
+
 # Write Info.plist
 cat > "$APP_DIR/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
