@@ -27,6 +27,8 @@ class Aria2cManager:
         #self._terminate_existing_processes()
         setting.load_setting()
         #self.settings_manager.load_settings()
+        self.ensure_aria2c_installed("OmniPull")
+        
         
         self._start_rpc_server()
         self._connect_api()
@@ -120,6 +122,7 @@ class Aria2cManager:
 
     def get_api(self):
         if not self.api:
+            self._ensure_session_file("OmniPull")
             self._start_rpc_server()
             self._connect_api()
         return self.api

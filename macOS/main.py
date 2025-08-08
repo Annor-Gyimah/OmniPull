@@ -76,7 +76,7 @@ from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
 
-aria2c_manager.ensure_aria2c_installed("OmniPull")
+
 
 
 
