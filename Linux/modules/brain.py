@@ -809,13 +809,14 @@ def run_ytdlp_download(d, emitter=None):
 
     # Define paths
     output_path = os.path.join(d.folder, d.name)
-    ffmpeg_path = config.get_ffmpeg_path()
+    ffmpeg_path = config.get_ffmpeg_path() 
     # Prepare format code
     format_code = None
     if getattr(d, "format_id", None) and getattr(d, "audio_format_id", None):
         format_code = f"{d.format_id}+{d.audio_format_id}"
     elif getattr(d, "format_id", None):
         format_code = d.format_id
+        
 
     # Configure proxy
     proxy_url = None

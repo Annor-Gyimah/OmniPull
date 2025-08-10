@@ -27,6 +27,8 @@ class TutorialOverlay(QWidget):
         self.setStyleSheet("background-color: rgba(0, 0, 0, 150);")
         self.setGeometry(0, 0, parent.width(), parent.height())
         self.setFixedSize(parent.size())
+        self.setFocusPolicy(Qt.StrongFocus)  # Ensure it accepts keyboard events
+        self.setFocus()  # Immediately set focus to this widget
 
         self.steps = steps
         self.current_step = 0
@@ -124,7 +126,9 @@ class TutorialOverlay(QWidget):
             return
 
         title, msg, image_path = self.steps[self.current_step]
-        self.label.setText(f"<b>{title}</b><br>{msg}")
+        # self.label.setText(f"<b>{title}</b><br>{msg}")
+        self.label.setText(f"<b>{title}</b><br>{msg}<br><br><i>Use ← and → keys to navigate</i>")
+
 
         pixmap = QPixmap(image_path)
         self.image_label.setPixmap(pixmap if not pixmap.isNull() else QPixmap(600, 400).fill(QColor("gray")))
@@ -137,6 +141,16 @@ class TutorialOverlay(QWidget):
         if self.current_step > 0:
             self.current_step -= 1
             self.update_step()
+            
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Right:
+            self.next_step()
+        elif event.key() == Qt.Key_Left:
+            self.previous_step()
+        elif event.key() == Qt.Key_Escape and self.show_exit_button:
+            self.finish_tutorial()
+
 
     def finish_tutorial(self):
         config.tutorial_completed = True

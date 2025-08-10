@@ -405,10 +405,22 @@ class SettingsWindow(QDialog):
         self.proxy_edit.setToolTip(self.tr("Optional: Use a proxy for downloading."))
         proxy_layout.addWidget(proxy_label)
         proxy_layout.addWidget(self.proxy_edit)
+        #self.ffmpeg_path = QLineEdit()
+        #self.ffmpeg_path.setPlaceholderText(self.tr("Path to ffmpeg"))
+        #self.ffmpeg_path.setToolTip(self.tr("Path to ffmpeg executable."))
+        #proxy_layout.addWidget(self.ffmpeg_path)
+        ffmpeg_layout = QHBoxLayout()
+        ffmpeg_label = QLabel(self.tr("FFmpeg Location:"))
         self.ffmpeg_path = QLineEdit()
         self.ffmpeg_path.setPlaceholderText(self.tr("Path to ffmpeg"))
-        self.ffmpeg_path.setToolTip(self.tr("Path to ffmpeg executable."))
-        proxy_layout.addWidget(self.ffmpeg_path)
+        browse_ffmpeg_btn = QPushButton(self.tr("Browse"))
+        browse_ffmpeg_btn.clicked.connect(
+            lambda: self.ffmpeg_path.setText(QFileDialog.getOpenFileName(self, self.tr("Select ffmpeg executable"), "", self.tr("Executable Files (*)"))[0])
+        )
+        ffmpeg_layout.addWidget(ffmpeg_label)
+        ffmpeg_layout.addWidget(self.ffmpeg_path)
+        ffmpeg_layout.addWidget(browse_ffmpeg_btn)
+
 
         # Fragments
         frag_layout = QHBoxLayout()
@@ -462,6 +474,7 @@ class SettingsWindow(QDialog):
         download_group_layout.addLayout(out_layout)
         download_group_layout.addLayout(format_layout)
         download_group_layout.addLayout(proxy_layout)
+        download_group_layout.addLayout(ffmpeg_layout)
         download_group_layout.addLayout(frag_layout)
         download_group_layout.addLayout(ytdlp_checkbox_row1)
         download_group_layout.addLayout(ytdlp_checkbox_row2)
@@ -746,7 +759,8 @@ class SettingsWindow(QDialog):
         self.write_description.setChecked(config.ytdlp_config['writedescription'])
         self.write_annotations.setChecked(config.ytdlp_config['writeannotations'])
         self.no_warnings.setChecked(config.ytdlp_config['no_warnings'])
-        self.ffmpeg_path.setText(config.ytdlp_config['ffmpeg_location'] if config.ytdlp_config['ffmpeg_location'] else '')
+        # self.ffmpeg_path.setText(config.ytdlp_config['ffmpeg_location'] if config.ytdlp_config['ffmpeg_location'] else '')
+        self.ffmpeg_path.setText(config.get_ffmpeg_path())
         if config.proxy:
             proxy_url = config.proxy
             if config.proxy_user and config.proxy_pass:
@@ -834,7 +848,8 @@ class SettingsWindow(QDialog):
         config.ytdlp_config['writedescription'] = self.write_description.isChecked()
         config.ytdlp_config['writeannotations'] = self.write_annotations.isChecked()
         config.ytdlp_config['no_warnings'] = self.no_warnings.isChecked()
-        config.ytdlp_config['ffmpeg_location'] = self.ffmpeg_path.text() if self.ffmpeg_path.text() else None
+        config.ffmpeg_selected_path = self.ffmpeg_path.text() if self.ffmpeg_path.text else None
+        #config.ytdlp_config['ffmpeg_location'] = self.ffmpeg_path.text() if self.ffmpeg_path.text() else None
         if config.proxy:
             proxy_url = config.proxy
             if config.proxy_user and config.proxy_pass:

@@ -116,18 +116,35 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 #ffmpeg_actual_path = None
 ffmpeg_actual_path = "/usr/bin/ffmpeg"
 ffmpeg_folder_path = "/usr/bin/"
-ffmpeg_bundled_path = "/opt/omnipull/ffmpeg/"
+ffmpeg_bundled_path = "/opt/omnipull/"
+ffmpeg_selected_path = None
 ffmpeg_download_folder = sett_folder
 ffmpeg_verified = False
 
-def get_ffmpeg_path():
+    
+
+def get_ffmpeg_path(chosen: bool = True):
     """Get the path to ffmpeg executable."""
-    if ffmpeg_folder_path and os.path.exists(ffmpeg_folder_path):
-        return os.path.join(ffmpeg_folder_path, 'ffmpeg')
-    elif ffmpeg_bundled_path and os.path.exists(ffmpeg_bundled_path):
-        return ffmpeg_bundled_path
-    else:
-        return None
+    # 1. User-selected path (chosen)
+    if chosen and ffmpeg_selected_path:
+        if os.path.exists(ffmpeg_selected_path):
+            print('A: Using user-selected ffmpeg path')
+            return ffmpeg_selected_path
+
+    # 2. System-installed ffmpeg
+    system_ffmpeg = os.path.join(ffmpeg_folder_path, 'ffmpeg')
+    if os.path.exists(system_ffmpeg):
+        print('B: Using system ffmpeg path')
+        return system_ffmpeg
+
+    # 3. Bundled ffmpeg
+    bundled_ffmpeg = os.path.join(ffmpeg_bundled_path, 'ffmpeg')
+    if os.path.exists(bundled_ffmpeg):
+        print('C: Using bundled ffmpeg path')
+        return bundled_ffmpeg
+
+    # 4. Fallback to system path (even if not present)
+    return system_ffmpeg
 
 # aria2c
 aria2_download_folder = sett_folder
@@ -184,7 +201,7 @@ settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_e
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
-                 'aria2_verified', 'ytdlp_config']
+                 'aria2_verified', 'ytdlp_config', 'ffmpeg_selected_path']
 
 # -------------------------------------------------------------------------------------
 
