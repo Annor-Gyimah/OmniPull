@@ -1,7 +1,7 @@
 # user_guide_dialog.py
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QPushButton, QScrollArea, QWidget, QHBoxLayout
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 
 class UserGuideDialog(QDialog):
     def __init__(self, parent=None):
@@ -115,57 +115,98 @@ class UserGuideDialog(QDialog):
         scroll_content.setObjectName("scrollContent")
         scroll_layout = QVBoxLayout(scroll_content)
 
+        getting_started = self.tr("Getting Started")
+        download_management = self.tr("Download Management")
+        queues = self.tr("Queues")
+        schedulling = self.tr("Scheduling")
+        youtube_streaming = self.tr("YouTube & Streaming")
+        browser_extension = self.tr("Browser Extension")
+        settings = self.tr("Settings")
+        updates = self.tr("Updates")
+        tips = self.tr("Tips")
+
+        a1 = self.tr("• Copy a download link which gets automatically detected from clipboard.")
+        b1 = self.tr("• Choose a folder to save the file.")
+        c1 = self.tr("• For YouTube videos or playlists, OmniPull automatically detects available formats.")
+
+        a2 = self.tr("• Downloads appear in the main table with real-time progress.")
+        b2 = self.tr("• Use the sidebar to switch between Add Downloads, Download Table, and Logs.")
+
+        a3 = self.tr("• You can add static files to queues.")
+        b3 = self.tr("• Queued items will download sequentially or on schedule.")
+        c3 = self.tr("• Right-click an item to add/remove from a queue.")
+
+        a4 = self.tr("• Schedule downloads by right-clicking and selecting 'Schedule Download'.")
+        b4 = self.tr("• Queued items can be started at specific times automatically.")
+
+        a5 = self.tr("• OmniPull uses yt-dlp to process YouTube/streaming content.")
+        b5 = self.tr("• These downloads cannot be added to queues (streaming limitations)")
+        c5 = self.tr("• Merging (via FFmpeg) is handled automatically after download.")
+
+        a6 = self.tr("• Install the OmniPull extension for Chrome, Firefox, or Edge via the Tools menu.")
+        b6 = self.tr("• Enables 'Download with OmniPull' from browser context menus.")
+
+        a7 = self.tr("• Access global or local settings (theme, clipboard monitoring, download folder).")
+        b7 = self.tr("• Settings are saved per system or per user depending on your scope.")
+
+        a8 = self.tr("• OmniPull checks for updates periodically in the background.")
+        b8 = self.tr("• You can manually check via Help → Check for Updates.")
+
+        a9 = self.tr('• Right-click any row in the table for powerful actions (Open, Watch, Schedule).')
+        b9 = self.tr("• Use the menubar or toolbar buttons to manage all downloads at once.")
+
+
         sections = [
-            ("💡 Getting Started",
-             "• Copy a download link which gets automatically detected from clipboard. \n"
-             "• Choose a folder to save the file.\n"
-             "• For YouTube videos or playlists, OmniPull automatically detects available formats."),
+            (f"💡 {getting_started}",
+             f"{a1} \n"
+             f"{b1} \n"
+             f"{c1}"),
 
-            ("⏬ Download Management",
-             "• Downloads appear in the main table with real-time progress.\n"
-             "• Use the sidebar to switch between Add Downloads, Download Table, and Logs."),
+            (f"⏬ {download_management}",
+             f"{a2}\n"
+             f"{b2}"),
 
-            ("📂 Queues",
-             "• You can add static files to queues.\n"
-             "• Queued items will download sequentially or on schedule.\n"
-             "• Right-click an item to add/remove from a queue."),
+            (f"📂 {queues}",
+             f"{a3}\n"
+             f"{b3}\n"
+             f"{c3}"),
 
-            ("🗓 Scheduling",
-             "• Schedule downloads by right-clicking and selecting 'Schedule Download'.\n"
-             "• Queued items can be started at specific times automatically."),
+            (f"🗓 {schedulling}",
+             f"{a4}\n"
+             f"{b4}"),
 
-            ("📹 YouTube & Streaming",
-             "• OmniPull uses yt-dlp to process YouTube/streaming content.\n"
-             "• These downloads cannot be added to queues (streaming limitations).\n"
-             "• Merging (via FFmpeg) is handled automatically after download."),
+            (f"📹 {youtube_streaming}",
+             f"{a5}\n"
+             f"{b5}\n"
+             f"{c5}"),
 
-            ("🧩 Browser Extension",
-             "• Install the OmniPull extension for Chrome, Firefox, or Edge via the Tools menu.\n"
-             "• Enables 'Download with OmniPull' from browser context menus."),
+            (f"🧩 {browser_extension}",
+             f"{a6}\n"
+             f"{b6}"),
 
-            ("⚙ Settings",
-             "• Access global or local settings (theme, clipboard monitoring, download folder).\n"
-             "• Settings are saved per system or per user depending on your scope."),
+            (f"⚙ {settings}",
+             f"{a7}\n"
+             f"{b7}"),
 
-            ("🆕 Updates",
-             "• OmniPull checks for updates periodically in the background.\n"
-             "• You can manually check via Help → Check for Updates."),
+            (f"🆕 {updates}",
+             f"{a8}\n"
+             f"{b8}"),
 
-            ("❓ Tips",
-             "• Right-click any row in the table for powerful actions (Open, Watch, Schedule).\n"
-             "• Use the menubar or toolbar buttons to manage all downloads at once."),
+            (f"❓ {tips}",
+             f"{a9}\n"
+             f"{b9}"),
         ]
 
         icon_paths = {
-            "Getting Started": ":/icons/started.svg",
-            "Download Management": ":/icons/d_window.png",
-            "Queues": ":/icons/queues.png",
-            "Scheduling": ":/icons/gnome-schedule.svg",
-            "YouTube & Streaming": ":/icons/youtube.svg",
-            "Browser Extension": ":/icons/internet-web-browser.svg",
-            "Settings": ":/icons/setting.svg",
-            "Updates": ":/icons/system-upgrade.svg",
-            "Tips": ":/icons/tips.svg"
+           self.tr("Getting Started"): ":/icons/started.svg",
+           self.tr("Download Management"): ":/icons/d_window.png",
+           self.tr("Queues"): ":/icons/queues.png",
+           self.tr("Scheduling"): ":/icons/gnome-schedule.svg",
+           self.tr("YouTube & Streaming"): ":/icons/youtube.svg",
+           self.tr("Browser Extension"): ":/icons/internet-web-browser.svg",
+           self.tr("Settings"): ":/icons/setting.svg",
+           self.tr("Updates"): ":/icons/system-upgrade.svg",
+           self.tr("Tips"): ":/icons/tips.svg"
         }
 
         for title, body in sections:

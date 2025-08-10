@@ -115,11 +115,19 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 # ffmpeg
 #ffmpeg_actual_path = None
 ffmpeg_actual_path = "/usr/bin/ffmpeg"
-##ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/usr/bin/ffmpeg")
-#ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
-ffmpeg_actual_path_2 = "/usr/bin/"
+ffmpeg_folder_path = "/usr/bin/"
+ffmpeg_bundled_path = "/opt/omnipull/ffmpeg/"
 ffmpeg_download_folder = sett_folder
 ffmpeg_verified = False
+
+def get_ffmpeg_path():
+    """Get the path to ffmpeg executable."""
+    if ffmpeg_folder_path and os.path.exists(ffmpeg_folder_path):
+        return os.path.join(ffmpeg_folder_path, 'ffmpeg')
+    elif ffmpeg_bundled_path and os.path.exists(ffmpeg_bundled_path):
+        return ffmpeg_bundled_path
+    else:
+        return None
 
 # aria2c
 aria2_download_folder = sett_folder
@@ -140,11 +148,14 @@ aria2c_config = {
 
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
+    "no_playlist": True,
+    'list_formats': True,
+    'ignore_errors': True,
     "concurrent_fragment_downloads": 5,
     "merge_output_format": "mp4",
     "outtmpl": '%(title)s.%(ext)s',
     "retries": 3,
-    "ffmpeg_location": os.path.join(sett_folder, 'ffmpeg.exe'),
+    "ffmpeg_location": get_ffmpeg_path(),  # path to ffmpeg executable
     "postprocessors": [
         {
             'key': 'FFmpegVideoConvertor',
@@ -169,7 +180,7 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme','machine_id', 'download_engine', 'APP_FONT_DPI', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_engine', 'APP_FONT_DPI', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
