@@ -4,8 +4,7 @@
   "path": "C:\\Program Files\\Annorion\\OmniPull\\omnipull-watcher.exe",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://pjkohhlopmleogedneokhenkdkkjimjk/"
+    "chrome-extension://mkhncokjlhefbbnjlgmnifmgejdclbhj/"
   ],
   "version": "1.0.1"
 }
-

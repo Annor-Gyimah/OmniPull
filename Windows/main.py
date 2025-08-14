@@ -848,7 +848,7 @@ class DownloadManagerUI(QMainWindow):
     EXTENSION_URLS = {
         "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID",  # <-- replace
         "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
-        "Edge": "https://microsoftedge.microsoft.com/addons/detail/YOUR_EXTENSION_ID"
+        "Edge": "https://microsoftedge.microsoft.com/addons/detail/mkhncokjlhefbbnjlgmnifmgejdclbhj"
     }
 
     def install_browser_extension(self, browser_name):
