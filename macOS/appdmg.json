@@ -1,6 +1,7 @@
 {
   "title": "OmniPull",
   "icon-size": 100,
+  "background": "icons/logo4.png",
   "window": {
     "size": {
       "width": 660,

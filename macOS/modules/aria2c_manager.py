@@ -6,7 +6,6 @@
 # aria2c_manager.py
 # Manages the aria2c RPC server and download lifecycle, including resume, pause, remove and session handling
 
-import os
 import subprocess
 import time
 import psutil
@@ -14,6 +13,8 @@ import aria2p
 from modules import config, setting
 from modules.utils import log
 from modules.settings_manager import SettingsManager
+import os, sys, shutil
+from pathlib import Path
 
 class Aria2cManager:
     def __init__(self):
@@ -26,6 +27,8 @@ class Aria2cManager:
         #self._terminate_existing_processes()
         setting.load_setting()
         #self.settings_manager.load_settings()
+        self.ensure_aria2c_installed("OmniPull")
+        
         
         self._start_rpc_server()
         self._connect_api()
@@ -58,6 +61,7 @@ class Aria2cManager:
                     log(f"[Aria2c] Terminated process: PID={proc.pid}, name={name}", log_level=1)
 
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                log(f"[Aria2c] Failed to terminate process PID={proc.pid}: {proc.info.get('name', 'unknown')}", log_level=3)
                 continue
 
     def _start_rpc_server(self):
@@ -118,6 +122,7 @@ class Aria2cManager:
 
     def get_api(self):
         if not self.api:
+            self._ensure_session_file("OmniPull")
             self._start_rpc_server()
             self._connect_api()
         return self.api
@@ -289,6 +294,31 @@ class Aria2cManager:
 
         except Exception as e:
             log(f"[aria2c] Failed to clean session file: {e}", log_level=3)
+
+
+    
+
+    def ensure_aria2c_installed(self, app_name="OmniPull"):
+        exe = Path(sys.executable).resolve()  # .../OmniPull.app/Contents/MacOS/OmniPull
+        contents = exe.parent.parent
+        res_dir = contents / "Resources"
+        bundled = res_dir / "bin" / "aria2c"
+
+        dest_dir = Path.home() / "Library" / "Application Support" / app_name
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest = dest_dir / "aria2c"
+
+        try:
+            if bundled.exists():
+                if not dest.exists() or bundled.stat().st_mtime > dest.stat().st_mtime:
+                    shutil.copy2(bundled, dest)
+                    os.chmod(dest, 0o755)
+                    log(f"[aria2c] Installed to {dest}")
+            else:
+                log("[aria2c] Bundled aria2c missing:", bundled)
+        except Exception as e:
+            log("[aria2c] install failed:", e)
+
 
 
 # Global instance
