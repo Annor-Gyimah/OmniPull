@@ -10,7 +10,7 @@ import requests
 from threading import Thread
 from modules.video import merge_video_audio, is_download_complete, youtube_dl_downloader, unzip_ffmpeg, pre_process_hls, post_process_hls  # unzip_ffmpeg required here for ffmpeg callback
 from modules import config
-from modules.config import Status, active_downloads, APP_NAME
+from modules.config import Status, active_downloads, APP_NAME, get_ffmpeg_path
 from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, load_json, save_json, validate_file_name)
 from modules.worker import Worker
 from modules.downloaditem import Segment
@@ -886,7 +886,7 @@ def run_ytdlp_download(d, emitter=None):
 
     # Define paths
     output_path = os.path.join(d.folder, d.name)
-    ffmpeg_path = config.ffmpeg_actual_path
+    ffmpeg_path = get_ffmpeg_path()
 
     # Prepare format code
     format_code = None

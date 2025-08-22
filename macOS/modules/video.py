@@ -14,6 +14,7 @@ from urllib.parse import urljoin
 import copy
 import platform
 from modules import config
+from modules.config import get_ffmpeg_path
 from modules.downloaditem import DownloadItem, Segment
 from modules.threadpool import executor
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
@@ -665,9 +666,9 @@ def merge_video_audio(video, audio, output, d):
     log('merging video and audio')
 
     # ffmpeg file full location
-    ffmpeg = config.ffmpeg_actual_path
+    ffmpeg = get_ffmpeg_path()
 
-    print(f"THis is location{ffmpeg}")
+    log(f"THis is location{ffmpeg}")
 
     # very fast audio just copied, format must match [mp4, m4a] and [webm, webm]
     cmd1 = f'"{ffmpeg}" -y -i "{video}" -i "{audio}" -c copy "{output}"'

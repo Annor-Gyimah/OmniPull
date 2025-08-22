@@ -2537,14 +2537,14 @@ class DownloadManagerUI(QMainWindow):
                                 f"{s4}")
         return False
     
-    def get_browser_queue_file(self):
+    def get_browser_queue_file(self, app_name="OmniPull"):
         if os.name == 'nt':
             # Windows uses AppData/Roaming for user-specific data
             # Use correct case for 'AppData' and ensure slashes are correct
             queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
         else:
             # Linux and macOS use .config for user-specific data
-            queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
+            queue_file = Path.home() / "Library" / "Application Support" / app_name / "OmniPull/.omnipull_url_queue.json"
 
         return queue_file
 

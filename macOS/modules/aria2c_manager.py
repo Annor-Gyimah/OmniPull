@@ -15,6 +15,7 @@ from modules.utils import log
 from modules.settings_manager import SettingsManager
 import os, sys, shutil
 from pathlib import Path
+from modules.config import  ensure_ffmpeg_installed
 
 class Aria2cManager:
     def __init__(self):
@@ -28,6 +29,7 @@ class Aria2cManager:
         setting.load_setting()
         #self.settings_manager.load_settings()
         self.ensure_aria2c_installed("OmniPull")
+        ensure_ffmpeg_installed("OmniPull")
         
         
         self._start_rpc_server()
@@ -310,10 +312,19 @@ class Aria2cManager:
 
         try:
             if bundled.exists():
+                # Copy WITHOUT metadata to avoid carrying quarantine/xattrs over
                 if not dest.exists() or bundled.stat().st_mtime > dest.stat().st_mtime:
-                    shutil.copy2(bundled, dest)
+                    shutil.copy(str(bundled), str(dest))
                     os.chmod(dest, 0o755)
-                    log(f"[aria2c] Installed to {dest}")
+                    # Remove quarantine on the copy (safe: user-writable path)
+                    try:
+                        subprocess.run(
+                            ["xattr", "-d", "com.apple.quarantine", str(dest)],
+                            check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                        )
+                    except Exception:
+                        pass
+                    log(f"[aria2c] Ready at {dest}")
             else:
                 log("[aria2c] Bundled aria2c missing:", bundled)
         except Exception as e:
