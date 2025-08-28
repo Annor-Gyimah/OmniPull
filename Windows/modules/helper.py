@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import Qt
 import re
 import ctypes
+import os
 
 
 
@@ -102,6 +103,60 @@ def open_with_dialog_windows(self, file_path):
 
     result = ShellExecuteEx(ctypes.byref(execute_info))
     return result
+
+
+def _pick_container_from_video(self, video_path: str) -> str:
+    ext = os.path.splitext(video_path)[1].lower().lstrip('.')
+    # Favor mp4/mkv if uncertain. WebM video + m4a audio → mkv is safest for stream copy.
+    if ext in ('mp4', 'm4v', 'mov'):
+        return 'mp4'
+    if ext in ('webm',):
+        return 'mkv'
+    if ext in ('mkv', 'ts'):
+        return 'mkv'
+        # default
+        return 'mp4'
+    
+def _norm_title(s: str) -> str:
+    """
+    Normalize a title for robust filename matching:
+    - strip path + extension
+    - lower
+    - replace non-alnum with single underscore
+    - collapse multiple underscores
+    - trim underscores
+    """
+    base = os.path.splitext(os.path.basename(s))[0]
+    base = base.lower()
+    base = re.sub(r'[^a-z0-9]+', '_', base)
+    base = re.sub(r'_+', '_', base).strip('_')
+    return base
+
+def _extract_title_from_pattern(filename: str, prefix: str) -> str | None:
+    """
+    Given a filename and a known prefix ('_temp_' or 'audio_for_'),
+    return the normalized <TITLE> portion if it follows the pattern.
+    """
+    base = os.path.splitext(os.path.basename(filename))[0]
+    if not base.startswith(prefix):
+        return None
+    title_raw = base[len(prefix):]
+    return _norm_title(title_raw)
+
+def _expected_paths(folder: str, title_norm: str):
+    # Allowed containers/codecs for stream-copy merges
+    video_exts = ('mp4', 'm4v', 'mov', 'webm', 'mkv', 'ts')
+    audio_exts = ('m4a', 'mp4', 'aac', 'webm', 'opus', 'mp3', 'wav')  # include common audio
+    video_candidates = [os.path.join(folder, f"_temp_{title_norm}.{ext}") for ext in video_exts]
+    audio_candidates = [os.path.join(folder, f"audio_for_{title_norm}.{ext}") for ext in audio_exts]
+    return video_candidates, audio_candidates
+
+def _best_existing(paths: list[str]) -> str | None:
+    # Pick the first existing path, else None
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return None
 
 def toolbar_buttons_state(status: str) -> dict:
     status_map = {

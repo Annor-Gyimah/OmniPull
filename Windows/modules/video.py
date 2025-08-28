@@ -16,6 +16,7 @@ from modules.downloaditem import DownloadItem, Segment
 from modules.threadpool import executor
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
     delete_file, download, process_thumbnail, popup
+from modules.config import get_ffmpeg_path
 
 # youtube-dl
 ytdl = None  # youtube-dl will be imported in a separate thread to save loading time
@@ -49,7 +50,7 @@ def get_ytdl_options():
         'ignore_errors': config.ytdlp_config.get('ignore_errors', True)
         
     }
-    if config.proxy:
+    if config.proxy != "":
         proxy_url = config.proxy
         if config.proxy_user and config.proxy_pass:
             # Inject basic auth into the proxy URL
@@ -254,7 +255,7 @@ class Video(DownloadItem):
         audio_stream = None  # Initialize as None
         if stream.mediatype == 'dash' and self.protocol.startswith('http'):
             # If it's DASH video and protocol is HTTP, try to select audio stream by index
-            for idx in [2, 3]:  # Try index 2 first, then 3
+            for idx in [1, 2, 3, 4]:  # Try index 2 first, then 3
                 if idx < len(audio_streams) and audio_streams[idx].size > 0:
                     audio_stream = audio_streams[idx]
                     break
@@ -417,7 +418,7 @@ def download_ffmpeg(destination=config.sett_folder):
     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
     if platform.machine().endswith('64'):
         # 64 bit link
-        url = 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip'
+        url = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'
     else:
         # 32 bit link
         url = 'https://www.videohelp.com/download/ffmpeg-4.3.1-win32-static.zip'
@@ -661,9 +662,8 @@ def merge_video_audio(video, audio, output, d):
     log('merging video and audio')
 
     # ffmpeg file full location
-    ffmpeg = config.ffmpeg_actual_path
+    ffmpeg = get_ffmpeg_path()
 
-    print(f"THis is location{ffmpeg}")
 
     # very fast audio just copied, format must match [mp4, m4a] and [webm, webm]
     cmd1 = f'"{ffmpeg}" -y -i "{video}" -i "{audio}" -c copy "{output}"'
@@ -674,13 +674,13 @@ def merge_video_audio(video, audio, output, d):
     verbose = True if config.log_level >= 3 else False
 
     # run command with shell=False if failed will use shell=True option
-    error, output = run_command(cmd1, verbose=verbose, shell=False, d=d)
+    error, output = run_command(cmd1, verbose=verbose, shell=False, hide_window=True, d=d)
 
     if error:
-        error, output = run_command(cmd1, verbose=verbose, shell=True, d=d)
+        error, output = run_command(cmd1, verbose=verbose, shell=True, hide_window=True, d=d)
 
     if error:
-        error, output = run_command(cmd2, verbose=verbose, shell=True, d=d)
+        error, output = run_command(cmd2, verbose=verbose, shell=True, hide_window=True, d=d)
 
     return error, output
             

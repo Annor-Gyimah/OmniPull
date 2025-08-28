@@ -2,7 +2,7 @@ import sys, os
 from PySide6.QtWidgets import (
     QDialog, QListWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QLineEdit, QSpinBox, QCheckBox, QTimeEdit, QTabWidget, QWidget, QFrame, QGroupBox,
-    QListWidgetItem, QTableWidgetItem, QMessageBox,
+    QListWidgetItem, QTableWidgetItem, QMessageBox, QStyledItemDelegate, QStyle
 )
 from PySide6.QtCore import Slot, QTime, Qt
 from PySide6.QtGui import QIcon
@@ -15,6 +15,13 @@ from ui.download_window import DownloadWindow
 from ui.queue_runner import QueueRunner
 from ui.download_worker import DownloadWorker
 from modules.settings_manager import SettingsManager
+
+
+class NoFocusDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if option.state & QStyle.State_HasFocus:
+            option.state = option.state ^ QStyle.State_HasFocus
+        super().paint(painter, option, index)
 
 class QueueDialog(QDialog):
     def __init__(self, parent=None):
@@ -150,6 +157,7 @@ class QueueDialog(QDialog):
 
         # Left: Queue List
         self.queue_list = QListWidget()
+        self.queue_list.setItemDelegate(NoFocusDelegate())
         self.queue_list.addItems(["Main", "Main2"])
         self.queue_list.setMaximumWidth(100)
 

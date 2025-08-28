@@ -224,7 +224,7 @@
         <translation>종료</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="979"/>
+        <location filename="../../main.py" line="1004"/>
         <source></source>
         <translation></translation>
     </message>

@@ -12,6 +12,7 @@ import os
 import sys
 import platform
 from modules.version import __version__
+from modules.utils import log
 
 
 # CONSTANTS
@@ -19,7 +20,7 @@ APP_NAME = 'OmniPull'
 APP_VERSION = __version__ 
 APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
-APP_FONT_DPI = 120
+APP_FONT_DPI = 96
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
 DEFAULT_THEME = 'DarkGrey2'
 DEFAULT_CONNECTIONS = 64
@@ -27,7 +28,7 @@ DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
-DEFAULT_LOG_LEVEL = 3
+DEFAULT_LOG_LEVEL = 1
  
 APP_LATEST_VERSION = ''  # get value from update module
 ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
@@ -84,7 +85,7 @@ confirm_update = False
 # version_check_number = None
 
 # proxy
-proxy = '1.34.120.197:46052'  # must be string example: 127.0.0.1:8080
+proxy = ''  # must be string example: 127.0.0.1:8080
 proxy_type = 'http'  # socks4, socks5
 raw_proxy = ''  # unprocessed from user input
 proxy_user = ""  # optional
@@ -115,9 +116,25 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # ffmpeg
 #ffmpeg_actual_path = None
-ffmpeg_actual_path = "/usr/bin/ffmpeg"
-##ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/usr/bin/ffmpeg")
-#ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
+def get_ffmpeg_path():
+    """Get the path to ffmpeg executable."""
+
+    # 2. System-installed ffmpeg
+    system_ffmpeg = os.path.join(sett_folder, 'ffmpeg.exe')
+    if os.path.exists(system_ffmpeg):
+        log('Using system ffmpeg path')
+        return system_ffmpeg
+
+    # 3. Bundled ffmpeg
+    bundled_ffmpeg = os.path.join(sett_folder, 'ffmpeg.exe')
+    if os.path.exists(bundled_ffmpeg):
+        log('Using bundled ffmpeg path')
+        return bundled_ffmpeg
+
+    # 4. Fallback to system path (even if not present)
+    return system_ffmpeg
+
+ffmpeg_actual_path = get_ffmpeg_path()
 ffmpeg_actual_path_2 = global_sett_folder
 ffmpeg_download_folder = sett_folder
 ffmpeg_verified = False # ffmpeg is verified or not
@@ -148,7 +165,7 @@ ytdlp_config = {
     "merge_output_format": "mp4",
     "outtmpl": '%(title)s.%(ext)s',
     "retries": 3,
-    "ffmpeg_location": os.path.join(sett_folder, 'ffmpeg.exe'),
+    "ffmpeg_location": get_ffmpeg_path(),
     "postprocessors": [
         {
             'key': 'FFmpegVideoConvertor',

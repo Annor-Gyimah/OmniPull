@@ -40,6 +40,7 @@ import shutil
 import platform
 from collections import deque
 from datetime import datetime, timedelta
+import glob, re
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region Third Parties import
@@ -50,7 +51,7 @@ QGraphicsDropShadowEffect)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
-QCoreApplication, Qt, QTime)
+QCoreApplication, Qt, QTime, QProcess)
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
 
@@ -67,7 +68,8 @@ from ui.tray_icon import TrayIconManager
 from ui.tutorial_window import TutorialOverlay, tutorial_steps
 
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
-    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format)
+    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
+    _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
     notify, run_command, handle_exceptions)
@@ -75,6 +77,7 @@ from modules import config, brain, setting, video, update, setting
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
+
 
 
 
@@ -454,6 +457,8 @@ class DownloadManagerUI(QMainWindow):
 
         self.ui_queues = QueueDialog(self)
 
+         # --- in your class __init__ ---
+        self._remux_procs = {}  # {d.id: QProcess}
 
         # Now safely connect signal
         self.ui.table.itemSelectionChanged.connect(self.update_toolbar_buttons_for_selection)
@@ -523,6 +528,10 @@ class DownloadManagerUI(QMainWindow):
                 border: none;
                 color: white;
                 font-size: 12px;
+            }
+            QTableWidget::item:focus {
+                outline: none;
+                border: none;
             }
             QHeaderView::section {
                 background-color: #2b2b2b;
@@ -1026,6 +1035,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[1].setText(self.tr('Check for Updates'))
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
         widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
+        widgets.help_menu.actions()[4].setText(self.tr("Report Issues"))
 
         
         
@@ -1440,9 +1450,15 @@ class DownloadManagerUI(QMainWindow):
        
         path = urlparse(url).path           # safely parse path from URL
         filename = os.path.basename(path)   # get the file name only
+        log(f"[Engine] Extracted filename from BASE: {filename}", log_level=1)
         filename = unquote(filename)        # decode URL encoding if any
+        log(f"[Engine] Extracted filename from URL: {filename}", log_level=1)
         ext = os.path.splitext(filename)[1] # get extension
+        log(f"[Engine] Extracted extension from URL: {ext}", log_level=1)
         return ext.lstrip(".")
+
+    
+    
 
     
     def get_header(self, url):
@@ -1463,6 +1479,8 @@ class DownloadManagerUI(QMainWindow):
             self.yt_thread.progress.connect(self.update_progress_bar_value)  # Connect progress signal to update progress bar
             self.yt_thread.start()
             self.background_threads.append(self.yt_thread)
+            
+    
 
     def on_youtube_finished(self, result):
         if isinstance(result, list):
@@ -1474,9 +1492,12 @@ class DownloadManagerUI(QMainWindow):
         elif isinstance(result, Video):
             self.playlist = [result]
             self.d = result
-            # ✅ Set ext from filename
+            
+            # # ✅ Set ext from filename
             if not self.d.ext:
                 self.d.ext = self.extract_ext_from_url(self.d.url)
+                log(f"[Engine] Guessed extension from URL: {self.d.ext}", log_level=1)
+            
             widgets.download_btn.setEnabled(True)
             widgets.playlist_btn.setEnabled(False)
         else:
@@ -3406,6 +3427,7 @@ class DownloadManagerUI(QMainWindow):
         self.action_watch_downloading = create_action(":/icons/vlc.svg", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
         self.action_schedule_download = create_action(":/icons/schedule.svg", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
         self.action_cancel_schedule = create_action(":/icons/cancel-schedule.svg", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
+        self.action_remerge = create_action(":/icons/ffmpeg.svg", self.tr("Re-merge audio/video"), "Ctrl+M", self.remerge_audio_video)
         self.action_file_properties = create_action(":/icons/info.svg", self.tr("File Properties"), "Ctrl+P", self.file_properties)
         self.action_add_to_queue = create_action(":/icons/add-queue.svg", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
         self.action_remove_from_queue = create_action(":/icons/remove-queue.svg", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
@@ -3428,6 +3450,7 @@ class DownloadManagerUI(QMainWindow):
             "schedule": status in {"paused", "pending", "cancelled", "error", "failed", "deleted"},
             "cancel_schedule": status in {"scheduled", "pending", "downloading", "paused"},
             "pop_download_item": status not in {"downloading", "pending", "merging_audio", "paused", "queued"},
+            "remerge": bool(status in {"error"} and self.is_playable_media(d)),
             "add_to_queue": status == "cancelled" and (d is not None) and (not d.in_queue),
             "remove_from_queue": status == "queued" and (d is not None) and d.in_queue,
             "properties": True,
@@ -3444,6 +3467,7 @@ class DownloadManagerUI(QMainWindow):
         self.action_cancel_schedule.setEnabled(states["cancel_schedule"])
         self.action_add_to_queue.setEnabled(states["add_to_queue"])
         self.action_remove_from_queue.setEnabled(states["remove_from_queue"])
+        self.action_remerge.setEnabled(states["remerge"])
         self.action_file_properties.setEnabled(states["properties"])
         self.action_file_checksum.setEnabled(states["file_checksum"])
         self.action_pop_file_from_table.setEnabled(states["pop_download_item"])  
@@ -3485,6 +3509,7 @@ class DownloadManagerUI(QMainWindow):
         context_menu.addSeparator()
         context_menu.addAction(self.action_add_to_queue)
         context_menu.addAction(self.action_remove_from_queue)
+        context_menu.addAction(self.action_remerge)
         context_menu.addSeparator()
         context_menu.addAction(self.action_file_checksum)
         context_menu.addAction(self.action_file_properties)
@@ -3665,7 +3690,7 @@ class DownloadManagerUI(QMainWindow):
                 f'{d_resumable} {d.resumable} \n' \
                 f'{d_type} {d.type} \n' \
                 f'{d_protocol} {d.protocol} \n' \
-                f'{d_webpage_url} {d.original_url if d.engine in ['aria2c', 'aria2'] else d.url}'
+                f"{d_webpage_url} {d.original_url if d.engine in ['aria2c', 'aria2'] else d.url}"
             show_information(self.tr("File Properties"), inform="", msg=f"{text}")
 
     def add_to_queue_from_context(self):
@@ -3742,6 +3767,290 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         self.populate_table()
         self.refresh_table_row(d)
+        
+   
+
+    # --- helper: safest way to pick an output extension consistent with input ---
+    
+
+    def _find_audio_file_for(self, d) -> str | None:
+        """
+        Priority:
+        1) exact "audio_for_<TITLE>.*" using normalized d.name
+        2) scan folder for files starting 'audio_for_' and pick the one whose <TITLE> matches d.name best
+        3) if d.audio_file exists, use it (legacy)
+        """
+        folder = getattr(d, 'folder', None) or os.path.dirname(getattr(d, 'target_file', '') or getattr(d, 'temp_file', '') or '')
+        if not folder:
+            return None
+
+        # 3) Legacy explicit field (kept but lowered in priority to prefer your new convention)
+        explicit = getattr(d, 'audio_file', None)
+        if explicit and os.path.exists(explicit):
+            # we will still try convention first; fallback to explicit later
+            pass
+
+        title_norm = _norm_title(getattr(d, 'name', '') or os.path.basename(getattr(d, 'target_file', '') or ''))
+        video_candidates, audio_candidates = _expected_paths(folder, title_norm)
+
+        # 1) Exact by normalized title
+        audio = _best_existing(audio_candidates)
+        if audio:
+            return audio
+
+        # 2) Scan folder for any audio_for_*.* and choose the best title match
+        pattern = os.path.join(folder, "audio_for_*.*")
+        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        if candidates:
+            # compute normalized titles and compare to title_norm
+            scored = []
+            for p in candidates:
+                t = _extract_title_from_pattern(p, "audio_for_") or ""
+                # Higher score for exact match; otherwise Jaccard-like overlap on tokens
+                if t == title_norm:
+                    score = 100
+                else:
+                    a = set(title_norm.split('_'))
+                    b = set(t.split('_'))
+                    inter = len(a & b)
+                    score = inter
+                scored.append((score, p))
+            if scored:
+                scored.sort(key=lambda x: (-x[0], -os.path.getsize(x[1]), x[1]))
+                if scored[0][0] > 0:
+                    return scored[0][1]
+
+        # 3) Fallback to explicit
+        if explicit and os.path.exists(explicit):
+            return explicit
+
+        return None
+
+    def _find_video_file_for(self, d, audio_path: str | None) -> str | None:
+        """
+        Priority:
+        1) exact "_temp_<TITLE>.*" using normalized d.name
+        2) if not found, use d.target_file when it exists and looks like video-only
+        3) scan folder for _temp_* candidates and pick best title match
+        4) scan folder for <TITLE>.* large media if still missing
+        """
+        folder = getattr(d, 'folder', None) or os.path.dirname(getattr(d, 'target_file', '') or getattr(d, 'temp_file', '') or '')
+        if not folder:
+            return None
+
+        title_norm = _norm_title(getattr(d, 'name', '') or os.path.basename(getattr(d, 'target_file', '') or ''))
+        video_candidates, _audio_candidates = _expected_paths(folder, title_norm)
+
+        # 1) Exact by normalized title (_temp_<TITLE>.*)
+        video = _best_existing(video_candidates)
+        if video and (not audio_path or os.path.abspath(video) != os.path.abspath(audio_path)):
+            return video
+
+        # 2) Use target_file if it exists
+        tgt = getattr(d, 'target_file', None)
+        if tgt and os.path.exists(tgt) and (not audio_path or os.path.abspath(tgt) != os.path.abspath(audio_path)):
+            return tgt
+
+        # 3) Scan folder for any _temp_*.* and choose the best title match
+        pattern = os.path.join(folder, "_temp_*.*")
+        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        if candidates:
+            scored = []
+            for p in candidates:
+                t = _extract_title_from_pattern(p, "_temp_") or ""
+                if t == title_norm:
+                    score = 100
+                else:
+                    a = set(title_norm.split('_'))
+                    b = set(t.split('_'))
+                    inter = len(a & b)
+                    score = inter
+                if audio_path and os.path.abspath(p) == os.path.abspath(audio_path):
+                    continue
+                scored.append((score, p))
+            if scored:
+                scored.sort(key=lambda x: (-x[0], -os.path.getsize(x[1]), x[1]))
+                if scored[0][0] > 0:
+                    return scored[0][1]
+
+        # 4) Last resort: largest media with <TITLE>.* (avoid choosing the audio file)
+        media_exts = ('mp4', 'm4v', 'mov', 'webm', 'mkv', 'ts')
+        pattern = os.path.join(folder, f"{title_norm}.*")
+        loose = []
+        for p in glob.glob(pattern):
+            if audio_path and os.path.abspath(p) == os.path.abspath(audio_path):
+                continue
+            ext = os.path.splitext(p)[1].lower().lstrip('.')
+            if ext in media_exts:
+                loose.append(p)
+        if loose:
+            loose.sort(key=lambda p: (-os.path.getsize(p), p))
+            return loose[0]
+
+        return None
+    
+    
+    def _build_output_path(self, d, video_path: str) -> str:
+        out_ext = _pick_container_from_video(video_path)
+        # Keep in the same folder with a clear suffix to avoid clobbering inputs
+        return os.path.join(d.folder, f"{d.name}_merged.{out_ext}")
+
+    def _cleanup_separate_streams(self, audio_path: str | None, video_path: str | None, keep_inputs=False):
+        if keep_inputs:
+            return
+        for p in (audio_path,):
+            try:
+                if p and os.path.exists(p):
+                    os.remove(p)
+            except Exception:
+                pass
+        # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
+        # try:
+        #     if video_path and os.path.exists(video_path):
+        #         os.remove(video_path)
+        # except Exception:
+        #     pass
+
+    
+    def _start_ffmpeg_remerge(self, d, video_path: str, audio_path: str, output_path: str, row_index: int):
+        ffmpeg = config.get_ffmpeg_path()
+        if not ffmpeg or not os.path.exists(ffmpeg):
+            show_warning(self.tr("FFmpeg not found"), self.tr("Please install or configure FFmpeg in Settings."))
+            return
+
+        # Ensure proc map
+        if not hasattr(self, "_remux_procs"):
+            self._remux_procs = {}
+
+        # Kill any previous proc for this item
+        if d.id in self._remux_procs:
+            try:
+                self._remux_procs[d.id].kill()
+            except Exception:
+                pass
+            self._remux_procs.pop(d.id, None)
+
+        proc = QProcess(self)
+        self._remux_procs[d.id] = proc
+
+        args = [
+            "-y",
+            "-hide_banner", "-loglevel", "error",
+            "-i", video_path,
+            "-i", audio_path,
+            "-map", "0:v:0",
+            "-map", "1:a:0",
+            "-c", "copy",
+            output_path,
+        ]
+
+        # UI: show "merging"
+        old_status = d.status
+        d.status = "merging_audio"   # matches your update_table_progress color map
+        self.update_table_progress()
+
+        def on_finished(exit_code, exit_status):
+            # detach proc
+            self._remux_procs.pop(d.id, None)
+
+            if exit_code == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                d.status = "completed"
+                d.progress = 100
+                
+                # Point to the merged file by updating fields used by the property
+                d.name = os.path.basename(output_path)
+                d.folder = os.path.dirname(output_path) or d.folder
+
+                # optional: clean separate audio (and/or video) files
+                try:
+                    if os.path.exists(audio_path):
+                        os.remove(audio_path)
+                except Exception:
+                    pass
+                # If you want, also remove the _temp_ video:
+                # try:
+                #     if os.path.exists(video_path):
+                #         os.remove(video_path)
+                # except Exception:
+                #     pass
+
+                # persist
+                try:
+                    if hasattr(self, "settings_manager") and self.settings_manager:
+                        self.settings_manager.save_d_list(self.d_list)
+                    else:
+                        # Fallback if you use a different settings API
+                        # SettingsManager().save_download_list(self.d_list)
+                        pass
+                except Exception as e:
+                    log(f"Save after re-merge failed: {e}", log_level=2)
+
+                self.update_table_progress()
+                notify(self.tr("Audio and video were merged successfully."), self.tr("Re-merge complete"))
+               
+            else:
+                # failed → revert to error (or prior)
+                d.status = old_status or "error"
+                self.update_table_progress()
+
+                err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+                show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg could not merge the files.\n\nDetails:\n") + (err or ""))[:3000])
+
+        def on_error(process_error):
+            # failure path similar to above
+            self._remux_procs.pop(d.id, None)
+            d.status = "error"
+            self.update_table_progress()
+            err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+            show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg process error.\n\nDetails:\n") + (err or ""))[:3000])
+
+        proc.finished.connect(on_finished)
+        proc.errorOccurred.connect(on_error)
+
+        proc.start(ffmpeg, args)
+
+
+    def remerge_audio_video(self):
+        selected_items = widgets.table.selectedItems()
+        if not selected_items:
+            show_warning(self.tr("No Selection"), self.tr("Please select a download that has separate audio and video files."))
+            return
+
+        selected_row = selected_items[0].row()
+        id_item = widgets.table.item(selected_row, 0)
+        if not id_item:
+            return
+        download_id = id_item.data(Qt.UserRole)
+        d = next((x for x in self.d_list if x.id == download_id), None)
+        if not d:
+            return
+
+        # Must have been an error or an unmerged video-only file
+        if d.status not in (config.Status.error, getattr(config.Status, "merging_audio", None), getattr(config.Status, "completed", "completed")):
+            # You can relax this check if you want to allow re-merge anytime
+            pass
+
+        # Locate audio + video inputs
+        audio_path = self._find_audio_file_for(d)
+        if not audio_path or not os.path.exists(audio_path):
+            show_warning(self.tr("Audio Missing"), self.tr("Could not find the separate audio file for this download."))
+            return
+
+        video_path = self._find_video_file_for(d, audio_path)
+        if not video_path or not os.path.exists(video_path):
+            show_warning(self.tr("Video Missing"), self.tr("Could not find the separate video file for this download."))
+            return
+
+        # Avoid merging an already-merged file
+        output_path = self._build_output_path(d, video_path)
+        if os.path.abspath(output_path) == os.path.abspath(video_path):
+            # ensure different filename
+            root, ext = os.path.splitext(video_path)
+            output_path = root + "_merged" + ext
+
+        # Start non-blocking ffmpeg merge
+        self._start_ffmpeg_remerge(d, video_path, audio_path, output_path, selected_row)
+            
 
     def start_file_checksum(self, d):
         selected_row = widgets.table.currentRow()

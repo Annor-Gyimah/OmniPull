@@ -42,7 +42,7 @@ class Aria2cManager:
                 if proc.info['name'] and 'aria2c' in proc.info['name'].lower():
                     proc.terminate()
                     proc.wait(timeout=3)
-                    log(f'Terminated {proc.info['name']}', log_level=1)
+                    log(f"Terminated {proc.info['name']}", log_level=1)
             except Exception:
                 continue
 

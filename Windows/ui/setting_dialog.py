@@ -49,8 +49,8 @@ class SettingsWindow(QDialog):
             QListWidget::item:selected {
             background-color: rgba(45, 224, 153, 0.1);
             color: #6FFFB0;
-            padding-left: 6px;
-            margin: 0px;
+            padding-left: 10px;
+            margin: -12px;
             border: none;
             }
         """)
@@ -747,7 +747,7 @@ class SettingsWindow(QDialog):
         self.write_annotations.setChecked(config.ytdlp_config['writeannotations'])
         self.no_warnings.setChecked(config.ytdlp_config['no_warnings'])
         self.ffmpeg_path.setText(config.ytdlp_config['ffmpeg_location'] if config.ytdlp_config['ffmpeg_location'] else '')
-        if config.proxy:
+        if config.proxy != "":
             proxy_url = config.proxy
             if config.proxy_user and config.proxy_pass:
                 # Inject basic auth into the proxy URL
@@ -755,7 +755,6 @@ class SettingsWindow(QDialog):
                 parsed = urlparse(proxy_url)
                 proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
 
-                print(f"Proxy URL: {proxy_url}")
                 self.proxy_edit.setText(proxy_url if proxy_url else '')
         else:
             self.proxy_edit.setText('')

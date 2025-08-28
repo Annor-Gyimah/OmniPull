@@ -1862,3 +1862,90 @@
 #         log(f"[yt-dlp] Done processing {d.name}")
 #         if emitter:
 #             emitter.log_updated.emit(f"[yt-dlp] Done processing {d.name}")
+
+
+
+
+# def _start_ffmpeg_remerge(self, d, video_path: str, audio_path: str, output_path: str, row_index: int):
+    #     ffmpeg = config.get_ffmpeg_path()  # you said this returns the ffmpeg path
+    #     if not ffmpeg or not os.path.exists(ffmpeg):
+    #         show_warning(self.tr("FFmpeg not found"), self.tr("Please install or configure FFmpeg in Settings."))
+    #         return
+
+    #     # Prepare QProcess
+    #     if d.id in self._remux_procs:
+    #         try:
+    #             self._remux_procs[d.id].kill()
+    #         except Exception:
+    #             pass
+    #         self._remux_procs.pop(d.id, None)
+
+    #     proc = QProcess(self)
+    #     self._remux_procs[d.id] = proc
+        
+    #     # Build ffmpeg command: stream copy, map video from #0 and audio from #1
+    #     args = [
+    #         "-y",
+    #         "-hide_banner", "-loglevel", "error",
+    #         "-i", video_path,
+    #         "-i", audio_path,
+    #         "-map", "0:v:0",
+    #         "-map", "1:a:0",
+    #         "-c", "copy",
+    #         output_path,
+    #     ]
+
+    #     # Set transient UI state
+    #     old_status = d.status
+    #     d.status = config.Status.merging_audio if hasattr(config.Status, "merging_audio") else config.Status.downloading
+    #     self.update_table_progress(row_index, d) if hasattr(self, "update_table_progress") else self.update_table_progress()
+        
+    #     def on_finished(exit_code, exit_status):
+    #         # Detach
+    #         self._remux_procs.pop(d.id, None)
+
+    #         if exit_code == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+    #             # Success
+    #             d.status = config.Status.completed
+    #             d.progress = 100
+    #             # Point target_file to the merged output if you want future “Open”/“Play” to use it
+    #             if hasattr(d, 'target_file'):
+    #                 d.target_file = output_path
+    #             # Optional: clean up separate streams
+    #             self._cleanup_separate_streams(audio_path, video_path, keep_inputs=False)
+
+    #             # Persist
+    #             SettingsManager().save_download_list(self.d_list)
+
+    #             # UI
+    #             if hasattr(self, "update_table_progress"):
+    #                 self.update_table_progress(row_index, d)
+    #             else:
+    #                 self.update_progress_table()
+    #             show_warning(self.tr("Re-merge complete"), self.tr("Audio and video were merged successfully."))
+    #         else:
+    #             # Failure: restore prior status (usually 'error')
+    #             d.status = old_status if old_status else config.Status.error
+    #             if hasattr(self, "update_table_progress"):
+    #                 self.update_table_progress(row_index, d)
+    #             else:
+    #                 self.update_progress_table()
+    #             err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+    #             show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg could not merge the files.\n\nDetails:\n") + (err or ""))[:3000])
+
+    #     def on_error(_):
+    #         # Failure branch similar to above
+    #         d.status = config.Status.error
+    #         if hasattr(self, "update_table_progress"):
+    #             self.update_table_progress(row_index, d)
+    #         else:
+    #             self.update_progress_table()
+    #         err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+    #         show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg process error.\n\nDetails:\n") + (err or ""))[:3000])
+    #         self._remux_procs.pop(d.id, None)
+
+    #     proc.finished.connect(on_finished)
+    #     proc.errorOccurred.connect(on_error)
+
+    #     # Launch
+    #     proc.start(ffmpeg, args)

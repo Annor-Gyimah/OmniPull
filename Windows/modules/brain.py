@@ -10,7 +10,7 @@ import requests
 from threading import Thread
 from modules.video import is_download_complete, youtube_dl_downloader, unzip_ffmpeg, pre_process_hls, post_process_hls  # unzip_ffmpeg required here for ffmpeg callback
 from modules import config
-from modules.config import Status, active_downloads, APP_NAME
+from modules.config import Status, APP_NAME, get_ffmpeg_path
 from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
 from modules.worker import Worker
 from modules.postprocessing import async_merge_video_audio
@@ -711,9 +711,11 @@ def run_aria2c_video_audio_download(d, emitter=None):
                     error, output = loop.run_until_complete(
                         async_merge_video_audio(video_path, d.audio_file, output_file, d)
                     )
+                    
                     if error:
                         log(f"[Merge] FFmpeg merge failed: {output}")
                         d.status = Status.error
+                        # show_critical(title="Merge Error", msg="FFmpeg merge failed, needs re-merging. Right click on the download item to select remerged.")
                         break
 
                     # if not error:
@@ -724,7 +726,7 @@ def run_aria2c_video_audio_download(d, emitter=None):
                     #     break
 
                     if not error:
-                        print(f'[Aria2c] Renaming output file to: {output_file} from {d.target_file}')
+                        log(f'[Aria2c] Renaming output file to: {output_file} from {d.target_file}', log_level=1)
                         if os.path.exists(d.target_file):
                             os.remove(d.target_file)  # Prevent WinError 183
                         # rename_file(output_file, d.target_file)
@@ -820,7 +822,7 @@ def run_ytdlp_download(d, emitter=None):
 
     # Configure proxy
     proxy_url = None
-    if config.proxy:
+    if config.proxy != "":
         proxy_url = config.proxy
         if config.proxy_user and config.proxy_pass:
             from urllib.parse import urlparse, urlunparse
@@ -837,7 +839,7 @@ def run_ytdlp_download(d, emitter=None):
         "continuedl": True,
         "nopart": False,
         "concurrent_fragment_downloads": config.ytdlp_config["concurrent_fragment_downloads"],
-        "ffmpeg_location": ffmpeg_path,
+        "ffmpeg_location": get_ffmpeg_path(),
         "format": format_code,
         "writeinfojson": config.ytdlp_config["writeinfojson"],
         "writedescription": config.ytdlp_config["writedescription"],
@@ -886,7 +888,7 @@ def run_ytdlp_download(d, emitter=None):
                     log("[yt-dlp] Found both audio and video files, initiating fast fallback merge")
 
                     cmd = [
-                        config.ffmpeg_actual_path,
+                        get_ffmpeg_path(),
                         "-i", video_file,
                         "-i", audio_file,
                         "-c:v", "copy",
@@ -999,6 +1001,7 @@ def file_manager(d, keep_segments=False, emitter=None):
                     d.delete_tempfiles()
                 else:
                     d.status = Status.error
+                    # show_critical(title="Merge Error", msg="FFmpeg merge failed, needs re-merging. Right click on the download item to select remerged.")
                     break
 
             # Handle "normal" single-stream downloads
