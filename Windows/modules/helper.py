@@ -105,7 +105,7 @@ def open_with_dialog_windows(self, file_path):
     return result
 
 
-def _pick_container_from_video(self, video_path: str) -> str:
+def _pick_container_from_video(video_path: str) -> str:
     ext = os.path.splitext(video_path)[1].lower().lstrip('.')
     # Favor mp4/mkv if uncertain. WebM video + m4a audio → mkv is safest for stream copy.
     if ext in ('mp4', 'm4v', 'mov'):
@@ -164,7 +164,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -176,7 +176,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -188,7 +188,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -200,7 +200,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -212,7 +212,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -224,7 +224,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -236,7 +236,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -248,7 +248,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": True,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,
@@ -260,7 +260,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": True,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,
@@ -272,7 +272,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,

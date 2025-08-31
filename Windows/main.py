@@ -40,7 +40,7 @@ import shutil
 import platform
 from collections import deque
 from datetime import datetime, timedelta
-import glob, re
+import glob
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region Third Parties import
@@ -1446,16 +1446,55 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
 
-    def extract_ext_from_url(self, url):
-       
-        path = urlparse(url).path           # safely parse path from URL
-        filename = os.path.basename(path)   # get the file name only
-        log(f"[Engine] Extracted filename from BASE: {filename}", log_level=1)
-        filename = unquote(filename)        # decode URL encoding if any
-        log(f"[Engine] Extracted filename from URL: {filename}", log_level=1)
-        ext = os.path.splitext(filename)[1] # get extension
-        log(f"[Engine] Extracted extension from URL: {ext}", log_level=1)
-        return ext.lstrip(".")
+    
+    
+    def extract_ext_from_url(self, url: str, d=None) -> str:
+        import os
+        from urllib.parse import urlparse, unquote, parse_qs
+
+        media_exts = {"mp4","m4v","webm","mkv","avi","mov","flv","ts","m4a","aac","mp3","opus","wav"}
+        file_exts  = {"pdf":"application/pdf","zip":"application/zip","exe":"application/x-msdownload",
+                    "7z":"application/x-7z-compressed","rar":"application/vnd.rar",
+                    "csv":"text/csv","txt":"text/plain","json":"application/json","xml":"application/xml",
+                    "jpg":"image/jpeg","jpeg":"image/jpeg","png":"image/png","gif":"image/gif"}
+        # reverse map for quick lookup
+        ctype_to_ext = {v:k for k,v in file_exts.items()}
+
+        def _norm(ext): return (ext or "").lower().lstrip(".")
+
+        if d is None:
+            d = getattr(self, "d", None)
+
+        # Prefer local file paths if they exist (most reliable)
+        for p in (getattr(d, "target_file", None), getattr(d, "temp_file", None)):
+            if p and os.path.exists(p):
+                return _norm(os.path.splitext(p)[1])
+
+        # Try yt-dlp info (for streams) — omitted here for brevity if you already added it
+
+        # URL path or query filename (works well for static files)
+        try:
+            parsed = urlparse(url or getattr(d, "url", "") or getattr(d, "eff_url", ""))
+            fname  = unquote(os.path.basename(parsed.path or ""))
+            ext    = _norm(os.path.splitext(fname)[1])
+            if ext:
+                return ext
+            q = parse_qs(parsed.query or "")
+            for k in ("filename","file","name","title"):
+                if k in q and q[k]:
+                    ext = _norm(os.path.splitext(unquote(q[k][0]))[1])
+                    if ext:
+                        return ext
+        except Exception:
+            pass
+
+        # Content-Type fallback for static files
+        ctype = (getattr(d, "type", "") or "").lower()
+        if ctype in ctype_to_ext:
+            return ctype_to_ext[ctype]
+
+        # As a safe default, return 'mp4' (keeps media actions working)
+        return "mp4"
 
     
     
@@ -1465,7 +1504,7 @@ class DownloadManagerUI(QMainWindow):
         self.d.update(url)
 
         # ✅ Set ext for static URL
-        self.d.ext = self.extract_ext_from_url(self.d.url)
+        self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
 
         self.decide_download_engine()
 
@@ -1495,7 +1534,7 @@ class DownloadManagerUI(QMainWindow):
             
             # # ✅ Set ext from filename
             if not self.d.ext:
-                self.d.ext = self.extract_ext_from_url(self.d.url)
+                self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
                 log(f"[Engine] Guessed extension from URL: {self.d.ext}", log_level=1)
             
             widgets.download_btn.setEnabled(True)
@@ -1767,6 +1806,10 @@ class DownloadManagerUI(QMainWindow):
             self.pending.append(d)
             return
 
+
+        # just before creating the window
+        if d.status in (config.Status.cancelled, config.Status.completed, config.Status.error):
+            d.status = config.Status.downloading  # or config.Status.downloading if you prefer
 
         # Show window if allowed, or if it's a resumed download (for progress visibility)
         should_show_window = config.show_download_window and (not silent or d.downloaded)
@@ -2626,7 +2669,7 @@ class DownloadManagerUI(QMainWindow):
             # self.background_threads.clear()
             
             aria2c_manager.cleanup_orphaned_paused_downloads()
-            # aria2c_manager._terminate_existing_processes()
+            aria2c_manager._terminate_existing_processes()
             self.quit_app()
             super().closeEvent(event)
             
@@ -2767,6 +2810,8 @@ class DownloadManagerUI(QMainWindow):
 
         if d.status not in (config.Status.cancelled, config.Status.queued):
             return
+        
+        
 
         # ✅ Resume aria2c download
         if d.engine == "aria2c":
@@ -2786,13 +2831,24 @@ class DownloadManagerUI(QMainWindow):
                         log(f"[Resume] Deleted stale file: {f}")
 
                 self.settings_manager.save_d_list(self.d_list)
+            
+            
 
             try:
                 # d.status = config.Status.downloading
+                if getattr(d, "aria_gid", None):
+                    try:
+                        aria2 = aria2c_manager.get_api()
+                        dl = aria2.get_download(d.aria_gid)
+                        # If aria2 doesn't know it, or it's 'removed', drop the gid
+                        if (dl is None) or (getattr(dl, "status", "") == "removed"):
+                            d.aria_gid = None
+                    except Exception:
+                        d.aria_gid = None
                 Thread(target=brain.brain, args=(d,), daemon=True).start()
                 log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
             except Exception as e:
-                log(f"[Resume] Failed to restart aria2c: {e}", log_level=3)
+                log(f"[Resume] Failed to restart aria2c: {e}", log_level=1)
                 d.status = config.Status.error
 
         elif d.engine == "yt-dlp":
@@ -2811,50 +2867,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.toolbar_buttons['Pause'].setEnabled(True)
         widgets.toolbar_buttons['Resume'].setEnabled(False)
 
-    # def resume_btn(self):
-    #     """Resume paused or queued downloads."""
-
-    #     selected_row = widgets.table.currentRow()
-    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
-    #         show_warning(self.tr("Error"), self.tr("No download item selected"))
-    #         return
-
-    #     d_index = len(self.d_list) - 1 - selected_row
-    #     d = self.d_list[d_index]
-
-    #     if d.status not in (config.Status.cancelled, config.Status.queued):
-    #         return
-
-    #     # ✅ Resume aria2c download
-    #     if d.engine == "aria2c" and hasattr(d, "aria_gid"):
-    #         try:
-    #             success = aria2c_manager.resume(d.aria_gid)
-    #             if success:
-    #                 d.status = config.Status.downloading
-    #                 log(f"[Resume] Aria2c resumed: {d.name}")
-    #                 # Start brain() again to monitor progress
-    #                 Thread(target=brain.brain, args=(d,), daemon=True).start()
-
-    #             else:
-    #                 log(f"[Resume] Aria2c resume failed for: {d.name}")
-    #         except Exception as e:
-    #             log(f"[Resume] Failed to resume aria2c: {e}")
-    #             d.status = config.Status.error
-    #     elif d.engine == "yt-dlp":
-    #         # ✅ Resume yt-dlp download
-    #         try:
-    #             d.status = config.Status.downloading
-    #             log(f"[Resume] yt-dlp resumed: {d.name}")
-    #             Thread(target=brain.brain, args=(d,), daemon=True).start()
-    #         except Exception as e:
-    #             log(f"[Resume] Failed to resume yt-dlp: {e}")
-    #             d.status = config.Status.error
-    #     else:
-    #         # ✅ Fallback: PyCURL download
-    #         self.start_download(d, silent=True)
-        
-    #     widgets.toolbar_buttons['Pause'].setEnabled(True)
-    #     widgets.toolbar_buttons['Resume'].setEnabled(False)
+    
 
 
     def pause_btn(self):
@@ -2966,119 +2979,178 @@ class DownloadManagerUI(QMainWindow):
         except Exception as e:
             log(f"Error deleting items: {e}", log_level=3)
 
+    
     def janitor(self, d):
-        """Delete all related files of the download item (aria2c, yt-dlp, curl, .torrent, temp, etc.)"""
+        """Delete all related files of the download item (aria2c, yt-dlp, curl, .torrent, temp, parts dirs, etc.) WITHOUT touching unrelated folders/files."""
+        import os, glob, shutil, re
+
+        def _log_ok(msg):  log(msg)
+        def _log_err(msg): log(msg, log_level=2)
+
+        def _rm_file(path):
+            try:
+                if path and os.path.isfile(path) and os.path.exists(path):
+                    os.remove(path)
+                    _log_ok(f"[Janitor] Removed file: {path}")
+            except Exception as e:
+                _log_err(f"[Janitor] Failed to remove file: {path} ({e})")
+
+        def _rm_glob(pattern):
+            for p in glob.glob(pattern):
+                _rm_file(p)
+
+        def _rmtree(path):
+            try:
+                if path and os.path.isdir(path) and os.path.exists(path):
+                    shutil.rmtree(path, ignore_errors=False)
+                    _log_ok(f"[Janitor] Removed directory: {path}")
+            except Exception as e:
+                _log_err(f"[Janitor] Failed to remove directory: {path} ({e})")
+
+        def _norm_title(s: str) -> str:
+            base = os.path.splitext(os.path.basename(s))[0]
+            base = base.lower()
+            base = re.sub(r'[^a-z0-9]+', '_', base)
+            base = re.sub(r'_+', '_', base).strip('_')
+            return base
+
+        def _belongs_to_stem(name: str, stems_norm: set[str]) -> bool:
+            """Return True iff the filename/dirname (sans-ext, normalized) looks like it's for this item."""
+            n = _norm_title(name)
+            # exact or prefix/suffix relation (covers _temp_<stem>... and ...<stem>_parts_)
+            return any(n == s or n.startswith(s + "_") or n.endswith("_" + s) or s in n for s in stems_norm)
+
         try:
-            # Delete temp files (partial, .aria2, .part, etc.)
-            d.delete_tempfiles()
-
-            # Remove main file if exists
+            # --- 0) Build roots and stems -----------------------------------------
             main_file = os.path.join(d.folder, d.name)
-            if os.path.exists(main_file):
-                try:
-                    os.remove(main_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove main file: {main_file} ({e})", log_level=2)
 
-            # Remove target file if different from main file
-            if hasattr(d, "target_file") and d.target_file and d.target_file != main_file and os.path.exists(d.target_file):
-                try:
-                    os.remove(d.target_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove target file: {d.target_file} ({e})", log_level=2)
+            # Folders to search (only where this item actually wrote files)
+            roots = set()
+            for base in [
+                main_file,
+                getattr(d, "temp_file", ""),
+                getattr(d, "audio_file", ""),
+                getattr(d, "target_file", ""),
+            ]:
+                if base:
+                    roots.add(os.path.dirname(base) or d.folder)
+            temp_folder = getattr(d, "temp_folder", None)
+            if temp_folder:
+                roots.add(temp_folder)
 
-            # Remove aria2c files (.aria2, .aria2.resume, .aria2.log)
-            for ext in [".aria2", ".aria2.resume", ".aria2.log"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base + ext
-                        if os.path.exists(f):
-                            try:
-                                os.remove(f)
-                            except Exception as e:
-                                log(f"[Janitor] Failed to remove aria2c file: {f} ({e})", log_level=2)
+            # Stems (with/without ext) + normalized variants
+            stems_raw = set()
+            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
+                if not base:
+                    continue
+                fname = os.path.basename(base)       # e.g. "Title.mp4"
+                stem_noext, _ext = os.path.splitext(fname)
+                stems_raw.add(fname)                 # with ext
+                stems_raw.add(stem_noext)            # without ext
 
-            # Remove yt-dlp part files (.part, .f*, .ytdl, .ytdl-part)
-            yt_dlp_patterns = [
-                "*.part", "*.f*", "*.ytdl", "*.ytdl-part"
+            stems_norm = { _norm_title(s) for s in stems_raw if s }
+
+            # --- 1) Let the item clear its tempfiles first ------------------------
+            try:
+                d.delete_tempfiles()
+            except Exception as e:
+                _log_err(f"[Janitor] delete_tempfiles() failed: {e}")
+
+            # --- 2) Remove primary files ------------------------------------------
+            _rm_file(main_file)
+            for base in [getattr(d, "target_file", ""), getattr(d, "temp_file", ""), getattr(d, "audio_file", "")]:
+                if base and os.path.abspath(base) != os.path.abspath(main_file):
+                    _rm_file(base)
+
+            # --- 3) aria2c sidecars ------------------------------------------------
+            aria_suffixes_exact = [".aria2", ".aria2.resume", ".aria2.log", ".meta", ".mtd"]
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in aria_suffixes_exact:
+                        _rm_file(os.path.join(root, f"{stem}{suf}"))
+                    _rm_glob(os.path.join(root, f"{stem}.aria2*"))
+                    _rm_glob(os.path.join(root, f"{stem}.mtd*"))
+                    _rm_glob(os.path.join(root, f"{stem}.meta*"))
+
+            # --- 4) yt-dlp artifacts (strict to stems) -----------------------------
+            yt_suffix_patterns = [
+                ".part", ".part-*", ".f*", ".ytdl", ".ytdl-part", ".ytdl.*",
+                ".info", ".info.json", ".description", ".annotations.xml",
+                ".thumb", ".jpg", ".jpeg", ".png", ".webp",
+                ".srt", ".vtt", ".lrc",
             ]
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    folder = os.path.dirname(base)
-                    name = os.path.basename(base)
-                    import glob
-                    for pattern in yt_dlp_patterns:
-                        for f in glob.glob(os.path.join(folder, name + pattern.replace("*", ""))):
-                            if os.path.exists(f):
-                                try:
-                                    os.remove(f)
-                                except Exception as e:
-                                    log(f"[Janitor] Failed to remove yt-dlp part file: {f} ({e})", log_level=2)
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in yt_suffix_patterns:
+                        _rm_glob(os.path.join(root, f"{stem}{suf}"))
 
-            # Remove .torrent files (if any)
-            for ext in [".torrent"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base
-                        e = f[:-8] # e.g. linuxmint-22.1-cinnamon-64bit.iso.torrent, becomes linuxmint-22.1-cinnamon-64bit.iso
-                        print(f'here is {f} and here is e {e}')
-                        for file_path in [f, e]:
-                            if os.path.exists(file_path):
-                                try:
-                                    os.remove(file_path)
-                                except Exception as ex:
-                                    log(f"[Janitor] Failed to remove torrent file: {file_path} ({ex})", log_level=2)
-                                
-                        # if os.path.exists(f) or os.path.exists(e):
-                        #     try:
-                        #         os.remove(f)
-                        #         os.remove(e)
-                        #     except Exception as e:
-                        #         log(f"[Janitor] Failed to remove torrent file: {f} ({e})", log_level=2)
-
-            # Remove .meta files (aria2c, etc.)
-            for ext in [".meta"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base + ext
-                        if os.path.exists(f):
-                            try:
-                                os.remove(f)
-                            except Exception as e:
-                                log(f"[Janitor] Failed to remove meta file: {f} ({e})", log_level=2)
-
-            # Remove any leftover .watch files (for watch_downloading)
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    f = base + ".watch"
-                    if os.path.exists(f):
-                        try:
-                            os.remove(f)
-                        except Exception as e:
-                            log(f"[Janitor] Failed to remove .watch file: {f} ({e})", log_level=2)
-
-            # Remove audio file if exists
-            if hasattr(d, "audio_file") and d.audio_file and os.path.exists(d.audio_file):
+            # --- 5) STRICT temp/parts folders (only if they BELONG to this item) ---
+            # Allowed folder name forms to try for each stem (raw + normalized)
+            #   _temp_<stem>..._parts_   (curl style)
+            #   <stem>_parts_
+            #   <stem>.temp
+            #   <stem>_temp
+            for root in list(roots):
+                # Scan only directories in root and test them against stems_norm
                 try:
-                    os.remove(d.audio_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove audio file: {d.audio_file} ({e})", log_level=2)
+                    entries = [e for e in glob.glob(os.path.join(root, "*")) if os.path.isdir(e)]
+                except Exception:
+                    entries = []
 
-            # Remove any .mtd files (multi-threaded downloaders)
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    f = base + ".mtd"
-                    if os.path.exists(f):
-                        try:
-                            os.remove(f)
-                        except Exception as e:
-                            log(f"[Janitor] Failed to remove .mtd file: {f} ({e})", log_level=2)
+                for dpath in entries:
+                    dname = os.path.basename(dpath)
+                    if not _belongs_to_stem(dname, stems_norm):
+                        continue  # skip unrelated directories
+
+                    # Safety: if dir contains files that clearly don't belong to this stem, skip deletion
+                    try:
+                        foreign = False
+                        for p in glob.glob(os.path.join(dpath, "**"), recursive=True):
+                            if os.path.isdir(p):
+                                continue
+                            base = os.path.basename(p)
+                            if not _belongs_to_stem(base, stems_norm):
+                                foreign = True
+                                break
+                        if foreign:
+                            continue
+                    except Exception:
+                        # if we can't scan, fall back to delete (you can change to 'continue' if you prefer ultra-safety)
+                        pass
+
+                    _rmtree(dpath)
+
+            # --- 6) .watch helper files -------------------------------------------
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    _rm_file(os.path.join(root, f"{stem}.watch"))
+                    _rm_glob(os.path.join(root, f"{stem}.watch.*"))
+
+            # --- 7) .torrent cleanup ----------------------------------------------
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    _rm_file(os.path.join(root, f"{stem}.torrent"))
+                    _rm_glob(os.path.join(root, f"{stem}.torrent.*"))
+
+            if main_file.lower().endswith(".torrent"):
+                _rm_file(main_file)
+                paired = main_file[:-8]  # remove ".torrent"
+                _rm_file(paired)
+
+            # --- 8) Generic loose leftovers (strict to stems) ---------------------
+            loose_suffixes = [".tmp", ".temp", ".download"]
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in loose_suffixes:
+                        _rm_file(os.path.join(root, f"{stem}{suf}"))
+
+            _log_ok(f"[Janitor] Cleanup completed for: {d.name}")
 
         except Exception as e:
-            log(f"[Janitor] General error cleaning up files for {d.name}: {e}", log_level=3)
+            log(f"[Janitor] General error cleaning up files for {getattr(d, 'name', '?')}: {e}", log_level=3)
 
-
-
+    
+    
     def delete_all_downloads(self):
         """Delete all downloads on the download table"""
 
@@ -3115,6 +3187,7 @@ class DownloadManagerUI(QMainWindow):
 
         for i in range(n):
             d = self.d_list[i]
+            self.janitor(d)
             Thread(target=d.delete_tempfiles, daemon=True).start()
 
         self.d_list.clear()
@@ -3439,6 +3512,8 @@ class DownloadManagerUI(QMainWindow):
         """Check if download item has a playable media extension."""
         media_exts = {"mp4", "webm", "mkv", "avi", "mov", "flv", "ts"}
         return bool(d and d.ext and d.ext.lower() in media_exts and d.progress >= 30)
+    
+    
 
 
     def context_menu_actions_state(self, status: str, d=None) -> dict:
@@ -3583,22 +3658,68 @@ class DownloadManagerUI(QMainWindow):
         self.selected_row_num = len(self.d_list) - 1 - selected_row
 
         try:
-            if self.selected_d.progress < 30:
+            d = self.selected_d
+            if not d or not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file):
+                show_warning(self.tr("No Temp File"), self.tr("The temporary media file was not found yet."))
+                return
+
+            if getattr(d, "progress", 0) < 30:
                 show_warning(self.tr("Too Early"), self.tr("Please wait until at least '30%' is downloaded before watching."))
                 return
-        
-            watch_file = self.selected_d.temp_file
-            watch_copy = watch_file + ".watch"
 
-            if not os.path.exists(watch_copy):
-                shutil.copy2(watch_file, watch_copy)
+            src = d.temp_file
+            base_watch = src + ".watch"  # preferred name
 
-            self.file_open_thread = FileOpenThread(watch_copy, self)
+            # Helper: atomic refresh copy; if locked, create a new unique name
+            def _atomic_refresh_copy(src_path: str, dst_path: str) -> str:
+                """
+                Try to copy src -> dst atomically (copy to dst.tmp then os.replace).
+                If os.replace fails (e.g., dst is locked by player), create a new unique path and copy there.
+                Returns the path actually copied to.
+                """
+                folder = os.path.dirname(dst_path)
+                tmp = dst_path + ".tmp"
+
+                # Ensure parent exists
+                os.makedirs(folder, exist_ok=True)
+
+                try:
+                    shutil.copy2(src_path, tmp)
+                    os.replace(tmp, dst_path)  # atomic on Windows/NTFS and POSIX
+                    return dst_path
+                except Exception as e:
+                    # Clean up tmp (best-effort)
+                    try:
+                        if os.path.exists(tmp):
+                            os.remove(tmp)
+                    except Exception:
+                        pass
+
+                    # Destination likely locked by player; create a new unique file name
+                    n = 2
+                    while True:
+                        alt = f"{dst_path}.{n}"
+                        try:
+                            shutil.copy2(src_path, alt)
+                            return alt
+                        except Exception as e2:
+                            n += 1
+                            if n > 50:
+                                raise e2
+
+            # Always refresh the watch copy so it represents latest bytes
+            watch_path = _atomic_refresh_copy(src, base_watch)
+
+            # Launch (always use the path we actually copied to)
+            self.file_open_thread = FileOpenThread(watch_path, self)
             self.file_open_thread.start()
             self.background_threads.append(self.file_open_thread)
-            log(f"Watching in-progress copy: {watch_copy}", log_level=2)
+            log(f"Watching in-progress copy: {watch_path}", log_level=1)
+
         except Exception as e:
             log(f"Error watching in-progress download: {e}", log_level=3)
+
+    
 
     def open_file_location(self):
         selected_row = widgets.table.currentRow() 
@@ -3893,7 +4014,7 @@ class DownloadManagerUI(QMainWindow):
     def _build_output_path(self, d, video_path: str) -> str:
         out_ext = _pick_container_from_video(video_path)
         # Keep in the same folder with a clear suffix to avoid clobbering inputs
-        return os.path.join(d.folder, f"{d.name}_merged.{out_ext}")
+        return os.path.join(d.folder, f"{d.name}.{out_ext}")
 
     def _cleanup_separate_streams(self, audio_path: str | None, video_path: str | None, keep_inputs=False):
         if keep_inputs:
@@ -3901,7 +4022,8 @@ class DownloadManagerUI(QMainWindow):
         for p in (audio_path,):
             try:
                 if p and os.path.exists(p):
-                    os.remove(p)
+                    pass
+                    #os.remove(p)
             except Exception:
                 pass
         # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
@@ -4193,7 +4315,7 @@ class DownloadManagerUI(QMainWindow):
             color = QtGui.QColor(156, 39, 176)  # Purple
         elif status == config.Status.deleted:
             color = QtGui.QColor(158, 158, 158)  # Grey
-        elif status == config.Status.merging:
+        elif status == config.Status.merging_audio:
             color = QtGui.QColor(255, 109, 0)  # Deep Orange
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white

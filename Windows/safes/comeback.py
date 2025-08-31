@@ -1949,3 +1949,289 @@
 
     #     # Launch
     #     proc.start(ffmpeg, args)
+    
+    
+    
+    
+    # def extract_ext_from_url(self, url):
+       
+    #     path = urlparse(url).path           # safely parse path from URL
+    #     filename = os.path.basename(path)   # get the file name only
+    #     log(f"[Engine] Extracted filename from BASE: {filename}", log_level=1)
+    #     filename = unquote(filename)        # decode URL encoding if any
+    #     log(f"[Engine] Extracted filename from URL: {filename}", log_level=1)
+    #     ext = os.path.splitext(filename)[1] # get extension
+    #     log(f"[Engine] Extracted extension from URL: {ext}", log_level=1)
+    #     return ext.lstrip(".")
+    
+    # def extract_ext_from_url(self, url: str, d=None) -> str:
+    #     """
+    #     Robust extension resolver for both static files and streaming media.
+    #     Tries (in order): d.temp_file/target_file, yt-dlp info/format, URL path or query,
+    #     MIME/protocol hints, and finally a safe default ('mp4' for most video).
+    #     """
+    #     import os
+    #     from urllib.parse import urlparse, unquote, parse_qs
+
+    #     media_exts = {"mp4", "m4v", "webm", "mkv", "avi", "mov", "flv", "ts", "m4a", "aac", "mp3", "opus", "wav"}
+    #     def _norm(ext):
+    #         return (ext or "").lower().lstrip(".")
+
+    #     # 0) Allow passing DownloadItem to improve accuracy
+    #     if d is None:
+    #         d = getattr(self, "d", None)
+
+    #     # 1) If we already have files paths, trust their extension
+    #     for p in (getattr(d, "target_file", None), getattr(d, "temp_file", None)):
+    #         if p and os.path.exists(p):
+    #             ext = _norm(os.path.splitext(p)[1])
+    #             if ext in media_exts:
+    #                 return ext
+
+    #     # 2) yt-dlp info dict (for YouTube/streaming)
+    #     #    Prefer ext/container from chosen format; fallback to top-level ext/container/protocol
+    #     def _from_ytdlp_info(info: dict) -> str | None:
+    #         if not info:
+    #             return None
+
+    #         # direct fields
+    #         for key in ("ext", "container"):
+    #             ext = _norm(info.get(key))
+    #             if ext in media_exts:
+    #                 return ext
+
+    #         # protocol-specific nudges
+    #         proto = _norm(info.get("protocol"))
+    #         # format dicts
+    #         fmt = info.get("requested_downloads") or info.get("requested_formats") or info.get("format") or None
+    #         # normalize fmt to list of dicts
+    #         fmts = []
+    #         if isinstance(fmt, list):
+    #             fmts = fmt
+    #         elif isinstance(fmt, dict):
+    #             fmts = [fmt]
+    #         elif isinstance(fmt, str):
+    #             # Nothing structured; ignore
+    #             pass
+
+    #         # try per-stream ext/container (video+audio)
+    #         cand = []
+    #         for f in fmts:
+    #             ext = _norm(f.get("ext") or f.get("container"))
+    #             if ext:
+    #                 cand.append(ext)
+
+    #         # best guess from formats
+    #         for ext in cand:
+    #             if ext in media_exts:
+    #                 return ext
+
+    #         # Protocol nudge
+    #         if proto in {"m3u8", "m3u8_native", "dash", "http_dash_segments", "ism"}:
+    #             # common outcomes
+    #             # webm/opus -> webm; mp4/m4a -> mp4; else default mp4
+    #             if "webm" in cand:
+    #                 return "webm"
+    #             if "mp4" in cand or "m4a" in cand:
+    #                 return "mp4"
+    #             return "mp4"
+
+    #         return None
+
+    #     info = getattr(d, "vid_info", None) or getattr(d, "info", None)
+    #     ext = _from_ytdlp_info(info)
+    #     if ext:
+    #         return ext
+
+    #     # 3) Try URL path or filename query param (works for static)
+    #     try:
+    #         parsed = urlparse(url or getattr(d, "url", "") or getattr(d, "eff_url", ""))
+    #         filename = unquote(os.path.basename(parsed.path or ""))  # may be empty for streaming
+    #         ext = _norm(os.path.splitext(filename)[1])
+    #         if ext in media_exts:
+    #             return ext
+
+    #         # try common query keys: filename, file, name, title
+    #         q = parse_qs(parsed.query or "")
+    #         for k in ("filename", "file", "name", "title"):
+    #             if k in q and q[k]:
+    #                 fname = unquote(q[k][0])
+    #                 ext = _norm(os.path.splitext(fname)[1])
+    #                 if ext in media_exts:
+    #                     return ext
+    #     except Exception:
+    #         pass
+
+    #     # 4) MIME/type hint if you store it (d.type sometimes holds content type)
+    #     ctype = _norm(getattr(d, "type", "") or "")
+    #     # cheap mapping
+    #     if "video/mp4" in ctype or "audio/mp4" in ctype:
+    #         return "mp4"
+    #     if "webm" in ctype:
+    #         return "webm"
+    #     if "mpegts" in ctype or "mp2t" in ctype:
+    #         return "ts"
+
+    #     # 5) If we know it's YouTube/streaming but no ext yet, pick a sane default
+    #     #    Prefer mp4 as most compatible container (your merge writes mp4/mkv).
+    #     return "mp4"
+    
+    
+    
+    # def run_aria2c_download(d, emitter=None):
+#     log(f"[Aria2c] Starting: {d.name}")
+#     d.status = Status.downloading
+#     d._progress = 0
+#     d.remaining_parts = 1
+#     d.last_known_progress = 0
+
+#     aria2 = aria2c_manager.get_api()
+
+#     is_torrent_file = d.url.endswith(".torrent") or d.name.endswith(".torrent")
+#     is_magnet_link = d.url.startswith("magnet:?")
+
+#     try:
+#         download = None
+#         if d.aria_gid:
+#             try:
+#                 download = aria2.get_download(d.aria_gid)
+#                 if download is None or download.status == 'removed':
+#                     raise Exception("GID not found or removed")
+#                 if download.status == 'paused':
+#                     download.resume()
+#             except Exception as e:
+#                 log(f"[Aria2c] Resume failed or GID not valid: {e}")
+#                 d.aria_gid = None  # fallback to new
+
+#         if not d.aria_gid:
+#             options = {
+#                 "dir": d.folder,
+#                 "pause": "false",
+#                 "file-allocation": config.aria2c_config["file_allocation"],
+#                 "max-connection-per-server": config.aria2c_config["max_connections"],
+#                 "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
+#                 "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
+#             }
+
+#             if is_torrent_file:
+#                 torrent_path = os.path.join(d.folder, d.name)
+#                 log(f"[Aria2c] Downloading .torrent file: {torrent_path}")
+#                 response = requests.get(d.url)
+#                 response.raise_for_status()
+#                 with open(torrent_path, 'wb') as f:
+#                     f.write(response.content)
+
+#                 added = aria2.add_torrent(torrent_path, options=options)
+#                 d.aria_gid = added.gid
+#                 log(f"[Aria2c] Initial GID (metadata): {d.aria_gid}")
+
+#                 # 🔁 Poll until real payload GID is assigned via followed_by
+#                 for _ in range(15):
+#                     try:
+#                         meta_dl = aria2.get_download(d.aria_gid)
+#                         if meta_dl.followed_by:
+#                             real_gid = meta_dl.followed_by[0]
+#                             log(f"[Aria2c] Found real GID: {real_gid}")
+#                             d.aria_gid = real_gid
+
+#                             # --- PATCH: Reset progress and size for real payload ---
+#                             d.progress = 0
+#                             d.downloaded = 0
+#                             d.total_size = 0
+#                             # ------------------------------------------------------
+
+#                             break
+#                     except Exception as e:
+#                         log(f"[Aria2c] Waiting for followed_by GID...: {e}")
+#                     time.sleep(1)
+   
+#             elif is_magnet_link:
+#                 added = aria2.add_magnet(d.url, options=options)
+#                 log(f"[Aria2c] Added magnet link: {d.url}")
+
+#             else:
+#                 options["out"] = d.name
+#                 added = aria2.add_uris([d.url], options=options)
+#                 log(f'[Aria2c] The else statement took control {added}')
+
+#             d.aria_gid = added.gid
+#             log(f"[Aria2c] New GID assigned: {d.aria_gid}")
+
+#         if emitter:
+#             emitter.status_changed.emit("downloading")
+#             emitter.progress_changed.emit(0)
+
+#         while True:
+#             try:
+#                 download = aria2.get_download(d.aria_gid)
+#             except Exception as e:
+#                 log(f"[Aria2c] Error fetching download: {e}")
+#                 d.status = Status.error
+#                 break
+
+#             # --- Aggregate progress for torrents and normal files ---
+#             if download.files and len(download.files) > 1:
+#                 d.total_size = sum(int(f.length) for f in download.files)
+#                 d.downloaded = sum(int(f.completed_length) for f in download.files)
+#             else:
+#                 d.total_size = int(download.total_length)
+#                 d.downloaded = int(download.completed_length)
+
+#             if d.total_size > 0:
+#                 d.progress = int((d.downloaded / d.total_size) * 100)
+#             else:
+#                 d.progress = 0
+
+
+
+#             # ...emit signals, update GUI, etc...
+
+#             d.last_known_progress = d._progress
+#             d._speed = int(download.download_speed)
+#             d.remaining_time = download.eta if download.eta != -1 else 0
+
+#             # Print debug info
+#             #print(f"[Aria2c] Total size: {size_format(d.total_size)}, Downloaded: {size_format(completed_size)}, Progress: {d._progress}%")
+
+#             if emitter:
+#                 emitter.progress_changed.emit(d._progress)
+#                 emitter.log_updated.emit(f"⬇ {size_format(d.speed, '/s')} | Done: {size_format(d.downloaded)} / {size_format(d.total_size)}")
+
+#             if download.is_complete:
+#                 d.status = Status.completed
+#                 d.progress = 100
+#                 log(f"[Aria2c] Completed: {d.name}")
+#                 if emitter:
+#                     emitter.progress_changed.emit(100)
+#                     emitter.status_changed.emit("completed")
+#                 delete_folder(d.temp_folder)
+#                 notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+#                 break
+
+#             elif download.is_removed:
+#                 d.status = Status.error
+#                 log(f"[Aria2c] Error or removed: {d.name}")
+#                 if emitter:
+#                     emitter.status_changed.emit("error")
+#                 break
+
+#             elif download.is_paused:
+#                 if d.status == Status.cancelled:
+#                     log(f"brain() cancelled manually for: {d.name}")
+#                     if d.in_queue:
+#                         d.status = Status.queued
+#                     break
+
+#             time.sleep(1)
+
+#     except Exception as e:
+#         d.status = Status.error
+#         log(f"[Aria2c] Exception during download: {e}")
+#         if emitter:
+#             emitter.status_changed.emit("error")
+
+#     finally:
+#         if emitter:
+#             emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+#         log(f"[Aria2c] Done processing {d.name}")
+

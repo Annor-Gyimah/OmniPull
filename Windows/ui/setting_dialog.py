@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QGroupBox,  QTabWidget, QFileDialog
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIntValidator
 from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 import os, sys
 
@@ -286,6 +286,7 @@ class SettingsWindow(QDialog):
         self.curl_speed_checkBox = QCheckBox(self.tr("Speed Limit"))
         self.curl_speed_checkBox.setToolTip(self.tr("Enable speed limit for curl downloads."))
         self.curl_speed_limit = QLineEdit()
+        self.curl_speed_limit.setValidator(QIntValidator(1, 1000000, self))
         self.curl_speed_limit.setPlaceholderText(self.tr("e.g., 50k, 10k..."))
         self.curl_speed_limit.setToolTip(self.tr("Set a speed limit for curl downloads."))
         self.curl_speed_limit.setEnabled(False)  # initially disabled
@@ -811,8 +812,13 @@ class SettingsWindow(QDialog):
         # Engine Config settings
 
         # PyCurl settings
+        
         config.enable_speed_limit = self.curl_speed_checkBox.isChecked()
-        config.speed_limit = self.curl_speed_limit.text()
+        if config.enable_speed_limit:
+            config.speed_limit = self.curl_speed_limit.text()
+        else:
+            config.speed_limit = ""
+        # config.speed_limit = self.curl_speed_limit.text()
         config.max_concurrent_downloads = int(self.curl_max_concurrent.currentText())
         config.max_connections = int(self.curl_max_connections.currentText())
         config.retry_scheduled_enabled = self.curl_retry_schedule_cb.isChecked()
