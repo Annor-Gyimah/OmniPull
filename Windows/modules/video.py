@@ -2,21 +2,22 @@
 
 import os
 import re
-import shlex
-import subprocess
 import sys
-import zipfile
-import shutil
-import time
-import asyncio
-from urllib.parse import urljoin
 import copy
+import time
+import shlex
+import shutil
+import asyncio
+import zipfile
+import subprocess
 from modules import config
-from modules.downloaditem import DownloadItem, Segment
+from urllib.parse import urljoin
 from modules.threadpool import executor
-from modules.utils import log, validate_file_name, get_headers, size_format, run_command, size_splitter, get_seg_size, \
-    delete_file, download, process_thumbnail, popup
 from modules.config import get_ffmpeg_path
+from modules.downloaditem import DownloadItem, Segment
+from modules.utils import log, validate_file_name, get_headers, size_format, run_command, \
+    delete_file, download, process_thumbnail, popup
+
 
 # youtube-dl
 ytdl = None  # youtube-dl will be imported in a separate thread to save loading time
@@ -44,7 +45,8 @@ def get_ytdl_options():
         'prefer_insecure': True, 
         'no_warnings': config.ytdlp_config.get('no_warnings', True),
         'logger': Logger(),
-        'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
+        # 'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
+        'format': 'bv*+ba/best',
         'listformats': config.ytdlp_config.get('list_formats', False),
         'noplaylist': config.ytdlp_config.get('no_playlist', True),
         'ignore_errors': config.ytdlp_config.get('ignore_errors', True)
@@ -239,46 +241,95 @@ class Video(DownloadItem):
         self.format_id = stream.format_id
         self.manifest_url = stream.manifest_url
         self.last_update = time.time()
-
         
+        
+        # ---- choose an audio stream robustly ----
+        # compatibility map by video extension
+        compat = {
+            "mp4":  {"m4a", "mp4", "aac"},
+            "m4v":  {"m4a", "mp4", "aac"},
+            "webm": {"webm", "opus"},
+            "mkv":  {"webm", "opus", "m4a", "aac"},  # mkv can mux many
+            "mov":  {"m4a", "mp4", "aac"},
+            "ts":   {"aac", "mp4", "m4a"},
+        }
+        vext = (stream.extension or "").lower()
+        allowed_aext = compat.get(vext, {"m4a", "aac", "mp4", "webm", "opus"})
 
+        # candidate audios: same container family OR generally muxable
+        audio_candidates = [
+            a for a in self.audio_streams.values()
+            if (a.acodec != "none") and ((a.extension or "").lower() in allowed_aext)
+        ]
 
-        # Filter audio streams based on extension compatibility
-        audio_streams = [audio for audio in self.audio_streams.values()
-                        if audio.extension == stream.extension or
-                        (audio.extension == 'm4a' and stream.extension == 'mp4')]
+        if not audio_candidates:
+            # fallback: any audio at all
+            audio_candidates = [a for a in self.audio_streams.values() if a.acodec != "none"]
 
-        if not audio_streams:  # Ensure there are available audio streams
+        if not audio_candidates:
             log("No suitable audio stream found!")
             return
 
-        audio_stream = None  # Initialize as None
-        if stream.mediatype == 'dash' and self.protocol.startswith('http'):
-            # If it's DASH video and protocol is HTTP, try to select audio stream by index
-            for idx in [1, 2, 3, 4]:  # Try index 2 first, then 3
-                if idx < len(audio_streams) and audio_streams[idx].size > 0:
-                    audio_stream = audio_streams[idx]
-                    break
-        else:
-            # For other protocols, select the first valid audio stream
-            # If protocol is 'm3u8_native' or other formats
-            audio_stream = audio_streams[0]
-            # for audio in audio_streams:
-            #     if audio.size > 0:
-            #         audio_stream = audio
-            #         break
+        # Prefer higher abr / tbr, then by protocol closeness (same as video), then by presence of fragments
+        def score(a):
+            abr = (a.abr or 0)
+            tbr = (a.tbr or 0)
+            # prefer same protocol family
+            proto_bonus = 10 if (a.protocol or "").split("+")[0] == (stream.protocol or "").split("+")[0] else 0
+            # de-prioritize weird containers
+            ext_bonus = 5 if (a.extension or "").lower() in allowed_aext else 0
+            return (abr or tbr, proto_bonus, ext_bonus)
 
-        if audio_stream is None:
-            log("No valid audio stream found with non-zero size!")
-            return  # Handle the case where no valid audio stream is found
+        audio_stream = sorted(audio_candidates, key=score, reverse=True)[0]
 
-        log(audio_stream)
+        # ⚠️ DO NOT require size>0 here; HLS/DASH audio has size==0 by design in the Stream.__init__
         self.audio_stream = audio_stream
         self.audio_url = audio_stream.url
         self.audio_size = audio_stream.size
         self.audio_fragment_base_url = audio_stream.fragment_base_url
         self.audio_fragments = audio_stream.fragments
         self.audio_format_id = audio_stream.format_id
+
+
+        
+
+
+        # # Filter audio streams based on extension compatibility
+        # audio_streams = [audio for audio in self.audio_streams.values()
+        #                 if audio.extension == stream.extension or
+        #                 (audio.extension == 'm4a' and stream.extension == 'mp4')]
+
+        # if not audio_streams:  # Ensure there are available audio streams
+        #     log("No suitable audio stream found!")
+        #     return
+
+        # audio_stream = None  # Initialize as None
+        # if stream.mediatype == 'dash' and self.protocol.startswith('http'):
+        #     # If it's DASH video and protocol is HTTP, try to select audio stream by index
+        #     for idx in [1, 2, 3, 4]:  # Try index 2 first, then 3
+        #         if idx < len(audio_streams) and audio_streams[idx].size > 0:
+        #             audio_stream = audio_streams[idx]
+        #             break
+        # else:
+        #     # For other protocols, select the first valid audio stream
+        #     # If protocol is 'm3u8_native' or other formats
+        #     audio_stream = audio_streams[0]
+        #     # for audio in audio_streams:
+        #     #     if audio.size > 0:
+        #     #         audio_stream = audio
+        #     #         break
+
+        # if audio_stream is None:
+        #     log("No valid audio stream found with non-zero size!")
+        #     return  # Handle the case where no valid audio stream is found
+
+        # log(audio_stream)
+        # self.audio_stream = audio_stream
+        # self.audio_url = audio_stream.url
+        # self.audio_size = audio_stream.size
+        # self.audio_fragment_base_url = audio_stream.fragment_base_url
+        # self.audio_fragments = audio_stream.fragments
+        # self.audio_format_id = audio_stream.format_id
 
     def clone(self):
         v = Video(self.url)

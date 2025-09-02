@@ -1,13 +1,12 @@
+
+import webbrowser
+from modules import config
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QPixmap, QCursor, QIcon
 from PySide6.QtWidgets import (
     QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
     QFrame, QGraphicsBlurEffect, QWidget, QSizePolicy,
 )
-from PySide6.QtGui import QPixmap, QCursor, QIcon
-from PySide6.QtCore import Qt, QSize
-import webbrowser
-import os
-from modules import config
-import resources_rc
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -100,7 +99,7 @@ class AboutDialog(QDialog):
         tagline.setObjectName("Tagline")
         tagline.setAlignment(Qt.AlignCenter)
 
-        link = QLabel('<a href="https://pyiconicdownloader.com">pyiconicdownloader.com</a>')
+        link = QLabel('<a href="https://omnipull.pythonanywhere.com/">omnipull.pythonanywhere.com/</a>')
         link.setObjectName("Footer")
         link.setAlignment(Qt.AlignCenter)
         link.setTextInteractionFlags(Qt.TextBrowserInteraction)
@@ -191,7 +190,7 @@ class AboutDialog(QDialog):
             elif label == "telegram":
                 btn.clicked.connect(lambda: webbrowser.open("https://t.me/your_channel"))
             elif label == "browser":
-                btn.clicked.connect(lambda: webbrowser.open("https://pyiconicdownloader.com"))
+                btn.clicked.connect(lambda: webbrowser.open("https://omnipull.pythonanywhere.com/"))
             icon_bar.addWidget(btn)
 
         # Add widgets to layout

@@ -1,23 +1,24 @@
 
-import io
 import os
 import re
-import socket
 import time
-import subprocess
+import socket
 import yt_dlp
-import traceback
-from threading import Thread
-from modules.video import is_download_complete, youtube_dl_downloader, unzip_ffmpeg, pre_process_hls, post_process_hls  # unzip_ffmpeg required here for ffmpeg callback
-from modules import config
-from modules.config import Status, APP_NAME, get_ffmpeg_path
-from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
-from modules.worker import Worker
-from modules.postprocessing import async_merge_video_audio
-from modules.aria2c_manager import aria2c_manager
-from modules.threadpool import executor
 import asyncio
+import traceback
+import subprocess
+from threading import Thread
+
+from modules import config
+from modules.video import Stream
+from modules.worker import Worker
+from modules.threadpool import executor
 from modules.helper import safe_filename
+from modules.aria2c_manager import aria2c_manager
+from modules.postprocessing import async_merge_video_audio
+from modules.config import Status, APP_NAME, get_ffmpeg_path 
+from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
+from modules.video import (is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls) 
 
 
 
@@ -44,7 +45,7 @@ def brain(d=None, emitter=None):
 
     # Check which engine to use
 
-    if d.engine in ["aria2", "aria2c"]:
+    if d.engine in ["aria2", "aria2c"] or d.ext in ['torrent'] or d.url.startswith("magnet:?"):
         log(f"[brain] aria2c selected for: {d.name}")
 
         # Ensure original_url is stored before overriding d.url
@@ -54,8 +55,6 @@ def brain(d=None, emitter=None):
 
         if ("youtube.com" in d.original_url or "youtu.be" in d.original_url) and not getattr(d, "vid_info", None):
             log(f"[brain] Extracting stream info from YouTube original URL for aria2c...")
-            from modules.video import get_ytdl_options, extract_info_blocking, Stream
-
             ydl_opts = get_ytdl_options()
             vid_info = extract_info_blocking(d.original_url, ydl_opts)
             d.vid_info = vid_info
@@ -64,7 +63,6 @@ def brain(d=None, emitter=None):
             log(f"[brain] Reusing existing vid_info for {d.name}")
 
         if getattr(d, "vid_info", None):
-            from modules.video import Stream
             streams = [Stream(f) for f in d.vid_info.get("formats", [])]
             dash_streams = [s for s in streams if s.mediatype == 'dash']
             audio_streams = [s for s in streams if s.mediatype == 'audio']
@@ -419,7 +417,7 @@ def run_aria2c_download(d,  emitter=None):
                         rp = download.files[0].path
                         if os.path.isabs(rp) and os.path.basename(rp):
                             d.folder = os.path.dirname(rp) or d.folder
-                            # Respect your validate_file_name logic via the setter
+                            # Respect validate_file_name logic via the setter
                             d.name = os.path.basename(rp)
                 except Exception:
                     pass
@@ -779,8 +777,9 @@ def run_ytdlp_download(d, emitter=None):
             emitter.status_changed.emit("completed")
 
         delete_folder(d.temp_folder)
-        notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
         log(f"[yt-dlp] Finished and merged: {d.name}")
+        notify(f"File: {d.name} \nsaved at: {d.folder}", title=f"{APP_NAME} - Download completed")
+        
 
     except yt_dlp.utils.DownloadCancelled:
         d.status = Status.cancelled

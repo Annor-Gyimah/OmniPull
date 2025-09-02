@@ -1,9 +1,9 @@
-from modules import config
-from PySide6.QtWidgets import QApplication, QMessageBox
-from PySide6.QtCore import Qt
 import re
-import ctypes
 import os
+import ctypes
+from modules import config
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 
 

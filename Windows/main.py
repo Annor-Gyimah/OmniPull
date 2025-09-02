@@ -24,59 +24,63 @@
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
-# region Libraries import
-import sys
+# region Standard Lib import
 import os
-import time
-from threading import Thread, Timer
+import sys
 import copy
-from typing import Any
-import requests
-import asyncio
-from pathlib import Path
-import json
-import hashlib
-import shutil
-import platform
-from collections import deque
-from datetime import datetime, timedelta
 import glob
+import time
+import json
+import shutil
+import asyncio
+import hashlib
+import platform
+import requests
+from typing import Any
+from pathlib import Path
+from collections import deque
+from threading import Thread, Timer
+from datetime import datetime, timedelta
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
-# region Third Parties import
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
-QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
-QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel,
-QGraphicsDropShadowEffect)
-from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
+# region 3rd Parties import
+from PySide6 import QtGui, QtWidgets
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
 QCoreApplication, Qt, QTime, QProcess)
-from PySide6 import QtGui, QtWidgets
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
+from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
+QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
+QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel)
 
-
-from ui.about_dialog import AboutDialog
-from ui.download_window import DownloadWindow
-from ui.populate_worker import PopulateTableWorker
-from ui.queue_dialog import QueueDialog
-from ui.schedule_dialog import ScheduleDialog
-from ui.setting_dialog import SettingsWindow
+# region UI import
 from ui.ui_main import Ui_MainWindow 
-from ui.user_guide_dialog import UserGuideDialog
+from ui.about_dialog import AboutDialog
+from ui.queue_dialog import QueueDialog
 from ui.tray_icon import TrayIconManager
+from ui.setting_dialog import SettingsWindow
+from ui.download_window import DownloadWindow
+from ui.schedule_dialog import ScheduleDialog
+from ui.user_guide_dialog import UserGuideDialog
+from ui.populate_worker import PopulateTableWorker
 from ui.tutorial_window import TutorialOverlay, tutorial_steps
 
-from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
-    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
-    _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
-from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
-from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
-    notify, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update, setting
+# region modules import
+
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
+from modules import config, brain, setting, video, update, setting
+from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
+from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
+    notify, run_command, handle_exceptions)
+from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
+    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
+    _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
+
+
+
 
 
 
@@ -93,10 +97,9 @@ widgets_about = None
 
 class InternetChecker(QThread):
     """
-    This class for checking the internet
+    Thread for checking the internet
     """
-    # Define a signal to send the result back to the main thread
-    internet_status_changed = Signal(bool)
+    internet_status_changed = Signal(bool) # Define a signal to send the result back to the main thread
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -107,8 +110,7 @@ class InternetChecker(QThread):
         url = "https://www.google.com"
         timeout = 10
         try:
-            # Requesting URL to check for internet connectivity
-            requests.get(url, timeout=timeout)
+            requests.get(url, timeout=timeout) # Requesting URL to check for internet connectivity
             self.is_connected = True  # Update the connection status
             self.internet_status_changed.emit(True)
         except (requests.ConnectionError, requests.Timeout):
@@ -117,6 +119,9 @@ class InternetChecker(QThread):
 
 
 class SingleInstanceApp:
+    """
+    Class for only a single OmniPull app to run at a time
+    """
     def __init__(self, app_id):
         self.app_id = app_id
         self.server = QLocalServer()
@@ -130,15 +135,16 @@ class SingleInstanceApp:
 
     def start_server(self):
         if not self.server.listen(self.app_id):
-            # Clean up any leftover server instance if it wasn't closed properly
-            QLocalServer.removeServer(self.app_id)
+            QLocalServer.removeServer(self.app_id) # Clean up any leftover server instance if it wasn't closed properly
             self.server.listen(self.app_id)
 
 
     
 
 class FileChecksum(QThread):
-    """Thread to handle completed file checksum"""
+    """
+    Thread to handle completed file checksum
+    """
 
     checksum_computed = Signal(str, str)  # Signal(file_path, checksum)
 
@@ -160,18 +166,16 @@ class FileChecksum(QThread):
 
 
 class YouTubeThread(QThread):
-    """Thread to handle YouTube video extraction and downloading."""
+    """
+    Thread to handle YouTube video extraction and downloading.
+    """
     finished = Signal(object)  # Signal when the process is complete
     progress = Signal(int)  # Signal to update progress bar (0-100%)
-    
-
-
 
     def __init__(self, url: str):
         """Initialize the YouTubeThread with the URL."""
         super().__init__()
         self.url = url
-
 
     def run(self):
         try:
@@ -181,9 +185,6 @@ class YouTubeThread(QThread):
         except Exception as e:
             log(f'Unexpected error: {e}', log_level=3)
             self.finished.emit(None)
-
-
-
     
     async def _run_async(self):
         try:
@@ -193,40 +194,31 @@ class YouTubeThread(QThread):
             widgets.combo1.clear()
             widgets.combo2.clear()
             change_cursor('busy')
-
             log(f"[AsyncYTDL] Extracting info for URL: {self.url}", log_level=1)
-            # video_obj = await video.Video.create(self.url)
-            vid_info = await video.Video.extract_metadata(self.url)  # we'll split out this helper
-
-           
-
-
-
+            vid_info = await video.Video.extract_metadata(self.url)
+              
             if vid_info.get('_type') == 'playlist':
                 playlist = []
                 entries = list(vid_info.get('entries', []))
                 last_emit = -1  # initialize outside loop
                 UPDATE_INTERVAL = 10  # Update every 10%
+                
                 for index, item in enumerate(entries):
                     try:
                         url = item.get('webpage_url') or item.get('url') or item.get('id')
                         if not url:
                             continue
+                        
                         v = video.Video(url, vid_info=item, get_size=False)
-                        
-                        
                         playlist.append(v)
-
-                        # Emit progress only every 10%
-                        percent = int((index + 1) * 100 / len(entries))
+                        percent = int((index + 1) * 100 / len(entries)) # Emit the app_update signal with the result
                         if percent // UPDATE_INTERVAL > last_emit // UPDATE_INTERVAL:
                             self.progress.emit(percent)
                             last_emit = percent
-
+                            
                     except Exception as e:
                         log(f"[AsyncYTDL] Skipping playlist item {index}: {e}", log_level=2)
-                
-                
+                        
                 self.finished.emit(playlist)
                 self.progress.emit(100)
 
@@ -254,7 +246,9 @@ class YouTubeThread(QThread):
 
 
 class CheckUpdateAppThread(QThread):
-    """Thread to check if a new version of the app is available."""
+    """
+    Thread to check if a new version of the app is available.
+    """
     app_update = Signal(bool)  # Emits True if a new version is available
 
     def __init__(self, remote: bool = True):
@@ -267,31 +261,22 @@ class CheckUpdateAppThread(QThread):
     def run(self):
         """Run the thread to check for updates."""
         self.check_for_update()
-        # Emit the app_update signal with the result
-        self.app_update.emit(self.new_version_available)
+        self.app_update.emit(self.new_version_available) # Emit the app_update signal with the result
 
     def check_for_update(self):
         """Check for a new version and update internal state."""
-        # Change cursor to busy
-        change_cursor('busy')
-
-        # Retrieve current version and changelog information
-        current_version = config.APP_VERSION
+        change_cursor('busy') # Change cursor to busy
+        current_version = config.APP_VERSION # Retrieve current version and changelog information
         try:
             info = update.get_changelog()
-
             if info:
                 latest_version, version_description = info
-
-                # Compare versions
-                newer_version = compare_versions(current_version, latest_version)
+                newer_version = compare_versions(current_version, latest_version) # Compare versions
                 if not newer_version or newer_version == current_version:
                     self.new_version_available = False
                 else:  # newer_version == latest_version
                     self.new_version_available = True
-
-                # Update global values
-                config.APP_LATEST_VERSION = latest_version
+                config.APP_LATEST_VERSION = latest_version # Update global values
                 self.new_version_description = version_description
             else:
                 self.new_version_available = False
@@ -301,14 +286,15 @@ class CheckUpdateAppThread(QThread):
             log(f"Error checking for updates: {e}", log_level=3)
             self.new_version_available = False
             self.new_version_description = None
-
-        # Revert cursor to normal
-        change_cursor('normal')
+            
+        change_cursor('normal') # Revert cursor to normal
         setting.save_setting()
 
     
 class UpdateThread(QThread):
-    """Thread to perform an update and signal when it is finished."""
+    """
+    Thread to perform an update and signal when it is finished.
+    """
     update_finished = Signal()  # Signal to indicate that the update is finished
 
     def run(self):
@@ -319,7 +305,9 @@ class UpdateThread(QThread):
 
 
 class FileOpenThread(QThread):
-    """Thread to open a file and signal errors if the file doesn't exist."""
+    """
+    Thread to open a file and signal errors if the file doesn't exist.
+    """
     critical_signal = Signal(str, str)  # Signal to communicate with the main window
 
     def __init__(self, file_path: str, parent=None):
@@ -331,8 +319,7 @@ class FileOpenThread(QThread):
         """Run the thread to open the specified file."""
         try:
             if not os.path.exists(self.file_path):
-                # Emit the signal if the file doesn't exist
-                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
+                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.") # Emit the signal if the file doesn't exist
                 return  # Exit the thread if the file doesn't exist
 
             # Opening the file
@@ -349,12 +336,14 @@ class FileOpenThread(QThread):
                 'File Not Found', 
                 f"The file '{self.file_path}' could not be found."
             )
+            
         except PermissionError:
             log(f"Permission error accessing: {self.file_path}", log_level=3)
             self.critical_signal.emit(
                 'Permission Error', 
                 f"Permission denied while trying to access '{self.file_path}'."
             )
+            
         except OSError as e:
             log(f"OS error occurred while opening file: {e}", log_level=3)
             self.critical_signal.emit(
@@ -364,7 +353,9 @@ class FileOpenThread(QThread):
 
 
 class LogRecorderThread(QThread):
-    """Thread to record logs and write them to a file."""
+    """
+    Thread to record logs and write them to a file.
+    """
     error_signal = Signal(str)  # Signal to report errors to the main thread
 
     def __init__(self):
@@ -372,11 +363,11 @@ class LogRecorderThread(QThread):
         super().__init__()
         self.buffer = ''
         self.file = os.path.join(config.sett_folder, 'log.txt')
-
         # Clear previous log file
         try:
             with open(self.file, 'w') as f:
                 f.write(self.buffer)
+        
         except Exception as e:
             self.error_signal.emit(f'Failed to clear log file: {str(e)}')
 
@@ -405,6 +396,9 @@ class LogRecorderThread(QThread):
 
 
 class MarqueeLabel(QLabel):
+    """
+    Class for displaying files name via the open menu action in the file menu
+    """
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
         self.full_text = text
@@ -439,31 +433,18 @@ class DownloadManagerUI(QMainWindow):
     
     def __init__(self, d_list):
         QMainWindow.__init__(self)
-
-
-
+        
+        # Intialization 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui_settings = SettingsWindow(self)
-
         self.last_schedule_check = {}  # queue_id: QTime
-
         self.running_queues = {}
-
         self.download_windows = {}
-
         self.background_threads = []  # 🧠 New list to track QThreads
-
-
         self.ui_queues = QueueDialog(self)
-
-         # --- in your class __init__ ---
         self._remux_procs = {}  # {d.id: QProcess}
-
-        # Now safely connect signal
         self.ui.table.itemSelectionChanged.connect(self.update_toolbar_buttons_for_selection)
-
-        
 
         self.setStyleSheet("""
             QMainWindow {
@@ -558,34 +539,21 @@ class DownloadManagerUI(QMainWindow):
         global widgets
         widgets = self.ui
         global widgets_settings
+        
         widgets_settings = self.ui_settings
-        
-        
-
-        # region init parameters
-
-        # App Name
-        title = config.APP_TITLE
-        self.setWindowTitle(title)
-
-
+        self.setWindowTitle(config.APP_TITLE)
         self.d = DownloadItem() # current download_item
         self.yt_thread = None # Setup YouTube thread and connect signals
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
         self.setup()
-        # self.check_and_show_tutorial()
 
-        # url
         self.url_timer = None  # usage: Timer(0.5, self.refresh_headers, args=[self.d.url])
         self.bad_headers = [0, range(400, 404), range(405, 418), range(500, 506)]  # response codes
-
-        # youtube specific
-        # download
         self.pending = deque()
         self.disabled = True  # for download button
 
 
-        # download list
+        # download list table
         self.d_headers = ['id', 'name', 'progress', 'speed', 'time_left', 'downloaded', 'total_size', 'status', 'i']
         self.d_list = d_list  # list of DownloadItem() objects
         self.selected_row_num = None
@@ -611,7 +579,6 @@ class DownloadManagerUI(QMainWindow):
 
         # Initialize and start log recorder thread
         self.log_recorder_thread = LogRecorderThread()
-        #self.log_recorder_thread.error_signal.connect(self.handle_log_error)
         self.log_recorder_thread.start()
         self.background_threads.append(self.log_recorder_thread)  # ✅ Track it
 
@@ -626,7 +593,6 @@ class DownloadManagerUI(QMainWindow):
         self.run_timer.start(900)  # Runs every 500ms
 
         # self.retry_button_clicked = False
-        # Flag to indicate if the filename is being updated programmatically
         self.filename_set_by_program = False
 
         widgets.brand.setText("Annorion - Never Cease To Amaze")
@@ -669,13 +635,8 @@ class DownloadManagerUI(QMainWindow):
         self.settings_manager = SettingsManager()
         self.settings_manager.load_settings()
         self.d_list = self.settings_manager.load_d_list()
-        # self.queues = self.settings_manager.queues # self.settings_manager.load_queues()
-        # self.d_list.reverse()  # 🛠 Fix one-time if the downloads.cfg is reversed
-        
-
         self.ui_queues.main_window = self
-
-        # self.ui_queues.load_queues(self.queues)
+        
         self.tray_manager = TrayIconManager(self)
 
         widgets.folder_input.setText(config.download_folder)
@@ -703,26 +664,22 @@ class DownloadManagerUI(QMainWindow):
         firefox_action.triggered.connect(lambda: self.install_browser_extension("Firefox"))
         edge_action.triggered.connect(lambda: self.install_browser_extension("Edge"))
 
-        # Disable the View menu if any download is in progress, otherwise enable it
-        
-
-        widgets.view_menu.actions()[0].triggered.connect(self.refresh_table)
+       
+    
+        widgets.view_menu.actions()[0].triggered.connect(self.refresh_table) 
         sort_actions = widgets.view_menu.actions()[-1].menu().actions()  # last added menu is "Sort By"
         sort_actions[0].triggered.connect(lambda: self.sort_table("status"))
         sort_actions[1].triggered.connect(lambda: self.sort_table("name"))
         sort_actions[2].triggered.connect(lambda: self.sort_table("progress"))
-
+        # Disable the View menu if any download is in progress, otherwise enable it
         if any(d.status in [config.Status.downloading, config.Status.merging_audio, config.Status.pending, config.Status.queued] for d in self.d_list):
-            widgets.view_menu.menuAction().setToolTip("Disabled while downloads are active")
+            widgets.view_menu.menuAction().setToolTip("Disabled while downloads are active") 
             widgets.view_menu.menuAction().setEnabled(False)
         else:
             widgets.view_menu.menuAction().setEnabled(True)
 
-
         
-
-        # Connect the Open menu to populate when shown
-        widgets.open_file_menu.aboutToShow.connect(self.populate_open_menu)
+        widgets.open_file_menu.aboutToShow.connect(self.populate_open_menu) # Connect the Open menu to populate when shown
 
         self.sort_action_group = QActionGroup(self)
         self.sort_action_group.setExclusive(True)  # Only one checked at a time
@@ -737,8 +694,6 @@ class DownloadManagerUI(QMainWindow):
         self.sort_action_group.addAction(widgets.name_action)
         self.sort_action_group.addAction(widgets.progress_action)
 
-
-
         widgets.help_menu.actions()[0].triggered.connect(self.show_about_dialog)
         widgets.help_menu.actions()[1].triggered.connect(self.start_update)
         widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
@@ -752,13 +707,12 @@ class DownloadManagerUI(QMainWindow):
         self.update_timer.timeout.connect(self.check_for_gui_updates)
         self.update_timer.start(100)  # Check for updates every 100ms
         self.pending_updates = {}
+        
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time, self.check_time = True, True
-        
-        
-        # Translator
-        self.translator = QTranslator()
+    
+        self.translator = QTranslator() # Translator
 
         # Load saved language
         self.current_language = config.lang
@@ -773,22 +727,14 @@ class DownloadManagerUI(QMainWindow):
 
     def show_visual_tutorial(self):
         """Show a visual tutorial overlay with multiple steps."""
-        # tutorial_steps = [
-        #     ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
-        #     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
-        #     ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
-        #     ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
-        # ]
-
-
         overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
         overlay.show()
 
 
 
     # region Menu bar     
-
     def export_downloads_list(self):
+        """Export downloads list to CFG file"""
         file_dialog = QFileDialog(self)
         file_dialog.setAcceptMode(QFileDialog.AcceptSave)
         file_dialog.setNameFilter("CFG Files (*.cfg)")
@@ -796,7 +742,6 @@ class DownloadManagerUI(QMainWindow):
         
         if file_dialog.exec():
             save_path = file_dialog.selectedFiles()[0]
-            
             try:
                 export_data = [d.get_persistent_properties() for d in self.d_list]
 
@@ -808,7 +753,6 @@ class DownloadManagerUI(QMainWindow):
             except Exception as e:
                 show_warning("Export Failed", f"Error: {e}")
 
-    
     def exit_app(self):
         QtWidgets.QApplication.quit()
     
@@ -823,13 +767,9 @@ class DownloadManagerUI(QMainWindow):
 
 
     def sort_table(self, by="status"):
+        """Sort the table by status, name or progress"""
         if not self.d_list:
             return
-        
-        # path = os.path.join(config.sett_folder, 'downloads_copy.cfg')
-        # export_data = [d.get_persistent_properties() for d in self.d_list]
-        # with open(path, 'w') as f:
-        #     json.dump(export_data, f, indent=4)
 
         # Perform sorting
         if by == "status":
@@ -846,16 +786,12 @@ class DownloadManagerUI(QMainWindow):
 
     def refresh_table(self):
         """Reloads the original download list without sorting."""
-        # self.settings_manager.load_d_list()
         self.d_list = self.settings_manager.load_d_list()
         self.populate_table()
 
-
-
-
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
-        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID",  # <-- replace
+        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID", 
         "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
         "Edge": "https://microsoftedge.microsoft.com/addons/detail/mkhncokjlhefbbnjlgmnifmgejdclbhj"
     }
@@ -863,8 +799,8 @@ class DownloadManagerUI(QMainWindow):
     def install_browser_extension(self, browser_name):
         url = self.EXTENSION_URLS.get(browser_name)
         if url:
-            QDesktopServices.openUrl(QUrl(url))
             show_information("Opening Browser", f"Redirecting you to install the {browser_name} extension.", "Follow the instructions there.")
+            QDesktopServices.openUrl(QUrl(url))
         else:
             show_warning("Extension Error", f"No URL available for {browser_name}.")
 
@@ -875,11 +811,8 @@ class DownloadManagerUI(QMainWindow):
             QDesktopServices.openUrl(QUrl(url))
             show_information("Opening Browser", f"Redirecting you to github. Please let us know if you encounter any issues.", "Follow the instructions there.")
             
-
     def clear_all_completed_downloads(self):
-        """
-        Clears all completed downloads from the download list.          
-        """
+        """Clears all completed downloads from the download list."""
         completed_dl = [d for d in self.d_list if d.status == "completed"]
         for d in completed_dl:
             self.d_list.remove(d)
@@ -984,9 +917,7 @@ class DownloadManagerUI(QMainWindow):
         self.retrans()
 
     def retrans(self):
-        """
-        Texts, objects, buttons, etc to translate
-        """
+        """Texts, objects, buttons, etc to translate"""
         # Home Translations
         # widgets.home_link_label.setText(self.tr("LINK"))
         widgets.retry_btn.setText(self.tr("Retry"))
@@ -1004,32 +935,24 @@ class DownloadManagerUI(QMainWindow):
         widgets.type_label.setText(self.tr("Type:"))
         widgets.protocol_label.setText(self.tr("Protocol:"))
         widgets.resume_label.setText(self.tr("Resumable:"))
-
         widgets.file_menu.setTitle(self.tr('File'))
         widgets.export_dl.setText(self.tr('Export Downloads List'))
         widgets.quitt.setText(self.tr('Exit'))
-
         widgets.open_file_menu.setTitle(self.tr('Open'))
         widgets.open_file_menu.actions()[0].setText(self.tr(''))
-       
         widgets.downloads_menu.setTitle(self.tr('Downloads'))
         widgets.downloads_menu.actions()[0].setText(self.tr('Resume All'))
         widgets.downloads_menu.actions()[1].setText(self.tr('Stop All'))
         widgets.downloads_menu.actions()[2].setText(self.tr('Clear Completed'))
-
-
         widgets.view_menu.setTitle(self.tr('View'))
         widgets.view_menu.actions()[0].setText(self.tr('Refresh Table'))
         widgets.sort_menu.setTitle(self.tr('Sort By'))
         widgets.status_action.setText(self.tr('Sort by Status'))
         widgets.name_action.setText(self.tr('Sort by Name'))
         widgets.progress_action.setText(self.tr('Sort by Progress'))
-
         widgets.tools_menu.setTitle(self.tr("Tools"))
         widgets.settings_action.setText(self.tr('Settings'))
         widgets.browser_extension_menu.setTitle(self.tr('Browser Extension'))
-
-
         widgets.help_menu.setTitle(self.tr('Help'))
         widgets.help_menu.actions()[0].setText(self.tr('About'))
         widgets.help_menu.actions()[1].setText(self.tr('Check for Updates'))
@@ -1392,8 +1315,7 @@ class DownloadManagerUI(QMainWindow):
         progress_steps = [10, 50, 100]  # Define the progress steps
         for step in progress_steps:
             time.sleep(1)  # Simulate processing time
-            # Update the progress bar in the main thread
-            self.update_progress_bar_value(step)       
+            self.update_progress_bar_value(step)  # Update the progress bar in the main thread  
     
     def update_progress_bar_value(self, value):
         """Update the progress bar value in the GUI."""
@@ -1404,17 +1326,14 @@ class DownloadManagerUI(QMainWindow):
         self.url_text_change()
 
     def reset(self):
-        # create new download item, the old one will be garbage collected by python interpreter
-        self.d = DownloadItem()
-
+        self.d = DownloadItem() # create new download item, the old one will be garbage collected by python interpreter
         # reset some values
         self.playlist = []
         self.video = None
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
-        # Start a new thread for the progress updates
-        Thread(target=self.process_url, daemon=True).start()
+        Thread(target=self.process_url, daemon=True).start() # Start a new thread for the progress updates
 
     
     def refresh_headers(self, url):
@@ -1434,7 +1353,6 @@ class DownloadManagerUI(QMainWindow):
             else:
                 log("[Engine] aria2c selected, but executable not found. Falling back to curl.", log_level=2)
                 self.d.engine = "curl"
-                #self.aria2c_check()
                 
         elif preferred_engine == "yt-dlp":
             self.d.engine = "yt-dlp"
@@ -1449,9 +1367,7 @@ class DownloadManagerUI(QMainWindow):
     
     
     def extract_ext_from_url(self, url: str, d=None) -> str:
-        import os
-        from urllib.parse import urlparse, unquote, parse_qs
-
+        
         media_exts = {"mp4","m4v","webm","mkv","avi","mov","flv","ts","m4a","aac","mp3","opus","wav"}
         file_exts  = {"pdf":"application/pdf","zip":"application/zip","exe":"application/x-msdownload",
                     "7z":"application/x-7z-compressed","rar":"application/vnd.rar",
