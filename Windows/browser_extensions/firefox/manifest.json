@@ -1,33 +1,42 @@
 {
-    "manifest_version": 2,
-    "name": "OmniPull Downloader",
-    "description": "Send download links to OmniPull desktop app",
-    "version": "1.0",
-    "permissions": [
-      "contextMenus",
-      "nativeMessaging",
-      "notifications"
-    ],
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": true
-    },
-    "icons": {
-      "128": "icons/logo4.png"
-    },
+  "manifest_version": 2,
+  "name": "OmniPull",
+  "version": "1.0.0",
+  "description": "Send links/streams to OmniPull native app",
+  "icons": {
+    "16": "icons/logo4.png",
+    "32": "icons/logo4.png",
+    "48": "icons/logo4.png",
+    "128": "icons/logo4.png"
+  },
 
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"],
-        "run_at": "document_idle"
-      }
-    ],
-    "browser_specific_settings": {
-      "gecko": {
-        "strict_min_version": "91.0"
-      }
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "nativeMessaging",
+    "notifications",
+    "<all_urls>"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
     }
+  ],
 
-  }
-  
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "omnipull@annorion.dev"
+    }
+  },
+
+  "web_accessible_resources": [
+    "icons/logo4.png"
+  ]
+}

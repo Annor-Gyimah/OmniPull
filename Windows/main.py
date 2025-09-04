@@ -2520,42 +2520,116 @@ class DownloadManagerUI(QMainWindow):
                                 f"{s4}")
         return False
     
-    def get_browser_queue_file(self):
-        if os.name == 'nt':
-            # Windows uses AppData/Roaming for user-specific data
-            # Use correct case for 'AppData' and ensure slashes are correct
-            queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
-        else:
-            # Linux and macOS use .config for user-specific data
-            queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
+    # def get_browser_queue_file(self):
+    #     if os.name == 'nt':
+    #         # Windows uses AppData/Roaming for user-specific data
+    #         # Use correct case for 'AppData' and ensure slashes are correct
+    #         queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
+    #     else:
+    #         # Linux and macOS use .config for user-specific data
+    #         queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
 
-        return queue_file
+    #     return queue_file
 
 
     
+    # def check_browser_queue(self):
+    #     if not config.browser_integration_enabled:
+    #         return
+        
+    #     """Check if there are URLs in the browser queue file and process them."""
+    #     queue_file = self.get_browser_queue_file()
+    #     import json
+    #     if queue_file.exists():
+    #         try:
+    #             with open(queue_file) as f:
+    #                 urls = json.load(f)
+    #             for entry in urls:
+    #                 url = entry.get("url")
+    #                 if url:
+    #                     widgets.link_input.setText(url)
+    #                     self.url_text_change()
+    #             # Clear the queue after processing
+    #             # queue_file.unlink()
+    #             with open(queue_file, 'w') as f:
+    #                 json.dump([], f)
+
+    #         except Exception as e:
+    #             log(f"Failed to process browser queue: {str(e)}", log_level=3)
+    
+    def _browser_queue_base(self, app_name=".OmniPull") -> Path:
+        home = Path.home()
+        if sys.platform.startswith("win"):
+            return home / "AppData" / "Roaming" / app_name
+        elif sys.platform == "darwin":
+            return home / "Library" / "Application Support" / app_name
+        else:
+            return home / ".config" / app_name
+
+    def get_browser_queue_paths(self, app_name=".OmniPull"):
+        base = self._browser_queue_base(app_name)
+        return {
+            "latest": base / ".omnipull_url_latest.json",
+            "ndjson": base / ".omnipull_url_queue.ndjson",
+        }
+
+    def _read_latest_json(self, latest_path: Path):
+        try:
+            if latest_path.exists() and latest_path.stat().st_size > 0:
+                with latest_path.open("r", encoding="utf-8") as f:
+                    obj = json.load(f)  # expects {"url": "..."}
+                url = (obj or {}).get("url")
+                return url if url else None
+        except Exception as e:
+            # log if you have a logger
+            pass
+        return None
+
+    def _read_ndjson_last(self, ndjson_path: Path):
+        try:
+            if not ndjson_path.exists(): return None
+            last = None
+            with ndjson_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    s = line.strip()
+                    if not s: continue
+                    last = s
+            if last:
+                obj = json.loads(last)
+                return obj.get("url")
+        except Exception:
+            pass
+        return None
+
     def check_browser_queue(self):
         if not config.browser_integration_enabled:
             return
-        
-        """Check if there are URLs in the browser queue file and process them."""
-        queue_file = self.get_browser_queue_file()
-        import json
-        if queue_file.exists():
-            try:
-                with open(queue_file) as f:
-                    urls = json.load(f)
-                for entry in urls:
-                    url = entry.get("url")
-                    if url:
-                        widgets.link_input.setText(url)
-                        self.url_text_change()
-                # Clear the queue after processing
-                # queue_file.unlink()
-                with open(queue_file, 'w') as f:
-                    json.dump([], f)
 
-            except Exception as e:
-                log(f"Failed to process browser queue: {str(e)}", log_level=3)
+        paths = self.get_browser_queue_paths(".OmniPull")
+        url = self._read_latest_json(paths["latest"])
+        if not url:
+            # fallback: read the last line of NDJSON if present
+            url = self._read_ndjson_last(paths["ndjson"])
+
+        if not url:
+            return
+
+        # Process exactly one URL (the latest)
+        try:
+            widgets.link_input.setText(url)
+            self.url_text_change()
+        except Exception as e:
+            log(f"Failed to inject URL from browser queue: {e}", log_level=3)
+            return
+
+        # Clear the latest file so we don't process the same URL twice
+        try:
+            # either empty it:
+            paths["latest"].write_text("{}", encoding="utf-8")
+            # and optionally truncate NDJSON if you truly want "replace, don't append"
+            # paths["ndjson"].unlink(missing_ok=True)
+        except Exception:
+            pass
     
     # endregion
 
