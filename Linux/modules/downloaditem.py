@@ -59,6 +59,9 @@ class Communication:
         """print log msgs to download window"""
         s = ' '
         s = s.join(str(arg) for arg in args)
+        # for arg in args:
+        #     s += str(arg)
+        #     s += ' '
         s = s[:-1]  # remove last space
 
         if s[-1] != '\n':
@@ -273,7 +276,14 @@ class DownloadItem:
                     audio_segments = [
                         Segment(name=os.path.join(self.temp_folder, str(i) + '_audio'), num=i, range=x,
                                 size=get_seg_size(x), url=self.audio_url, tempfile=self.audio_file)
-                        for i, x in enumerate(range_list)]
+                        for i, x in enumerate(range_list) if get_seg_size(x) > 0
+                    ]
+
+
+                    # audio_segments = [
+                    #     Segment(name=os.path.join(self.temp_folder, str(i) + '_audio'), num=i, range=x,
+                    #             size=get_seg_size(x), url=self.audio_url, tempfile=self.audio_file)
+                    #     for i, x in enumerate(range_list)]
 
                 # append to main list
                 self._segments += audio_segments

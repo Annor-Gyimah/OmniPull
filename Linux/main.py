@@ -24,57 +24,64 @@
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
-# region Libraries import
-import sys
+# region Standard Lib import
 import os
-import time
-from threading import Thread, Timer
+import sys
 import copy
-from typing import Any
-import requests
-import asyncio
-from pathlib import Path
+import glob
+import time
 import json
-import hashlib
 import shutil
+import asyncio
+import hashlib
 import platform
+import requests
+from typing import Any
+from pathlib import Path
 from collections import deque
+from threading import Thread, Timer
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
-# region Third Parties import
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
-QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
-QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel,
-QGraphicsDropShadowEffect)
-from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
+# region 3rd Parties import
+from PySide6 import QtGui, QtWidgets
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
-QCoreApplication, Qt, QTime)
-from PySide6 import QtGui, QtWidgets
+QCoreApplication, Qt, QTime, QProcess)
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
+from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
+QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
+QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel)
 
-
-from ui.about_dialog import AboutDialog
-from ui.download_window import DownloadWindow
-from ui.populate_worker import PopulateTableWorker
-from ui.queue_dialog import QueueDialog
-from ui.schedule_dialog import ScheduleDialog
-from ui.setting_dialog import SettingsWindow
+# region UI import
 from ui.ui_main import Ui_MainWindow 
-from ui.user_guide_dialog import UserGuideDialog
+from ui.about_dialog import AboutDialog
+from ui.queue_dialog import QueueDialog
 from ui.tray_icon import TrayIconManager
+from ui.setting_dialog import SettingsWindow
+from ui.download_window import DownloadWindow
+from ui.schedule_dialog import ScheduleDialog
+from ui.user_guide_dialog import UserGuideDialog
+from ui.populate_worker import PopulateTableWorker
 from ui.tutorial_window import TutorialOverlay, tutorial_steps
 
-from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
-    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format)
-from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c, get_ytdl_options)
-from modules.utils import (size_format, validate_file_name, compare_versions, log, delete_file, time_format,
-    notify, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update, setting
+# region modules import
+
 from modules.downloaditem import DownloadItem
 from modules.aria2c_manager import aria2c_manager
 from modules.settings_manager import SettingsManager
+from modules import config, brain, setting, video, update, setting
+from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
+from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
+    notify, run_command, handle_exceptions)
+from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
+    show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
+    _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
+
+
+
+
 
 
 
@@ -90,10 +97,9 @@ widgets_about = None
 
 class InternetChecker(QThread):
     """
-    This class for checking the internet
+    Thread for checking the internet
     """
-    # Define a signal to send the result back to the main thread
-    internet_status_changed = Signal(bool)
+    internet_status_changed = Signal(bool) # Define a signal to send the result back to the main thread
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -104,8 +110,7 @@ class InternetChecker(QThread):
         url = "https://www.google.com"
         timeout = 10
         try:
-            # Requesting URL to check for internet connectivity
-            requests.get(url, timeout=timeout)
+            requests.get(url, timeout=timeout) # Requesting URL to check for internet connectivity
             self.is_connected = True  # Update the connection status
             self.internet_status_changed.emit(True)
         except (requests.ConnectionError, requests.Timeout):
@@ -114,6 +119,9 @@ class InternetChecker(QThread):
 
 
 class SingleInstanceApp:
+    """
+    Class for only a single OmniPull app to run at a time
+    """
     def __init__(self, app_id):
         self.app_id = app_id
         self.server = QLocalServer()
@@ -127,15 +135,16 @@ class SingleInstanceApp:
 
     def start_server(self):
         if not self.server.listen(self.app_id):
-            # Clean up any leftover server instance if it wasn't closed properly
-            QLocalServer.removeServer(self.app_id)
+            QLocalServer.removeServer(self.app_id) # Clean up any leftover server instance if it wasn't closed properly
             self.server.listen(self.app_id)
 
 
     
 
 class FileChecksum(QThread):
-    """Thread to handle completed file checksum"""
+    """
+    Thread to handle completed file checksum
+    """
 
     checksum_computed = Signal(str, str)  # Signal(file_path, checksum)
 
@@ -157,18 +166,16 @@ class FileChecksum(QThread):
 
 
 class YouTubeThread(QThread):
-    """Thread to handle YouTube video extraction and downloading."""
+    """
+    Thread to handle YouTube video extraction and downloading.
+    """
     finished = Signal(object)  # Signal when the process is complete
     progress = Signal(int)  # Signal to update progress bar (0-100%)
-    
-
-
 
     def __init__(self, url: str):
         """Initialize the YouTubeThread with the URL."""
         super().__init__()
         self.url = url
-
 
     def run(self):
         try:
@@ -178,9 +185,6 @@ class YouTubeThread(QThread):
         except Exception as e:
             log(f'Unexpected error: {e}', log_level=3)
             self.finished.emit(None)
-
-
-
     
     async def _run_async(self):
         try:
@@ -190,40 +194,31 @@ class YouTubeThread(QThread):
             widgets.combo1.clear()
             widgets.combo2.clear()
             change_cursor('busy')
-
             log(f"[AsyncYTDL] Extracting info for URL: {self.url}", log_level=1)
-            # video_obj = await video.Video.create(self.url)
-            vid_info = await video.Video.extract_metadata(self.url)  # we'll split out this helper
-
-           
-
-
-
+            vid_info = await video.Video.extract_metadata(self.url)
+              
             if vid_info.get('_type') == 'playlist':
                 playlist = []
                 entries = list(vid_info.get('entries', []))
                 last_emit = -1  # initialize outside loop
                 UPDATE_INTERVAL = 10  # Update every 10%
+                
                 for index, item in enumerate(entries):
                     try:
                         url = item.get('webpage_url') or item.get('url') or item.get('id')
                         if not url:
                             continue
+                        
                         v = video.Video(url, vid_info=item, get_size=False)
-                        
-                        
                         playlist.append(v)
-
-                        # Emit progress only every 10%
-                        percent = int((index + 1) * 100 / len(entries))
+                        percent = int((index + 1) * 100 / len(entries)) # Emit the app_update signal with the result
                         if percent // UPDATE_INTERVAL > last_emit // UPDATE_INTERVAL:
                             self.progress.emit(percent)
                             last_emit = percent
-
+                            
                     except Exception as e:
                         log(f"[AsyncYTDL] Skipping playlist item {index}: {e}", log_level=2)
-                
-                
+                        
                 self.finished.emit(playlist)
                 self.progress.emit(100)
 
@@ -251,7 +246,9 @@ class YouTubeThread(QThread):
 
 
 class CheckUpdateAppThread(QThread):
-    """Thread to check if a new version of the app is available."""
+    """
+    Thread to check if a new version of the app is available.
+    """
     app_update = Signal(bool)  # Emits True if a new version is available
 
     def __init__(self, remote: bool = True):
@@ -264,31 +261,22 @@ class CheckUpdateAppThread(QThread):
     def run(self):
         """Run the thread to check for updates."""
         self.check_for_update()
-        # Emit the app_update signal with the result
-        self.app_update.emit(self.new_version_available)
+        self.app_update.emit(self.new_version_available) # Emit the app_update signal with the result
 
     def check_for_update(self):
         """Check for a new version and update internal state."""
-        # Change cursor to busy
-        change_cursor('busy')
-
-        # Retrieve current version and changelog information
-        current_version = config.APP_VERSION
+        change_cursor('busy') # Change cursor to busy
+        current_version = config.APP_VERSION # Retrieve current version and changelog information
         try:
             info = update.get_changelog()
-
             if info:
                 latest_version, version_description = info
-
-                # Compare versions
-                newer_version = compare_versions(current_version, latest_version)
+                newer_version = compare_versions(current_version, latest_version) # Compare versions
                 if not newer_version or newer_version == current_version:
                     self.new_version_available = False
                 else:  # newer_version == latest_version
                     self.new_version_available = True
-
-                # Update global values
-                config.APP_LATEST_VERSION = latest_version
+                config.APP_LATEST_VERSION = latest_version # Update global values
                 self.new_version_description = version_description
             else:
                 self.new_version_available = False
@@ -298,14 +286,15 @@ class CheckUpdateAppThread(QThread):
             log(f"Error checking for updates: {e}", log_level=3)
             self.new_version_available = False
             self.new_version_description = None
-
-        # Revert cursor to normal
-        change_cursor('normal')
+            
+        change_cursor('normal') # Revert cursor to normal
         setting.save_setting()
 
     
 class UpdateThread(QThread):
-    """Thread to perform an update and signal when it is finished."""
+    """
+    Thread to perform an update and signal when it is finished.
+    """
     update_finished = Signal()  # Signal to indicate that the update is finished
 
     def run(self):
@@ -316,7 +305,9 @@ class UpdateThread(QThread):
 
 
 class FileOpenThread(QThread):
-    """Thread to open a file and signal errors if the file doesn't exist."""
+    """
+    Thread to open a file and signal errors if the file doesn't exist.
+    """
     critical_signal = Signal(str, str)  # Signal to communicate with the main window
 
     def __init__(self, file_path: str, parent=None):
@@ -328,8 +319,7 @@ class FileOpenThread(QThread):
         """Run the thread to open the specified file."""
         try:
             if not os.path.exists(self.file_path):
-                # Emit the signal if the file doesn't exist
-                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
+                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.") # Emit the signal if the file doesn't exist
                 return  # Exit the thread if the file doesn't exist
 
             # Opening the file
@@ -346,12 +336,14 @@ class FileOpenThread(QThread):
                 'File Not Found', 
                 f"The file '{self.file_path}' could not be found."
             )
+            
         except PermissionError:
             log(f"Permission error accessing: {self.file_path}", log_level=3)
             self.critical_signal.emit(
                 'Permission Error', 
                 f"Permission denied while trying to access '{self.file_path}'."
             )
+            
         except OSError as e:
             log(f"OS error occurred while opening file: {e}", log_level=3)
             self.critical_signal.emit(
@@ -361,7 +353,9 @@ class FileOpenThread(QThread):
 
 
 class LogRecorderThread(QThread):
-    """Thread to record logs and write them to a file."""
+    """
+    Thread to record logs and write them to a file.
+    """
     error_signal = Signal(str)  # Signal to report errors to the main thread
 
     def __init__(self):
@@ -369,11 +363,11 @@ class LogRecorderThread(QThread):
         super().__init__()
         self.buffer = ''
         self.file = os.path.join(config.sett_folder, 'log.txt')
-
         # Clear previous log file
         try:
             with open(self.file, 'w') as f:
                 f.write(self.buffer)
+        
         except Exception as e:
             self.error_signal.emit(f'Failed to clear log file: {str(e)}')
 
@@ -402,6 +396,9 @@ class LogRecorderThread(QThread):
 
 
 class MarqueeLabel(QLabel):
+    """
+    Class for displaying files name via the open menu action in the file menu
+    """
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
         self.full_text = text
@@ -436,29 +433,18 @@ class DownloadManagerUI(QMainWindow):
     
     def __init__(self, d_list):
         QMainWindow.__init__(self)
-
-
-
+        
+        # Intialization 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui_settings = SettingsWindow(self)
-
         self.last_schedule_check = {}  # queue_id: QTime
-
         self.running_queues = {}
-
         self.download_windows = {}
-
         self.background_threads = []  # 🧠 New list to track QThreads
-
-
         self.ui_queues = QueueDialog(self)
-
-
-        # Now safely connect signal
+        self._remux_procs = {}  # {d.id: QProcess}
         self.ui.table.itemSelectionChanged.connect(self.update_toolbar_buttons_for_selection)
-
-        
 
         self.setStyleSheet("""
             QMainWindow {
@@ -524,6 +510,10 @@ class DownloadManagerUI(QMainWindow):
                 color: white;
                 font-size: 12px;
             }
+            QTableWidget::item:focus {
+                outline: none;
+                border: none;
+            }
             QHeaderView::section {
                 background-color: #2b2b2b;
                 padding: 8px;
@@ -549,34 +539,21 @@ class DownloadManagerUI(QMainWindow):
         global widgets
         widgets = self.ui
         global widgets_settings
+        
         widgets_settings = self.ui_settings
-        
-        
-
-        # region init parameters
-
-        # App Name
-        title = config.APP_TITLE
-        self.setWindowTitle(title)
-
-
+        self.setWindowTitle(config.APP_TITLE)
         self.d = DownloadItem() # current download_item
         self.yt_thread = None # Setup YouTube thread and connect signals
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
         self.setup()
-        # self.check_and_show_tutorial()
 
-        # url
         self.url_timer = None  # usage: Timer(0.5, self.refresh_headers, args=[self.d.url])
         self.bad_headers = [0, range(400, 404), range(405, 418), range(500, 506)]  # response codes
-
-        # youtube specific
-        # download
         self.pending = deque()
         self.disabled = True  # for download button
 
 
-        # download list
+        # download list table
         self.d_headers = ['id', 'name', 'progress', 'speed', 'time_left', 'downloaded', 'total_size', 'status', 'i']
         self.d_list = d_list  # list of DownloadItem() objects
         self.selected_row_num = None
@@ -602,7 +579,6 @@ class DownloadManagerUI(QMainWindow):
 
         # Initialize and start log recorder thread
         self.log_recorder_thread = LogRecorderThread()
-        #self.log_recorder_thread.error_signal.connect(self.handle_log_error)
         self.log_recorder_thread.start()
         self.background_threads.append(self.log_recorder_thread)  # ✅ Track it
 
@@ -617,7 +593,6 @@ class DownloadManagerUI(QMainWindow):
         self.run_timer.start(900)  # Runs every 500ms
 
         # self.retry_button_clicked = False
-        # Flag to indicate if the filename is being updated programmatically
         self.filename_set_by_program = False
 
         widgets.brand.setText("Annorion - Never Cease To Amaze")
@@ -660,13 +635,8 @@ class DownloadManagerUI(QMainWindow):
         self.settings_manager = SettingsManager()
         self.settings_manager.load_settings()
         self.d_list = self.settings_manager.load_d_list()
-        # self.queues = self.settings_manager.queues # self.settings_manager.load_queues()
-        # self.d_list.reverse()  # 🛠 Fix one-time if the downloads.cfg is reversed
-        
-
         self.ui_queues.main_window = self
-
-        # self.ui_queues.load_queues(self.queues)
+        
         self.tray_manager = TrayIconManager(self)
 
         widgets.folder_input.setText(config.download_folder)
@@ -694,26 +664,22 @@ class DownloadManagerUI(QMainWindow):
         firefox_action.triggered.connect(lambda: self.install_browser_extension("Firefox"))
         edge_action.triggered.connect(lambda: self.install_browser_extension("Edge"))
 
-        # Disable the View menu if any download is in progress, otherwise enable it
-        
-
-        widgets.view_menu.actions()[0].triggered.connect(self.refresh_table)
+       
+    
+        widgets.view_menu.actions()[0].triggered.connect(self.refresh_table) 
         sort_actions = widgets.view_menu.actions()[-1].menu().actions()  # last added menu is "Sort By"
         sort_actions[0].triggered.connect(lambda: self.sort_table("status"))
         sort_actions[1].triggered.connect(lambda: self.sort_table("name"))
         sort_actions[2].triggered.connect(lambda: self.sort_table("progress"))
-
+        # Disable the View menu if any download is in progress, otherwise enable it
         if any(d.status in [config.Status.downloading, config.Status.merging_audio, config.Status.pending, config.Status.queued] for d in self.d_list):
-            widgets.view_menu.menuAction().setToolTip("Disabled while downloads are active")
+            widgets.view_menu.menuAction().setToolTip("Disabled while downloads are active") 
             widgets.view_menu.menuAction().setEnabled(False)
         else:
             widgets.view_menu.menuAction().setEnabled(True)
 
-
         
-
-        # Connect the Open menu to populate when shown
-        widgets.open_file_menu.aboutToShow.connect(self.populate_open_menu)
+        widgets.open_file_menu.aboutToShow.connect(self.populate_open_menu) # Connect the Open menu to populate when shown
 
         self.sort_action_group = QActionGroup(self)
         self.sort_action_group.setExclusive(True)  # Only one checked at a time
@@ -728,8 +694,6 @@ class DownloadManagerUI(QMainWindow):
         self.sort_action_group.addAction(widgets.name_action)
         self.sort_action_group.addAction(widgets.progress_action)
 
-
-
         widgets.help_menu.actions()[0].triggered.connect(self.show_about_dialog)
         widgets.help_menu.actions()[1].triggered.connect(self.start_update)
         widgets.help_menu.actions()[2].triggered.connect(self.show_user_guide)
@@ -743,18 +707,17 @@ class DownloadManagerUI(QMainWindow):
         self.update_timer.timeout.connect(self.check_for_gui_updates)
         self.update_timer.start(100)  # Check for updates every 100ms
         self.pending_updates = {}
+        
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time, self.check_time = True, True
-        
-        
-        # Translator
-        self.translator = QTranslator()
+    
+        self.translator = QTranslator() # Translator
 
         # Load saved language
+        self.setup_context_menu_actions()
         self.current_language = config.lang
         self.apply_language(self.current_language)
-        self.setup_context_menu_actions()
         self.queue_combo()
 
         self.scheduler_timer = QTimer(self)
@@ -764,22 +727,14 @@ class DownloadManagerUI(QMainWindow):
 
     def show_visual_tutorial(self):
         """Show a visual tutorial overlay with multiple steps."""
-        # tutorial_steps = [
-        #     ("Welcome to OmniPull", "This is your powerful cross-platform download manager.", ":/tutorial_images/step1.png"),
-        #     ("Queue System", "Manage downloads by organizing them into queues.", ":/tutorial_images/step2.png"),
-        #     ("Settings Panel", "Customize your experience in the settings panel.", ":/tutorial_images/step3.png"),
-        #     ("Download Options", "Choose from different engines and formats.", ":/tutorial_images/step4.png"),
-        # ]
-
-
         overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
         overlay.show()
 
 
 
     # region Menu bar     
-
     def export_downloads_list(self):
+        """Export downloads list to CFG file"""
         file_dialog = QFileDialog(self)
         file_dialog.setAcceptMode(QFileDialog.AcceptSave)
         file_dialog.setNameFilter("CFG Files (*.cfg)")
@@ -787,7 +742,6 @@ class DownloadManagerUI(QMainWindow):
         
         if file_dialog.exec():
             save_path = file_dialog.selectedFiles()[0]
-            
             try:
                 export_data = [d.get_persistent_properties() for d in self.d_list]
 
@@ -799,7 +753,6 @@ class DownloadManagerUI(QMainWindow):
             except Exception as e:
                 show_warning("Export Failed", f"Error: {e}")
 
-    
     def exit_app(self):
         QtWidgets.QApplication.quit()
     
@@ -814,13 +767,9 @@ class DownloadManagerUI(QMainWindow):
 
 
     def sort_table(self, by="status"):
+        """Sort the table by status, name or progress"""
         if not self.d_list:
             return
-        
-        # path = os.path.join(config.sett_folder, 'downloads_copy.cfg')
-        # export_data = [d.get_persistent_properties() for d in self.d_list]
-        # with open(path, 'w') as f:
-        #     json.dump(export_data, f, indent=4)
 
         # Perform sorting
         if by == "status":
@@ -837,25 +786,21 @@ class DownloadManagerUI(QMainWindow):
 
     def refresh_table(self):
         """Reloads the original download list without sorting."""
-        # self.settings_manager.load_d_list()
         self.d_list = self.settings_manager.load_d_list()
         self.populate_table()
 
-
-
-
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
-        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID",  # <-- replace
+        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID", 
         "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
-        "Edge": "https://microsoftedge.microsoft.com/addons/detail/YOUR_EXTENSION_ID"
+        "Edge": "https://microsoftedge.microsoft.com/addons/detail/mkhncokjlhefbbnjlgmnifmgejdclbhj"
     }
 
     def install_browser_extension(self, browser_name):
         url = self.EXTENSION_URLS.get(browser_name)
         if url:
-            QDesktopServices.openUrl(QUrl(url))
             show_information("Opening Browser", f"Redirecting you to install the {browser_name} extension.", "Follow the instructions there.")
+            QDesktopServices.openUrl(QUrl(url))
         else:
             show_warning("Extension Error", f"No URL available for {browser_name}.")
 
@@ -866,11 +811,8 @@ class DownloadManagerUI(QMainWindow):
             QDesktopServices.openUrl(QUrl(url))
             show_information("Opening Browser", f"Redirecting you to github. Please let us know if you encounter any issues.", "Follow the instructions there.")
             
-
     def clear_all_completed_downloads(self):
-        """
-        Clears all completed downloads from the download list.          
-        """
+        """Clears all completed downloads from the download list."""
         completed_dl = [d for d in self.d_list if d.status == "completed"]
         for d in completed_dl:
             self.d_list.remove(d)
@@ -975,9 +917,7 @@ class DownloadManagerUI(QMainWindow):
         self.retrans()
 
     def retrans(self):
-        """
-        Texts, objects, buttons, etc to translate
-        """
+        """Texts, objects, buttons, etc to translate"""
         # Home Translations
         # widgets.home_link_label.setText(self.tr("LINK"))
         widgets.retry_btn.setText(self.tr("Retry"))
@@ -995,38 +935,30 @@ class DownloadManagerUI(QMainWindow):
         widgets.type_label.setText(self.tr("Type:"))
         widgets.protocol_label.setText(self.tr("Protocol:"))
         widgets.resume_label.setText(self.tr("Resumable:"))
-
         widgets.file_menu.setTitle(self.tr('File'))
         widgets.export_dl.setText(self.tr('Export Downloads List'))
         widgets.quitt.setText(self.tr('Exit'))
-
         widgets.open_file_menu.setTitle(self.tr('Open'))
         widgets.open_file_menu.actions()[0].setText(self.tr(''))
-       
         widgets.downloads_menu.setTitle(self.tr('Downloads'))
         widgets.downloads_menu.actions()[0].setText(self.tr('Resume All'))
         widgets.downloads_menu.actions()[1].setText(self.tr('Stop All'))
         widgets.downloads_menu.actions()[2].setText(self.tr('Clear Completed'))
-
-
         widgets.view_menu.setTitle(self.tr('View'))
         widgets.view_menu.actions()[0].setText(self.tr('Refresh Table'))
         widgets.sort_menu.setTitle(self.tr('Sort By'))
         widgets.status_action.setText(self.tr('Sort by Status'))
         widgets.name_action.setText(self.tr('Sort by Name'))
         widgets.progress_action.setText(self.tr('Sort by Progress'))
-
         widgets.tools_menu.setTitle(self.tr("Tools"))
         widgets.settings_action.setText(self.tr('Settings'))
         widgets.browser_extension_menu.setTitle(self.tr('Browser Extension'))
-
-
         widgets.help_menu.setTitle(self.tr('Help'))
         widgets.help_menu.actions()[0].setText(self.tr('About'))
         widgets.help_menu.actions()[1].setText(self.tr('Check for Updates'))
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
         widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
-        widgets.help_menu.actions()[4].setText(self.tr('Report Issues'))
+        widgets.help_menu.actions()[4].setText(self.tr("Report Issues"))
 
         
         
@@ -1383,8 +1315,7 @@ class DownloadManagerUI(QMainWindow):
         progress_steps = [10, 50, 100]  # Define the progress steps
         for step in progress_steps:
             time.sleep(1)  # Simulate processing time
-            # Update the progress bar in the main thread
-            self.update_progress_bar_value(step)       
+            self.update_progress_bar_value(step)  # Update the progress bar in the main thread  
     
     def update_progress_bar_value(self, value):
         """Update the progress bar value in the GUI."""
@@ -1395,17 +1326,14 @@ class DownloadManagerUI(QMainWindow):
         self.url_text_change()
 
     def reset(self):
-        # create new download item, the old one will be garbage collected by python interpreter
-        self.d = DownloadItem()
-
+        self.d = DownloadItem() # create new download item, the old one will be garbage collected by python interpreter
         # reset some values
         self.playlist = []
         self.video = None
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
-        # Start a new thread for the progress updates
-        Thread(target=self.process_url, daemon=True).start()
+        Thread(target=self.process_url, daemon=True).start() # Start a new thread for the progress updates
 
     
     def refresh_headers(self, url):
@@ -1425,7 +1353,6 @@ class DownloadManagerUI(QMainWindow):
             else:
                 log("[Engine] aria2c selected, but executable not found. Falling back to curl.", log_level=2)
                 self.d.engine = "curl"
-                #self.aria2c_check()
                 
         elif preferred_engine == "yt-dlp":
             self.d.engine = "yt-dlp"
@@ -1437,20 +1364,63 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
 
-    def extract_ext_from_url(self, url):
-       
-        path = urlparse(url).path           # safely parse path from URL
-        filename = os.path.basename(path)   # get the file name only
-        filename = unquote(filename)        # decode URL encoding if any
-        ext = os.path.splitext(filename)[1] # get extension
-        return ext.lstrip(".")
+    
+    
+    def extract_ext_from_url(self, url: str, d=None) -> str:
+        
+        media_exts = {"mp4","m4v","webm","mkv","avi","mov","flv","ts","m4a","aac","mp3","opus","wav"}
+        file_exts  = {"pdf":"application/pdf","zip":"application/zip","exe":"application/x-msdownload",
+                    "7z":"application/x-7z-compressed","rar":"application/vnd.rar",
+                    "csv":"text/csv","txt":"text/plain","json":"application/json","xml":"application/xml",
+                    "jpg":"image/jpeg","jpeg":"image/jpeg","png":"image/png","gif":"image/gif"}
+        # reverse map for quick lookup
+        ctype_to_ext = {v:k for k,v in file_exts.items()}
+
+        def _norm(ext): return (ext or "").lower().lstrip(".")
+
+        if d is None:
+            d = getattr(self, "d", None)
+
+        # Prefer local file paths if they exist (most reliable)
+        for p in (getattr(d, "target_file", None), getattr(d, "temp_file", None)):
+            if p and os.path.exists(p):
+                return _norm(os.path.splitext(p)[1])
+
+        # Try yt-dlp info (for streams) — omitted here for brevity if you already added it
+
+        # URL path or query filename (works well for static files)
+        try:
+            parsed = urlparse(url or getattr(d, "url", "") or getattr(d, "eff_url", ""))
+            fname  = unquote(os.path.basename(parsed.path or ""))
+            ext    = _norm(os.path.splitext(fname)[1])
+            if ext:
+                return ext
+            q = parse_qs(parsed.query or "")
+            for k in ("filename","file","name","title"):
+                if k in q and q[k]:
+                    ext = _norm(os.path.splitext(unquote(q[k][0]))[1])
+                    if ext:
+                        return ext
+        except Exception:
+            pass
+
+        # Content-Type fallback for static files
+        ctype = (getattr(d, "type", "") or "").lower()
+        if ctype in ctype_to_ext:
+            return ctype_to_ext[ctype]
+
+        # As a safe default, return 'mp4' (keeps media actions working)
+        return "mp4"
+
+    
+    
 
     
     def get_header(self, url):
         self.d.update(url)
 
         # ✅ Set ext for static URL
-        self.d.ext = self.extract_ext_from_url(self.d.url)
+        self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
 
         self.decide_download_engine()
 
@@ -1464,6 +1434,8 @@ class DownloadManagerUI(QMainWindow):
             self.yt_thread.progress.connect(self.update_progress_bar_value)  # Connect progress signal to update progress bar
             self.yt_thread.start()
             self.background_threads.append(self.yt_thread)
+            
+    
 
     def on_youtube_finished(self, result):
         if isinstance(result, list):
@@ -1475,9 +1447,12 @@ class DownloadManagerUI(QMainWindow):
         elif isinstance(result, Video):
             self.playlist = [result]
             self.d = result
-            # ✅ Set ext from filename
+            
+            # # ✅ Set ext from filename
             if not self.d.ext:
-                self.d.ext = self.extract_ext_from_url(self.d.url)
+                self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
+                log(f"[Engine] Guessed extension from URL: {self.d.ext}", log_level=1)
+            
             widgets.download_btn.setEnabled(True)
             widgets.playlist_btn.setEnabled(False)
         else:
@@ -1747,6 +1722,10 @@ class DownloadManagerUI(QMainWindow):
             self.pending.append(d)
             return
 
+
+        # just before creating the window
+        if d.status in (config.Status.cancelled, config.Status.completed, config.Status.error):
+            d.status = config.Status.downloading  # or config.Status.downloading if you prefer
 
         # Show window if allowed, or if it's a resumed download (for progress visibility)
         should_show_window = config.show_download_window and (not silent or d.downloaded)
@@ -2409,7 +2388,7 @@ class DownloadManagerUI(QMainWindow):
                 QMessageBox.critical(self, 
                                     self.tr('FFmpeg is missing'),
                                     f'{s2} \n'
-                                    f'{s3} {config.ffmpeg_folder_path} {s3a} \n'
+                                    f'{s3} {config.ffmpeg_actual_path_2} {s3a} \n'
                                     f"{s4}")
 
             return False
@@ -2541,42 +2520,116 @@ class DownloadManagerUI(QMainWindow):
                                 f"{s4}")
         return False
     
-    def get_browser_queue_file(self):
-        if os.name == 'nt':
-            # Windows uses AppData/Roaming for user-specific data
-            # Use correct case for 'AppData' and ensure slashes are correct
-            queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
-        else:
-            # Linux and macOS use .config for user-specific data
-            queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
+    # def get_browser_queue_file(self):
+    #     if os.name == 'nt':
+    #         # Windows uses AppData/Roaming for user-specific data
+    #         # Use correct case for 'AppData' and ensure slashes are correct
+    #         queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
+    #     else:
+    #         # Linux and macOS use .config for user-specific data
+    #         queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
 
-        return queue_file
+    #     return queue_file
 
 
     
+    # def check_browser_queue(self):
+    #     if not config.browser_integration_enabled:
+    #         return
+        
+    #     """Check if there are URLs in the browser queue file and process them."""
+    #     queue_file = self.get_browser_queue_file()
+    #     import json
+    #     if queue_file.exists():
+    #         try:
+    #             with open(queue_file) as f:
+    #                 urls = json.load(f)
+    #             for entry in urls:
+    #                 url = entry.get("url")
+    #                 if url:
+    #                     widgets.link_input.setText(url)
+    #                     self.url_text_change()
+    #             # Clear the queue after processing
+    #             # queue_file.unlink()
+    #             with open(queue_file, 'w') as f:
+    #                 json.dump([], f)
+
+    #         except Exception as e:
+    #             log(f"Failed to process browser queue: {str(e)}", log_level=3)
+    
+    def _browser_queue_base(self, app_name="OmniPull") -> Path:
+        home = Path.home()
+        if sys.platform.startswith("win"):
+            return home / "AppData" / "Roaming" / app_name
+        elif sys.platform == "darwin":
+            return home / "Library" / "Application Support" / app_name
+        else:
+            return home / ".config" / app_name
+
+    def get_browser_queue_paths(self, app_name="OmniPull"):
+        base = self._browser_queue_base(app_name)
+        return {
+            "latest": base / ".omnipull_url_latest.json",
+            "ndjson": base / ".omnipull_url_queue.ndjson",
+        }
+
+    def _read_latest_json(self, latest_path: Path):
+        try:
+            if latest_path.exists() and latest_path.stat().st_size > 0:
+                with latest_path.open("r", encoding="utf-8") as f:
+                    obj = json.load(f)  # expects {"url": "..."}
+                url = (obj or {}).get("url")
+                return url if url else None
+        except Exception as e:
+            # log if you have a logger
+            pass
+        return None
+
+    def _read_ndjson_last(self, ndjson_path: Path):
+        try:
+            if not ndjson_path.exists(): return None
+            last = None
+            with ndjson_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    s = line.strip()
+                    if not s: continue
+                    last = s
+            if last:
+                obj = json.loads(last)
+                return obj.get("url")
+        except Exception:
+            pass
+        return None
+
     def check_browser_queue(self):
         if not config.browser_integration_enabled:
             return
-        
-        """Check if there are URLs in the browser queue file and process them."""
-        queue_file = self.get_browser_queue_file()
-        import json
-        if queue_file.exists():
-            try:
-                with open(queue_file) as f:
-                    urls = json.load(f)
-                for entry in urls:
-                    url = entry.get("url")
-                    if url:
-                        widgets.link_input.setText(url)
-                        self.url_text_change()
-                # Clear the queue after processing
-                # queue_file.unlink()
-                with open(queue_file, 'w') as f:
-                    json.dump([], f)
 
-            except Exception as e:
-                log(f"Failed to process browser queue: {str(e)}", log_level=3)
+        paths = self.get_browser_queue_paths("OmniPull")
+        url = self._read_latest_json(paths["latest"])
+        if not url:
+            # fallback: read the last line of NDJSON if present
+            url = self._read_ndjson_last(paths["ndjson"])
+
+        if not url:
+            return
+
+        # Process exactly one URL (the latest)
+        try:
+            widgets.link_input.setText(url)
+            self.url_text_change()
+        except Exception as e:
+            log(f"Failed to inject URL from browser queue: {e}", log_level=3)
+            return
+
+        # Clear the latest file so we don't process the same URL twice
+        try:
+            # either empty it:
+            paths["latest"].write_text("{}", encoding="utf-8")
+            # and optionally truncate NDJSON if you truly want "replace, don't append"
+            # paths["ndjson"].unlink(missing_ok=True)
+        except Exception:
+            pass
     
     # endregion
 
@@ -2606,7 +2659,7 @@ class DownloadManagerUI(QMainWindow):
             # self.background_threads.clear()
             
             aria2c_manager.cleanup_orphaned_paused_downloads()
-            # aria2c_manager._terminate_existing_processes()
+            aria2c_manager._terminate_existing_processes()
             self.quit_app()
             super().closeEvent(event)
             
@@ -2747,6 +2800,8 @@ class DownloadManagerUI(QMainWindow):
 
         if d.status not in (config.Status.cancelled, config.Status.queued):
             return
+        
+        
 
         # ✅ Resume aria2c download
         if d.engine == "aria2c":
@@ -2766,13 +2821,24 @@ class DownloadManagerUI(QMainWindow):
                         log(f"[Resume] Deleted stale file: {f}")
 
                 self.settings_manager.save_d_list(self.d_list)
+            
+            
 
             try:
                 # d.status = config.Status.downloading
+                if getattr(d, "aria_gid", None):
+                    try:
+                        aria2 = aria2c_manager.get_api()
+                        dl = aria2.get_download(d.aria_gid)
+                        # If aria2 doesn't know it, or it's 'removed', drop the gid
+                        if (dl is None) or (getattr(dl, "status", "") == "removed"):
+                            d.aria_gid = None
+                    except Exception:
+                        d.aria_gid = None
                 Thread(target=brain.brain, args=(d,), daemon=True).start()
                 log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
             except Exception as e:
-                log(f"[Resume] Failed to restart aria2c: {e}", log_level=3)
+                log(f"[Resume] Failed to restart aria2c: {e}", log_level=1)
                 d.status = config.Status.error
 
         elif d.engine == "yt-dlp":
@@ -2791,50 +2857,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.toolbar_buttons['Pause'].setEnabled(True)
         widgets.toolbar_buttons['Resume'].setEnabled(False)
 
-    # def resume_btn(self):
-    #     """Resume paused or queued downloads."""
-
-    #     selected_row = widgets.table.currentRow()
-    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
-    #         show_warning(self.tr("Error"), self.tr("No download item selected"))
-    #         return
-
-    #     d_index = len(self.d_list) - 1 - selected_row
-    #     d = self.d_list[d_index]
-
-    #     if d.status not in (config.Status.cancelled, config.Status.queued):
-    #         return
-
-    #     # ✅ Resume aria2c download
-    #     if d.engine == "aria2c" and hasattr(d, "aria_gid"):
-    #         try:
-    #             success = aria2c_manager.resume(d.aria_gid)
-    #             if success:
-    #                 d.status = config.Status.downloading
-    #                 log(f"[Resume] Aria2c resumed: {d.name}")
-    #                 # Start brain() again to monitor progress
-    #                 Thread(target=brain.brain, args=(d,), daemon=True).start()
-
-    #             else:
-    #                 log(f"[Resume] Aria2c resume failed for: {d.name}")
-    #         except Exception as e:
-    #             log(f"[Resume] Failed to resume aria2c: {e}")
-    #             d.status = config.Status.error
-    #     elif d.engine == "yt-dlp":
-    #         # ✅ Resume yt-dlp download
-    #         try:
-    #             d.status = config.Status.downloading
-    #             log(f"[Resume] yt-dlp resumed: {d.name}")
-    #             Thread(target=brain.brain, args=(d,), daemon=True).start()
-    #         except Exception as e:
-    #             log(f"[Resume] Failed to resume yt-dlp: {e}")
-    #             d.status = config.Status.error
-    #     else:
-    #         # ✅ Fallback: PyCURL download
-    #         self.start_download(d, silent=True)
-        
-    #     widgets.toolbar_buttons['Pause'].setEnabled(True)
-    #     widgets.toolbar_buttons['Resume'].setEnabled(False)
+    
 
 
     def pause_btn(self):
@@ -2946,119 +2969,178 @@ class DownloadManagerUI(QMainWindow):
         except Exception as e:
             log(f"Error deleting items: {e}", log_level=3)
 
+    
     def janitor(self, d):
-        """Delete all related files of the download item (aria2c, yt-dlp, curl, .torrent, temp, etc.)"""
+        """Delete all related files of the download item (aria2c, yt-dlp, curl, .torrent, temp, parts dirs, etc.) WITHOUT touching unrelated folders/files."""
+        import os, glob, shutil, re
+
+        def _log_ok(msg):  log(msg)
+        def _log_err(msg): log(msg, log_level=2)
+
+        def _rm_file(path):
+            try:
+                if path and os.path.isfile(path) and os.path.exists(path):
+                    os.remove(path)
+                    _log_ok(f"[Janitor] Removed file: {path}")
+            except Exception as e:
+                _log_err(f"[Janitor] Failed to remove file: {path} ({e})")
+
+        def _rm_glob(pattern):
+            for p in glob.glob(pattern):
+                _rm_file(p)
+
+        def _rmtree(path):
+            try:
+                if path and os.path.isdir(path) and os.path.exists(path):
+                    shutil.rmtree(path, ignore_errors=False)
+                    _log_ok(f"[Janitor] Removed directory: {path}")
+            except Exception as e:
+                _log_err(f"[Janitor] Failed to remove directory: {path} ({e})")
+
+        def _norm_title(s: str) -> str:
+            base = os.path.splitext(os.path.basename(s))[0]
+            base = base.lower()
+            base = re.sub(r'[^a-z0-9]+', '_', base)
+            base = re.sub(r'_+', '_', base).strip('_')
+            return base
+
+        def _belongs_to_stem(name: str, stems_norm: set[str]) -> bool:
+            """Return True iff the filename/dirname (sans-ext, normalized) looks like it's for this item."""
+            n = _norm_title(name)
+            # exact or prefix/suffix relation (covers _temp_<stem>... and ...<stem>_parts_)
+            return any(n == s or n.startswith(s + "_") or n.endswith("_" + s) or s in n for s in stems_norm)
+
         try:
-            # Delete temp files (partial, .aria2, .part, etc.)
-            d.delete_tempfiles()
-
-            # Remove main file if exists
+            # --- 0) Build roots and stems -----------------------------------------
             main_file = os.path.join(d.folder, d.name)
-            if os.path.exists(main_file):
-                try:
-                    os.remove(main_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove main file: {main_file} ({e})", log_level=2)
 
-            # Remove target file if different from main file
-            if hasattr(d, "target_file") and d.target_file and d.target_file != main_file and os.path.exists(d.target_file):
-                try:
-                    os.remove(d.target_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove target file: {d.target_file} ({e})", log_level=2)
+            # Folders to search (only where this item actually wrote files)
+            roots = set()
+            for base in [
+                main_file,
+                getattr(d, "temp_file", ""),
+                getattr(d, "audio_file", ""),
+                getattr(d, "target_file", ""),
+            ]:
+                if base:
+                    roots.add(os.path.dirname(base) or d.folder)
+            temp_folder = getattr(d, "temp_folder", None)
+            if temp_folder:
+                roots.add(temp_folder)
 
-            # Remove aria2c files (.aria2, .aria2.resume, .aria2.log)
-            for ext in [".aria2", ".aria2.resume", ".aria2.log"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base + ext
-                        if os.path.exists(f):
-                            try:
-                                os.remove(f)
-                            except Exception as e:
-                                log(f"[Janitor] Failed to remove aria2c file: {f} ({e})", log_level=2)
+            # Stems (with/without ext) + normalized variants
+            stems_raw = set()
+            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
+                if not base:
+                    continue
+                fname = os.path.basename(base)       # e.g. "Title.mp4"
+                stem_noext, _ext = os.path.splitext(fname)
+                stems_raw.add(fname)                 # with ext
+                stems_raw.add(stem_noext)            # without ext
 
-            # Remove yt-dlp part files (.part, .f*, .ytdl, .ytdl-part)
-            yt_dlp_patterns = [
-                "*.part", "*.f*", "*.ytdl", "*.ytdl-part"
+            stems_norm = { _norm_title(s) for s in stems_raw if s }
+
+            # --- 1) Let the item clear its tempfiles first ------------------------
+            try:
+                d.delete_tempfiles()
+            except Exception as e:
+                _log_err(f"[Janitor] delete_tempfiles() failed: {e}")
+
+            # --- 2) Remove primary files ------------------------------------------
+            _rm_file(main_file)
+            for base in [getattr(d, "target_file", ""), getattr(d, "temp_file", ""), getattr(d, "audio_file", "")]:
+                if base and os.path.abspath(base) != os.path.abspath(main_file):
+                    _rm_file(base)
+
+            # --- 3) aria2c sidecars ------------------------------------------------
+            aria_suffixes_exact = [".aria2", ".aria2.resume", ".aria2.log", ".meta", ".mtd"]
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in aria_suffixes_exact:
+                        _rm_file(os.path.join(root, f"{stem}{suf}"))
+                    _rm_glob(os.path.join(root, f"{stem}.aria2*"))
+                    _rm_glob(os.path.join(root, f"{stem}.mtd*"))
+                    _rm_glob(os.path.join(root, f"{stem}.meta*"))
+
+            # --- 4) yt-dlp artifacts (strict to stems) -----------------------------
+            yt_suffix_patterns = [
+                ".part", ".part-*", ".f*", ".ytdl", ".ytdl-part", ".ytdl.*",
+                ".info", ".info.json", ".description", ".annotations.xml",
+                ".thumb", ".jpg", ".jpeg", ".png", ".webp",
+                ".srt", ".vtt", ".lrc",
             ]
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    folder = os.path.dirname(base)
-                    name = os.path.basename(base)
-                    import glob
-                    for pattern in yt_dlp_patterns:
-                        for f in glob.glob(os.path.join(folder, name + pattern.replace("*", ""))):
-                            if os.path.exists(f):
-                                try:
-                                    os.remove(f)
-                                except Exception as e:
-                                    log(f"[Janitor] Failed to remove yt-dlp part file: {f} ({e})", log_level=2)
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in yt_suffix_patterns:
+                        _rm_glob(os.path.join(root, f"{stem}{suf}"))
 
-            # Remove .torrent files (if any)
-            for ext in [".torrent"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base
-                        e = f[:-8] # e.g. linuxmint-22.1-cinnamon-64bit.iso.torrent, becomes linuxmint-22.1-cinnamon-64bit.iso
-                        print(f'here is {f} and here is e {e}')
-                        for file_path in [f, e]:
-                            if os.path.exists(file_path):
-                                try:
-                                    os.remove(file_path)
-                                except Exception as ex:
-                                    log(f"[Janitor] Failed to remove torrent file: {file_path} ({ex})", log_level=2)
-                                
-                        # if os.path.exists(f) or os.path.exists(e):
-                        #     try:
-                        #         os.remove(f)
-                        #         os.remove(e)
-                        #     except Exception as e:
-                        #         log(f"[Janitor] Failed to remove torrent file: {f} ({e})", log_level=2)
-
-            # Remove .meta files (aria2c, etc.)
-            for ext in [".meta"]:
-                for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                    if base:
-                        f = base + ext
-                        if os.path.exists(f):
-                            try:
-                                os.remove(f)
-                            except Exception as e:
-                                log(f"[Janitor] Failed to remove meta file: {f} ({e})", log_level=2)
-
-            # Remove any leftover .watch files (for watch_downloading)
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "audio_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    f = base + ".watch"
-                    if os.path.exists(f):
-                        try:
-                            os.remove(f)
-                        except Exception as e:
-                            log(f"[Janitor] Failed to remove .watch file: {f} ({e})", log_level=2)
-
-            # Remove audio file if exists
-            if hasattr(d, "audio_file") and d.audio_file and os.path.exists(d.audio_file):
+            # --- 5) STRICT temp/parts folders (only if they BELONG to this item) ---
+            # Allowed folder name forms to try for each stem (raw + normalized)
+            #   _temp_<stem>..._parts_   (curl style)
+            #   <stem>_parts_
+            #   <stem>.temp
+            #   <stem>_temp
+            for root in list(roots):
+                # Scan only directories in root and test them against stems_norm
                 try:
-                    os.remove(d.audio_file)
-                except Exception as e:
-                    log(f"[Janitor] Failed to remove audio file: {d.audio_file} ({e})", log_level=2)
+                    entries = [e for e in glob.glob(os.path.join(root, "*")) if os.path.isdir(e)]
+                except Exception:
+                    entries = []
 
-            # Remove any .mtd files (multi-threaded downloaders)
-            for base in [main_file, getattr(d, "temp_file", ""), getattr(d, "target_file", "")]:
-                if base:
-                    f = base + ".mtd"
-                    if os.path.exists(f):
-                        try:
-                            os.remove(f)
-                        except Exception as e:
-                            log(f"[Janitor] Failed to remove .mtd file: {f} ({e})", log_level=2)
+                for dpath in entries:
+                    dname = os.path.basename(dpath)
+                    if not _belongs_to_stem(dname, stems_norm):
+                        continue  # skip unrelated directories
+
+                    # Safety: if dir contains files that clearly don't belong to this stem, skip deletion
+                    try:
+                        foreign = False
+                        for p in glob.glob(os.path.join(dpath, "**"), recursive=True):
+                            if os.path.isdir(p):
+                                continue
+                            base = os.path.basename(p)
+                            if not _belongs_to_stem(base, stems_norm):
+                                foreign = True
+                                break
+                        if foreign:
+                            continue
+                    except Exception:
+                        # if we can't scan, fall back to delete (you can change to 'continue' if you prefer ultra-safety)
+                        pass
+
+                    _rmtree(dpath)
+
+            # --- 6) .watch helper files -------------------------------------------
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    _rm_file(os.path.join(root, f"{stem}.watch"))
+                    _rm_glob(os.path.join(root, f"{stem}.watch.*"))
+
+            # --- 7) .torrent cleanup ----------------------------------------------
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    _rm_file(os.path.join(root, f"{stem}.torrent"))
+                    _rm_glob(os.path.join(root, f"{stem}.torrent.*"))
+
+            if main_file.lower().endswith(".torrent"):
+                _rm_file(main_file)
+                paired = main_file[:-8]  # remove ".torrent"
+                _rm_file(paired)
+
+            # --- 8) Generic loose leftovers (strict to stems) ---------------------
+            loose_suffixes = [".tmp", ".temp", ".download"]
+            for root in list(roots):
+                for stem in list(stems_raw):
+                    for suf in loose_suffixes:
+                        _rm_file(os.path.join(root, f"{stem}{suf}"))
+
+            _log_ok(f"[Janitor] Cleanup completed for: {d.name}")
 
         except Exception as e:
-            log(f"[Janitor] General error cleaning up files for {d.name}: {e}", log_level=3)
+            log(f"[Janitor] General error cleaning up files for {getattr(d, 'name', '?')}: {e}", log_level=3)
 
-
-
+    
+    
     def delete_all_downloads(self):
         """Delete all downloads on the download table"""
 
@@ -3095,6 +3177,7 @@ class DownloadManagerUI(QMainWindow):
 
         for i in range(n):
             d = self.d_list[i]
+            self.janitor(d)
             Thread(target=d.delete_tempfiles, daemon=True).start()
 
         self.d_list.clear()
@@ -3407,6 +3490,7 @@ class DownloadManagerUI(QMainWindow):
         self.action_watch_downloading = create_action(":/icons/vlc.svg", self.tr("Watch while downloading"), "Ctrl+W", self.watch_downloading)
         self.action_schedule_download = create_action(":/icons/schedule.svg", self.tr("Schedule download"), "Ctrl+S", self.schedule_download)
         self.action_cancel_schedule = create_action(":/icons/cancel-schedule.svg", self.tr("Cancel schedule!"), "Ctrl+C", self.cancel_schedule)
+        self.action_remerge = create_action(":/icons/ffmpeg.svg", self.tr("Re-merge audio/video"), "Ctrl+M", self.remerge_audio_video)
         self.action_file_properties = create_action(":/icons/info.svg", self.tr("File Properties"), "Ctrl+P", self.file_properties)
         self.action_add_to_queue = create_action(":/icons/add-queue.svg", self.tr("Add to Queue"), "Ctrl+Q", self.add_to_queue_from_context)
         self.action_remove_from_queue = create_action(":/icons/remove-queue.svg", self.tr("Remove from Queue"), "Ctrl+R", self.remove_from_queue_from_context)
@@ -3418,6 +3502,8 @@ class DownloadManagerUI(QMainWindow):
         """Check if download item has a playable media extension."""
         media_exts = {"mp4", "webm", "mkv", "avi", "mov", "flv", "ts"}
         return bool(d and d.ext and d.ext.lower() in media_exts and d.progress >= 30)
+    
+    
 
 
     def context_menu_actions_state(self, status: str, d=None) -> dict:
@@ -3429,6 +3515,7 @@ class DownloadManagerUI(QMainWindow):
             "schedule": status in {"paused", "pending", "cancelled", "error", "failed", "deleted"},
             "cancel_schedule": status in {"scheduled", "pending", "downloading", "paused"},
             "pop_download_item": status not in {"downloading", "pending", "merging_audio", "paused", "queued"},
+            "remerge": bool(status in {"error"} and self.is_playable_media(d)),
             "add_to_queue": status == "cancelled" and (d is not None) and (not d.in_queue),
             "remove_from_queue": status == "queued" and (d is not None) and d.in_queue,
             "properties": True,
@@ -3445,6 +3532,7 @@ class DownloadManagerUI(QMainWindow):
         self.action_cancel_schedule.setEnabled(states["cancel_schedule"])
         self.action_add_to_queue.setEnabled(states["add_to_queue"])
         self.action_remove_from_queue.setEnabled(states["remove_from_queue"])
+        self.action_remerge.setEnabled(states["remerge"])
         self.action_file_properties.setEnabled(states["properties"])
         self.action_file_checksum.setEnabled(states["file_checksum"])
         self.action_pop_file_from_table.setEnabled(states["pop_download_item"])  
@@ -3486,6 +3574,7 @@ class DownloadManagerUI(QMainWindow):
         context_menu.addSeparator()
         context_menu.addAction(self.action_add_to_queue)
         context_menu.addAction(self.action_remove_from_queue)
+        context_menu.addAction(self.action_remerge)
         context_menu.addSeparator()
         context_menu.addAction(self.action_file_checksum)
         context_menu.addAction(self.action_file_properties)
@@ -3559,22 +3648,68 @@ class DownloadManagerUI(QMainWindow):
         self.selected_row_num = len(self.d_list) - 1 - selected_row
 
         try:
-            if self.selected_d.progress < 30:
+            d = self.selected_d
+            if not d or not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file):
+                show_warning(self.tr("No Temp File"), self.tr("The temporary media file was not found yet."))
+                return
+
+            if getattr(d, "progress", 0) < 30:
                 show_warning(self.tr("Too Early"), self.tr("Please wait until at least '30%' is downloaded before watching."))
                 return
-        
-            watch_file = self.selected_d.temp_file
-            watch_copy = watch_file + ".watch"
 
-            if not os.path.exists(watch_copy):
-                shutil.copy2(watch_file, watch_copy)
+            src = d.temp_file
+            base_watch = src + ".watch"  # preferred name
 
-            self.file_open_thread = FileOpenThread(watch_copy, self)
+            # Helper: atomic refresh copy; if locked, create a new unique name
+            def _atomic_refresh_copy(src_path: str, dst_path: str) -> str:
+                """
+                Try to copy src -> dst atomically (copy to dst.tmp then os.replace).
+                If os.replace fails (e.g., dst is locked by player), create a new unique path and copy there.
+                Returns the path actually copied to.
+                """
+                folder = os.path.dirname(dst_path)
+                tmp = dst_path + ".tmp"
+
+                # Ensure parent exists
+                os.makedirs(folder, exist_ok=True)
+
+                try:
+                    shutil.copy2(src_path, tmp)
+                    os.replace(tmp, dst_path)  # atomic on Windows/NTFS and POSIX
+                    return dst_path
+                except Exception as e:
+                    # Clean up tmp (best-effort)
+                    try:
+                        if os.path.exists(tmp):
+                            os.remove(tmp)
+                    except Exception:
+                        pass
+
+                    # Destination likely locked by player; create a new unique file name
+                    n = 2
+                    while True:
+                        alt = f"{dst_path}.{n}"
+                        try:
+                            shutil.copy2(src_path, alt)
+                            return alt
+                        except Exception as e2:
+                            n += 1
+                            if n > 50:
+                                raise e2
+
+            # Always refresh the watch copy so it represents latest bytes
+            watch_path = _atomic_refresh_copy(src, base_watch)
+
+            # Launch (always use the path we actually copied to)
+            self.file_open_thread = FileOpenThread(watch_path, self)
             self.file_open_thread.start()
             self.background_threads.append(self.file_open_thread)
-            log(f"Watching in-progress copy: {watch_copy}", log_level=2)
+            log(f"Watching in-progress copy: {watch_path}", log_level=1)
+
         except Exception as e:
             log(f"Error watching in-progress download: {e}", log_level=3)
+
+    
 
     def open_file_location(self):
         selected_row = widgets.table.currentRow() 
@@ -3666,7 +3801,7 @@ class DownloadManagerUI(QMainWindow):
                 f'{d_resumable} {d.resumable} \n' \
                 f'{d_type} {d.type} \n' \
                 f'{d_protocol} {d.protocol} \n' \
-                f'{d_webpage_url} {d.original_url if d.engine in ['aria2c', 'aria2'] else d.url}'
+                f"{d_webpage_url} {d.original_url if d.engine in ['aria2c', 'aria2'] else d.url}"
             show_information(self.tr("File Properties"), inform="", msg=f"{text}")
 
     def add_to_queue_from_context(self):
@@ -3743,6 +3878,291 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         self.populate_table()
         self.refresh_table_row(d)
+        
+   
+
+    # --- helper: safest way to pick an output extension consistent with input ---
+    
+
+    def _find_audio_file_for(self, d) -> str | None:
+        """
+        Priority:
+        1) exact "audio_for_<TITLE>.*" using normalized d.name
+        2) scan folder for files starting 'audio_for_' and pick the one whose <TITLE> matches d.name best
+        3) if d.audio_file exists, use it (legacy)
+        """
+        folder = getattr(d, 'folder', None) or os.path.dirname(getattr(d, 'target_file', '') or getattr(d, 'temp_file', '') or '')
+        if not folder:
+            return None
+
+        # 3) Legacy explicit field (kept but lowered in priority to prefer your new convention)
+        explicit = getattr(d, 'audio_file', None)
+        if explicit and os.path.exists(explicit):
+            # we will still try convention first; fallback to explicit later
+            pass
+
+        title_norm = _norm_title(getattr(d, 'name', '') or os.path.basename(getattr(d, 'target_file', '') or ''))
+        video_candidates, audio_candidates = _expected_paths(folder, title_norm)
+
+        # 1) Exact by normalized title
+        audio = _best_existing(audio_candidates)
+        if audio:
+            return audio
+
+        # 2) Scan folder for any audio_for_*.* and choose the best title match
+        pattern = os.path.join(folder, "audio_for_*.*")
+        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        if candidates:
+            # compute normalized titles and compare to title_norm
+            scored = []
+            for p in candidates:
+                t = _extract_title_from_pattern(p, "audio_for_") or ""
+                # Higher score for exact match; otherwise Jaccard-like overlap on tokens
+                if t == title_norm:
+                    score = 100
+                else:
+                    a = set(title_norm.split('_'))
+                    b = set(t.split('_'))
+                    inter = len(a & b)
+                    score = inter
+                scored.append((score, p))
+            if scored:
+                scored.sort(key=lambda x: (-x[0], -os.path.getsize(x[1]), x[1]))
+                if scored[0][0] > 0:
+                    return scored[0][1]
+
+        # 3) Fallback to explicit
+        if explicit and os.path.exists(explicit):
+            return explicit
+
+        return None
+
+    def _find_video_file_for(self, d, audio_path: str | None) -> str | None:
+        """
+        Priority:
+        1) exact "_temp_<TITLE>.*" using normalized d.name
+        2) if not found, use d.target_file when it exists and looks like video-only
+        3) scan folder for _temp_* candidates and pick best title match
+        4) scan folder for <TITLE>.* large media if still missing
+        """
+        folder = getattr(d, 'folder', None) or os.path.dirname(getattr(d, 'target_file', '') or getattr(d, 'temp_file', '') or '')
+        if not folder:
+            return None
+
+        title_norm = _norm_title(getattr(d, 'name', '') or os.path.basename(getattr(d, 'target_file', '') or ''))
+        video_candidates, _audio_candidates = _expected_paths(folder, title_norm)
+
+        # 1) Exact by normalized title (_temp_<TITLE>.*)
+        video = _best_existing(video_candidates)
+        if video and (not audio_path or os.path.abspath(video) != os.path.abspath(audio_path)):
+            return video
+
+        # 2) Use target_file if it exists
+        tgt = getattr(d, 'target_file', None)
+        if tgt and os.path.exists(tgt) and (not audio_path or os.path.abspath(tgt) != os.path.abspath(audio_path)):
+            return tgt
+
+        # 3) Scan folder for any _temp_*.* and choose the best title match
+        pattern = os.path.join(folder, "_temp_*.*")
+        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        if candidates:
+            scored = []
+            for p in candidates:
+                t = _extract_title_from_pattern(p, "_temp_") or ""
+                if t == title_norm:
+                    score = 100
+                else:
+                    a = set(title_norm.split('_'))
+                    b = set(t.split('_'))
+                    inter = len(a & b)
+                    score = inter
+                if audio_path and os.path.abspath(p) == os.path.abspath(audio_path):
+                    continue
+                scored.append((score, p))
+            if scored:
+                scored.sort(key=lambda x: (-x[0], -os.path.getsize(x[1]), x[1]))
+                if scored[0][0] > 0:
+                    return scored[0][1]
+
+        # 4) Last resort: largest media with <TITLE>.* (avoid choosing the audio file)
+        media_exts = ('mp4', 'm4v', 'mov', 'webm', 'mkv', 'ts')
+        pattern = os.path.join(folder, f"{title_norm}.*")
+        loose = []
+        for p in glob.glob(pattern):
+            if audio_path and os.path.abspath(p) == os.path.abspath(audio_path):
+                continue
+            ext = os.path.splitext(p)[1].lower().lstrip('.')
+            if ext in media_exts:
+                loose.append(p)
+        if loose:
+            loose.sort(key=lambda p: (-os.path.getsize(p), p))
+            return loose[0]
+
+        return None
+    
+    
+    def _build_output_path(self, d, video_path: str) -> str:
+        out_ext = _pick_container_from_video(video_path)
+        # Keep in the same folder with a clear suffix to avoid clobbering inputs
+        return os.path.join(d.folder, f"{d.name}.{out_ext}")
+
+    def _cleanup_separate_streams(self, audio_path: str | None, video_path: str | None, keep_inputs=False):
+        if keep_inputs:
+            return
+        for p in (audio_path,):
+            try:
+                if p and os.path.exists(p):
+                    pass
+                    #os.remove(p)
+            except Exception:
+                pass
+        # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
+        # try:
+        #     if video_path and os.path.exists(video_path):
+        #         os.remove(video_path)
+        # except Exception:
+        #     pass
+
+    
+    def _start_ffmpeg_remerge(self, d, video_path: str, audio_path: str, output_path: str, row_index: int):
+        ffmpeg = config.get_ffmpeg_path()
+        if not ffmpeg or not os.path.exists(ffmpeg):
+            show_warning(self.tr("FFmpeg not found"), self.tr("Please install or configure FFmpeg in Settings."))
+            return
+
+        # Ensure proc map
+        if not hasattr(self, "_remux_procs"):
+            self._remux_procs = {}
+
+        # Kill any previous proc for this item
+        if d.id in self._remux_procs:
+            try:
+                self._remux_procs[d.id].kill()
+            except Exception:
+                pass
+            self._remux_procs.pop(d.id, None)
+
+        proc = QProcess(self)
+        self._remux_procs[d.id] = proc
+
+        args = [
+            "-y",
+            "-hide_banner", "-loglevel", "error",
+            "-i", video_path,
+            "-i", audio_path,
+            "-map", "0:v:0",
+            "-map", "1:a:0",
+            "-c", "copy",
+            output_path,
+        ]
+
+        # UI: show "merging"
+        old_status = d.status
+        d.status = "merging_audio"   # matches your update_table_progress color map
+        self.update_table_progress()
+
+        def on_finished(exit_code, exit_status):
+            # detach proc
+            self._remux_procs.pop(d.id, None)
+
+            if exit_code == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                d.status = "completed"
+                d.progress = 100
+                
+                # Point to the merged file by updating fields used by the property
+                d.name = os.path.basename(output_path)
+                d.folder = os.path.dirname(output_path) or d.folder
+
+                # optional: clean separate audio (and/or video) files
+                try:
+                    if os.path.exists(audio_path):
+                        os.remove(audio_path)
+                except Exception:
+                    pass
+                # If you want, also remove the _temp_ video:
+                # try:
+                #     if os.path.exists(video_path):
+                #         os.remove(video_path)
+                # except Exception:
+                #     pass
+
+                # persist
+                try:
+                    if hasattr(self, "settings_manager") and self.settings_manager:
+                        self.settings_manager.save_d_list(self.d_list)
+                    else:
+                        # Fallback if you use a different settings API
+                        # SettingsManager().save_download_list(self.d_list)
+                        pass
+                except Exception as e:
+                    log(f"Save after re-merge failed: {e}", log_level=2)
+
+                self.update_table_progress()
+                notify(self.tr("Audio and video were merged successfully."), self.tr("Re-merge complete"))
+               
+            else:
+                # failed → revert to error (or prior)
+                d.status = old_status or "error"
+                self.update_table_progress()
+
+                err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+                show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg could not merge the files.\n\nDetails:\n") + (err or ""))[:3000])
+
+        def on_error(process_error):
+            # failure path similar to above
+            self._remux_procs.pop(d.id, None)
+            d.status = "error"
+            self.update_table_progress()
+            err = proc.readAllStandardError().data().decode("utf-8", errors="ignore")
+            show_warning(self.tr("Re-merge failed"), (self.tr("FFmpeg process error.\n\nDetails:\n") + (err or ""))[:3000])
+
+        proc.finished.connect(on_finished)
+        proc.errorOccurred.connect(on_error)
+
+        proc.start(ffmpeg, args)
+
+
+    def remerge_audio_video(self):
+        selected_items = widgets.table.selectedItems()
+        if not selected_items:
+            show_warning(self.tr("No Selection"), self.tr("Please select a download that has separate audio and video files."))
+            return
+
+        selected_row = selected_items[0].row()
+        id_item = widgets.table.item(selected_row, 0)
+        if not id_item:
+            return
+        download_id = id_item.data(Qt.UserRole)
+        d = next((x for x in self.d_list if x.id == download_id), None)
+        if not d:
+            return
+
+        # Must have been an error or an unmerged video-only file
+        if d.status not in (config.Status.error, getattr(config.Status, "merging_audio", None), getattr(config.Status, "completed", "completed")):
+            # You can relax this check if you want to allow re-merge anytime
+            pass
+
+        # Locate audio + video inputs
+        audio_path = self._find_audio_file_for(d)
+        if not audio_path or not os.path.exists(audio_path):
+            show_warning(self.tr("Audio Missing"), self.tr("Could not find the separate audio file for this download."))
+            return
+
+        video_path = self._find_video_file_for(d, audio_path)
+        if not video_path or not os.path.exists(video_path):
+            show_warning(self.tr("Video Missing"), self.tr("Could not find the separate video file for this download."))
+            return
+
+        # Avoid merging an already-merged file
+        output_path = self._build_output_path(d, video_path)
+        if os.path.abspath(output_path) == os.path.abspath(video_path):
+            # ensure different filename
+            root, ext = os.path.splitext(video_path)
+            output_path = root + "_merged" + ext
+
+        # Start non-blocking ffmpeg merge
+        self._start_ffmpeg_remerge(d, video_path, audio_path, output_path, selected_row)
+            
 
     def start_file_checksum(self, d):
         selected_row = widgets.table.currentRow()
@@ -3885,7 +4305,7 @@ class DownloadManagerUI(QMainWindow):
             color = QtGui.QColor(156, 39, 176)  # Purple
         elif status == config.Status.deleted:
             color = QtGui.QColor(158, 158, 158)  # Grey
-        elif status == config.Status.merging:
+        elif status == config.Status.merging_audio:
             color = QtGui.QColor(255, 109, 0)  # Deep Orange
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white

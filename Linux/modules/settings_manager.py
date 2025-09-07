@@ -117,6 +117,11 @@ class SettingsManager:
     def _clean_d_list(self, d_list):
         """Clean and update download list statuses"""
         for d in d_list:
+            if d.status == config.Status.error:
+                d.status = config.Status.error
+                d.live_connections = 0
+                continue
+
             status = None
             if d.progress >= 100:
                 status = config.Status.completed

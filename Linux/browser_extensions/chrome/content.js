@@ -1,144 +1,106 @@
-function isDownloadable(link) {
-    const downloadableExtensions = ['.mp4', '.mkv', '.pdf', '.zip', '.rar', '.mp3', '.7z', '.tar.gz', '.exe'];
-    return downloadableExtensions.some(ext => link.href && link.href.includes(ext));
-  }
+// content.js
 
-  // function createOmniPullButton(text = "Download with OmniPull") {
-  //   const btn = document.createElement("button");
-  //   const ICON_URL = chrome.runtime.getURL("icons/logo4.png");
-  //   btn.innerHTML = `<img src="${ICON_URL}" style="width:16px; height:16px; vertical-align:middle; margin-right:6px;"> ${text}`;
-  //   btn.style.display = "inline-flex";
-  //   btn.style.alignItems = "center";
-  //   btn.style.marginLeft = "10px";
-  //   btn.style.padding = "6px 10px";
-  //   btn.style.backgroundColor = "#1e88e5";
-  //   btn.style.color = "white";
-  //   btn.style.border = "none";
-  //   btn.style.borderRadius = "4px";
-  //   btn.style.fontSize = "13px";
-  //   btn.style.cursor = "pointer";
-  //   return btn;
-  // }
-  function createOmniPullButton(text = "Download with OmniPull") {
-    const btn = document.createElement("button");
-    const ICON_URL = chrome.runtime.getURL("icons/logo4.png");
+function isDownloadable(href) {
+  if (!href || typeof href !== "string") return false;
+  const s = href.toLowerCase();
+  return [".mp4",".mkv",".pdf",".zip",".rar",".mp3",".7z",".tar.gz"].some(ext => s.includes(ext));
+}
 
-    btn.innerHTML = `<img src="${ICON_URL}" style="width:14px; height:14px; vertical-align:middle; margin-right:6px;"> ${text}`;
+function createButton(label = "Download with OmniPull") {
+  const btn = document.createElement("button");
+  const ICON_URL = chrome.runtime.getURL("icons/logo4.png");
 
-    Object.assign(btn.style, {
-      display: "inline-flex",
-      alignItems: "center",
-      marginLeft: "10px",
-      padding: "5px 10px",
-      background: "linear-gradient(to right, rgba(0, 200, 83, 0.85), rgba(0, 150, 136, 0.85))",
-      color: "#fff",
-      border: "1px solid rgba(0, 150, 136, 0.6)",
-      borderRadius: "5px",
-      fontSize: "12.5px",
-      fontWeight: "500",
-      fontFamily: "'Segoe UI', sans-serif",
-      cursor: "pointer",
-      backdropFilter: "blur(2px)",
-      transition: "background 0.3s, box-shadow 0.2s"
-    });
+  const img = document.createElement("img");
+  img.src = ICON_URL;
+  img.style.width = "14px";
+  img.style.height = "14px";
+  img.style.verticalAlign = "middle";
+  img.style.marginRight = "6px";
 
-    btn.onmouseenter = () => {
-      btn.style.background = "linear-gradient(to right, rgba(0, 230, 100, 0.95), rgba(0, 180, 160, 0.95))";
-      btn.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.2)";
-    };
+  const span = document.createElement("span");
+  span.textContent = label;
 
-    btn.onmouseleave = () => {
-      btn.style.background = "linear-gradient(to right, rgba(0, 200, 83, 0.85), rgba(0, 150, 136, 0.85))";
-      btn.style.boxShadow = "none";
-    };
-
-    return btn;
-  }
-
-
-  function injectDownloadButtons() {
-    const links = document.querySelectorAll('a');
-    const ICON_URL = chrome.runtime.getURL("icons/logo4.png"); // Use the icon URL from the extension
-  
-    links.forEach(link => {
-      if (isDownloadable(link)) {
-        const btn = createOmniPullButton();
-
-        // btn.innerHTML = `<img src="${ICON_URL}" style="width:16px; height:16px; vertical-align:middle; margin-right:6px;"> ${text}`;
-        // btn.style.display = "inline-flex";
-        // btn.style.alignItems = "center";
-        // btn.style.marginLeft = "10px";
-        // btn.style.padding = "6px 10px";
-        // btn.style.backgroundColor = "#1e88e5";
-        // btn.style.color = "white";
-        // btn.style.border = "none";
-        // btn.style.borderRadius = "4px";
-        // btn.style.fontSize = "13px";
-        // btn.style.cursor = "pointer";
-        
-  
-        btn.onclick = () => {
-          console.log("[OmniPull] Button clicked. Sending:", link.href); // ✅ Log this
-          chrome.runtime.sendMessage({ url: link.href });
-        };
-  
-        link.parentElement.insertBefore(btn, link.nextSibling);
-      }
-    });
-  }
-  
-  injectDownloadButtons();
-
-  function injectOverlayOnVideos() {
-    const videos = document.querySelectorAll("video");
-
-    videos.forEach((video, index) => {
-      if (video.dataset.omnipullInjected) return; // Avoid duplicates
-      video.dataset.omnipullInjected = "true";
-
-      const overlay = document.createElement("div");
-      overlay.style.position = "absolute";
-      overlay.style.top = "10px";
-      overlay.style.right = "10px";
-      overlay.style.zIndex = "9999";
-      overlay.style.pointerEvents = "auto";
-
-      // Make sure video’s container is positioned
-      const parent = video.parentElement;
-      if (getComputedStyle(parent).position === "static") {
-        parent.style.position = "relative";
-      }
-
-        const btn = createOmniPullButton("Download Stream");
-        btn.onclick = () => {
-          const url = window.location.href;
-          chrome.runtime.sendMessage({ url });
-        };
-
-        overlay.appendChild(btn);
-        parent.appendChild(overlay);
-      });
-    }
-
-    // Observe for dynamic video loading
-    const videoObserver = new MutationObserver(() => {
-      injectOverlayOnVideos();
-    });
-
-    videoObserver.observe(document.body, { childList: true, subtree: true });
-
-
-  
-
-  // Handle dynamic loading (YouTube’s single page app)
-  const observer = new MutationObserver(() => {
-    if (window.location.href.includes("youtube.com/watch")) {
-      console.log("[OmniPull] YouTube video detected:", window.location.href);
-      console.log("[OmniPull] YouTube MutationObserver triggered");
-
-      setTimeout(() => {
-        injectOverlayOnVideos();
-      }, 1000); // Delay to ensure video is loaded
-    }
+  btn.append(img, span);
+  Object.assign(btn.style, {
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: "10px",
+    padding: "5px 10px",
+    background: "linear-gradient(to right, rgba(0,200,83,.85), rgba(0,150,136,.85))",
+    color: "#fff",
+    border: "1px solid rgba(0,150,136,.6)",
+    borderRadius: "5px",
+    fontSize: "12.5px",
+    cursor: "pointer",
+    zIndex: "2147483647"
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  return btn;
+}
+
+function injectLinkButtons(root = document) {
+  const links = root.querySelectorAll("a[href]");
+  links.forEach(link => {
+    if (link.dataset.omnipullAttached === "1") return;
+    const url = link.href;
+    if (!isDownloadable(url)) return;
+
+    const btn = createButton();
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        const maybe = chrome.runtime.sendMessage({ url });
+        if (maybe && typeof maybe.then === "function") {
+          maybe.catch(() => {}); // quiet errors if the worker reloaded
+        }
+      } catch (_) {}
+    });
+
+    link.parentElement?.insertBefore(btn, link.nextSibling);
+    link.dataset.omnipullAttached = "1";
+  });
+}
+
+function injectVideoOverlay(root = document) {
+  const videos = root.querySelectorAll("video");
+  videos.forEach(v => {
+    if (v.dataset.omnipullInjected === "1") return;
+    v.dataset.omnipullInjected = "1";
+    const parent = v.parentElement || v;
+    const cs = getComputedStyle(parent);
+    if (cs.position === "static") parent.style.position = "relative";
+    const overlay = document.createElement("div");
+    overlay.style.position = "absolute";
+    overlay.style.top = "10px";
+    overlay.style.right = "10px";
+    overlay.style.zIndex = "2147483647";
+
+    const btn = createButton("Download Stream");
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        const maybe = chrome.runtime.sendMessage({ url: location.href });
+        if (maybe && typeof maybe.then === "function") {
+          maybe.catch(() => {});
+        }
+      } catch (_) {}
+    });
+
+    overlay.appendChild(btn);
+    parent.appendChild(overlay);
+  });
+}
+
+injectLinkButtons(document);
+injectVideoOverlay(document);
+
+const mo = new MutationObserver(muts => {
+  muts.forEach(m => m.addedNodes.forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      injectLinkButtons(node);
+      injectVideoOverlay(node);
+    }
+  }));
+});
+mo.observe(document.documentElement, { childList: true, subtree: true });

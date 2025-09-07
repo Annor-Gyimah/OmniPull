@@ -11,8 +11,8 @@ from queue import Queue
 import os
 import sys
 import platform
-import aria2p
 from modules.version import __version__
+from modules.utils import log
 
 
 # CONSTANTS
@@ -28,8 +28,8 @@ DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
-DEFAULT_LOG_LEVEL = 3
- 
+DEFAULT_LOG_LEVEL = 1
+
 APP_LATEST_VERSION = ''  # get value from update module
 ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
 ytdl_LATEST_VERSION = None  # get value from update module
@@ -61,6 +61,7 @@ segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
 on_startup = False
 hide_app = False
+tutorial_completed = False  # used to show tutorial on first run
 
 # connection / network
 enable_speed_limit = False
