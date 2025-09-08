@@ -41,13 +41,13 @@ def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        notification = Notify()
-        notification.application_name = f"{config.APP_NAME}"
-        notification.title = f"{title}"
-        notification.message = f"{msg}"
-        notification.icon = resource_path2("logo1.png")
-        notification.send(block=False)
-        #plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
+        # notification = Notify()
+        # notification.application_name = f"{config.APP_NAME}"
+        # notification.title = f"{title}"
+        # notification.message = f"{msg}"
+        # notification.icon = resource_path2("logo1.png")
+        # notification.send(block=False)
+        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
         handle_exceptions(f'notifypy notification: {e}')
 

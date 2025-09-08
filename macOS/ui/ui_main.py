@@ -2,13 +2,20 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
     QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
-    QHeaderView, QMenu, QButtonGroup, QSizePolicy
+    QHeaderView, QMenu, QButtonGroup, QSizePolicy, QStyledItemDelegate, QStyleOptionViewItem, QStyle
 )
 from PySide6.QtGui import QIcon
 from random import randint
 import os
 import psutil
 import resources_rc
+
+
+class NoFocusDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if option.state & QStyle.State_HasFocus:
+            option.state = option.state ^ QStyle.State_HasFocus
+        super().paint(painter, option, index)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -93,7 +100,7 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
         self.help_menu.addAction("Visual Tutorials")
-        self.help_menu.addAction("Report Issue")
+        self.help_menu.addAction("Report Issues")
         # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)
@@ -582,7 +589,7 @@ class Ui_MainWindow(object):
         self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)
-
+        self.table.setItemDelegate(NoFocusDelegate())
         self.table.setStyleSheet("""
             QTableWidget {
                 background-color: qlineargradient(
@@ -597,6 +604,14 @@ class Ui_MainWindow(object):
                 gridline-color: rgba(255, 255, 255, 0.05);
                 font-size: 13px;
             }
+            
+            QTableWidget::item:alternate {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+            QTableWidget::item {
+                background-color: transparent;
+            }
+            
             QHeaderView::section {
                 background-color: qlineargradient(
                 x1: 0, y1: 0, x2: 1, y2: 1,
@@ -606,12 +621,16 @@ class Ui_MainWindow(object):
                 color: white;
                 padding: 4px;
                 border: none;
-                color: white;
                 font-weight: bold;
             }
             QTableWidget::item:selected {
                 background-color: rgba(0, 255, 180, 0.25);
             }
+            QTableWidget::item:focus {
+                outline: none;
+                border: none;
+            }
+            
         """)
 
         for row in range(5):
@@ -676,14 +695,13 @@ class Ui_MainWindow(object):
         self.log_level_combo.addItems(["1", "2", "3"])
         self.log_level_combo.setStyleSheet("""
             QComboBox {
-            background-color: #2b2b2b;
-            color: white;
-            border: 1px solid #444;
-            padding: 4px;
-            border-radius: 4px;
+                background-color: #2b2b2b;
+                color: white;
+                border: 1px solid #444;
+                padding: 4px;
+                border-radius: 4px;
             }
         """)
-        self.log_level_combo.setFixedWidth(100)
 
         self.log_clear_btn = QPushButton("Clear")
         self.log_clear_btn.setStyleSheet("""
@@ -718,7 +736,7 @@ class Ui_MainWindow(object):
                 border-radius: 16px;
                 color: white;
                 border: 1px solid #333;
-                font-family: Monaco, Courier New, monospace;
+                font-family: Consolas, Courier New, monospace;
                 font-size: 12px;
                 padding: 10px;
             }
@@ -776,6 +794,8 @@ class Ui_MainWindow(object):
         self.status_wrapper_layout.addWidget(self.status_frame)
 
         self.main_layout.addWidget(self.status_wrapper)
+        
+    
 
     def get_disk_usage(self, path="/"):
         usage = psutil.disk_usage(path)
@@ -784,3 +804,5 @@ class Ui_MainWindow(object):
         free_gb = total_gb - used_gb
         percent = usage.percent
         return total_gb, used_gb, free_gb, percent
+
+

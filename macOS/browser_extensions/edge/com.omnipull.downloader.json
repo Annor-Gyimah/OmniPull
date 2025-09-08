@@ -1,0 +1,10 @@
+{
+  "name": "com.omnipull.downloader",
+  "description": "Native messaging host for OmniPull",
+  "path": "Users/annorion/Library/Application Support/OmniPull/omnipull-watcher",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://mkhncokjlhefbbnjlgmnifmgejdclbhj/"
+  ],
+  "version": "1.0.1"
+}
