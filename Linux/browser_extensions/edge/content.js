@@ -2,7 +2,7 @@
 function isDownloadable(href) {
   if (!href || typeof href !== "string") return false;
   const s = href.toLowerCase();
-  return [".mp4",".mkv",".pdf",".zip",".rar",".mp3",".7z",".tar.gz"].some(ext => s.includes(ext));
+  return [".mp4",".mkv",".pdf",".zip",".rar",".mp3",".7z",".tar.gz", ".exe", ".deb", ".dmg", ".iso", ".img", ".msi", ".apk", ".epub", ".mobi", ".flac", ".wav", ".aac", ".ogg", ".webm"].some(ext => s.includes(ext));
 }
 
 function createButton(label = "Download with OmniPull") {
