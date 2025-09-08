@@ -16,7 +16,7 @@ from modules.threadpool import executor
 from modules.config import get_ffmpeg_path
 from modules.downloaditem import DownloadItem, Segment
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, \
-    delete_file, download, process_thumbnail, popup
+    delete_file, download, process_thumbnail, popup, delete_folder
 
 
 # youtube-dl
@@ -470,6 +470,7 @@ def download_ffmpeg(destination=config.sett_folder):
     if platform.machine().endswith('64'):
         # 64 bit link
         url = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'
+        
     else:
         # 32 bit link
         url = 'https://www.videohelp.com/download/ffmpeg-4.3.1-win32-static.zip'
@@ -521,21 +522,75 @@ def download_aria2c(destination=config.sett_folder):
 
 
 
-
-
 def unzip_ffmpeg():
     log('unzip_ffmpeg:', 'unzipping')
-
     try:
-        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
-        with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
-            zip_ref.extractall(config.ffmpeg_download_folder)
+        folder = config.ffmpeg_download_folder
+        file_name = os.path.join(folder, 'ffmpeg.zip')
 
-        log('ffmpeg update:', 'delete zip file')
+        # List folders before extraction
+        before = set(os.listdir(folder))
+
+        # Extract zip file
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:
+            zip_ref.extractall(folder)
+
+        # List folders after extraction
+        after = set(os.listdir(folder))
+        new_items = after - before
+
+        # Find the new folder (could be more than one, but usually just one)
+        extracted_folder = None
+        for item in new_items:
+            path = os.path.join(folder, item)
+            if os.path.isdir(path):
+                extracted_folder = path
+                break
+
+        log('ffmpeg update:', f'Extracted folder: {extracted_folder}')
+
+        # Optionally, move/copy ffmpeg.exe from extracted_folder to folder, or update config
+        # Example: find ffmpeg.exe inside extracted_folder
+        ffmpeg_exe = None
+        for root, dirs, files in os.walk(extracted_folder):
+            for file in files:
+                if file.lower() == "ffmpeg.exe":
+                    ffmpeg_exe = os.path.join(root, file)
+                    break
+            if ffmpeg_exe:
+                break
+
+        if ffmpeg_exe:
+            dest = os.path.join(folder, "ffmpeg.exe")
+            shutil.move(ffmpeg_exe, dest)
+            log('ffmpeg update:', f'ffmpeg.exe moved to {dest}')
+        else:
+            log('ffmpeg update:', 'ffmpeg.exe not found in extracted folder')
+
+        # Clean up zip file
         delete_file(file_name)
-        log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
+        delete_folder(extracted_folder, verbose=True)
+        
+        param = dict(title='Ffmpeg Info', msg='Ffmpeg is now available. Please try download again.', type_='info')
+        config.main_window_q.put(('popup', param))
+        log('ffmpeg update:', 'ffmpeg .. is ready at: ', folder)
     except Exception as e:
         log('unzip_ffmpeg: error ', e)
+
+
+# def unzip_ffmpeg():
+#     log('unzip_ffmpeg:', 'unzipping')
+
+#     try:
+#         file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
+#         with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
+#             zip_ref.extractall(config.ffmpeg_download_folder)
+
+#         log('ffmpeg update:', 'delete zip file')
+#         delete_file(file_name)
+#         log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
+#     except Exception as e:
+#         log('unzip_ffmpeg: error ', e)
 
 
 

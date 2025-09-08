@@ -18,7 +18,7 @@ from modules.aria2c_manager import aria2c_manager
 from modules.postprocessing import async_merge_video_audio
 from modules.config import Status, APP_NAME, get_ffmpeg_path 
 from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
-from modules.video import (is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls) 
+from modules.video import (is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls, unzip_ffmpeg) 
 
 
 

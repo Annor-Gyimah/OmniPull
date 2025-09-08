@@ -715,9 +715,10 @@ class DownloadManagerUI(QMainWindow):
         self.translator = QTranslator() # Translator
 
         # Load saved language
+        self.setup_context_menu_actions()
         self.current_language = config.lang
         self.apply_language(self.current_language)
-        self.setup_context_menu_actions()
+        
         self.queue_combo()
 
         self.scheduler_timer = QTimer(self)
@@ -959,6 +960,20 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
         widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
         widgets.help_menu.actions()[4].setText(self.tr("Report Issues"))
+
+        # Update context menu actions' text
+        self.action_open_file.setText(self.tr("Open File"))
+        self.action_open_file_with.setText(self.tr("Open File With"))
+        self.action_open_location.setText(self.tr("Open File Location"))
+        self.action_watch_downloading.setText(self.tr("Watch while downloading"))
+        self.action_schedule_download.setText(self.tr("Schedule download"))
+        self.action_cancel_schedule.setText(self.tr("Cancel schedule!"))
+        self.action_remerge.setText(self.tr("Re-merge audio/video"))
+        self.action_file_properties.setText(self.tr("File Properties"))
+        self.action_add_to_queue.setText(self.tr("Add to Queue"))
+        self.action_remove_from_queue.setText(self.tr("Remove from Queue"))
+        self.action_file_checksum.setText(self.tr("File CheckSum!"))
+        self.action_pop_file_from_table.setText(self.tr("Delete from Table"))
 
         
         
