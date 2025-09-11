@@ -1,26 +1,17 @@
 #####################################################################################
-# OMNIPULL DOWNLOAD MANAGER
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-# Project Developer: Emmanuel Gyimah Annor
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-# Description:
-#   OmniPull is a cross-platform, feature-rich download manager designed to simplify
-#   and accelerate file downloads from the internet. It supports HTTP, HTTPS, and
-#   streaming protocols, integrates with browsers, and provides advanced features
-#   such as queue management, scheduling, clipboard monitoring, and YouTube/media
-#   extraction via yt-dlp. The application leverages PySide6 for a modern, responsive
-#   GUI and supports plugins like aria2c and ffmpeg for enhanced performance.
-#
-#   Key Features:
-#     - Multi-threaded downloads with pause/resume support
-#     - Download queue and scheduling system
-#     - YouTube and streaming video/audio extraction
-#     - Browser integration and clipboard monitoring
-#     - Download window with progress, speed, and logs
-#     - Customizable settings and language support
-#     - Robust error handling and update mechanism
-#
-#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
@@ -103,7 +94,7 @@ class InternetChecker(QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.is_connected = False  # Add a flag to store the connection status
+        self.is_connected = False  # A flag to store the connection status
 
     def run(self):
         """Runs the internet check in the background."""
@@ -660,7 +651,8 @@ class DownloadManagerUI(QMainWindow):
         firefox_action = widgets.browser_extension_menu.actions()[1]
         edge_action = widgets.browser_extension_menu.actions()[2]
 
-        chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        # chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        chrome_action.setEnabled(False)  # Disable Chrome action for now
         firefox_action.triggered.connect(lambda: self.install_browser_extension("Firefox"))
         edge_action.triggered.connect(lambda: self.install_browser_extension("Edge"))
 
@@ -1566,10 +1558,6 @@ class DownloadManagerUI(QMainWindow):
         #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
         #     server_check.server_check_update()
         # aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
-        # if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
-        #     log('aria2c not found, falling back to yt-dlp')
-        #     self.aria2c_check()
-        #     return
 
         if d is None:
             return
@@ -2166,7 +2154,6 @@ class DownloadManagerUI(QMainWindow):
         master_widget = QWidget()
         master_widget.setLayout(master_layout)
         master_widget.setStyleSheet("background-color: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 6px;")
-        # master_widget.setStyleSheet("background-color: red; padding: 6px; border-radius: 6px;")
 
         layout.addWidget(master_widget)
 
@@ -2411,166 +2398,7 @@ class DownloadManagerUI(QMainWindow):
             return True
         
 
-    def aria2c_check(self):
-        """Check if aria2c is available, if not, prompt user to download."""
-       
-        if config.operating_system == 'Windows':
-            # Create the dialog
-            dialog = QDialog(self)
-            dialog.setWindowTitle(self.tr('aria2c is missing'))
-            dialog.setStyleSheet("""
-                QDialog {
-                    background-color: qlineargradient(
-                        x1: 0, y1: 0, x2: 1, y2: 1,
-                        stop: 0 #0F1B14,
-                        stop: 1 #050708
-                    );
-                    color: white;
-                    border-radius: 14px;
-                }
-                QLabel {
-                    color: white;
-                    font-size: 12px;
-                }
-                QRadioButton {
-                    padding: 4px;
-                }
-                
-            """)
-
-            # Layout setup
-            layout = QVBoxLayout(dialog)
-
-            # Label for missing aria2c
-            label = QLabel(self.tr('"aria2c" is missing!! and needs to be downloaded:'))
-            layout.addWidget(label)
-
-            # Radio buttons for choosing destination folder
-            recommended, local_fd = self.tr("Recommended:"), self.tr("Local folder:")
-            recommended_radio = QRadioButton(f"{recommended} {config.global_sett_folder}")
-            recommended_radio.setChecked(True)
-            local_radio = QRadioButton(f"{local_fd} {config.current_directory}")
-
-            # Group radio buttons
-            radio_group = QButtonGroup(dialog)
-            radio_group.addButton(recommended_radio)
-            radio_group.addButton(local_radio)
-
-            # Layout for radio buttons
-            radio_layout = QVBoxLayout()
-            radio_layout.addWidget(recommended_radio)
-            radio_layout.addWidget(local_radio)
-
-            layout.addLayout(radio_layout)
-
-            # Buttons for Download and Cancel
-            button_layout = QHBoxLayout()
-            download_button = QPushButton(self.tr('Download'))
-            download_button.setStyleSheet("""
-                QPushButton {
-                    background-color: qlineargradient(
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #0F1B14,
-                    stop: 1 #050708
-                    ); 
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    padding: 6px 16px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {     
-                    background-color: #33d47c;
-                }
-            """)
-            cancel_button = QPushButton(self.tr('Cancel'))
-            cancel_button.setStyleSheet("""
-                QPushButton {
-                    background-color: qlineargradient(
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #0F1B14,
-                    stop: 1 #050708
-                    );
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    padding: 6px 16px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #3c3c3c;
-                }
-            """)
-            button_layout.addWidget(download_button)
-            button_layout.addWidget(cancel_button)
-            layout.addLayout(button_layout)
-            # Set layout and show the dialog
-            dialog.setLayout(layout)
-            # Handle button actions
-            def on_download():
-                selected_folder = config.global_sett_folder if recommended_radio.isChecked() else config.current_directory
-                # Call the download function
-                # popup = DownloadWindow(d=None)
-                # popup.show()
-                download_aria2c(destination=config.sett_folder)
-                dialog.accept()
-                dialog.close()
-                #show_information(title="Aria2c Missing", msg="Downloading on the background", inform="once ready we will let you know.")
-            def on_cancel():
-                dialog.reject()
-            # Connect button signals
-            download_button.clicked.connect(on_download)
-            cancel_button.clicked.connect(on_cancel)
-            # Execute the dialog
-            dialog.exec()
-        else:
-            self.show_message("Error", "aria2c is already installed.")
-            s2 = self.tr('"aria2c" is required to download files.')
-            s3, s3a = self.tr('Executable must be found at'), self.tr("folder or add the aria2c path to system PATH.")
-            s4 = self.tr("Please do 'sudo apt-get update' and 'sudo apt-get install aria2' on Linux or 'brew install aria2' on MacOS.")
-            QMessageBox.critical(self,
-                                self.tr('aria2c is missing'),
-                                f'{s2} \n'
-                                f'{s3} {config.aria2c_path} {s3a} \n'
-                                f"{s4}")
-        return False
     
-    # def get_browser_queue_file(self):
-    #     if os.name == 'nt':
-    #         # Windows uses AppData/Roaming for user-specific data
-    #         # Use correct case for 'AppData' and ensure slashes are correct
-    #         queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
-    #     else:
-    #         # Linux and macOS use .config for user-specific data
-    #         queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
-
-    #     return queue_file
-
-
-    
-    # def check_browser_queue(self):
-    #     if not config.browser_integration_enabled:
-    #         return
-        
-    #     """Check if there are URLs in the browser queue file and process them."""
-    #     queue_file = self.get_browser_queue_file()
-    #     import json
-    #     if queue_file.exists():
-    #         try:
-    #             with open(queue_file) as f:
-    #                 urls = json.load(f)
-    #             for entry in urls:
-    #                 url = entry.get("url")
-    #                 if url:
-    #                     widgets.link_input.setText(url)
-    #                     self.url_text_change()
-    #             # Clear the queue after processing
-    #             # queue_file.unlink()
-    #             with open(queue_file, 'w') as f:
-    #                 json.dump([], f)
-
-    #         except Exception as e:
-    #             log(f"Failed to process browser queue: {str(e)}", log_level=3)
     
     def _browser_queue_base(self, app_name=".OmniPull") -> Path:
         home = Path.home()
@@ -2674,6 +2502,7 @@ class DownloadManagerUI(QMainWindow):
             # self.background_threads.clear()
             
             aria2c_manager.cleanup_orphaned_paused_downloads()
+            aria2c_manager.shutdown_freeze_and_save(purge=True)
             aria2c_manager._terminate_existing_processes()
             self.quit_app()
             super().closeEvent(event)
@@ -2783,7 +2612,7 @@ class DownloadManagerUI(QMainWindow):
         d = DownloadItem()
         d.url = info['url']
         d.name = safe_filename(info['title'])
-        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or your user-defined folder
+        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or user-defined folder
         d.temp_file = os.path.join(d.folder, d.name)
         d.target_file = d.temp_file + "." + get_ext_from_format(info['ext'])
 
@@ -2802,6 +2631,34 @@ class DownloadManagerUI(QMainWindow):
         return d
     
 
+    def _youtube_url_expired(self, url: str) -> bool:
+        """Return True iff a signed YT media URL looks expired."""
+        if not url:
+            return True
+        try:
+            q = parse_qs(urlparse(url).query)
+            # YouTube signed URLs often carry 'expire' epoch seconds
+            if "expire" in q:
+                try:
+                    exp = int(q["expire"][0])
+                    # allow small skew
+                    return time.time() > (exp - 60)
+                except Exception:
+                    pass
+            # Fallback: attempt a HEAD with Range; 403/410 usually means expired
+            try:
+                r = requests.head(url, headers={"Range": "bytes=0-0"}, timeout=6, allow_redirects=True)
+                if r.status_code in (403, 410):
+                    return True
+                # 2xx or 206 is fine
+                return False
+            except Exception:
+                # network issues: be conservative and refresh only if the .aria2 isn’t present
+                return False
+        except Exception:
+            return True
+    
+
     def resume_btn(self):
         """Resume paused or queued downloads."""
 
@@ -2817,44 +2674,48 @@ class DownloadManagerUI(QMainWindow):
             return
         
         
-
         # ✅ Resume aria2c download
         if d.engine == "aria2c":
-            if d.type == "dash" and "youtube.com" in d.url:
-                fresh_d = self.get_video_info(d.url)
+            # Only refresh signed media URLs if they are ACTUALLY expired
+            needs_refresh = False
+            if d.type in ("dash", "normal") and ("youtube.com" in (d.original_url or d.url) or "googlevideo.com" in (d.url or "")):
+                if self._youtube_url_expired(getattr(d, "eff_url", d.url)) or (d.audio_url and self._youtube_url_expired(d.audio_url)):
+                    needs_refresh = True
 
-                # Sync updated fields
-                for attr in ['url', 'audio_url', 'audio_file', 'name', 'target_file', 'temp_file', 'vid_info', 'eff_url', 'protocol', 'type']:
+            if needs_refresh:
+                fresh_d = self.get_video_info(d.original_url or d.url)
+                # sync updated fields (keep folder/id)
+                for attr in ['url','audio_url','audio_file','name','target_file','temp_file','vid_info','eff_url','protocol','type','format_id','audio_format_id']:
                     setattr(d, attr, getattr(fresh_d, attr, getattr(d, attr)))
+                log(f"[Resume] Refreshed signed URLs for: {d.name}", log_level=2)
 
-                log(f"[Resume] Restarted aria2c with fresh YouTube URLs: {d.name}", log_level=2)
-
-                # Delete .aria2 and temp files
-                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, d.audio_file + '.aria2']:
+                # IMPORTANT: only wipe partials if refreshing (we are restarting)
+                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, (d.audio_file + '.aria2' if d.audio_file else None)]:
                     if f and os.path.exists(f):
-                        os.remove(f)
-                        log(f"[Resume] Deleted stale file: {f}")
-
+                        try:
+                            os.remove(f)
+                            log(f"[Resume] Deleted stale file: {f}")
+                        except Exception:
+                            pass
+                d.aria_gid = None  # let the worker add anew
                 self.settings_manager.save_d_list(self.d_list)
-            
-            
 
-            try:
-                # d.status = config.Status.downloading
+            else:
+                # DO NOT delete .aria2 or temp files; we want Range resume
+                # also keep the gid if aria2 still knows it
                 if getattr(d, "aria_gid", None):
                     try:
                         aria2 = aria2c_manager.get_api()
                         dl = aria2.get_download(d.aria_gid)
-                        # If aria2 doesn't know it, or it's 'removed', drop the gid
                         if (dl is None) or (getattr(dl, "status", "") == "removed"):
                             d.aria_gid = None
                     except Exception:
                         d.aria_gid = None
-                Thread(target=brain.brain, args=(d,), daemon=True).start()
-                log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
-            except Exception as e:
-                log(f"[Resume] Failed to restart aria2c: {e}", log_level=1)
-                d.status = config.Status.error
+
+            # (Re)start worker
+            Thread(target=brain.brain, args=(d,), daemon=True).start()
+            log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
+
 
         elif d.engine == "yt-dlp":
             # ✅ Resume yt-dlp download
@@ -2873,7 +2734,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.toolbar_buttons['Resume'].setEnabled(False)
 
     
-
+    
 
     def pause_btn(self):
         """Pause the selected download item (YT-DLP or aria2c)."""
@@ -2898,7 +2759,8 @@ class DownloadManagerUI(QMainWindow):
                 if download:
                     download.pause()
                     # aria2c_manager.force_save_session()
-                    aria2c_manager.force_clean_and_save_session()
+                    # aria2c_manager.force_clean_and_save_session()
+                    aria2c_manager.save_session_only()
                     d.status = config.Status.cancelled
                     time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
                     log(f"[Pause] Aria2c paused: {d.name}", log_level=1)
@@ -3664,6 +3526,14 @@ class DownloadManagerUI(QMainWindow):
 
         try:
             d = self.selected_d
+
+            if 'm3u8' in (d.protocol or '') and (not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file)):
+                import time
+                for _ in range(10):  # up to ~1s
+                    if getattr(d, "temp_file", None) and os.path.exists(d.temp_file):
+                        break
+                    time.sleep(0.1)
+
             if not d or not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file):
                 show_warning(self.tr("No Temp File"), self.tr("The temporary media file was not found yet."))
                 return
@@ -3910,7 +3780,7 @@ class DownloadManagerUI(QMainWindow):
         if not folder:
             return None
 
-        # 3) Legacy explicit field (kept but lowered in priority to prefer your new convention)
+        # 3) Legacy explicit field (kept but lowered in priority to prefer user's new convention)
         explicit = getattr(d, 'audio_file', None)
         if explicit and os.path.exists(explicit):
             # we will still try convention first; fallback to explicit later
@@ -4031,8 +3901,7 @@ class DownloadManagerUI(QMainWindow):
                     #os.remove(p)
             except Exception:
                 pass
-        # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
-        # try:
+        # We usually keep the video input to avoid surprising the user; 
         #     if video_path and os.path.exists(video_path):
         #         os.remove(video_path)
         # except Exception:
@@ -4073,7 +3942,7 @@ class DownloadManagerUI(QMainWindow):
 
         # UI: show "merging"
         old_status = d.status
-        d.status = "merging_audio"   # matches your update_table_progress color map
+        d.status = "merging_audio"   # matches update_table_progress color map
         self.update_table_progress()
 
         def on_finished(exit_code, exit_status):
@@ -4094,7 +3963,7 @@ class DownloadManagerUI(QMainWindow):
                         os.remove(audio_path)
                 except Exception:
                     pass
-                # If you want, also remove the _temp_ video:
+                # To also remove the _temp_ video:
                 # try:
                 #     if os.path.exists(video_path):
                 #         os.remove(video_path)
@@ -4302,6 +4171,7 @@ class DownloadManagerUI(QMainWindow):
         d = self.d_list[d_index]
 
         self.d_list.remove(d)
+        widgets.table.removeRow(selected_row)
     
 
     def set_row_color(self, row, status):

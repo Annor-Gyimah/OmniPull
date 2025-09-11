@@ -1,4 +1,21 @@
 
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 
 import os
 import re
@@ -19,12 +36,12 @@ from modules.utils import log, validate_file_name, get_headers, size_format, run
     delete_file, download, process_thumbnail, popup, delete_folder
 
 
-# youtube-dl
-ytdl = None  # youtube-dl will be imported in a separate thread to save loading time
+# yt-dlp
+ytdl = None  # yt-dlp will be imported in a separate thread to save loading time
 
 
 class Logger(object):
-    """used for capturing youtube-dl stdout/stderr output"""
+    """used for capturing yt-dlp stdout/stderr output"""
 
     def debug(self, msg):
         log(msg)
@@ -36,7 +53,7 @@ class Logger(object):
         log(msg)
 
     def __repr__(self):
-        return "youtube-dl Logger"
+        return "yt-dlp Logger"
 
 
 
@@ -45,8 +62,6 @@ def get_ytdl_options():
         'prefer_insecure': True, 
         'no_warnings': config.ytdlp_config.get('no_warnings', True),
         'logger': Logger(),
-        # 'format': '(bv*+ba/b)[protocol^=m3u8_native][protocol!*=dash][protocol=m3u8_native] / (bv*+ba/b)',
-        'format': 'bv*+ba/best',
         'listformats': config.ytdlp_config.get('list_formats', False),
         'noplaylist': config.ytdlp_config.get('no_playlist', True),
         'ignore_errors': config.ytdlp_config.get('ignore_errors', True)
@@ -74,15 +89,15 @@ def extract_info_blocking(url, ydl_opts):
 
 
 class Video(DownloadItem):
-    """represent a youtube video object, interface for youtube-dl"""
+    """represent a youtube video object, interface for yt-dlp"""
 
     def __init__(self, url, vid_info=None, get_size=True):
         super().__init__(folder=config.download_folder)
         self.url = url
         self.resumable = True
-        self.vid_info = vid_info  # a youtube-dl dictionary contains video information
+        self.vid_info = vid_info  # a yt-dlp dictionary contains video information
 
-        # let youtube-dl fetch video info
+        # let yt-dlp fetch video info
         if self.vid_info is None:
             raise ValueError("vid_info must be provided when using Video.__init__. Use Video.create() instead.")
             # with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
@@ -350,31 +365,12 @@ class Video(DownloadItem):
         v.audio_fragment_base_url = self.audio_fragment_base_url
         return v
 
-    
-    # def clone(self):
-    #     v = Video(self.url)
-    #     v.name = self.name
-    #     v.type = self.type
-    #     v.protocol = self.protocol
-    #     v.size = self.size
-    #     v.ext = self.ext
-    #     v.resumable = self.resumable
-    #     v.vid_info = copy.deepcopy(self.vid_info)
-    #     v.stream_names = copy.deepcopy(self.stream_names)
-    #     v.selected_stream = copy.deepcopy(self.selected_stream)
-    #     v.selected_stream_name = self.selected_stream_name
-    #     v.temp_folder = self.temp_folder
-    #     v.temp_file = self.temp_file
-    #     v.audio_file = self.audio_file
-    #     v._segments = self._segments.copy() if self._segments else []
-    #     return v
-
 
     
 
 class Stream:
     def __init__(self, stream_info):
-        # fetch data from youtube-dl stream_info dictionary
+        # fetch data from yt-dlp stream_info dictionary
         self.format_id = stream_info.get('format_id', None)
         self.url = stream_info.get('url', None)
         self.player_url = stream_info.get('player_url', None)
@@ -512,7 +508,6 @@ def download_aria2c(destination=config.sett_folder):
     import platform
     if platform.machine().endswith('64'):
         url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip'
-        #url = 'http://localhost/lite/aria2c.zip'
     else:
         url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-32bit-build1.zip'
 
@@ -577,20 +572,6 @@ def unzip_ffmpeg():
     except Exception as e:
         log('unzip_ffmpeg: error ', e)
 
-
-# def unzip_ffmpeg():
-#     log('unzip_ffmpeg:', 'unzipping')
-
-#     try:
-#         file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
-#         with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
-#             zip_ref.extractall(config.ffmpeg_download_folder)
-
-#         log('ffmpeg update:', 'delete zip file')
-#         delete_file(file_name)
-#         log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
-#     except Exception as e:
-#         log('unzip_ffmpeg: error ', e)
 
 
 
@@ -724,41 +705,6 @@ def check_aria2_exe():
         return False
 
 
-# def check_ffmpeg():
-#     """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
-#     and finally system-wide"""
-
-#     log('Checking FFmpeg availability...')
-#     found = False
-
-#     # Search in current app directory then default setting folder
-#     try:
-#         for folder in [config.current_directory, config.global_sett_folder]:
-#             for file in os.listdir(folder):
-#                 if file == 'ffmpeg':
-#                     found = True
-#                     config.ffmpeg_actual_path = os.path.join(folder, file)
-#                     break
-#             if found:  # Break outer loop
-#                 break
-#     except Exception as e:
-#         log(f"Error while checking directories: {e}")
-
-#     # Search in the system path
-#     if not found:
-#         cmd = 'which ffmpeg'
-#         error, output = run_command(cmd, verbose=False)
-#         if not error:
-#             found = True
-#             config.ffmpeg_actual_path = os.path.realpath(output.strip())
-
-#     if found:
-#         log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
-#         return True
-#     else:
-#         log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
-#         return False
-
 def is_download_complete(d):
     return all(seg.completed for seg in d.segments)
 
@@ -805,7 +751,7 @@ def import_ytdl():
 
 def parse_bytes(bytestr):
     """Parse a string indicating a byte quantity into an integer., example format: 536.71KiB,
-    modified from original source at youtube-dl.common"""
+    modified from original source at yt-dlp.common"""
     matchobj = re.match(r'(?i)^(\d+(?:\.\d+)?)([kMGTPEZY]\S*)?$', bytestr)
     if matchobj is None:
         return None
@@ -815,160 +761,7 @@ def parse_bytes(bytestr):
     return int(round(number * multiplier))
 
 
-def youtube_dl_downloader(d=None, extra_options=None, use_subprocess=True):
-    """ ---- NOT IMPLEMENTED ----
-    This is non-completed attempt to integrate youtube-dl native downloader into PyIDM,
-    main issue is the lack of a proper method to interrupt / terminate youtube-dl subprocess, since process.kill() only
-    kill youtube-dl and leave the child ffmpeg subprocess running in background.
-    this issue still have no proper solution on windows.
 
-    download with youtube_dl
-    :param extra_options: youtube-dl extra options
-    :param subprocess: bool, if true will use a subprocess to launch youtube-dl like a command line, if False will use
-    an imported youtube-dl module which has a progress hook
-
-    """
-    downloaded = {}
-    file_name = ''
-    name = d.target_file.replace("\\", "/")
-
-    # requested format
-    if d.type == 'dash':
-        # default format: bestvideo+bestaudio/best
-        requested_format = f'"{d.format_id}"+"{d.audio_format_id}"/"{d.format_id}"+bestaudio/best'
-    else:
-        requested_format = f'"{d.audio_format_id}"/best'
-
-    # Launch youtube-dl in subprocess, has advantage of catching stdout/stderr output, drawback no progress
-    if use_subprocess:
-
-        # get executable path,
-        if config.FROZEN:  # if app. frozen by cx_freeze will use a compiled exe file
-            youtube_dl_executable = '"' + os.path.join(config.current_directory, 'youtube-dl.exe') + '"'
-        else:  # will use an installed module
-            youtube_dl_executable = f'"{sys.executable}" -m youtube_dl'
-
-        cmd = f'{youtube_dl_executable} -f {requested_format} {d.url} -o "{name}" -v --hls-use-mpegts'
-
-        log('cmd:', cmd)
-
-        cmd = shlex.split(cmd)
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8',
-                                   errors='replace', shell=False)
-
-        # process stdout and parse youtube-dl progress data
-        for line in process.stdout:
-            line = line.strip()
-            log(line)
-
-            # monitor cancel flag
-            if d.status == config.Status.cancelled:
-                log('youtube_dl_downloader()> killing subprocess, cancelled by user')
-                process.kill()
-                return()
-
-            # parse line looking for progress info example output: [download]   0.0% of 4.63MiB at 32.00KiB/s ETA 02:28
-            if line.startswith('[download]'):
-                buffer = line.split()
-
-                # get file name
-                if 'Destination' in buffer[1] and len(buffer) >= 3:
-                    file_name = buffer[2]
-                    log('file name .................................', file_name)
-
-                # get downloaded size
-                if '%' in buffer[1]:
-                    log(buffer)
-                    percent = buffer[1].strip()
-                    percent = percent.replace('%', '')
-                    try:
-                        # speed = buffer[5]
-                        # eta = buffer[7]
-                        percent = int(float(percent))
-                        size = parse_bytes(buffer[3])
-                        # log('percent:', percent, '- size:', size)
-
-                        if size and file_name:
-                            done = size * percent // 100
-                            downloaded[file_name] = done
-                            # log('done:', done, ' - downloaded:', downloaded)
-                            d.downloaded = sum(downloaded.values())
-
-                            # update video size
-                            if d.format_id.replace(' ', '_') in file_name:
-                                log()
-                                d.size = size
-
-                            # update audio size
-                            elif d.audio_format_id.replace(' ', '_') in file_name:
-                                d.audio_size = size
-
-                    except Exception as e:
-                        log(e)
-
-        # wait for subprocess to finish, process.wait() is not recommended
-        process.communicate()
-
-        # get return code
-        process.poll()
-        error = process.returncode != 0  # True or False
-
-        log(f'youtube_dl_downloader {d.status}')
-        if not error:
-            return True
-        else:
-            return False
-
-    # using imported youtube-dl library -----------------------------------------------------------------------
-
-    # update options
-    options = {}
-    options.update(**get_ytdl_options())
-
-    if isinstance(extra_options, dict):
-        options.update(**extra_options)
-
-    options['quiet'] = False
-    options['verbose'] = True
-    # options['hls-prefer-native'] = True
-    options['format'] = requested_format
-    options['outtmpl'] = name
-
-    def progress_hook(progress_dict):
-        log(progress_dict)
-
-        # when downloading 2 streams "i.e. dash video and audio" downloaded_bytes will be reset to zero and report
-        # wrong total downloaded bytes, fix >> use  a dictionary to store every stream progress
-        downloaded_bytes = progress_dict.get('downloaded_bytes', 0)
-        file_name = progress_dict.get('filename', 'unknown')
-        downloaded[file_name] = downloaded_bytes
-        d.downloaded = sum(downloaded.values())
-
-        total_bytes = progress_dict.get('total_bytes', 0)
-
-        if file_name == d.temp_file:
-            d.size = total_bytes
-
-        elif file_name == d.audio_file:
-            d.audio_size = total_bytes
-
-        # monitor cancel flag
-        if d.status == config.Status.cancelled:
-            log('youtube-dl cancelled download')
-            raise KeyboardInterrupt
-
-    options['progress_hooks'] = [progress_hook]
-
-    # start downloading
-    try:
-        with ytdl.YoutubeDL(options) as ydl:
-            ydl.download([d.url])
-    except Exception as e:
-        log('youtube_dl_downloader()> ', e)
-        return False
-
-    log('youtube_dl_downloader()> done downloading', d.name)
-    return True
 
 
 def hls_downloader(d):
@@ -1039,33 +832,7 @@ def pre_process_hls(d):
             log('---------------------------------------\n', buffer, '---------------------------------------\n')
         return None
     
-    # def download_m3u8(url):
-    #     # download the manifest from m3u8 file descriptor located at url
-    #     buffer = download(url)  # get BytesIO object
-
-    #     if buffer:
-    #         # Try decoding with UTF-8 first
-    #         try:
-    #             buffer = buffer.getvalue().decode('utf-8')
-    #             log('decoding with utf-8')
-    #         except UnicodeDecodeError:
-    #             # If UTF-8 fails, try decoding with ISO-8859-1 (Latin-1)
-    #             try:
-    #                 buffer = buffer.getvalue().decode('iso-8859-1')
-    #                 log('decoding with iso-8859-1')
-    #             except UnicodeDecodeError:
-    #                 # If both fail, use a more permissive decoding
-    #                 buffer = buffer.getvalue().decode('utf-8', errors='replace')
-            
-    #         if '#EXT' in repr(buffer):
-    #             return buffer
-
-    #     log('pre_process_hls()> received invalid m3u8 file from server')
-    #     if config.log_level >= 3:
-    #         log('yes started from here')
-    #         log('---------------------------------------\n', buffer, '---------------------------------------\n')
-    #     return None
-
+    
     # download m3u8 files
     master_m3u8 = download_m3u8(d.manifest_url)
     video_m3u8 = download_m3u8(d.eff_url)
@@ -1099,6 +866,22 @@ def pre_process_hls(d):
     # create temp_folder if doesn't exist
     if not os.path.isdir(d.temp_folder):
         os.makedirs(d.temp_folder)
+
+    
+    # 👇 pre-create the container files so "Watch" can see them immediately
+    try:
+        # ensure parent dir exists (it should, but be defensive)
+        os.makedirs(os.path.dirname(d.temp_file), exist_ok=True)
+        # touch video temp file
+        with open(d.temp_file, "ab"):
+            pass
+        # for DASH (separate audio), touch the audio temp file too
+        if d.type == 'dash' and getattr(d, "audio_file", None):
+            os.makedirs(os.path.dirname(d.audio_file), exist_ok=True)
+            with open(d.audio_file, "ab"):
+                pass
+    except Exception as e:
+        log(f"pre_process_hls()> could not pre-create temp files: {e}", log_level=2)
 
     # save m3u8 file to disk
     with open(os.path.join(d.temp_folder, 'remote_video.m3u8'), 'w') as f:
