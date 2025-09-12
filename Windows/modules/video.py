@@ -62,6 +62,7 @@ def get_ytdl_options():
         'prefer_insecure': True, 
         'no_warnings': config.ytdlp_config.get('no_warnings', True),
         'logger': Logger(),
+        'formats': 'bv*+ba/best',
         'listformats': config.ytdlp_config.get('list_formats', False),
         'noplaylist': config.ytdlp_config.get('no_playlist', True),
         'ignore_errors': config.ytdlp_config.get('ignore_errors', True)

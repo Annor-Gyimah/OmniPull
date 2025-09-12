@@ -42,7 +42,7 @@ def check_for_update():
 
     # do not use, will use get_changelog() instead
 
-    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/master/pyidm/version.py'
+    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/Windows/pyidm/version.py'
     new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
     url = new_release_url if config.FROZEN else source_code_url
 
@@ -68,7 +68,7 @@ def get_changelog():
     """
     try:
         # Get latest release info from GitHub API
-        content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", headers={
+        content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest", headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
             follow_redirects=True).json()
 
@@ -77,8 +77,8 @@ def get_changelog():
         
 
         # url will be chosen depend on frozen state of the application
-        source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
-        new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/ChangeLog.txt'
+        source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
+        new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
         url = new_release_url if config.FROZEN else source_code_url
         # url = new_release_url
 
@@ -109,7 +109,7 @@ def update():
 
     # Get the latest release from GitHub API
     content = httpx.get(
-        url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", 
+        url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest", 
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"
         },
@@ -120,9 +120,9 @@ def update():
     
      
     # url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/update.bat"  # URL for update.sh
-    cleanup_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/development/Windows/cleanup.bat"
-    main_zip_url = f"https://github.com/Annor-Gyimah/Li-Dl/releases/download/{tagName}/main.zip"
+    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/update.bat"  # URL for update.sh
+    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/cleanup.bat"
+    main_zip_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tagName}/main.zip"
 
 
     
@@ -169,7 +169,7 @@ def update():
 
                 # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
 
-                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
+                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 15:50:00 /rl HIGHEST /f'
 
                 #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
 
@@ -189,7 +189,7 @@ def update():
             )
             
             # Run the command as administrator
-            popup(msg="Please authenticate to install updates", title=config.APP_NAME, type_="info")
+            popup(msg="Updates to be installed at 12:00:00 pm", title=config.APP_NAME, type_="info")
             subprocess.run(
                 ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command}' -Verb RunAs"],
                 shell=True,
@@ -222,7 +222,7 @@ def check_for_ytdl_update():
     """it will download "version.py" file from github to check for a new version, return ytdl_latest_version
     """
 
-    url = 'https://github.com/ytdl-org/youtube-dl/raw/master/youtube_dl/version.py'
+    url = 'https://github.com/ytdl-org/youtube-dl/raw/Windows/youtube_dl/version.py'
 
     # get BytesIO object
     buffer = download(url)
@@ -264,7 +264,7 @@ def update_youtube_dl():
 
     # paths
     old_module = os.path.join(current_directory, 'lib/youtube_dl')
-    new_module = os.path.join(current_directory, 'temp/youtube-dl-master/youtube_dl')
+    new_module = os.path.join(current_directory, 'temp/youtube-dl-Windows/youtube_dl')
 
     def compile_file(file):
         if file.endswith('.py'):
@@ -296,7 +296,7 @@ def update_youtube_dl():
 
     # download from github
     log('start downloading youtube-dl module from github')
-    url = 'https://github.com/ytdl-org/youtube-dl/archive/master.zip'
+    url = 'https://github.com/ytdl-org/youtube-dl/archive/Windows.zip'
     response = download(url, 'temp/youtube-dl.zip')
     if response is False:
         log('failed to download youtube-dl, abort update')
