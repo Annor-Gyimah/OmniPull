@@ -4561,7 +4561,7 @@ class DownloadManagerUI(QMainWindow):
         self.update_thread.start()  # Start the thread
 
     def on_update_finished(self):
-        show_information(title=config.APP_NAME, inform=self.tr("Update scheduled to run on the next reboot."), msg=self.tr("Please you can reboot now to install updates."))
+        show_information(title=config.APP_NAME, inform='', msg=self.tr("Updates to be installed at 12:00:00 pm"))
     def check_for_ytdl_update(self):
         config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
 

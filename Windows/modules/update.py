@@ -169,7 +169,7 @@ def update():
 
                 # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
 
-                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 15:50:00 /rl HIGHEST /f'
+                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
 
                 #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
 
@@ -189,7 +189,7 @@ def update():
             )
             
             # Run the command as administrator
-            popup(msg="Updates to be installed at 12:00:00 pm", title=config.APP_NAME, type_="info")
+            # popup(msg="Updates to be installed at 12:00:00 pm", title=config.APP_NAME, type_="info")
             subprocess.run(
                 ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command}' -Verb RunAs"],
                 shell=True,
