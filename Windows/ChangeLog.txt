@@ -1,7 +1,14 @@
-N/A
-- Flexible UI
+2.0.1
+- Fixed 'formats' error present when downloading youtube videos
+- Processing youtube video information now faster
+- Fixed issue with 'yt-dlp' unable to download youtube videos from some protocols such as https etc.
+- Fixed scheduler sets to cancelled after app is closed and reopened
 
-
+2.0.0
+- Fixed 'formats' error present when downloading youtube videos
+- Processing youtube video information now faster
+- Fixed issue with 'yt-dlp' unable to download youtube videos from some protocols such as https etc.
+- Fixed scheduler sets to cancelled after app is closed and reopened
 
 
 1.2.24
