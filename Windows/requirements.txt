@@ -53,7 +53,7 @@ mutagen==1.47.0
 mypy==1.16.0
 mypy_extensions==1.1.0
 notify_py==0.3.43
-
+numpy==2.3.2
 packaging==25.0
 pathspec==0.12.1
 pbr==6.1.1
@@ -114,6 +114,6 @@ websockets==15.0.1
 wget==3.2
 win32_setctime==1.2.0
 yarg==0.1.10
-yt-dlp==2024.10.20.232914.dev0
+yt-dlp==2025.8.30.232839.dev0
 zope.event==5.0
 zope.interface==7.2

@@ -665,9 +665,7 @@ def merge_video_audio(video, audio, output, d):
     log('merging video and audio')
 
     # ffmpeg file full location
-    ffmpeg = config.ffmpeg_actual_path
-
-    print(f"THis is location{ffmpeg}")
+    ffmpeg = config.get_ffmpeg_path()
 
     # very fast audio just copied, format must match [mp4, m4a] and [webm, webm]
     cmd1 = f'"{ffmpeg}" -y -i "{video}" -i "{audio}" -c copy "{output}"'

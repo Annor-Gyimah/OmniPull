@@ -1,9 +1,29 @@
-from PySide6.QtWidgets import (
-    QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QGraphicsDropShadowEffect
-)
-from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtCore import Qt, QCoreApplication, QRect, QSize
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
 from modules import config, setting
+
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QPixmap, QColor
+from PySide6.QtWidgets import (
+    QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+)
+
 
 
 tutorial_steps = [
@@ -27,6 +47,8 @@ class TutorialOverlay(QWidget):
         self.setStyleSheet("background-color: rgba(0, 0, 0, 150);")
         self.setGeometry(0, 0, parent.width(), parent.height())
         self.setFixedSize(parent.size())
+        self.setFocusPolicy(Qt.StrongFocus)  # Ensure it accepts keyboard events
+        self.setFocus()  # Immediately set focus to this widget
 
         self.steps = steps
         self.current_step = 0
@@ -124,7 +146,9 @@ class TutorialOverlay(QWidget):
             return
 
         title, msg, image_path = self.steps[self.current_step]
-        self.label.setText(f"<b>{title}</b><br>{msg}")
+        # self.label.setText(f"<b>{title}</b><br>{msg}")
+        self.label.setText(f"<b>{title}</b><br>{msg}<br><br><i>Use ← and → keys to navigate</i>")
+
 
         pixmap = QPixmap(image_path)
         self.image_label.setPixmap(pixmap if not pixmap.isNull() else QPixmap(600, 400).fill(QColor("gray")))
@@ -137,6 +161,16 @@ class TutorialOverlay(QWidget):
         if self.current_step > 0:
             self.current_step -= 1
             self.update_step()
+            
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Right:
+            self.next_step()
+        elif event.key() == Qt.Key_Left:
+            self.previous_step()
+        elif event.key() == Qt.Key_Escape and self.show_exit_button:
+            self.finish_tutorial()
+
 
     def finish_tutorial(self):
         config.tutorial_completed = True

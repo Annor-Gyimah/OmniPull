@@ -1,16 +1,37 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+import os
+import sys
+
+from modules import config
+from modules.utils import log, delete_file
+from modules.settings_manager import SettingsManager
+
+from PySide6.QtGui import QIntValidator
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator
+
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
     QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
     QGroupBox,  QTabWidget, QFileDialog
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QCoreApplication, QTranslator
-import os, sys
 
-from modules.utils import log, delete_file
-from modules import config, setting
-from modules.settings_manager import SettingsManager
+
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
@@ -49,8 +70,8 @@ class SettingsWindow(QDialog):
             QListWidget::item:selected {
             background-color: rgba(45, 224, 153, 0.1);
             color: #6FFFB0;
-            padding-left: 6px;
-            margin: 0px;
+            padding-left: 10px;
+            margin: -12px;
             border: none;
             }
         """)
@@ -252,11 +273,6 @@ class SettingsWindow(QDialog):
         general_layout.addRow(QLabel("QT FONT DPI:"), self.qt_font_dpi)
         general_layout.addRow(QLabel("Choose Language:"), self.language_combo)
         general_layout.addRow(QLabel("Choose Setting:"), self.setting_scope_combo)
-        # general_layout.addRow(self.monitor_clipboard_cb)
-        # general_layout.addRow(self.show_download_window_cb)
-        # general_layout.addRow(self.auto_close_cb)
-        # general_layout.addRow(self.show_thumbnail_cb)
-        # general_layout.addRow(self.on_startup_cb)
         # Add rows to general_layout
         general_layout.addRow(row1_layout)
         general_layout.addRow(row2_layout) 
@@ -286,6 +302,7 @@ class SettingsWindow(QDialog):
         self.curl_speed_checkBox = QCheckBox(self.tr("Speed Limit"))
         self.curl_speed_checkBox.setToolTip(self.tr("Enable speed limit for curl downloads."))
         self.curl_speed_limit = QLineEdit()
+        self.curl_speed_limit.setValidator(QIntValidator(1, 1000000, self))
         self.curl_speed_limit.setPlaceholderText(self.tr("e.g., 50k, 10k..."))
         self.curl_speed_limit.setToolTip(self.tr("Set a speed limit for curl downloads."))
         self.curl_speed_limit.setEnabled(False)  # initially disabled
@@ -747,7 +764,7 @@ class SettingsWindow(QDialog):
         self.write_annotations.setChecked(config.ytdlp_config['writeannotations'])
         self.no_warnings.setChecked(config.ytdlp_config['no_warnings'])
         self.ffmpeg_path.setText(config.ytdlp_config['ffmpeg_location'] if config.ytdlp_config['ffmpeg_location'] else '')
-        if config.proxy:
+        if config.proxy != "":
             proxy_url = config.proxy
             if config.proxy_user and config.proxy_pass:
                 # Inject basic auth into the proxy URL
@@ -755,7 +772,6 @@ class SettingsWindow(QDialog):
                 parsed = urlparse(proxy_url)
                 proxy_url = urlunparse(parsed._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{parsed.hostname}:{parsed.port}"))
 
-                print(f"Proxy URL: {proxy_url}")
                 self.proxy_edit.setText(proxy_url if proxy_url else '')
         else:
             self.proxy_edit.setText('')
@@ -812,8 +828,13 @@ class SettingsWindow(QDialog):
         # Engine Config settings
 
         # PyCurl settings
+        
         config.enable_speed_limit = self.curl_speed_checkBox.isChecked()
-        config.speed_limit = self.curl_speed_limit.text()
+        if config.enable_speed_limit:
+            config.speed_limit = self.curl_speed_limit.text()
+        else:
+            config.speed_limit = ""
+        # config.speed_limit = self.curl_speed_limit.text()
         config.max_concurrent_downloads = int(self.curl_max_concurrent.currentText())
         config.max_connections = int(self.curl_max_connections.currentText())
         config.retry_scheduled_enabled = self.curl_retry_schedule_cb.isChecked()

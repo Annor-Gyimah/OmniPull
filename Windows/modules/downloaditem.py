@@ -1,17 +1,34 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# Download Item Class
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
 import os
-import mimetypes
 import time
-from collections import deque
+import mimetypes
+
 from queue import Queue
+from collections import deque
+
+from modules import config
+
 from threading import Thread, Lock
 from urllib.parse import urljoin
 from modules.utils import validate_file_name, get_headers, translate_server_code, size_splitter, get_seg_size, log, \
     delete_file, delete_folder, save_json, load_json
-from . import config
+
 
 # lock used with downloaded property
 lock = Lock()
@@ -45,29 +62,17 @@ class Communication:
         """clear all queues"""
         self.clear(self.d_window)
         self.clear(self.jobs)
-        # self.clear(self.brain)
-        # self.clear(self.thread_mngr)
-        # self.clear(self.completed_jobs)
-
-        # for q in self.worker:
-        #     self.clear(q)
-        #
-        # for q in self.data:
-        #     self.clear(q)
+        
 
     def log(self, *args):
         """print log msgs to download window"""
         s = ' '
         s = s.join(str(arg) for arg in args)
-        # for arg in args:
-        #     s += str(arg)
-        #     s += ' '
+       
         s = s[:-1]  # remove last space
 
         if s[-1] != '\n':
             s += '\n'
-
-        # print(s, end='')
 
         self.d_window.put(('log', s))
 
@@ -127,7 +132,7 @@ class DownloadItem:
         self.url = url
         self.eff_url = ''
         self.playlist_url = ''
-        self.original_url = self.url  # <- Add this to store original YouTube link
+        self.original_url = self.url  
 
         self.size = 0
         self.resumable = False
@@ -191,7 +196,7 @@ class DownloadItem:
         # some downloads will have their progress and total size calculated and we can't store these values in self.size
         # since it will affect self.segments, workaround: use self.last_known_size, and self.last_known_progress so it
         # will be showed when loading self.d_list from disk, other solution is to load progress info
-        # from setting.load_d_list()
+        
         self.last_known_size = 0
         self.last_known_progress = 0
 
@@ -203,7 +208,7 @@ class DownloadItem:
         self.queue_name = ""
         self.queue_position = 0  # order in queue
         self.queue_id = None  # unique identifier if you plan to support multiple queues
-        self._progress = 0  # ################# YET TO ADD TO LINUX ############
+        self._progress = 0 
 
         self.engine = config.download_engine
         self.aria_gid = None
@@ -435,6 +440,13 @@ class DownloadItem:
     def target_file(self):
         """return file name including path"""
         return os.path.join(self.folder, self.name)
+    
+    @target_file.setter
+    def target_file(self, value):
+        """set name and folder from full path"""
+        self.folder, self._name = os.path.split(value)
+        self.folder = os.path.abspath(self.folder)
+        self._name = validate_file_name(self._name)
 
     @property
     def temp_file(self):
@@ -447,6 +459,13 @@ class DownloadItem:
         """return temp file name including path"""
         name = f'audio_for_{self.name}'.replace(' ', '_')
         return os.path.join(self.folder, name)
+    
+    @audio_file.setter
+    def audio_file(self, value):
+        """set name and folder from full path"""
+        self.folder, self._name = os.path.split(value)
+        self.folder = os.path.abspath(self.folder)
+        self._name = validate_file_name(self._name)
 
     @property
     def temp_folder(self):
@@ -481,11 +500,6 @@ class DownloadItem:
         self._segment_size = value if value <= self.size else self.size
         # print('segment size = ', self._segment_size)
 
-    # @property
-    # def sched_string(self):
-    #     # t = time.localtime(self.sched)
-    #     # return f"⏳({t.tm_hour}:{t.tm_min})"
-    #     return f"{self.sched[0]:02}:{self.sched[1]:02}"
 
 
     @property

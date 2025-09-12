@@ -60,6 +60,10 @@
   {
    "optionDest": "datas",
    "value": "C:/Users/Annorion/Desktop/softenv/OmniPull/Windows/icons/logo1.png;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/Annorion/Desktop/softenv/OmniPull/Windows/modules;modules/"
   }
  ],
  "nonPyinstallerOptions": {

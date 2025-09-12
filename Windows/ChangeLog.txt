@@ -1,6 +1,15 @@
-N/A
-- Flexible UI
-
+2.0.0
+-Complete UI redesign
+-New download protocols support
+-Built-in file converter
+-Cloud storage integration
+-Completely rewritten from ground up
+-All previous bugs resolved
+-New architecture for better stability
+-Modern, intuitive interface
+-50% faster performance
+-Better resource management
+-Enhanced security features
 
 
 
