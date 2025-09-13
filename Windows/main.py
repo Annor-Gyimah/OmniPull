@@ -2450,12 +2450,12 @@ class DownloadManagerUI(QMainWindow):
 
         paths = self.get_browser_queue_paths(".OmniPull")
         url = self._read_latest_json(paths["latest"])
-        # if not url:
-        #     # fallback: read the last line of NDJSON if present
-        #     url = self._read_ndjson_last(paths["ndjson"])
+        if not url:
+            # fallback: read the last line of NDJSON if present
+            url = self._read_ndjson_last(paths["ndjson"])
 
-        # if not url:
-        #     return
+        if not url:
+            return
 
         # Process exactly one URL (the latest)
         try:
@@ -2469,8 +2469,8 @@ class DownloadManagerUI(QMainWindow):
         try:
             # either empty it:
             paths["latest"].write_text("{}", encoding="utf-8")
-            # and optionally truncate NDJSON if you truly want "replace, don't append"
-            # paths["ndjson"].unlink(missing_ok=True)
+            # and optionally truncate NDJSON to truly want "replace, don't append"
+            paths["ndjson"].unlink(missing_ok=True)
         except Exception:
             pass
     
