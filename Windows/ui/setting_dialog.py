@@ -233,7 +233,7 @@ class SettingsWindow(QDialog):
 
 
         download_engine = QComboBox()
-        download_engine.addItems(["yt-dlp", "aria2", "curl"])
+        download_engine.addItems(["aria2", "curl", "yt-dlp"])
         self.download_engine_combo = download_engine
 
         self.curl_proxy_checkBox = QCheckBox(self.tr("Use Proxy"))
