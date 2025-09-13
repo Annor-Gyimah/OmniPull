@@ -164,3 +164,13 @@ cython_debug/
 Lin_Exec
 Linux/package/
 Linux/omnipull-v_1.2.24_amd64.deb
+setup.json
+omnipull-watcher.json
+omnipull-watcher.py
+linkss.txt
+Windows/modules/queues.cfg
+Windows/ui/youtube_thread.py
+Windows/ui/queue_runner_a.py
+Windows/ui/queue_dialog_2.py
+Windows/ui/add_download.py
+Windows/build.sh
