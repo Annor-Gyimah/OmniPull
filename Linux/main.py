@@ -355,7 +355,7 @@ class ServerSoftwareCheckThread(QThread):
     def run(self):
         """Run the thread to check for updates and upload downloads snapshot."""
         try:
-            url = "http://127.0.0.1:8000/api/software-update/"
+            url = "http://omnipull.pythonanywhere.com/api/software-update/"
 
             # 1) core machine info
             data = self._get_machine_info()
