@@ -178,3 +178,8 @@ Linux/omniwatcher.json
 Linux/setup.json
 Linux/uninstall.sh
 Linux/update.sh
+Linux/package.sh
+Linux/setup.json
+Linux/all_package.sh
+Linux/build.sh
+Linux/omnipull.desktop
