@@ -1,4 +1,26 @@
-import sys, struct, json, os, tempfile, time, platform
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+import os
+import sys
+import json
+import time
+import struct
+import tempfile
+import platform
 from pathlib import Path
 
 # Try importing fcntl only if available (Unix)
@@ -42,20 +64,6 @@ LOG_DIR  = BASE / "Logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "watcher.log"
 
-
-
-# APP_NAME = ".OmniPull"
-# BASE = Path.home() / "AppData" / "Roaming" / APP_NAME
-# BASE.mkdir(parents=True, exist_ok=True)
-
-# QUEUE_PATH  = BASE / ".omnipull_url_queue.json"
-# NDJSON_PATH = BASE / ".omnipull_url_queue.ndjson"
-# LATEST_PATH = BASE / ".omnipull_url_latest.json"
-# LOCK_PATH   = BASE / ".omnipull.lock"          # lock file for cross-process mutex (Windows-safe)
-
-# LOG_DIR  = BASE / "Logs"
-# LOG_DIR.mkdir(parents=True, exist_ok=True)
-# LOG_FILE = LOG_DIR / "watcher.log"
 
 MAX_MSG = 1_048_576
 RETRIES = 8

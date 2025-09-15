@@ -2,7 +2,12 @@ function isDownloadable(href) {
   if (!href || typeof href !== "string") return false;
   const lowers = href.toLowerCase();
   return [
-    ".mp4",".mkv",".pdf",".zip",".rar",".mp3",".7z",".tar.gz", ".exe", ".deb", ".dmg", ".iso", ".img", ".msi", ".apk", ".epub", ".mobi", ".flac", ".wav", ".aac", ".ogg", ".webm"
+    ".mp4",".mkv",".pdf",".zip",".rar",".mp3",".7z",".tar.gz", ".exe",".dmg",
+    ".deb",".avi",".mov",".wmv",".flv",".webm",".m4a",".aac",".ogg",
+    ".epub",".mobi",".azw3", ".doc",".docx",".xls",".xlsx",".ppt",".pptx",
+    ".txt",".rtf",".csv",".svg",".psd",".iso", ".apk", ".msi", ".bat",
+    ".torrent", ".mpd", ".m3u8", ".flac", ".wav", ".wma", ".opus", ".aiff",
+    ".m2ts", ".ts", ".vtt", ".srt"
   ].some(ext => lowers.includes(ext));
 }
 

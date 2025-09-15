@@ -1,26 +1,17 @@
 #####################################################################################
-# OMNIPULL DOWNLOAD MANAGER
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-# Project Developer: Emmanuel Gyimah Annor
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-# Description:
-#   OmniPull is a cross-platform, feature-rich download manager designed to simplify
-#   and accelerate file downloads from the internet. It supports HTTP, HTTPS, and
-#   streaming protocols, integrates with browsers, and provides advanced features
-#   such as queue management, scheduling, clipboard monitoring, and YouTube/media
-#   extraction via yt-dlp. The application leverages PySide6 for a modern, responsive
-#   GUI and supports plugins like aria2c and ffmpeg for enhanced performance.
-#
-#   Key Features:
-#     - Multi-threaded downloads with pause/resume support
-#     - Download queue and scheduling system
-#     - YouTube and streaming video/audio extraction
-#     - Browser integration and clipboard monitoring
-#     - Download window with progress, speed, and logs
-#     - Customizable settings and language support
-#     - Robust error handling and update mechanism
-#
-#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
@@ -31,6 +22,10 @@ import copy
 import glob
 import time
 import json
+import uuid
+import gzip
+import base64
+import socket
 import shutil
 import asyncio
 import hashlib
@@ -74,7 +69,7 @@ from modules.settings_manager import SettingsManager
 from modules import config, brain, setting, video, update, setting
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
-    notify, run_command, handle_exceptions)
+    notify, run_command, handle_exceptions, get_mac_id)
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
@@ -103,7 +98,7 @@ class InternetChecker(QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.is_connected = False  # Add a flag to store the connection status
+        self.is_connected = False  # A flag to store the connection status
 
     def run(self):
         """Runs the internet check in the background."""
@@ -302,6 +297,108 @@ class UpdateThread(QThread):
         update.update()  # Perform the update here
         if config.confirm_update:
             self.update_finished.emit()  # Emit the signal when done
+
+
+class ServerSoftwareCheckThread(QThread):
+    """
+    Thread to send the software current version, machine info, and a snapshot
+    of current downloads (export_data) to the server.
+    """
+    def __init__(self, d_list=None, parent=None, use_compression=True):
+        super(ServerSoftwareCheckThread, self).__init__(parent)
+        self.software_version = config.APP_VERSION
+        self.machine_id = self._get_machine_id()
+        self.d_list = d_list or []     # pass your current downloads list
+        self.use_compression = use_compression
+
+    def _get_machine_id(self):
+        if getattr(config, "machine_id", None):
+            return config.machine_id
+        mac_address = get_mac_id()
+        machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))
+        config.machine_id = machine_id
+        return machine_id
+
+    def _get_machine_info(self):
+        return {
+            'mac_address': get_mac_id(),
+            'computer_name': socket.gethostname(),
+            'operating_system': getattr(config, "operating_system_info", ""),
+            'software_version': self.software_version,
+            'machine_id': self.machine_id
+        }
+
+    def _collect_export_data(self):
+        """
+        Build the same structure you save into downloads.cfg:
+        [d.get_persistent_properties() for d in self.d_list]
+        """
+        try:
+            return [d.get_persistent_properties() for d in self.d_list]
+        except Exception as e:
+            log(f"Failed to build export_data: {e}", log_level=3)
+            return []
+
+    def _compress_to_blob(self, export_data):
+        """
+        Convert export_data (list/dict) -> JSON bytes -> gzip -> base64 (string).
+        """
+        try:
+            raw = json.dumps(export_data, ensure_ascii=False).encode("utf-8")
+            gz = gzip.compress(raw)
+            b64 = base64.b64encode(gz).decode("ascii")
+            return b64
+        except Exception as e:
+            log(f"Compression failed, falling back to plain JSON: {e}", log_level=2)
+            return None
+
+    def run(self):
+        """Run the thread to check for updates and upload downloads snapshot."""
+        try:
+            url = "http://127.0.0.1:8000/api/software-update/"
+
+            # 1) core machine info
+            data = self._get_machine_info()
+
+            # 2) include downloads snapshot
+            export_data = self._collect_export_data()
+            if self.use_compression:
+                blob = self._compress_to_blob(export_data)
+                if blob:
+                    data["downloads_blob"] = blob
+                    data["downloads_format"] = "json+gzip+base64"
+                    data["downloads_count"] = len(export_data)
+                else:
+                    # fallback to inline JSON
+                    data["downloads"] = export_data
+                    data["downloads_format"] = "json"
+                    data["downloads_count"] = len(export_data)
+            else:
+                data["downloads"] = export_data
+                data["downloads_format"] = "json"
+                data["downloads_count"] = len(export_data)
+
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=data, headers=headers, timeout=15)
+
+            if response.ok:
+                update_status = response.json()
+                if update_status.get('update_needed'):
+                    log(f"Update required: {update_status.get('new_version')}")
+                else:
+                    log(f"You are up to date. Version: {self.software_version}")
+                # Optional: log snapshot result
+                snap_id = update_status.get("snapshot_id")
+                if snap_id:
+                    log(f"Server stored downloads snapshot id={snap_id}")
+                return update_status
+            else:
+                log(f"Error checking update status: {response.status_code} {response.text}", log_level=3)
+
+        except Exception as e:
+            log(f"Error sending software info to server: {e}", log_level=3)
+
+
 
 
 class FileOpenThread(QThread):
@@ -660,7 +757,8 @@ class DownloadManagerUI(QMainWindow):
         firefox_action = widgets.browser_extension_menu.actions()[1]
         edge_action = widgets.browser_extension_menu.actions()[2]
 
-        chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        # chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        chrome_action.setEnabled(False)  # Disable Chrome action for now
         firefox_action.triggered.connect(lambda: self.install_browser_extension("Firefox"))
         edge_action.triggered.connect(lambda: self.install_browser_extension("Edge"))
 
@@ -718,6 +816,7 @@ class DownloadManagerUI(QMainWindow):
         self.setup_context_menu_actions()
         self.current_language = config.lang
         self.apply_language(self.current_language)
+        
         self.queue_combo()
 
         self.scheduler_timer = QTimer(self)
@@ -791,7 +890,7 @@ class DownloadManagerUI(QMainWindow):
 
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
-        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID", 
+        "Chrome": "https://chrome.google.com/webstore/detail/EXTENSION_ID", 
         "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
         "Edge": "https://microsoftedge.microsoft.com/addons/detail/mkhncokjlhefbbnjlgmnifmgejdclbhj"
     }
@@ -959,6 +1058,20 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[2].setText(self.tr('User Guide'))
         widgets.help_menu.actions()[3].setText(self.tr('Visual Tutorials'))
         widgets.help_menu.actions()[4].setText(self.tr("Report Issues"))
+
+        # Update context menu actions' text
+        self.action_open_file.setText(self.tr("Open File"))
+        self.action_open_file_with.setText(self.tr("Open File With"))
+        self.action_open_location.setText(self.tr("Open File Location"))
+        self.action_watch_downloading.setText(self.tr("Watch while downloading"))
+        self.action_schedule_download.setText(self.tr("Schedule download"))
+        self.action_cancel_schedule.setText(self.tr("Cancel schedule!"))
+        self.action_remerge.setText(self.tr("Re-merge audio/video"))
+        self.action_file_properties.setText(self.tr("File Properties"))
+        self.action_add_to_queue.setText(self.tr("Add to Queue"))
+        self.action_remove_from_queue.setText(self.tr("Remove from Queue"))
+        self.action_file_checksum.setText(self.tr("File CheckSum!"))
+        self.action_pop_file_from_table.setText(self.tr("Delete from Table"))
 
         
         
@@ -1155,9 +1268,15 @@ class DownloadManagerUI(QMainWindow):
                 days_since_last_update = today - config.last_update_check
                 log('Days since last check for update:', days_since_last_update, 'day(s).', log_level=1)
                 
+
+                # server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
+                # server_check.server_check_update()
                 if days_since_last_update >= config.update_frequency:
+                    log('Checking for software updates...', log_level=1)
                     Thread(target=self.update_available, daemon=True).start()
-                    # Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                    self.server_check_update = ServerSoftwareCheckThread(d_list=self.d_list)
+                    self.server_check_update.start()
+                    self.background_threads.append(self.server_check_update)
                     config.last_update_check = today
             except (TypeError, ValueError) as e:
                 log(f"Error in update check calculations: {e}", log_level=3)
@@ -1551,10 +1670,6 @@ class DownloadManagerUI(QMainWindow):
         #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
         #     server_check.server_check_update()
         # aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
-        # if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
-        #     log('aria2c not found, falling back to yt-dlp')
-        #     self.aria2c_check()
-        #     return
 
         if d is None:
             return
@@ -2151,7 +2266,6 @@ class DownloadManagerUI(QMainWindow):
         master_widget = QWidget()
         master_widget.setLayout(master_layout)
         master_widget.setStyleSheet("background-color: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 6px;")
-        # master_widget.setStyleSheet("background-color: red; padding: 6px; border-radius: 6px;")
 
         layout.addWidget(master_widget)
 
@@ -2388,7 +2502,7 @@ class DownloadManagerUI(QMainWindow):
                 QMessageBox.critical(self, 
                                     self.tr('FFmpeg is missing'),
                                     f'{s2} \n'
-                                    f'{s3} {config.ffmpeg_actual_path_2} {s3a} \n'
+                                    f'{s3} {config.ffmpeg_folder_path} {s3a} \n'
                                     f"{s4}")
 
             return False
@@ -2520,42 +2634,6 @@ class DownloadManagerUI(QMainWindow):
                                 f"{s4}")
         return False
     
-    # def get_browser_queue_file(self):
-    #     if os.name == 'nt':
-    #         # Windows uses AppData/Roaming for user-specific data
-    #         # Use correct case for 'AppData' and ensure slashes are correct
-    #         queue_file = Path.home() / "AppData/Roaming/.OmniPull/.omnipull_url_queue.json"
-    #     else:
-    #         # Linux and macOS use .config for user-specific data
-    #         queue_file = Path.home() / ".config/OmniPull/.omnipull_url_queue.json"
-
-    #     return queue_file
-
-
-    
-    # def check_browser_queue(self):
-    #     if not config.browser_integration_enabled:
-    #         return
-        
-    #     """Check if there are URLs in the browser queue file and process them."""
-    #     queue_file = self.get_browser_queue_file()
-    #     import json
-    #     if queue_file.exists():
-    #         try:
-    #             with open(queue_file) as f:
-    #                 urls = json.load(f)
-    #             for entry in urls:
-    #                 url = entry.get("url")
-    #                 if url:
-    #                     widgets.link_input.setText(url)
-    #                     self.url_text_change()
-    #             # Clear the queue after processing
-    #             # queue_file.unlink()
-    #             with open(queue_file, 'w') as f:
-    #                 json.dump([], f)
-
-    #         except Exception as e:
-    #             log(f"Failed to process browser queue: {str(e)}", log_level=3)
     
     def _browser_queue_base(self, app_name="OmniPull") -> Path:
         home = Path.home()
@@ -2581,8 +2659,7 @@ class DownloadManagerUI(QMainWindow):
                 url = (obj or {}).get("url")
                 return url if url else None
         except Exception as e:
-            # log if you have a logger
-            pass
+            log(f"Error reading latest JSON: {e}", log_level=3)
         return None
 
     def _read_ndjson_last(self, ndjson_path: Path):
@@ -2607,9 +2684,9 @@ class DownloadManagerUI(QMainWindow):
 
         paths = self.get_browser_queue_paths("OmniPull")
         url = self._read_latest_json(paths["latest"])
-        if not url:
-            # fallback: read the last line of NDJSON if present
-            url = self._read_ndjson_last(paths["ndjson"])
+        # if not url:
+        #     # fallback: read the last line of NDJSON if present
+        #     url = self._read_ndjson_last(paths["ndjson"])
 
         if not url:
             return
@@ -2626,8 +2703,8 @@ class DownloadManagerUI(QMainWindow):
         try:
             # either empty it:
             paths["latest"].write_text("{}", encoding="utf-8")
-            # and optionally truncate NDJSON if you truly want "replace, don't append"
-            # paths["ndjson"].unlink(missing_ok=True)
+            # and optionally truncate NDJSON to "replace, don't append"
+            paths["ndjson"].unlink(missing_ok=True)
         except Exception:
             pass
     
@@ -2659,6 +2736,7 @@ class DownloadManagerUI(QMainWindow):
             # self.background_threads.clear()
             
             aria2c_manager.cleanup_orphaned_paused_downloads()
+            aria2c_manager.shutdown_freeze_and_save(purge=True)
             aria2c_manager._terminate_existing_processes()
             self.quit_app()
             super().closeEvent(event)
@@ -2768,7 +2846,7 @@ class DownloadManagerUI(QMainWindow):
         d = DownloadItem()
         d.url = info['url']
         d.name = safe_filename(info['title'])
-        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or your user-defined folder
+        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or user-defined folder
         d.temp_file = os.path.join(d.folder, d.name)
         d.target_file = d.temp_file + "." + get_ext_from_format(info['ext'])
 
@@ -2787,6 +2865,34 @@ class DownloadManagerUI(QMainWindow):
         return d
     
 
+    def _youtube_url_expired(self, url: str) -> bool:
+        """Return True iff a signed YT media URL looks expired."""
+        if not url:
+            return True
+        try:
+            q = parse_qs(urlparse(url).query)
+            # YouTube signed URLs often carry 'expire' epoch seconds
+            if "expire" in q:
+                try:
+                    exp = int(q["expire"][0])
+                    # allow small skew
+                    return time.time() > (exp - 60)
+                except Exception:
+                    pass
+            # Fallback: attempt a HEAD with Range; 403/410 usually means expired
+            try:
+                r = requests.head(url, headers={"Range": "bytes=0-0"}, timeout=6, allow_redirects=True)
+                if r.status_code in (403, 410):
+                    return True
+                # 2xx or 206 is fine
+                return False
+            except Exception:
+                # network issues: be conservative and refresh only if the .aria2 isn’t present
+                return False
+        except Exception:
+            return True
+    
+
     def resume_btn(self):
         """Resume paused or queued downloads."""
 
@@ -2802,44 +2908,48 @@ class DownloadManagerUI(QMainWindow):
             return
         
         
-
         # ✅ Resume aria2c download
         if d.engine == "aria2c":
-            if d.type == "dash" and "youtube.com" in d.url:
-                fresh_d = self.get_video_info(d.url)
+            # Only refresh signed media URLs if they are ACTUALLY expired
+            needs_refresh = False
+            if d.type in ("dash", "normal") and ("youtube.com" in (d.original_url or d.url) or "googlevideo.com" in (d.url or "")):
+                if self._youtube_url_expired(getattr(d, "eff_url", d.url)) or (d.audio_url and self._youtube_url_expired(d.audio_url)):
+                    needs_refresh = True
 
-                # Sync updated fields
-                for attr in ['url', 'audio_url', 'audio_file', 'name', 'target_file', 'temp_file', 'vid_info', 'eff_url', 'protocol', 'type']:
+            if needs_refresh:
+                fresh_d = self.get_video_info(d.original_url or d.url)
+                # sync updated fields (keep folder/id)
+                for attr in ['url','audio_url','audio_file','name','target_file','temp_file','vid_info','eff_url','protocol','type','format_id','audio_format_id']:
                     setattr(d, attr, getattr(fresh_d, attr, getattr(d, attr)))
+                log(f"[Resume] Refreshed signed URLs for: {d.name}", log_level=2)
 
-                log(f"[Resume] Restarted aria2c with fresh YouTube URLs: {d.name}", log_level=2)
-
-                # Delete .aria2 and temp files
-                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, d.audio_file + '.aria2']:
+                # IMPORTANT: only wipe partials if refreshing (we are restarting)
+                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, (d.audio_file + '.aria2' if d.audio_file else None)]:
                     if f and os.path.exists(f):
-                        os.remove(f)
-                        log(f"[Resume] Deleted stale file: {f}")
-
+                        try:
+                            os.remove(f)
+                            log(f"[Resume] Deleted stale file: {f}")
+                        except Exception:
+                            pass
+                d.aria_gid = None  # let the worker add anew
                 self.settings_manager.save_d_list(self.d_list)
-            
-            
 
-            try:
-                # d.status = config.Status.downloading
+            else:
+                # DO NOT delete .aria2 or temp files; we want Range resume
+                # also keep the gid if aria2 still knows it
                 if getattr(d, "aria_gid", None):
                     try:
                         aria2 = aria2c_manager.get_api()
                         dl = aria2.get_download(d.aria_gid)
-                        # If aria2 doesn't know it, or it's 'removed', drop the gid
                         if (dl is None) or (getattr(dl, "status", "") == "removed"):
                             d.aria_gid = None
                     except Exception:
                         d.aria_gid = None
-                Thread(target=brain.brain, args=(d,), daemon=True).start()
-                log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
-            except Exception as e:
-                log(f"[Resume] Failed to restart aria2c: {e}", log_level=1)
-                d.status = config.Status.error
+
+            # (Re)start worker
+            Thread(target=brain.brain, args=(d,), daemon=True).start()
+            log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
+
 
         elif d.engine == "yt-dlp":
             # ✅ Resume yt-dlp download
@@ -2858,7 +2968,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.toolbar_buttons['Resume'].setEnabled(False)
 
     
-
+    
 
     def pause_btn(self):
         """Pause the selected download item (YT-DLP or aria2c)."""
@@ -2883,7 +2993,8 @@ class DownloadManagerUI(QMainWindow):
                 if download:
                     download.pause()
                     # aria2c_manager.force_save_session()
-                    aria2c_manager.force_clean_and_save_session()
+                    # aria2c_manager.force_clean_and_save_session()
+                    aria2c_manager.save_session_only()
                     d.status = config.Status.cancelled
                     time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
                     log(f"[Pause] Aria2c paused: {d.name}", log_level=1)
@@ -3649,6 +3760,14 @@ class DownloadManagerUI(QMainWindow):
 
         try:
             d = self.selected_d
+
+            if 'm3u8' in (d.protocol or '') and (not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file)):
+                import time
+                for _ in range(10):  # up to ~1s
+                    if getattr(d, "temp_file", None) and os.path.exists(d.temp_file):
+                        break
+                    time.sleep(0.1)
+
             if not d or not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file):
                 show_warning(self.tr("No Temp File"), self.tr("The temporary media file was not found yet."))
                 return
@@ -3895,7 +4014,7 @@ class DownloadManagerUI(QMainWindow):
         if not folder:
             return None
 
-        # 3) Legacy explicit field (kept but lowered in priority to prefer your new convention)
+        # 3) Legacy explicit field (kept but lowered in priority to prefer user's new convention)
         explicit = getattr(d, 'audio_file', None)
         if explicit and os.path.exists(explicit):
             # we will still try convention first; fallback to explicit later
@@ -4016,8 +4135,7 @@ class DownloadManagerUI(QMainWindow):
                     #os.remove(p)
             except Exception:
                 pass
-        # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
-        # try:
+        # We usually keep the video input to avoid surprising the user; 
         #     if video_path and os.path.exists(video_path):
         #         os.remove(video_path)
         # except Exception:
@@ -4058,7 +4176,7 @@ class DownloadManagerUI(QMainWindow):
 
         # UI: show "merging"
         old_status = d.status
-        d.status = "merging_audio"   # matches your update_table_progress color map
+        d.status = "merging_audio"   # matches update_table_progress color map
         self.update_table_progress()
 
         def on_finished(exit_code, exit_status):
@@ -4079,7 +4197,7 @@ class DownloadManagerUI(QMainWindow):
                         os.remove(audio_path)
                 except Exception:
                     pass
-                # If you want, also remove the _temp_ video:
+                # To also remove the _temp_ video:
                 # try:
                 #     if os.path.exists(video_path):
                 #         os.remove(video_path)
@@ -4287,6 +4405,7 @@ class DownloadManagerUI(QMainWindow):
         d = self.d_list[d_index]
 
         self.d_list.remove(d)
+        widgets.table.removeRow(selected_row)
     
 
     def set_row_color(self, row, status):
@@ -4714,7 +4833,6 @@ if __name__ == "__main__":
         window.tutorial = TutorialOverlay(window, tutorial_steps)
 
     sys.exit(app.exec())
-
 
 
 

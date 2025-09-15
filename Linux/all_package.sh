@@ -22,14 +22,17 @@ cp ../Lin_Exec/omnipull-watcher package/opt/omnipull/omnipull-watcher
 
 
 # Add the native messaging manifest
-mkdir -p package/home/$USER/.config/google-chrome/NativeMessagingHosts
-cp browser_extensions/chrome/com.omnipull.downloader.json package/home/$USER/.config/google-chrome/NativeMessagingHosts/com.omnipull.downloader.json
+# mkdir -p package/home/$USER/.config/google-chrome/NativeMessagingHosts
+# cp browser_extensions/chrome/com.omnipull.downloader.json package/home/$USER/.config/google-chrome/NativeMessagingHosts/com.omnipull.downloader.json
 
 
 
 mkdir -p package/usr/lib/mozilla/native-messaging-hosts
 cp browser_extensions/firefox/com.omnipull.downloader.json package/usr/lib/mozilla/native-messaging-hosts/com.omnipull.downloader.json
 
+
+mkdir -p package/home/$USER/.config/microsoft-edge/NativeMessagingHosts
+cp browser_extensions/edge/com.omnipull.downloader.json package/home/$USER/.config/microsoft-edge/NativeMessagingHosts/com.omnipull.downloader.json
 
 # Permissions
 find package/opt/omnipull -type f -exec chmod 644 -- {} +
@@ -43,5 +46,5 @@ chmod +x package/opt/omnipull/ffmpeg
 chmod +x package/opt/omnipull/omnipull-watcher
 chmod +x package/home/$USER/.config/google-chrome/NativeMessagingHosts/com.omnipull.downloader.json
 chmod +x package/usr/lib/mozilla/native-messaging-hosts/com.omnipull.downloader.json
-
+chmod +x package/home/$USER/.config/microsoft-edge/NativeMessagingHosts/com.omnipull.downloader.json
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "OmniPull",
-  "version": "1.0.0",
+  "version": "1.1",
   "description": "Send links/streams to OmniPull native app",
   "icons": {
     "16": "icons/logo4.png",
@@ -32,7 +32,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "omnipull@annorion.dev"
+      "id": "{e899b50f-2a29-4bad-ab4d-b192447a10d0}"
     }
   },
 

@@ -1,4 +1,19 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
 import os
 import json
@@ -9,6 +24,8 @@ from modules.utils import log, handle_exceptions, update_object
 
 
 
+
+     
 
 def get_global_sett_folder():
     """return a proper global setting folder"""
@@ -33,34 +50,6 @@ def get_global_sett_folder():
 config.global_sett_folder = get_global_sett_folder()
 
 
-# def locate_setting_folder():
-#     """check local folder and global setting folder for setting.cfg file"""
-#     # look for previous setting file
-#     try:
-#         if 'setting.cfg' in os.listdir(config.current_directory):
-#             return config.current_directory
-#         elif 'setting.cfg' in os.listdir(config.global_sett_folder):
-#             return config.global_sett_folder
-#     except:
-#         pass
-
-#     # no setting file found will check local folder for writing permission, otherwise will return global sett folder
-#     try:
-#         folder = config.current_directory
-#         with open(os.path.join(folder, 'test'), 'w') as test_file:
-#             test_file.write('0')
-#         os.unlink(os.path.join(folder, 'test'))
-#         return config.current_directory
-
-#     except PermissionError:
-#         log("No enough permission to store setting at local folder:", folder)
-#         log('Global setting folder will be selected:', config.global_sett_folder)
-
-#         # create global setting folder if it doesn't exist
-#         if not os.path.isdir(config.global_sett_folder):
-#             os.mkdir(config.global_sett_folder)
-
-#         return config.global_sett_folder
 
 def locate_setting_folder():
     """Determine and return the setting folder. Prefer global folder by default."""
@@ -96,8 +85,6 @@ def load_d_list():
     d_list = []
     try:
         file = os.path.join(config.sett_folder, 'downloads.cfg')
-
-        
 
         with open(file, 'r') as f:
             # expecting a list of dictionaries
@@ -222,12 +209,3 @@ def save_queues(queues):
             json.dump(queues, f, indent=2)
     except Exception as e:
         log(f"Error saving queues.cfg: {e}", log_level=3)
-
-# Example queue entry structure:
-# {
-#     "id": "queue_001",
-#     "name": "My Queue",
-#     "max_concurrent": 2,
-#     "auto_stop": False,
-#     "scheduled_time": [13, 30]  # Optional: [hour, minute]
-# }

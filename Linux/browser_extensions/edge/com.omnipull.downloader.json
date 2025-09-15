@@ -1,10 +1,10 @@
 {
   "name": "com.omnipull.downloader",
   "description": "Native messaging host for OmniPull",
-  "path": "C:\\Program Files\\Annorion\\OmniPull\\omnipull-watcher.exe",
+  "path": "/opt/omnipull/omnipull-watcher",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://mkhncokjlhefbbnjlgmnifmgejdclbhj/"
   ],
-  "version": "1.0.1"
+  "version": "1.1"
 }

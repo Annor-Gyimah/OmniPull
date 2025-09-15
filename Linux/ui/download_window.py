@@ -1,15 +1,27 @@
 
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
-                               QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
-                               QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
-                               QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
-                               QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
-import threading
-from modules.utils import truncate, size_format, size_splitter, time_format, log
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 from modules import config
+from modules.utils import truncate, size_format, size_splitter, time_format, log
 
+from PySide6.QtCore import QTimer, Qt, Slot
+from PySide6.QtWidgets import (QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
+QHBoxLayout, QWidget, QFrame)
 
 
 # Modernized DownloadWindow UI to match dark theme and new style
@@ -68,7 +80,9 @@ class DownloadWindow(QWidget):
         self.init_ui()
         self.resize(500, 330)
         self.setWindowTitle("Download Window")
-        
+        self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+        self.setWindowFlag(Qt.WindowCloseButtonHint, True)
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)      
 
     @property
     def progress_mode(self):
@@ -227,4 +241,3 @@ class DownloadWindow(QWidget):
     @Slot(str)
     def on_log_updated(self, text):
         self.log_display.append(text)
-

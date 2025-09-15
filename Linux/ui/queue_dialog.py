@@ -1,20 +1,45 @@
-import sys, os
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+import os
+import sys
+from threading import Thread
+
+from modules.utils import log
+from modules import setting, config, brain
+from modules.settings_manager import SettingsManager
+
+from ui.queue_runner import QueueRunner
+from ui.download_window import DownloadWindow
+
+
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Slot, QTime, Qt, QCoreApplication, QTranslator
 from PySide6.QtWidgets import (
     QDialog, QListWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QLineEdit, QSpinBox, QCheckBox, QTimeEdit, QTabWidget, QWidget, QFrame, QGroupBox,
-    QListWidgetItem, QTableWidgetItem, QMessageBox,
+    QListWidgetItem, QTableWidgetItem, QMessageBox, QStyledItemDelegate, QStyle
 )
-from PySide6.QtCore import Slot, QTime, Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 
-from modules import setting, config, brain
-from modules.utils import log
-from threading import Thread
-from ui.download_window import DownloadWindow
-from ui.queue_runner import QueueRunner
-from ui.download_worker import DownloadWorker
-from modules.settings_manager import SettingsManager
+class NoFocusDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if option.state & QStyle.State_HasFocus:
+            option.state = option.state ^ QStyle.State_HasFocus
+        super().paint(painter, option, index)
 
 class QueueDialog(QDialog):
     def __init__(self, parent=None):
@@ -150,6 +175,7 @@ class QueueDialog(QDialog):
 
         # Left: Queue List
         self.queue_list = QListWidget()
+        self.queue_list.setItemDelegate(NoFocusDelegate())
         self.queue_list.addItems(["Main", "Main2"])
         self.queue_list.setMaximumWidth(100)
 
@@ -968,7 +994,7 @@ class QueueDialog(QDialog):
 #     self.queue_runner = QueueRunner(queue_id, items, parent=self.main_window)
 #     self.queue_runner.download_started.connect(self.on_first_download_started)
 #     self.queue_runner.download_finished.connect(self.on_download_finished)
-#     self.queue_runner.download_failed.connect(self.on_download_failed)   # <-- add this
+#     self.queue_runner.download_failed.connect(self.on_download_failed)   
 #     self.queue_runner.download_finished.connect(self.on_queue_item_finished)
 #     self.queue_runner.queue_finished.connect(self.on_queue_finished)
 #     self.queue_runner.start()
@@ -1045,4 +1071,3 @@ class QueueDialog(QDialog):
 #         except Exception as e:
 #             print(f"[worker] Exception: {e}")
 #             self.failed.emit(self.d)
-
