@@ -22,6 +22,10 @@ import copy
 import glob
 import time
 import json
+import uuid
+import gzip
+import base64
+import socket
 import shutil
 import asyncio
 import hashlib
@@ -65,7 +69,7 @@ from modules.settings_manager import SettingsManager
 from modules import config, brain, setting, video, update, setting
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
-    notify, run_command, handle_exceptions)
+    notify, run_command, handle_exceptions, get_mac_id)
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
@@ -293,6 +297,110 @@ class UpdateThread(QThread):
         update.update()  # Perform the update here
         if config.confirm_update:
             self.update_finished.emit()  # Emit the signal when done
+
+class ServerSoftwareCheckThread(QThread):
+    """
+    Thread to send the software current version, machine info, and a snapshot
+    of current downloads (export_data) to the server.
+    """
+    def __init__(self, d_list=None, parent=None, use_compression=True):
+        super(ServerSoftwareCheckThread, self).__init__(parent)
+        self.software_version = config.APP_VERSION
+        self.machine_id = self._get_machine_id()
+        self.d_list = d_list or []     # pass your current downloads list
+        self.use_compression = use_compression
+
+    def _get_machine_id(self):
+        if getattr(config, "machine_id", None):
+            return config.machine_id
+        mac_address = get_mac_id()
+        machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))
+        config.machine_id = machine_id
+        return machine_id
+
+    def _get_machine_info(self):
+        return {
+            'mac_address': get_mac_id(),
+            'computer_name': socket.gethostname(),
+            'operating_system': getattr(config, "operating_system_info", ""),
+            'software_version': self.software_version,
+            'machine_id': self.machine_id
+        }
+
+    def _collect_export_data(self):
+        """
+        Build the same structure you save into downloads.cfg:
+        [d.get_persistent_properties() for d in self.d_list]
+        """
+        try:
+            return [d.get_persistent_properties() for d in self.d_list]
+        except Exception as e:
+            log(f"Failed to build export_data: {e}", log_level=3)
+            return []
+
+    def _compress_to_blob(self, export_data):
+        """
+        Convert export_data (list/dict) -> JSON bytes -> gzip -> base64 (string).
+        """
+        try:
+            raw = json.dumps(export_data, ensure_ascii=False).encode("utf-8")
+            gz = gzip.compress(raw)
+            b64 = base64.b64encode(gz).decode("ascii")
+            return b64
+        except Exception as e:
+            log(f"Compression failed, falling back to plain JSON: {e}", log_level=2)
+            return None
+
+    def run(self):
+        """Run the thread to check for updates and upload downloads snapshot."""
+        try:
+            url = "http://omnipull.pythonanywhere.com/api/software-update/"
+
+            # 1) core machine info
+            data = self._get_machine_info()
+
+            # 2) include downloads snapshot
+            export_data = self._collect_export_data()
+            if self.use_compression:
+                blob = self._compress_to_blob(export_data)
+                if blob:
+                    data["downloads_blob"] = blob
+                    data["downloads_format"] = "json+gzip+base64"
+                    data["downloads_count"] = len(export_data)
+                else:
+                    # fallback to inline JSON
+                    data["downloads"] = export_data
+                    data["downloads_format"] = "json"
+                    data["downloads_count"] = len(export_data)
+            else:
+                data["downloads"] = export_data
+                data["downloads_format"] = "json"
+                data["downloads_count"] = len(export_data)
+
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=data, headers=headers, timeout=15)
+
+            if response.ok:
+                update_status = response.json()
+                if update_status.get('update_needed'):
+                    log(f"Update required: {update_status.get('new_version')}")
+                else:
+                    log(f"You are up to date. Version: {self.software_version}")
+                # Optional: log snapshot result
+                snap_id = update_status.get("snapshot_id")
+                if snap_id:
+                    log(f"Server stored downloads snapshot id={snap_id}")
+                return update_status
+            else:
+                log(f"Error checking update status: {response.status_code} {response.text}", log_level=3)
+
+        except Exception as e:
+            log(f"Error sending software info to server: {e}", log_level=3)
+
+
+
+
+
 
 
 class FileOpenThread(QThread):
@@ -1163,8 +1271,11 @@ class DownloadManagerUI(QMainWindow):
                 log('Days since last check for update:', days_since_last_update, 'day(s).', log_level=1)
                 
                 if days_since_last_update >= config.update_frequency:
+                    log('Checking for software updates...', log_level=1)
                     Thread(target=self.update_available, daemon=True).start()
-                    # Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                    self.server_check_update = ServerSoftwareCheckThread(d_list=self.d_list)
+                    self.server_check_update.start()
+                    self.background_threads.append(self.server_check_update)
                     config.last_update_check = today
             except (TypeError, ValueError) as e:
                 log(f"Error in update check calculations: {e}", log_level=3)
@@ -4229,57 +4340,7 @@ class DownloadManagerUI(QMainWindow):
 
 
     
-    # def check_scheduled(self):
-    #     now = time.localtime()
-    #     # from datetime import datetime
-    #     test_Date = datetime.now().replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
-
-    #     print(f'now the time is {now}')
-    #     print(f'The datetime is datetime {date.today()}')
-    #     print(f'The datetime is datetime {test_Date}')
-    #     print(f'The time is {time.strftime("%H:%M:%S")}')
-    #     # print(f'The datetime is datetime {test_Date}')
-    #     # print(f'The datetime is datetime {test_Date.hour}')
-    #     # print(f'The datetime is datetime {test_Date.minute}')
-    #     # print(f'The datetime is datetime {test_Date.second}')
-
-       
-    #     Date = date.today()
-    #     Time = time.strftime("%H:%M:%S")
-
-    #     for d in self.d_list:
-    #         if d.status == config.Status.scheduled and getattr(d, "sched", None):
-    #             print(d.sched)
-    #             # if (d.sched[0], d.sched[1]) == (now.tm_hour, now.tm_min):
-    #             if (d.sched[0], d.sched[1]) == (Date, Time):
-    #                 log(f"Scheduled time matched for {d.name}, attempting download...",  log_level=1)
-
-    #                 result = self.start_download(d, silent=True)
-
-    #                 # Retry condition: download failed or was cancelled
-    #                 if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
-    #                     log(f"Scheduled download failed for {d.name}.", log_level=3)
-
-    #                     if config.retry_scheduled_enabled:
-    #                         d.schedule_retries = getattr(d, "schedule_retries", 0)
-
-    #                         if d.schedule_retries < config.retry_scheduled_max_tries:
-    #                             d.schedule_retries += 1
-
-    #                             # Add retry interval
-    #                             # from datetime import datetime, timedelta
-    #                             retry_time = datetime.now() + timedelta(
-    #                                 minutes=config.retry_scheduled_interval_mins)
-    #                             d.sched = (retry_time.hour, retry_time.minute)
-    #                             d.status = config.Status.scheduled
-    #                             log(f"Retrying {d.name} at {d.sched[0]}:{d.sched[1]} [Attempt {d.schedule_retries}]", log_level=2)
-    #                         else:
-    #                             d.status = config.Status.failed
-    #                             log(f"{d.name} has reached max retries.", log_level=2)
-    #                     else:
-    #                         d.status = config.Status.failed
-
-    #     self.queue_update("populate_table", None)
+    
 
     def _handle_version_status(self):
         status = config.APP_LATEST_VERSION

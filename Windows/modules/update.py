@@ -18,49 +18,19 @@
 
 # check and update application
 # import io
-import py_compile
-import shutil
+
+import os
 import sys
+import wget
+import httpx
+import shutil
 import zipfile
 import tempfile
-import wget
 import subprocess
-from . import config
-import os
+import py_compile
+from modules import config
 from datetime import datetime, timedelta
-from . import video
-from .utils import log, download, run_command, delete_folder, popup, get_mac_id
-import webbrowser
-import httpx
-import socket
-import uuid
-import requests
-
-def check_for_update():
-    """download version.py from github, extract latest version number return app latest version"
-    """
-
-    # do not use, will use get_changelog() instead
-
-    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/Windows/pyidm/version.py'
-    new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
-    url = new_release_url if config.FROZEN else source_code_url
-
-    # get BytesIO object
-    buffer = download(url)
-
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        latest_version = contents.rsplit(maxsplit=1)[-1].replace("'", '')
-
-        return latest_version
-
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
+from modules.utils import log, download, run_command, delete_folder, popup
 
 
 def get_changelog():
@@ -77,8 +47,8 @@ def get_changelog():
         
 
         # url will be chosen depend on frozen state of the application
-        source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
-        new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
+        source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt'
+        new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt'
         url = new_release_url if config.FROZEN else source_code_url
         # url = new_release_url
 
@@ -120,8 +90,8 @@ def update():
     
      
     # url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/update.bat"  # URL for update.sh
-    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/cleanup.bat"
+    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/update.bat"  # URL for update.sh
+    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/cleanup.bat"
     main_zip_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tagName}/main.zip"
 
 
@@ -165,23 +135,12 @@ def update():
             task_name = f"{config.APP_NAME}_Update"
 
             task_command = (
-                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc minute /mo 3 /rl HIGHEST /f'
-
-                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
-
+                
                 f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
 
-                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
-
-                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" 'f'/sc daily /st 12:00 /ri 60 /du 24:00 /rl HIGHEST /f'
-
-            
-                
             )
 
-            
-            
-
+        
             # Schedule the cleanup task
             task_name_cleanup = f"{config.APP_NAME}_Cleanup"
             task_command_cleanup = (
@@ -321,64 +280,3 @@ def update_youtube_dl():
     log('delete temp folder')
     log('youtube_dl module ..... done updating')
 
-
-class SoftwareUpdateChecker:
-    def __init__(self, api_url, software_version):
-        self.api_url = api_url
-        self.software_version = software_version
-        self.machine_id = self.get_machine_id()
-
-
-    def get_machine_id(self):
-        # Check if machine_id already exists in a local file
-        # config_file = 'machine_config.json'
-        # if os.path.exists(config_file):
-        #     with open(config_file, 'r') as file:
-        #         data = json.load(file)
-        #         return data.get('machine_id')
-        
-        # If no machine_id found, generate it based on the MAC address or UUID
-        mac_address = get_mac_id()
-        machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
-        config.machine_id = machine_id
-
-        # Save it for future use
-        # with open(config_file, 'w') as file:
-        #     json.dump({'machine_id': machine_id}, file)
-
-        return machine_id
-
-    def get_machine_info(self):
-        # Get the system information (for example: MAC address, computer name, etc.)
-        mac_address = get_mac_id()
-        computer_name = socket.gethostname()
-        operating_system = config.operating_system_info
-
-        return {
-            'mac_address': mac_address,
-            'computer_name': computer_name,
-            'operating_system': operating_system,
-            'software_version': self.software_version,
-            'machine_id': f'{str(uuid.uuid5(uuid.NAMESPACE_DNS, get_mac_id))}' if config.machine_id == None else self.machine_id
-        }
-
-
-    def server_check_update(self):
-        machine_info = self.get_machine_info()
-
-        try:
-            response = requests.post(
-                f"{self.api_url}/software-update/",
-                json=machine_info
-            )
-            if response.status_code == 200:
-                update_status = response.json()
-                print(update_status)
-                if update_status.get('update_needed'):
-                    log(f"Update required: {update_status.get('new_version')}")
-                else:
-                    log(f"You are up to date. Version: {self.software_version}")
-            else:
-                log("Error checking update status")
-        except requests.RequestException as e:
-            log(f"Error connecting to the server: {e}")
