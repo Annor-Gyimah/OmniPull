@@ -1,25 +1,45 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
+
 import os
-import sys
 import io
-import pycurl
+import re
+import sys
 import time
-
+import uuid
+import json
 import plyer
-import certifi
+import base64
+import psutil
+import pycurl
 import shutil
+import shlex
+import certifi
 import zipfile
 import subprocess
 import py_compile
-import shlex
-import re
-import uuid
-import json
+from notifypy import Notify
 import pyperclip as clipboard
 from getmac import get_mac_address
-from notifypy import Notify
-import psutil
+
+
+
 try:
     from PIL import Image
 except:
@@ -41,26 +61,16 @@ def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        plyer.notification.notify(title=title, message=msg, app_name=config.APP_NAME)
+        # notification = Notify()
+        # notification.application_name = f"{config.APP_NAME}"
+        # notification.title = f"{title}"
+        # notification.message = f"{msg}"
+        # notification.icon = resource_path2("logo1.png")
+        # notification.send(block=False)
+        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
-        log(f"Notification error: {e}", log_level=1)
-        print(f"Notification error: {e}")
         handle_exceptions(f'notifypy notification: {e}')
 
-# def notify(msg, title='', timeout=2):
-#     log(f"notify() called with title: {title}, message: {msg}", log_level=3)
-#     try:
-#         notification = Notify()
-#         notification.application_name = f"{config.APP_NAME}"
-#         notification.title = f"{title}"
-#         notification.message = f"{msg}"
-#         notification.icon = "../icons/logo1.png" #resource_path2("../icons/logo1.png")
-#         notification.send()
-#     except Exception as e:
-#         log(f"Notification error: {e}", log_level=1)
-#         handle_exceptions(f'notifypy notification: {e}')
-
-# Global variable to track initialization
 
 def handle_exceptions(error):
     if config.TEST_MODE:

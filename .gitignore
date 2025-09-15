@@ -24,6 +24,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.bootstrap
 MANIFEST
 
 # PyInstaller
@@ -161,9 +162,27 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+
+
+
 Lin_Exec
 Linux/package/
-Linux/omnipull-v_1.2.24_amd64.deb
+Linux/omnipull*
+Linux/.pkgmeta/
+Linux/squashfs-root/
+Linux/build_ffmpeg.sh
+Linux/build-portable-appimage.sh
+Linux/build-standalone-deb.sh
+Linux/cleanup_omnipull.sh
+Linux/omniwatcher.json
+Linux/setup.json
+Linux/uninstall.sh
+Linux/update.sh
+Linux/package.sh
+Linux/setup.json
+Linux/all_package.sh
+Linux/build.sh
+Linux/omnipull.desktop
 setup.json
 omnipull-watcher.json
 omnipull-watcher.py

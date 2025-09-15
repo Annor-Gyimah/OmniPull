@@ -1,18 +1,31 @@
-"""
-    OmniPull - a free and open source download manager for Windows, Linux, and MacOS.
-    OmniPull is a cross-platform, multi-threaded, multi-segment, and multi-connections internet download manager, based on "pyCuRL/curl", "yt-dlp", and "PySide6"
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
-# configurations
-from queue import Queue
 import os
 import sys
+import shutil
 import platform
-import aria2p
+
+from queue import Queue
+from pathlib import Path
+
 from modules.version import __version__
+
+
 
 
 # CONSTANTS
@@ -28,10 +41,10 @@ DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
-DEFAULT_LOG_LEVEL = 3
+DEFAULT_LOG_LEVEL = 1
  
 APP_LATEST_VERSION = ''  # get value from update module
-ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
+ytdl_VERSION = 'xxx'  # will be loaded once yt-dlp get imported
 ytdl_LATEST_VERSION = None  # get value from update module
 
 TEST_MODE = False
@@ -47,7 +60,7 @@ machine_id = None
 terminate = False 
 
 # download engine
-download_engine = 'yt-dlp'  # download engine to be used, aria2c or yt-dlp
+download_engine = 'curl'  # download engine to be used, aria2c or yt-dlp
 
 
 # settings parameters
@@ -61,6 +74,7 @@ segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
 on_startup = False
 hide_app = False
+tutorial_completed = False  # used to show tutorial on first run
 
 # connection / network
 enable_speed_limit = False
@@ -83,7 +97,7 @@ update_frequency_map = {'every day': 1, 'every week': 7, 'every month': 30}
 confirm_update = False
 
 # proxy
-proxy = '1.34.120.197:46052'  # must be string example: 127.0.0.1:8080
+proxy = ''  # must be string example: 127.0.0.1:8080
 proxy_type = 'http'  # socks4, socks5
 raw_proxy = ''  # unprocessed from user input
 proxy_user = ""  # optional
@@ -104,8 +118,10 @@ if hasattr(sys, 'frozen'):  # like if application froen by cx_freeze
 else:
     path = os.path.realpath(os.path.abspath(__file__))
     current_directory = os.path.dirname(path)
-sys.path.insert(0, os.path.dirname(current_directory))
-sys.path.insert(0, current_directory)
+# sys.path.insert(0, os.path.dirname(current_directory))
+# sys.path.insert(0, current_directory)
+if not getattr(sys, "frozen", False) and current_directory not in sys.path:
+    sys.path.insert(0, current_directory)
 
 
 sett_folder = os.path.dirname(os.path.abspath(__file__))
@@ -114,37 +130,83 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # ffmpeg
 #ffmpeg_actual_path = None
-ffmpeg_actual_path = "/usr/bin/ffmpeg"
+# ffmpeg_actual_path = "/usr/bin/ffmpeg"
 ffmpeg_folder_path = "/usr/bin/"
-ffmpeg_bundled_path = "/opt/omnipull/"
-ffmpeg_selected_path = None
-ffmpeg_download_folder = sett_folder
+# ffmpeg_bundled_path = "/opt/omnipull/"
+# ffmpeg_selected_path = None
+# ffmpeg_download_folder = sett_folder
+# ffmpeg_verified = False
+ffmpeg_selected_path: str | None = None
 ffmpeg_verified = False
 
     
 
-def get_ffmpeg_path(chosen: bool = True):
-    """Get the path to ffmpeg executable."""
-    # 1. User-selected path (chosen)
-    if chosen and ffmpeg_selected_path:
-        if os.path.exists(ffmpeg_selected_path):
-            print('A: Using user-selected ffmpeg path')
-            return ffmpeg_selected_path
+# def get_ffmpeg_path(chosen: bool = True):
+#     """Get the path to ffmpeg executable."""
+#     # 1. User-selected path (chosen)
+#     if chosen and ffmpeg_selected_path:
+#         if os.path.exists(ffmpeg_selected_path):
+#             return ffmpeg_selected_path
 
-    # 2. System-installed ffmpeg
-    system_ffmpeg = os.path.join(ffmpeg_folder_path, 'ffmpeg')
-    if os.path.exists(system_ffmpeg):
-        print('B: Using system ffmpeg path')
-        return system_ffmpeg
+#     # 2. System-installed ffmpeg
+#     system_ffmpeg = os.path.join(ffmpeg_folder_path, 'ffmpeg')
+#     if os.path.exists(system_ffmpeg):
+#         return system_ffmpeg
 
-    # 3. Bundled ffmpeg
-    bundled_ffmpeg = os.path.join(ffmpeg_bundled_path, 'ffmpeg')
-    if os.path.exists(bundled_ffmpeg):
-        print('C: Using bundled ffmpeg path')
-        return bundled_ffmpeg
+#     # 3. Bundled ffmpeg
+#     bundled_ffmpeg = os.path.join(ffmpeg_bundled_path, 'ffmpeg')
+#     if os.path.exists(bundled_ffmpeg):
+#         return bundled_ffmpeg
 
-    # 4. Fallback to system path (even if not present)
-    return system_ffmpeg
+#     # 4. Fallback to system path (even if not present)
+#     return system_ffmpeg
+
+APP_ID = APP_NAME # keep using your config if set
+USER_CURRENT = Path.home() / ".local" / "share" / APP_ID / "current"
+
+def _find_tool(name: str, *, selected: str|None, bundled_name: str, extra_paths: list[str]) -> str|None:
+    """Resolution order:
+       1) user-selected path (if chosen & exists)
+       2) bundled under ~/.local/share/OmniPull/current/<bundled_name>
+       3) system PATH via shutil.which(name)
+       4) known extra paths (for robustness)
+    """
+    # 1) user-chosen
+    if selected:
+        p = Path(selected)
+        if p.exists():
+            return str(p)
+
+    # 2) bundled (user-space)
+    bundled = USER_CURRENT / bundled_name
+    if bundled.exists():
+        return str(bundled)
+
+    # 3) system PATH
+    on_path = shutil.which(name)
+    if on_path:
+        return on_path
+
+    # 4) extra known paths
+    for p in extra_paths:
+        if Path(p).exists():
+            return p
+
+    return None
+
+
+def get_ffmpeg_path(chosen: bool = True) -> str | None:
+    selected = ffmpeg_selected_path if chosen else None
+    return _find_tool(
+        "ffmpeg",
+        selected=selected,
+        bundled_name="ffmpeg",  # lives next to omnipull in the bootstrap/update tar
+        extra_paths=["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg"],
+    )
+
+def get_ffmpeg_folder() -> str:
+    p = get_ffmpeg_path() or ""
+    return os.path.dirname(p) if p else ""
 
 # aria2c
 aria2_download_folder = sett_folder
@@ -162,7 +224,7 @@ aria2c_config = {
     "rpc_port": 6800
 }
 
-
+preferred_audio_langs = ["en-US", "en", "eng", None]
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
     "no_playlist": True,
@@ -201,7 +263,7 @@ settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_e
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
-                 'aria2_verified', 'ytdlp_config', 'ffmpeg_selected_path']
+                 'aria2_verified', 'ytdlp_config', 'ffmpeg_selected_path', 'preffered_audio_langs']
 
 # -------------------------------------------------------------------------------------
 

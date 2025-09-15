@@ -1,16 +1,37 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+import os
+import sys
+
+from modules import config
+from modules.utils import log, delete_file
+from modules.settings_manager import SettingsManager
+
+from PySide6.QtGui import QIntValidator
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator
+
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
     QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
     QGroupBox,  QTabWidget, QFileDialog
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QCoreApplication, QTranslator
-import os, sys
 
-from modules.utils import log, delete_file
-from modules import config, setting
-from modules.settings_manager import SettingsManager
+
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):

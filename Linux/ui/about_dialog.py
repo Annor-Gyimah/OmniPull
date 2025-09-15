@@ -1,20 +1,38 @@
+
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+import webbrowser
+
+from modules import config
+
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QPixmap, QCursor, QIcon
 from PySide6.QtWidgets import (
     QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
     QFrame, QGraphicsBlurEffect, QWidget, QSizePolicy,
 )
-from PySide6.QtGui import QPixmap, QCursor, QIcon
-from PySide6.QtCore import Qt, QSize
-import webbrowser
-import os
-from modules import config
-import resources_rc
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(f"About {config.APP_NAME}")
         self.setFixedSize(650, 360)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        # self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         # === Frosted Glass Blur ===
         blur = QGraphicsBlurEffect()
@@ -100,7 +118,7 @@ class AboutDialog(QDialog):
         tagline.setObjectName("Tagline")
         tagline.setAlignment(Qt.AlignCenter)
 
-        link = QLabel('<a href="https://pyiconicdownloader.com">pyiconicdownloader.com</a>')
+        link = QLabel('<a href="https://omnipull.pythonanywhere.com/">omnipull.pythonanywhere.com/</a>')
         link.setObjectName("Footer")
         link.setAlignment(Qt.AlignCenter)
         link.setTextInteractionFlags(Qt.TextBrowserInteraction)
@@ -132,7 +150,7 @@ class AboutDialog(QDialog):
         label2 = QLabel("ODM is a python open source Internet Download Manager with multi-connections,\nhigh speed engine, it downloads general files and videos from YouTube\nand tons of other streaming websites.")
         label2.setWordWrap(True)
 
-        label3 = QLabel("GPL v2 License")
+        label3 = QLabel("GPL v3 License")
         label4 = QLabel("Created by: Emmanuel Gyimah Annor")
         label5 = QLabel("Inspiration")
         label6 = QLabel("PyIDM - by Mahmoud Elshahat")
@@ -150,22 +168,6 @@ class AboutDialog(QDialog):
 
         }
 
-        # for icon in icon_map.values():
-        #     btn = QPushButton()
-        #     btn.setFixedSize(34, 34)
-        #     btn.setIcon(QIcon(icon))
-        #     btn.setIconSize(QSize(24, 24))
-        #     btn.setStyleSheet("""
-        #         QPushButton {
-        #             background-color: transparent;
-        #             border: none;
-        #         }
-        #         QPushButton:hover {
-        #             background-color: rgba(0, 255, 180, 0.1);
-        #             border-radius: 6px;
-        #         }
-        #     """)
-        #     icon_bar.addWidget(btn)
 
         for label, icon in icon_map.items():
             btn = QPushButton()
@@ -191,7 +193,7 @@ class AboutDialog(QDialog):
             elif label == "telegram":
                 btn.clicked.connect(lambda: webbrowser.open("https://t.me/your_channel"))
             elif label == "browser":
-                btn.clicked.connect(lambda: webbrowser.open("https://pyiconicdownloader.com"))
+                btn.clicked.connect(lambda: webbrowser.open("https://omnipull.pythonanywhere.com/"))
             icon_bar.addWidget(btn)
 
         # Add widgets to layout
@@ -221,4 +223,3 @@ class AboutDialog(QDialog):
         main_layout.addWidget(left_container, 2)
         main_layout.addWidget(divider)
         main_layout.addWidget(right_container, 4)
-
