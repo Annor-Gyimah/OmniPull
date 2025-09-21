@@ -1,25 +1,42 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
+
 import os
-import sys
 import io
-import pycurl
-import time
-
-import plyer
-import certifi
-import shutil
-import zipfile
-import subprocess
-import py_compile
-import shlex
 import re
-import uuid
+import sys
+import time
 import json
-import pyperclip as clipboard
-from getmac import get_mac_address
+import plyer
+import base64
+import pycurl
+import shutil
+import shlex
+import hashlib
+import certifi
+import platform
+import subprocess
 from notifypy import Notify
-import psutil
+import pyperclip as clipboard
+
+
+
 try:
     from PIL import Image
 except:
@@ -41,13 +58,13 @@ def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        # notification = Notify()
-        # notification.application_name = f"{config.APP_NAME}"
-        # notification.title = f"{title}"
-        # notification.message = f"{msg}"
-        # notification.icon = resource_path2("logo1.png")
-        # notification.send(block=False)
-        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
+        notification = Notify()
+        notification.application_name = f"{config.APP_NAME}"
+        notification.title = f"{title}"
+        notification.message = f"{msg}"
+        notification.icon = resource_path2("logo1.png")
+        notification.send(block=False)
+        # plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
         handle_exceptions(f'notifypy notification: {e}')
 
@@ -778,61 +795,57 @@ def process_thumbnail(url):
         log(f'process_thumbnail()> error {e}', log_level=3)
         return None
     
-def get_available_interfaces():
-    """Detect all available network interfaces on the system."""
-    interfaces = []
-    
-    # Get interfaces using psutil (works across OSes)
-    for interface, addrs in psutil.net_if_addrs().items():
-        interfaces.append(interface)
-    
-    return interfaces
+def get_machine_id_raw():
+    """Return the raw OS-level machine identifier (platform-dependent)."""
+    system = platform.system().lower()
 
-def get_mac_by_interface(interface):
-    """Get the MAC address for a specified interface using the getmac library."""
-    try:
-        mac = get_mac_address(interface=interface)
-        if mac:
-            return mac
-        else:
+    if system == "windows":
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Cryptography"
+            )
+            value, _ = winreg.QueryValueEx(key, "MachineGuid")
+            return value
+        except Exception:
             return None
-    except Exception as e:
+
+    elif system == "linux":
+        for path in ["/etc/machine-id", "/var/lib/dbus/machine-id"]:
+            try:
+                with open(path, "r") as f:
+                    return f.read().strip()
+            except FileNotFoundError:
+                continue
         return None
 
-def get_mac_id():
-    """Get a hashed machine ID based on the MAC address of a specified interface."""
-    interfaces = get_available_interfaces()
-    
-    if 'wlo1' in interfaces:
-        interface = 'wlo1'  # Wi-Fi interface on Linux
-    elif 'enp0s25' in interfaces:
-        interface = 'enp0s25'  # Ethernet interface on Linux
-    elif 'Ethernet' in interfaces:
-        interface = 'Ethernet'  # Ethernet on Windows
-    elif 'Wi-Fi' in interfaces:
-        interface = 'Wi-Fi'  # Wi-Fi on Windows
-    elif 'en0' in interfaces:
-        interface = 'en0'  # Ethernet or Wi-Fi on macOS
-    elif 'en1' in interfaces:
-        interface = 'en1'  # Secondary network interface on macOS
-    else:
+    elif system == "darwin":  # macOS
+        try:
+            output = subprocess.check_output(
+                ["ioreg", "-rd1", "-c", "IOPlatformExpertDevice"],
+                text=True
+            )
+            for line in output.splitlines():
+                if "IOPlatformUUID" in line:
+                    return line.split('"')[-2]
+        except Exception:
+            return None
+
+    return None
+
+
+def get_machine_id(hashed=True):
+    """
+    Return a stable, cross-platform machine ID.
+    By default, the raw ID is SHA-256 hashed.
+    """
+    raw_id = get_machine_id_raw()
+    if not raw_id:
         return None
-
-    mac = get_mac_by_interface(interface)
-    if mac:
-        return mac
-        
-    else:
-        return None
-    
-
-def get_machine_id(self):
-    """Get a hashed machine ID based on the MAC address of a specified interface."""
-    mac_address = get_mac_id()
-    machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
-
-    
-    return machine_id
+    if hashed:
+        return hashlib.sha256(raw_id.encode("utf-8")).hexdigest()
+    return raw_id
 
 
 __all__ = [

@@ -1,12 +1,27 @@
 
-from PySide6.QtWidgets import ( 
-    QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
-    QHBoxLayout, QWidget, QFrame)
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PySide6.QtCore import QTimer, Qt, Slot, Signal, QEvent, QCoreApplication
-from modules.utils import truncate, size_format, size_splitter, time_format, log
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 from modules import config
+from modules.utils import truncate, size_format, size_splitter, time_format, log
 
+from PySide6.QtCore import QTimer, Qt, Slot
+from PySide6.QtWidgets import (QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
+QHBoxLayout, QWidget, QFrame)
 
 
 # Modernized DownloadWindow UI to match dark theme and new style
@@ -64,9 +79,10 @@ class DownloadWindow(QWidget):
         self._progress_mode = 'determinate'
         self.init_ui()
         self.resize(500, 330)
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
-        self.setWindowTitle(self.tr("Download Window"))
-        
+        self.setWindowTitle("Download Window")
+        self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+        self.setWindowFlag(Qt.WindowCloseButtonHint, True)
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)      
 
     @property
     def progress_mode(self):
@@ -138,12 +154,10 @@ class DownloadWindow(QWidget):
 
     def update_gui(self):
         name = truncate(self.d.name, 50)
-        ug1, ug2, ug3, ug4 = self.tr('File:'), self.tr('Downloaded:'), self.tr('Speed:'), self.tr('Live Connections:')
-        ug5, ug6, ug7 = self.tr('out of'), self.tr('- Remaining parts:'), self.tr('left')
-        out = (f"\n {ug1} {name} \n"
-               f"\n {ug2} {size_format(self.d.downloaded)} {ug5} {size_format(self.d.total_size)} \n"
-               f"\n {ug3} {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} {ug7} \n"
-               f"\n {ug4} {self.d.live_connections} {ug6} {self.d.remaining_parts} \n")
+        out = (f"\n File: {name} \n"
+               f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
+               f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
+               f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
         self.out_label.setText(out)
 
         if self.d.progress:
@@ -194,7 +208,7 @@ class DownloadWindow(QWidget):
             if hasattr(self, "timer") and self.timer.isActive():
                 self.timer.stop()
         except Exception as e:
-            log(f"[DownloadWindow] Failed to stop timer: {e}", log_level=3)
+            log(f"[DownloadWindow] Failed to stop timer: {e}")
 
         # try:
         #     self.disconnect()  # Only if you've connected custom signals manually

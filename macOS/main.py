@@ -1,26 +1,17 @@
 #####################################################################################
-# OMNIPULL DOWNLOAD MANAGER
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-# Project Developer: Emmanuel Gyimah Annor
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-# Description:
-#   OmniPull is a cross-platform, feature-rich download manager designed to simplify
-#   and accelerate file downloads from the internet. It supports HTTP, HTTPS, and
-#   streaming protocols, integrates with browsers, and provides advanced features
-#   such as queue management, scheduling, clipboard monitoring, and YouTube/media
-#   extraction via yt-dlp. The application leverages PySide6 for a modern, responsive
-#   GUI and supports plugins like aria2c and ffmpeg for enhanced performance.
-#
-#   Key Features:
-#     - Multi-threaded downloads with pause/resume support
-#     - Download queue and scheduling system
-#     - YouTube and streaming video/audio extraction
-#     - Browser integration and clipboard monitoring
-#     - Download window with progress, speed, and logs
-#     - Customizable settings and language support
-#     - Robust error handling and update mechanism
-#
-#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
@@ -31,6 +22,10 @@ import copy
 import glob
 import time
 import json
+import uuid
+import gzip
+import base64
+import socket
 import shutil
 import asyncio
 import hashlib
@@ -49,7 +44,7 @@ from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
 QCoreApplication, Qt, QTime, QProcess)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
 QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QTableWidgetItem, QDialog, 
 QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckBox, QListWidget, QListWidgetItem, QWidgetAction, QLabel)
@@ -74,7 +69,7 @@ from modules.settings_manager import SettingsManager
 from modules import config, brain, setting, video, update, setting
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
-    notify, run_command, handle_exceptions)
+    notify, run_command, handle_exceptions, get_machine_id)
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
@@ -93,8 +88,6 @@ widgets_settings = None
 widgets_about = None
 
 
-
-
 class InternetChecker(QThread):
     """
     Thread for checking the internet
@@ -103,7 +96,7 @@ class InternetChecker(QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.is_connected = False  # Add a flag to store the connection status
+        self.is_connected = False  # A flag to store the connection status
 
     def run(self):
         """Runs the internet check in the background."""
@@ -303,6 +296,80 @@ class UpdateThread(QThread):
         if config.confirm_update:
             self.update_finished.emit()  # Emit the signal when done
 
+class ServerSoftwareCheckThread(QThread):
+    """
+    Sends machine info + software version to the server.
+    Optionally includes a 'snapshot' payload.
+    """
+    def __init__(self, d_list=None, parent=None):
+        super().__init__(parent)
+        self.software_version = config.APP_VERSION
+        self.machine_id = self._get_machine_id()
+        self.d_list = d_list or []   # pass your downloader list in
+
+    def _get_machine_id(self):
+        mid = getattr(config, "machine_id", None)
+        if mid:
+            return mid
+        mid = get_machine_id(hashed=True)
+        config.machine_id = mid
+        return mid
+
+    def _get_snapshot(self):
+        """Builds optional snapshot block; return None to omit."""
+        try:
+            export_data = [d.get_persistent_properties() for d in self.d_list]
+            return {
+                "items": export_data,
+                "items_count": len(export_data),
+                "format": "json",
+            }
+        except Exception:
+            return None
+
+    def _get_machine_info(self):
+        return {
+            "computer_name": socket.gethostname(),
+            "operating_system": getattr(config, "operating_system_info", platform.platform()),
+            "software_version": self.software_version,
+            "machine_id": self.machine_id,
+            "snapshot": self._get_snapshot(),  # include or None
+        }
+
+    def run(self):
+        try:
+            # url = "http://127.0.0.1:8000/api/software-update/"  # ensure 127.0.0.1 not 127.0.0.0
+            url = "https://omnipull.pythonanywhere.com/api/software-update/"
+            data = self._get_machine_info()
+            # If you want to omit snapshot when None:
+            if data.get("snapshot") is None:
+                data.pop("snapshot", None)
+
+            # simple retry for transient failures
+            for attempt in range(3):
+                try:
+                    resp = requests.post(url, json=data, timeout=10)
+                    if resp.ok:
+                        upd = resp.json()
+                        if upd.get("update_needed"):
+                            log(f"Update required: {upd.get('new_version')}")
+                        else:
+                            log(f"You are up to date. Version: {self.software_version}")
+                        return
+                    else:
+                        log(f"Error checking update status: {resp.status_code}", log_level=3)
+                        return
+                except requests.RequestException as e:
+                    if attempt == 2:
+                        raise
+                    time.sleep(1.5 * (attempt + 1))
+        except Exception as e:
+            log(f"Error sending software info to server: {e}", log_level=3)
+
+
+
+
+
 
 class FileOpenThread(QThread):
     """
@@ -352,46 +419,94 @@ class FileOpenThread(QThread):
             )
 
 
+# class LogRecorderThread(QThread):
+#     """
+#     Thread to record logs and write them to a file.
+#     """
+#     error_signal = Signal(str)  # Signal to report errors to the main thread
+
+#     def __init__(self):
+#         """Initialize the log recorder with an empty buffer and prepare the log file."""
+#         super().__init__()
+#         self.buffer = ''
+#         self.file = os.path.join(config.sett_folder, 'log.txt')
+#         # Clear previous log file
+#         try:
+#             with open(self.file, 'w') as f:
+#                 f.write(self.buffer)
+        
+#         except Exception as e:
+#             self.error_signal.emit(f'Failed to clear log file: {str(e)}')
+
+#     def run(self):
+#         """Run the log recorder to continuously write log messages to the file."""
+#         while not config.terminate:
+#             try:
+#                 # Read log messages from queue
+#                 q = config.log_recorder_q
+#                 for _ in range(q.qsize()):
+#                     self.buffer += q.get()
+
+#                 # Write buffer to file
+#                 if self.buffer:
+#                     with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
+#                         f.write(self.buffer)
+#                         self.buffer = ''  # Reset buffer
+
+#                 # Sleep briefly to prevent high CPU usage
+#                 self.msleep(100)  # QThread's msleep is more precise than time.sleep
+
+#             except Exception as e:
+#                 self.error_signal.emit(f'Log recorder error: {str(e)}')
+#                 self.msleep(100)
+
+
 class LogRecorderThread(QThread):
-    """
-    Thread to record logs and write them to a file.
-    """
-    error_signal = Signal(str)  # Signal to report errors to the main thread
+    error_signal = Signal(str)
 
     def __init__(self):
-        """Initialize the log recorder with an empty buffer and prepare the log file."""
         super().__init__()
         self.buffer = ''
         self.file = os.path.join(config.sett_folder, 'log.txt')
-        # Clear previous log file
-        try:
-            with open(self.file, 'w') as f:
-                f.write(self.buffer)
-        
-        except Exception as e:
-            self.error_signal.emit(f'Failed to clear log file: {str(e)}')
+        self._stop = False  # <-- add
+
+    # optional public API
+    def stop(self):
+        self._stop = True
 
     def run(self):
-        """Run the log recorder to continuously write log messages to the file."""
-        while not config.terminate:
-            try:
-                # Read log messages from queue
-                q = config.log_recorder_q
-                for _ in range(q.qsize()):
-                    self.buffer += q.get()
+        """Continuously write log messages to file."""
+        try:
+            while True:
+                # Exit condition: any of these triggers stop
+                if self._stop or self.isInterruptionRequested() or getattr(config, "terminate", False):
+                    break
 
-                # Write buffer to file
+                try:
+                    q = config.log_recorder_q
+                    for _ in range(q.qsize()):
+                        self.buffer += q.get()
+
+                    if self.buffer:
+                        with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
+                            f.write(self.buffer)
+                            self.buffer = ''
+
+                    self.msleep(100)
+
+                except Exception as e:
+                    self.error_signal.emit(f'Log recorder error: {e}')
+                    self.msleep(100)
+
+        finally:
+            # Final flush on exit
+            try:
                 if self.buffer:
                     with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
                         f.write(self.buffer)
-                        self.buffer = ''  # Reset buffer
-
-                # Sleep briefly to prevent high CPU usage
-                self.msleep(100)  # QThread's msleep is more precise than time.sleep
-
-            except Exception as e:
-                self.error_signal.emit(f'Log recorder error: {str(e)}')
-                self.msleep(100)
+                        self.buffer = ''
+            except Exception:
+                pass
 
 
 
@@ -453,7 +568,7 @@ class DownloadManagerUI(QMainWindow):
             QLabel, QPushButton {
                 color: white;
                 font-size: 13px;
-                font-family: 'Segoe UI';
+                font-family: 'Monaco';
             }
             QPushButton {
                 padding: 6px 12px;
@@ -660,7 +775,8 @@ class DownloadManagerUI(QMainWindow):
         firefox_action = widgets.browser_extension_menu.actions()[1]
         edge_action = widgets.browser_extension_menu.actions()[2]
 
-        chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        # chrome_action.triggered.connect(lambda: self.install_browser_extension("Chrome"))
+        chrome_action.setEnabled(False)  # Disable Chrome action for now
         firefox_action.triggered.connect(lambda: self.install_browser_extension("Firefox"))
         edge_action.triggered.connect(lambda: self.install_browser_extension("Edge"))
 
@@ -792,7 +908,7 @@ class DownloadManagerUI(QMainWindow):
 
     # --- Extension Install URLs ---
     EXTENSION_URLS = {
-        "Chrome": "https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID", 
+        "Chrome": "https://chrome.google.com/webstore/detail/EXTENSION_ID", 
         "Firefox": "https://addons.mozilla.org/en-US/firefox/addon/omnipull-downloader/",
         "Edge": "https://microsoftedge.microsoft.com/addons/detail/mkhncokjlhefbbnjlgmnifmgejdclbhj"
     }
@@ -1171,8 +1287,11 @@ class DownloadManagerUI(QMainWindow):
                 log('Days since last check for update:', days_since_last_update, 'day(s).', log_level=1)
                 
                 if days_since_last_update >= config.update_frequency:
+                    log('Checking for software updates...', log_level=1)
                     Thread(target=self.update_available, daemon=True).start()
-                    # Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                    self.server_check_update = ServerSoftwareCheckThread(d_list=self.d_list)
+                    self.server_check_update.start()
+                    self.background_threads.append(self.server_check_update)
                     config.last_update_check = today
             except (TypeError, ValueError) as e:
                 log(f"Error in update check calculations: {e}", log_level=3)
@@ -1561,15 +1680,12 @@ class DownloadManagerUI(QMainWindow):
 
 
     def start_download(self, d, silent: bool = False, downloader: Any = None):
-        # if self.check_time:
-        #     self.check_time = False
-        #     server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
-        #     server_check.server_check_update()
-        # aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe') 
-        # if not os.path.exists(aria2c_path_exist) and config.aria2_verified is False:
-        #     log('aria2c not found, falling back to yt-dlp')
-        #     self.aria2c_check()
-        #     return
+       
+        # aria2c_path_exist = os.path.join(config.sett_folder, 'aria2c.exe')
+
+        if config.aria2_verified is False:
+            show_critical(title="Aria2c Start Error", msg="Aria2c wasnt found on your system. \n Use 'brew install aria2' to get it installed. \n Then restart the app.")
+            return 
 
         if d is None:
             return
@@ -2166,7 +2282,6 @@ class DownloadManagerUI(QMainWindow):
         master_widget = QWidget()
         master_widget.setLayout(master_layout)
         master_widget.setStyleSheet("background-color: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 6px;")
-        # master_widget.setStyleSheet("background-color: red; padding: 6px; border-radius: 6px;")
 
         layout.addWidget(master_widget)
 
@@ -2596,8 +2711,7 @@ class DownloadManagerUI(QMainWindow):
                 url = (obj or {}).get("url")
                 return url if url else None
         except Exception as e:
-            # log if you have a logger
-            pass
+            log(f"Error {e}", log_level=1)
         return None
 
     def _read_ndjson_last(self, ndjson_path: Path):
@@ -2641,8 +2755,8 @@ class DownloadManagerUI(QMainWindow):
         try:
             # either empty it:
             paths["latest"].write_text("{}", encoding="utf-8")
-            # and optionally truncate NDJSON if you truly want "replace, don't append"
-            # paths["ndjson"].unlink(missing_ok=True)
+            # and optionally truncate NDJSON to truly want "replace, don't append"
+            paths["ndjson"].unlink(missing_ok=True)
         except Exception:
             pass
     
@@ -2654,33 +2768,131 @@ class DownloadManagerUI(QMainWindow):
         if hasattr(self, 'tray_manager'):
             self.tray_manager.hide()
         QApplication.quit()
-    
-    def closeEvent(self, event):
-        """Gracefully shutdown all running threads on app close."""
 
+    def _debug_threads(self, tag):
+        try:
+            print(f"DEBUG[{tag}] table_thread running?",
+                getattr(self, "table_thread", None) and self.table_thread.isRunning())
+        except Exception:
+            print(f"DEBUG[{tag}] table_thread unknown (deleted)")
+
+        if hasattr(self, "background_threads"):
+            for idx, th in enumerate(list(self.background_threads)):
+                try:
+                    print(f"DEBUG[{tag}] bg[{idx}] {type(th).__name__} running? {th.isRunning()}")
+                except Exception as e:
+                    print(f"DEBUG[{tag}] bg[{idx}] invalid: {e}")
+
+    def closeEvent(self, event):
         if event.spontaneous() and config.hide_app == True:
             self.tray_manager.handle_window_close()
             event.ignore()
         else:
-            log("Application is closing, shutting down background threads...", log_level=1)
+            self._debug_threads("before-close")
+            try:
+                config.terminate = True  # used by multiple threads
+                log("Application is closing, shutting down background threads...", log_level=1)
+                # ---- stop table thread safely (already advised) ----
+                t = getattr(self, "table_thread", None)
+                if t is not None:
+                    try:
+                        if t.isRunning():
+                            # if your worker supports it:
+                            if hasattr(self, "worker") and hasattr(self.worker, "requestInterruption"):
+                                try:
+                                    self.worker.requestInterruption()
+                                except Exception:
+                                    pass
+                            t.quit()
+                            t.wait(5000)
+                    except RuntimeError:
+                        pass
 
-            # Signal terminate if needed
-            config.terminate = True
-            # Gracefully close all threads
-            for thread in self.background_threads:
-                if thread and thread.isRunning():
-                    thread.quit()
-                    thread.wait(2000)  # wait max 2 seconds
-            # self.background_threads.clear()
-            
-            aria2c_manager.cleanup_orphaned_paused_downloads()
-            aria2c_manager._terminate_existing_processes()
-            self.quit_app()
-            super().closeEvent(event)
-            
-            event.accept()
+                # ---- stop log recorder thread explicitly ----
+                log_t = getattr(self, "log_recorder_thread", None)
+                if log_t is not None:
+                    try:
+                        # tell it to stop via all supported paths
+                        if hasattr(log_t, "stop"):
+                            log_t.stop()
+                        log_t.requestInterruption()
+                        # quit() does nothing for custom run loops, but harmless to call
+                        log_t.quit()
+                        # give it a moment to flush and exit
+                        log_t.wait(5000)
+                    except RuntimeError:
+                        pass
+
+                # ---- generic background cleanup (keep, but make it tolerant) ----
+                if hasattr(self, "background_threads"):
+                    for th in list(self.background_threads):
+                        try:
+                            if th is None:
+                                continue
+                            try:
+                                running = th.isRunning()
+                            except RuntimeError:
+                                # already deleteLater'ed
+                                continue
+                            if running:
+                                if hasattr(th, "stop"):
+                                    th.stop()
+                                th.requestInterruption()
+                                th.quit()
+                                th.wait(5000)
+                        except RuntimeError:
+                            pass
+                    # optional prune
+                    self.background_threads = [
+                        th for th in self.background_threads
+                        if th is not None and hasattr(th, "isRunning") and th.isRunning()
+                    ]
+
+                if config.aria2_verified is True: aria2c_manager.cleanup_orphaned_paused_downloads(); aria2c_manager.shutdown_freeze_and_save(purge=True); aria2c_manager._terminate_existing_processes()
+                self.quit_app()
+                super().closeEvent(event)
+                
+                    
+            except Exception:
+                # don't block window close on errors
+                try:
+                    super().closeEvent(event)
+                except Exception:
+                    pass
+            finally:
+                self._debug_threads("after-close")
+
     
 
+    
+    # def closeEvent(self, event):
+    #     """Gracefully shutdown all running threads on app close."""
+
+    #     if event.spontaneous() and config.hide_app == True:
+    #         self.tray_manager.handle_window_close()
+    #         event.ignore()
+    #     else:
+    #         log("Application is closing, shutting down background threads...", log_level=1)
+
+    #         # Signal terminate if needed
+    #         config.terminate = True
+    #         # Gracefully close all threads
+    #         for thread in self.background_threads:
+    #             if thread and thread.isRunning():
+    #                 thread.quit()
+    #                 thread.wait(2000)  # wait max 2 seconds
+    #         # self.background_threads.clear()
+            
+    #         # aria2c_manager.cleanup_orphaned_paused_downloads()
+    #         # aria2c_manager.shutdown_freeze_and_save(purge=True)
+    #         # aria2c_manager._terminate_existing_processes()
+    #         if config.aria2_verified is True: aria2c_manager.cleanup_orphaned_paused_downloads(); aria2c_manager.shutdown_freeze_and_save(purge=True); aria2c_manager._terminate_existing_processes()
+    #         self.quit_app()
+    #         super().closeEvent(event)
+            
+    #         event.accept()
+    
+            
             # confirmation = QMessageBox(self)
             # confirmation.setStyleSheet(get_msgbox_style('warning'))
             # confirmation.setWindowTitle(self.tr('Confirm Exit'))
@@ -2775,6 +2987,7 @@ class DownloadManagerUI(QMainWindow):
             'format': 'bestvideo+bestaudio/best',
             'forcejson': True,
             'forceurl': True,
+            "retries": config.ytdlp_config["retries"],
         }
 
         with YoutubeDL(ydl_opts) as ydl:
@@ -2783,7 +2996,7 @@ class DownloadManagerUI(QMainWindow):
         d = DownloadItem()
         d.url = info['url']
         d.name = safe_filename(info['title'])
-        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or your user-defined folder
+        d.folder = os.path.join(os.getcwd(), "Downloads")  # Or user-defined folder
         d.temp_file = os.path.join(d.folder, d.name)
         d.target_file = d.temp_file + "." + get_ext_from_format(info['ext'])
 
@@ -2802,6 +3015,34 @@ class DownloadManagerUI(QMainWindow):
         return d
     
 
+    def _youtube_url_expired(self, url: str) -> bool:
+        """Return True iff a signed YT media URL looks expired."""
+        if not url:
+            return True
+        try:
+            q = parse_qs(urlparse(url).query)
+            # YouTube signed URLs often carry 'expire' epoch seconds
+            if "expire" in q:
+                try:
+                    exp = int(q["expire"][0])
+                    # allow small skew
+                    return time.time() > (exp - 60)
+                except Exception:
+                    pass
+            # Fallback: attempt a HEAD with Range; 403/410 usually means expired
+            try:
+                r = requests.head(url, headers={"Range": "bytes=0-0"}, timeout=6, allow_redirects=True)
+                if r.status_code in (403, 410):
+                    return True
+                # 2xx or 206 is fine
+                return False
+            except Exception:
+                # network issues: be conservative and refresh only if the .aria2 isn’t present
+                return False
+        except Exception:
+            return True
+    
+
     def resume_btn(self):
         """Resume paused or queued downloads."""
 
@@ -2817,44 +3058,48 @@ class DownloadManagerUI(QMainWindow):
             return
         
         
-
         # ✅ Resume aria2c download
         if d.engine == "aria2c":
-            if d.type == "dash" and "youtube.com" in d.url:
-                fresh_d = self.get_video_info(d.url)
+            # Only refresh signed media URLs if they are ACTUALLY expired
+            needs_refresh = False
+            if d.type in ("dash", "normal") and ("youtube.com" in (d.original_url or d.url) or "googlevideo.com" in (d.url or "")):
+                if self._youtube_url_expired(getattr(d, "eff_url", d.url)) or (d.audio_url and self._youtube_url_expired(d.audio_url)):
+                    needs_refresh = True
 
-                # Sync updated fields
-                for attr in ['url', 'audio_url', 'audio_file', 'name', 'target_file', 'temp_file', 'vid_info', 'eff_url', 'protocol', 'type']:
+            if needs_refresh:
+                fresh_d = self.get_video_info(d.original_url or d.url)
+                # sync updated fields (keep folder/id)
+                for attr in ['url','audio_url','audio_file','name','target_file','temp_file','vid_info','eff_url','protocol','type','format_id','audio_format_id']:
                     setattr(d, attr, getattr(fresh_d, attr, getattr(d, attr)))
+                log(f"[Resume] Refreshed signed URLs for: {d.name}", log_level=2)
 
-                log(f"[Resume] Restarted aria2c with fresh YouTube URLs: {d.name}", log_level=2)
-
-                # Delete .aria2 and temp files
-                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, d.audio_file + '.aria2']:
+                # IMPORTANT: only wipe partials if refreshing (we are restarting)
+                for f in [d.temp_file, d.temp_file + '.aria2', d.audio_file, (d.audio_file + '.aria2' if d.audio_file else None)]:
                     if f and os.path.exists(f):
-                        os.remove(f)
-                        log(f"[Resume] Deleted stale file: {f}")
-
+                        try:
+                            os.remove(f)
+                            log(f"[Resume] Deleted stale file: {f}")
+                        except Exception:
+                            pass
+                d.aria_gid = None  # let the worker add anew
                 self.settings_manager.save_d_list(self.d_list)
-            
-            
 
-            try:
-                # d.status = config.Status.downloading
+            else:
+                # DO NOT delete .aria2 or temp files; we want Range resume
+                # also keep the gid if aria2 still knows it
                 if getattr(d, "aria_gid", None):
                     try:
                         aria2 = aria2c_manager.get_api()
                         dl = aria2.get_download(d.aria_gid)
-                        # If aria2 doesn't know it, or it's 'removed', drop the gid
                         if (dl is None) or (getattr(dl, "status", "") == "removed"):
                             d.aria_gid = None
                     except Exception:
                         d.aria_gid = None
-                Thread(target=brain.brain, args=(d,), daemon=True).start()
-                log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
-            except Exception as e:
-                log(f"[Resume] Failed to restart aria2c: {e}", log_level=1)
-                d.status = config.Status.error
+
+            # (Re)start worker
+            Thread(target=brain.brain, args=(d,), daemon=True).start()
+            log(f"[Resume] aria2c resumed: {d.name}", log_level=2)
+
 
         elif d.engine == "yt-dlp":
             # ✅ Resume yt-dlp download
@@ -2873,8 +3118,9 @@ class DownloadManagerUI(QMainWindow):
         widgets.toolbar_buttons['Resume'].setEnabled(False)
 
     
+    
 
-
+    
     def pause_btn(self):
         """Pause the selected download item (YT-DLP or aria2c)."""
 
@@ -2891,20 +3137,47 @@ class DownloadManagerUI(QMainWindow):
             return
 
         # ✅ Aria2c pause
-        if d.engine == "aria2c" and hasattr(d, "aria_gid"):
+        # if d.engine == "aria2c" and hasattr(d, "aria_gid"):
+        #     try:
+        #         aria2 = aria2c_manager.get_api()
+        #         download = aria2.get_download(d.aria_gid)
+        #         if download:
+        #             download.pause()
+        #             # aria2c_manager.force_save_session()
+        #             # aria2c_manager.force_clean_and_save_session()
+        #             aria2c_manager.save_session_only()
+        #             d.status = config.Status.cancelled
+        #             time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
+        #             log(f"[Pause] Aria2c paused: {d.name}", log_level=1)
+        #     except Exception as e:
+        #         log(f"[Pause] Failed to pause aria2c: {e}", log_level=3)
+        #         d.status = config.Status.error
+        # ✅ Aria2c pause (torrent-aware)
+        if d.engine == "aria2c" and getattr(d, "aria_gid", None):
             try:
                 aria2 = aria2c_manager.get_api()
-                download = aria2.get_download(d.aria_gid)
-                if download:
-                    download.pause()
-                    # aria2c_manager.force_save_session()
-                    aria2c_manager.force_clean_and_save_session()
-                    d.status = config.Status.cancelled
-                    time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
-                    log(f"[Pause] Aria2c paused: {d.name}", log_level=1)
+                # Pause the whole family: parent/children/siblings
+                paused = aria2c_manager.pause_family(d.aria_gid)
+                if paused:
+                    d.status = config.Status.cancelled  # your UI color mapping
+                    log(f"[Pause] Aria2c torrent family paused: {d.name}", log_level=1)
+                else:
+                    # Fallback: try pausing just the single GID
+                    try:
+                        dl = aria2.get_download(d.aria_gid)
+                        if dl:
+                            dl.pause()
+                            d.status = config.Status.cancelled
+                    except Exception:
+                        pass
+
+                # lightweight session save (no resume_all)
+                aria2c_manager.save_session_only()
+
             except Exception as e:
                 log(f"[Pause] Failed to pause aria2c: {e}", log_level=3)
                 d.status = config.Status.error
+
         else:
             # ✅ Fallback: yt-dlp or native downloads
             if d.status in (config.Status.downloading, config.Status.pending):
@@ -2918,7 +3191,6 @@ class DownloadManagerUI(QMainWindow):
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
         self.populate_table()
-
 
     def delete_btn(self):
         """Delete selected downloads from the download table"""
@@ -3333,24 +3605,59 @@ class DownloadManagerUI(QMainWindow):
     def selected_d(self, value):
         self._selected_d = value
 
-    def populate_table(self):
-        """Offload preparing the table data to a background thread."""
+    # def populate_table(self):
+    #     """Offload preparing the table data to a background thread."""
+        
 
-        self.table_thread = QThread()
+    #     self.table_thread = QThread()
+    #     self.worker = PopulateTableWorker(self.d_list)
+    #     self.worker.moveToThread(self.table_thread)
+
+    #     # Add cleanup connections
+    #     self.worker.finished.connect(self.table_thread.quit)  
+    #     self.worker.finished.connect(self.worker.deleteLater)  
+    #     self.table_thread.finished.connect(self.table_thread.deleteLater)
+
+    #     self.worker.data_ready.connect(self.populate_table_apply)
+    #     self.table_thread.started.connect(self.worker.run)
+    #     # self.table_thread.finished.connect(self.table_thread.deleteLater)
+
+    #     self.table_thread.start()
+    #     self.background_threads.append(self.table_thread)
+
+    def populate_table(self):
+        # If a previous table thread is still running, stop it first
+        t = getattr(self, "table_thread", None)
+        if t is not None:
+            try:
+                if t.isRunning():
+                    t.quit()
+                    t.wait(5000)
+            except RuntimeError:
+                pass
+
+        self.table_thread = QThread(self)  # parent = self
         self.worker = PopulateTableWorker(self.d_list)
         self.worker.moveToThread(self.table_thread)
 
-        # Add cleanup connections
-        self.worker.finished.connect(self.table_thread.quit)  
-        self.worker.finished.connect(self.worker.deleteLater)  
-        self.table_thread.finished.connect(self.table_thread.deleteLater)
-
-        self.worker.data_ready.connect(self.populate_table_apply)
         self.table_thread.started.connect(self.worker.run)
-        # self.table_thread.finished.connect(self.table_thread.deleteLater)
+        self.worker.data_ready.connect(self.populate_table_apply)
+        self.worker.finished.connect(self.table_thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.table_thread.finished.connect(self.table_thread.deleteLater)
+        
 
         self.table_thread.start()
 
+    # wiring (after you connect finished/deleteLater)
+
+
+    def _on_table_thread_finished(self):
+        # drop Python-side refs so later code won't poke a deleted C++ object
+        self.worker = None
+        self.table_thread = None
+
+    
     @Slot(list)
     def populate_table_apply(self, prepared_rows):
         """Apply the populated data to the GUI."""
@@ -3426,7 +3733,7 @@ class DownloadManagerUI(QMainWindow):
 
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
-        self.table_thread.quit()
+        # self.table_thread.quit()
 
 
     def update_table_progress(self):
@@ -3464,6 +3771,8 @@ class DownloadManagerUI(QMainWindow):
                             color = "#F7DC6F"
                         elif d.status == "queued":
                             color = "#9C27B0"  # purple
+                        elif d.status == "network_error":
+                            color = "#FF3122"  # deep orange
                         
 
                     elif d.progress is None:
@@ -3664,6 +3973,14 @@ class DownloadManagerUI(QMainWindow):
 
         try:
             d = self.selected_d
+
+            if 'm3u8' in (d.protocol or '') and (not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file)):
+                import time
+                for _ in range(10):  # up to ~1s
+                    if getattr(d, "temp_file", None) and os.path.exists(d.temp_file):
+                        break
+                    time.sleep(0.1)
+
             if not d or not getattr(d, "temp_file", None) or not os.path.exists(d.temp_file):
                 show_warning(self.tr("No Temp File"), self.tr("The temporary media file was not found yet."))
                 return
@@ -3910,7 +4227,7 @@ class DownloadManagerUI(QMainWindow):
         if not folder:
             return None
 
-        # 3) Legacy explicit field (kept but lowered in priority to prefer your new convention)
+        # 3) Legacy explicit field (kept but lowered in priority to prefer user's new convention)
         explicit = getattr(d, 'audio_file', None)
         if explicit and os.path.exists(explicit):
             # we will still try convention first; fallback to explicit later
@@ -4031,8 +4348,7 @@ class DownloadManagerUI(QMainWindow):
                     #os.remove(p)
             except Exception:
                 pass
-        # We usually keep the video input to avoid surprising the user; feel free to remove if you prefer:
-        # try:
+        # We usually keep the video input to avoid surprising the user; 
         #     if video_path and os.path.exists(video_path):
         #         os.remove(video_path)
         # except Exception:
@@ -4073,7 +4389,7 @@ class DownloadManagerUI(QMainWindow):
 
         # UI: show "merging"
         old_status = d.status
-        d.status = "merging_audio"   # matches your update_table_progress color map
+        d.status = "merging_audio"   # matches update_table_progress color map
         self.update_table_progress()
 
         def on_finished(exit_code, exit_status):
@@ -4094,7 +4410,7 @@ class DownloadManagerUI(QMainWindow):
                         os.remove(audio_path)
                 except Exception:
                     pass
-                # If you want, also remove the _temp_ video:
+                # To also remove the _temp_ video:
                 # try:
                 #     if os.path.exists(video_path):
                 #         os.remove(video_path)
@@ -4302,6 +4618,7 @@ class DownloadManagerUI(QMainWindow):
         d = self.d_list[d_index]
 
         self.d_list.remove(d)
+        widgets.table.removeRow(selected_row)
     
 
     def set_row_color(self, row, status):
@@ -4322,6 +4639,10 @@ class DownloadManagerUI(QMainWindow):
             color = QtGui.QColor(158, 158, 158)  # Grey
         elif status == config.Status.merging_audio:
             color = QtGui.QColor(255, 109, 0)  # Deep Orange
+        elif status == config.Status.scheduled:
+            color = QtGui.QColor(0, 188, 212)  # Cyan
+        elif status == config.Status.network_error: 
+            color = QtGui.QColor(255, 87, 34)  # Deep Orange Accent
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white
 
@@ -4359,57 +4680,7 @@ class DownloadManagerUI(QMainWindow):
 
 
     
-    # def check_scheduled(self):
-    #     now = time.localtime()
-    #     # from datetime import datetime
-    #     test_Date = datetime.now().replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
-
-    #     print(f'now the time is {now}')
-    #     print(f'The datetime is datetime {date.today()}')
-    #     print(f'The datetime is datetime {test_Date}')
-    #     print(f'The time is {time.strftime("%H:%M:%S")}')
-    #     # print(f'The datetime is datetime {test_Date}')
-    #     # print(f'The datetime is datetime {test_Date.hour}')
-    #     # print(f'The datetime is datetime {test_Date.minute}')
-    #     # print(f'The datetime is datetime {test_Date.second}')
-
-       
-    #     Date = date.today()
-    #     Time = time.strftime("%H:%M:%S")
-
-    #     for d in self.d_list:
-    #         if d.status == config.Status.scheduled and getattr(d, "sched", None):
-    #             print(d.sched)
-    #             # if (d.sched[0], d.sched[1]) == (now.tm_hour, now.tm_min):
-    #             if (d.sched[0], d.sched[1]) == (Date, Time):
-    #                 log(f"Scheduled time matched for {d.name}, attempting download...",  log_level=1)
-
-    #                 result = self.start_download(d, silent=True)
-
-    #                 # Retry condition: download failed or was cancelled
-    #                 if d.status in [config.Status.failed, config.Status.cancelled, config.Status.error]:
-    #                     log(f"Scheduled download failed for {d.name}.", log_level=3)
-
-    #                     if config.retry_scheduled_enabled:
-    #                         d.schedule_retries = getattr(d, "schedule_retries", 0)
-
-    #                         if d.schedule_retries < config.retry_scheduled_max_tries:
-    #                             d.schedule_retries += 1
-
-    #                             # Add retry interval
-    #                             # from datetime import datetime, timedelta
-    #                             retry_time = datetime.now() + timedelta(
-    #                                 minutes=config.retry_scheduled_interval_mins)
-    #                             d.sched = (retry_time.hour, retry_time.minute)
-    #                             d.status = config.Status.scheduled
-    #                             log(f"Retrying {d.name} at {d.sched[0]}:{d.sched[1]} [Attempt {d.schedule_retries}]", log_level=2)
-    #                         else:
-    #                             d.status = config.Status.failed
-    #                             log(f"{d.name} has reached max retries.", log_level=2)
-    #                     else:
-    #                         d.status = config.Status.failed
-
-    #     self.queue_update("populate_table", None)
+    
 
     def _handle_version_status(self):
         status = config.APP_LATEST_VERSION
@@ -4579,7 +4850,7 @@ class DownloadManagerUI(QMainWindow):
                 background-color: #121212;
                 color: white;
                 border-radius: 12px;
-                font-family: 'Segoe UI';
+                font-family: 'Monaco';
                 font-size: 13px;
                 border: 1px solid #3A3F44;
             }
@@ -4596,7 +4867,7 @@ class DownloadManagerUI(QMainWindow):
                 border-radius: 16px;
                 color: white;
                 border: 1px solid #333;
-                font-family: Consolas, Courier New, monospace;
+                font-family: Monaco;
                 font-size: 12px;
                 padding: 10px;
             }
@@ -4689,9 +4960,10 @@ class DownloadManagerUI(QMainWindow):
         self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
         self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
         self.update_thread.start()  # Start the thread
+        
 
     def on_update_finished(self):
-        show_information(title=config.APP_NAME, inform=self.tr("Update scheduled to run on the next reboot."), msg=self.tr("Please you can reboot now to install updates."))
+        show_information(title=config.APP_NAME, inform='', msg=self.tr("Updates to be installed at 12:00:00 pm"))
     def check_for_ytdl_update(self):
         config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
 
@@ -4722,7 +4994,8 @@ if __name__ == "__main__":
     single_instance.start_server()
     window = DownloadManagerUI(config.d_list)
     window.show()
-    # Optionally, run a method after the main window is initialized
+
+
     QTimer.singleShot(0, video.import_ytdl)
 
     if not getattr(config, "tutorial_completed", False):

@@ -1,21 +1,32 @@
-"""
-    OmniPull - a free and open source download manager for Windows, Linux, and MacOS.
-    OmniPull is a cross-platform, multi-threaded, multi-segment, and multi-connections internet download manager, based on "pyCuRL/curl", "yt-dlp", and "PySide6"
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
-# configurations
-from queue import Queue
 import os
 import sys
 import shutil
-import subprocess
-from pathlib import Path
 import platform
-from modules.version import __version__
+import subprocess
+
+from queue import Queue
+from pathlib import Path
 from modules.utils import log
+from modules.version import __version__
+
+
 
 
 # CONSTANTS
@@ -33,7 +44,7 @@ DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
-DEFAULT_LOG_LEVEL = 3
+DEFAULT_LOG_LEVEL = 1
  
 APP_LATEST_VERSION = ''  # get value from update module
 ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
@@ -50,10 +61,9 @@ machine_id = None
 
 # application exit flag
 terminate = False 
-tutorial_completed = False
 
 # download engine
-download_engine = 'yt-dlp'  # download engine to be used, aria2c or yt-dlp
+download_engine = 'curl'  # download engine to be used, aria2c or yt-dlp
 
 
 # settings parameters
@@ -130,115 +140,30 @@ ffmpeg_verified = False # ffmpeg is verified or not
 # -----------------------------------------------------------------------
 
 
-def _app_bundle_resources_dir() -> Path:
-    """
-    Return the Resources directory for a frozen app bundle, or a sensible
-    dev fallback when running from source.
-    """
-    if getattr(sys, "frozen", False):  # running from PyInstaller bundle
-        exe = Path(sys.executable).resolve()  # .../Contents/MacOS/OmniPull
-        return exe.parent.parent / "Resources"
-    else:
-        # Dev fallback: look for a local 'resources/bin/ffmpeg' or similar.
-        # Adjust to where you keep the bundled tools when running from source.
-        return Path(__file__).resolve().parent.parent / "macOS" / "resources"
 
-def _possible_system_paths() -> list[Path]:
-    """Likely system ffmpeg locations on macOS (Intel + Apple Silicon)."""
-    return [
-        Path("/usr/local/bin/ffmpeg"),   # Homebrew on Intel
-        Path("/opt/homebrew/bin/ffmpeg"),# Homebrew on Apple Silicon
-        Path("/usr/bin/ffmpeg"),         # sometimes present
-    ]
-
-def ensure_ffmpeg_installed(app_name: str = APP_NAME) -> Path | None:
+def _find_tool(name: str, extra_paths: list[str]) -> str|None:
+    """Resolution order:
+       1) system PATH via shutil.which(name)
+       2) known extra paths (for robustness)
     """
-    If a bundled ffmpeg exists inside the app, copy it to:
-      ~/Library/Application Support/<app_name>/ffmpeg
-    strip quarantine, chmod +x, and return its path.
-    If nothing to copy, return None.
-    """
-    res_dir = _app_bundle_resources_dir()
-    bundled = res_dir / "bin" / "ffmpeg"
-    dest = APP_SUPPORT_DIR / "ffmpeg"
 
-    try:
-        if bundled.exists():
-            # Copy WITHOUT metadata (avoid carrying quarantine flags)
-            shutil.copy(str(bundled), str(dest))
-            os.chmod(dest, 0o755)
-            # Best-effort remove quarantine on the user copy
-            try:
-                subprocess.run(
-                    ["xattr", "-d", "com.apple.quarantine", str(dest)],
-                    check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-            except Exception:
-                pass
-            return dest
-    except Exception as e:
-        print(f"[FFmpeg] install failed: {e}")
+    # 3) system PATH
+    on_path = shutil.which(name)
+    if on_path:
+        return on_path
+
+    # 4) extra known paths
+    for p in extra_paths:
+        if Path(p).exists():
+            return p
 
     return None
 
-def get_ffmpeg_path(chosen: bool = True) -> str | None:
-    """
-    Resolve a usable ffmpeg path on macOS:
-    1) user-selected path (settings)
-    2) explicit override (ffmpeg_actual_path)
-    3) per-user copy in App Support
-    4) bundled inside app (Resources/bin/ffmpeg)
-    5) PATH search
-    6) common Homebrew paths
-    """
-    # 1) user-selected via settings dialog
-    if chosen and ffmpeg_selected_path:
-        p = Path(ffmpeg_selected_path)
-        if p.is_file() and os.access(p, os.X_OK):
-            log("A: Using user-selected ffmpeg path")
-            return str(p)
-
-    # 2) explicit override in config
-    if ffmpeg_actual_path:
-        p = Path(ffmpeg_actual_path)
-        if p.is_file() and os.access(p, os.X_OK):
-            log("B: Using config ffmpeg path")
-            return str(p)
-
-    # 3) App Support copy (preferred runtime location)
-    app_support_ffmpeg = APP_SUPPORT_DIR / "ffmpeg"
-    if app_support_ffmpeg.is_file() and os.access(app_support_ffmpeg, os.X_OK):
-        log("C: Using App Support ffmpeg path")
-        return str(app_support_ffmpeg)
-
-    # 4) Bundled in the app (use it if present; or trigger a copy)
-    res_dir = _app_bundle_resources_dir()
-    bundled = res_dir / "bin" / "ffmpeg"
-    if bundled.is_file() and os.access(bundled, os.X_OK):
-        # Optionally copy to App Support for cleaner execution
-        copied = ensure_ffmpeg_installed(APP_NAME)
-        if copied:
-            log("D: Using freshly installed App Support ffmpeg")
-            return str(copied)
-        log("D: Using bundled ffmpeg directly")
-        return str(bundled)
-
-    # 5) PATH search
-    from shutil import which
-    found = which("ffmpeg")
-    if found:
-        log("E: Using ffmpeg found in PATH")
-        return found
-
-    # 6) Common Homebrew paths
-    for candidate in _possible_system_paths():
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            log("F: Using common Homebrew ffmpeg path")
-            return str(candidate)
-
-    # Not found
-    log("Z: ffmpeg not found")
-    return None
+def get_ffmpeg_path() -> str | None:
+    return _find_tool(
+        "ffmpeg",
+        extra_paths=["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg", '/opt/homebrew/bin/ffmpeg'],
+    )
 
 
 
@@ -259,6 +184,7 @@ aria2c_config = {
 }
 
 
+preferred_audio_langs = ["en-US", "en", "eng", None]
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
     "no_playlist": True,
@@ -281,9 +207,9 @@ ytdlp_config = {
     'writeannotations': True,
     "writemetadata": True,
     "no_warnings": True,
-    "cookiesfile": ""
+    "cookiesfile": "",
+    "retries": 10,
 }
-
 
 # downloads
 active_downloads = set()  # indexes for active downloading items
@@ -298,7 +224,7 @@ settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_e
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
-                 'aria2_verified', 'ytdlp_config', 'ffmpeg_actual_path']
+                 'aria2_verified', 'ytdlp_config', 'ffmpeg_actual_path', 'preferred_audio_langs']
 
 
 # -------------------------------------------------------------------------------------
@@ -315,9 +241,11 @@ class Status:
     merging_audio = 'merging_audio'
     error = 'error'
     scheduled = 'scheduled'
-    failed = "failed"
-    deleted = "deleted"
-    queued = "queued"
+    failed = 'failed'
+    deleted = 'deleted'
+    queued = 'queued'
+    network_error = 'network_error'
+    retrying = 'retrying'
 
 
 

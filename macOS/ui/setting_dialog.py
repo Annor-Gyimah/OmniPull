@@ -166,7 +166,7 @@ class SettingsWindow(QDialog):
         """)
         
         self.qt_font_dpi.setToolTip(self.tr('Set value for DPI. Restart app to reflect.'))
-        self.qt_font_dpi.addItems([str(i) for i in range(60, 151)])
+        self.qt_font_dpi.addItems([str(i) for i in range(40, 151)])
 
         self.language_combo = QComboBox()
         self.language_combo.setToolTip(self.tr('Select your preferred language'))
