@@ -6,9 +6,8 @@
 
 <div align="center">
 
-[![Build Status](https://github.com/soimort/you-get/workflows/develop/badge.svg)](https://github.com/soimort/you-get/actions)
-![GitHub Release](https://img.shields.io/github/v/release/Annor-Gyimah/Li-Dl)
-![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/Li-Dl)
+![GitHub Release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull)
+![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull)
 
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/latest/total)
@@ -18,6 +17,11 @@
 </div>
 
 OmniPull is a powerful, cross-platform download manager built with Python and PySide6. It provides a modern, intuitive interface for managing downloads with advanced features like multi-threading, queue management, and media extraction.
+
+### ✨ Wiki  
+
+See [Wiki](https://github.com/Annor-Gyimah/OmniPull/wiki) for more information.
+
 
 <p align="center">
     <img src="Windows/icons/screenshot.png" alt="Main Window" width="800"/>
@@ -45,10 +49,10 @@ OmniPull is a powerful, cross-platform download manager built with Python and Py
 - **Clipboard Monitoring**: Auto-detect URLs from clipboard
 - **Multiple Language Support**: Internationalization ready
 
-<p align="center">
+<!-- <p align="center">
     <img src="path_to_screenshots/queue_manager.png" alt="Queue Manager" width="400"/>
     <img src="path_to_screenshots/settings.png" alt="Settings Window" width="400"/>
-</p>
+</p> -->
 
 ## 🛠️ Technical Features
 
@@ -71,7 +75,7 @@ OmniPull is a powerful, cross-platform download manager built with Python and Py
 
 ## 📦 Installation
 
-OmniPull is cross-platform and runs on Windows and Linux.
+OmniPull is cross-platform and runs on Windows, Linux and MacOS.
 
 ### 🪟 Windows Installation
 
@@ -84,11 +88,40 @@ You can [download the latest OmniPull installer for Windows](https://github.com/
 
 ### 🐧 Linux Installation
 
-See the full instructions in the [Linux README](Linux/README.linux.md) to learn how to:
+You can [download the latest OmniPull installer for Linux](https://github.com/Annor-Gyimah/omnipull/releases) from the Releases section. 
 
-- Build and run the app on Debian-based systems
-- Bundle `aria2c` into the package
-- Create a `.deb` installer with `fpm`
+- Download the latest version for Linux either the AppImage or deb file.
+- Change permissions of the appimage or dmg by using chmod.
+- Run sudo command or double click to extract package and install.
+- Summary
+```bash
+# deb
+chmod +x omnipull*.deb
+
+sudo dpkg -i omnipull*.deb
+
+# for appimage
+chmod +x omnipull*.appimage
+
+./omnipull*.appimage
+```
+
+
+
+### 🖥️ MacOS Installation
+
+You can [download the latest OmniPull installer for MacOS](https://github.com/Annor-Gyimah/omnipull/releases) from the Releases section. 
+
+- After download of the latest version release, use xattr to relief it of the gatekeeper.
+- Change permissions of the dmg by using chmod.
+- Double click to then install by dragging the OmniPull to the application's folder and double click on the Browser connectors to install the them.
+- Summary
+```bash
+
+
+```
+
+
 
 ### Script Kiddies
 
@@ -116,11 +149,7 @@ OmniPull integrates with major browsers through extensions:
 - Opera
 
 ## 🎯 Upcoming Features
-- [ ] Cloud storage integration
-- [ ] Advanced download scheduling
-- [ ] Browser extension improvements
-- [ ] More language support
-- [ ] Enhanced media processing
+- [ ] N/A
 
 ## 🤝 Contributing
 Contributions are welcome! Please follow these steps:
@@ -132,7 +161,7 @@ Contributions are welcome! Please follow these steps:
 5. Open a Pull Request
 
 ## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPLV3 License - see the [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
 Emmanuel Gyimah Annor

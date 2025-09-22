@@ -26,6 +26,7 @@ import shlex
 import shutil
 import asyncio
 import zipfile
+import platform
 import subprocess
 from modules import config
 from urllib.parse import urljoin
@@ -418,7 +419,7 @@ class Stream:
     def get_size(self):
         headers = get_headers(self.url)
         size = int(headers.get('content-length', 0))
-        print('stream.get_size()>', self.name)
+        log('stream.get_size()>', self.name)
         return size
 
     @property
@@ -462,7 +463,7 @@ def download_ffmpeg(destination=config.sett_folder):
     config.ffmpeg_download_folder = destination
 
     # first check windows 32 or 64
-    import platform
+
     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
     if platform.machine().endswith('64'):
         # 64 bit link
@@ -506,7 +507,6 @@ def download_aria2c_with_wget(url, save_dir, filename):
         return False
 
 def download_aria2c(destination=config.sett_folder):
-    import platform
     if platform.machine().endswith('64'):
         url = 'https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip'
     else:

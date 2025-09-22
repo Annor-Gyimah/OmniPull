@@ -308,7 +308,7 @@ class ServerSoftwareCheckThread(QThread):
         super().__init__(parent)
         self.software_version = config.APP_VERSION
         self.machine_id = self._get_machine_id()
-        self.d_list = d_list or []   # pass your downloader list in
+        self.d_list = d_list or []   
 
     def _get_machine_id(self):
         mid = getattr(config, "machine_id", None)
@@ -341,10 +341,8 @@ class ServerSoftwareCheckThread(QThread):
 
     def run(self):
         try:
-            # url = "http://127.0.0.1:8000/api/software-update/"  # ensure 127.0.0.1 not 127.0.0.0
             url = "https://omnipull.pythonanywhere.com/api/software-update/"
             data = self._get_machine_info()
-            # If you want to omit snapshot when None:
             if data.get("snapshot") is None:
                 data.pop("snapshot", None)
 
@@ -4440,53 +4438,6 @@ class DownloadManagerUI(QMainWindow):
             """)
             widgets.version_value.setToolTip('Unable to determine latest version')
 
-    
-
-    # def _handle_version_status(self):
-    #     status = config.APP_LATEST_VERSION
-    #     if status == config.APP_VERSION:
-    #         widgets.version_value.setStyleSheet(
-    #             """
-    #             QLabel {
-    #                 color: #4CAF50;
-    #                 font-weight: bold;
-    #                 padding: 5px 10px;
-    #                 border-radius: 10px;
-    #                 background: rgba(76, 175, 80, 0.1);
-    #             }
-
-    #             """
-    #         )
-    #         widgets.version_value.setToolTip('No new updates')
-    #     elif status > config.APP_VERSION:
-    #         widgets.version_value.setStyleSheet(
-    #             """
-    #             QLabel {
-    #                 color: #F44336;
-    #                 padding: 6px 16px;
-    #                 font-weight: bold;
-    #                 border-radius: 10px;
-    #                 background: rgba(244, 67, 54, 0.1);  
-    #             } 
-    #             """
-    #         )
-    #         widgets.version_value.setToolTip('Version is old, new version available')
-    #     else:
-    #         widgets.version_value.setStyleSheet(
-    #             """
-    #             QLabel {
-    #                 color: #4CAF50;
-    #                 font-weight: bold;
-    #                 padding: 5px 10px;
-    #                 border-radius: 10px;
-    #                 background: rgba(76, 175, 80, 0.1);
-    #             }
-    #             """
-    #         )
-    #         widgets.version_value.setToolTip('Unable to check for new updates')
-
-        
-    
 
     def check_scheduled(self):
         now = datetime.now().replace(microsecond=0)
@@ -4753,7 +4704,7 @@ if __name__ == "__main__":
     single_instance.start_server()
     window = DownloadManagerUI(config.d_list)
     window.show()
-    # Optionally, run a method after the main window is initialized
+
     QTimer.singleShot(0, video.import_ytdl)
 
     if not getattr(config, "tutorial_completed", False):
