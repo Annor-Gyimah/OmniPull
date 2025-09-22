@@ -433,6 +433,8 @@ def run_aria2c_download(d,  emitter=None):
 
     # --- monitor loop ---------------------------------------------------------
     last_emit_time = 0
+    idle_start_ts = None  # when we first detect "done bytes but still 'active'"
+
     try:
         while True:
             time.sleep(0.5)
@@ -538,9 +540,47 @@ def run_aria2c_download(d,  emitter=None):
             except Exception as e:
                 emit_log(f"Sync error: {e}")
 
+                
+            try:
+                total = _safe_int(download.total_length)
+                done  = _safe_int(download.completed_length)
+                spd   = _safe_int(download.download_speed)
+                st    = (getattr(download, "status", "") or "").lower()
+
+                # If aria2 reports we fully got the bytes
+                if total > 0 and done >= total:
+                    # consider "idle" only if speed is ~zero
+                    if spd <= 1 and st in ("active", "waiting"):
+                        if idle_start_ts is None:
+                            idle_start_ts = time.time()
+                        # wait a little to allow hash-checking etc.
+                        if time.time() - idle_start_ts >= 10:   # 10s dwell
+                            # Treat as finished even if aria2 didn't flip yet
+                            d.status = config.Status.completed
+                            emit_status("completed")
+                            emit_progress(100)
+                            notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+                            return
+                    else:
+                        # reset the idle timer if speed resumes / state changes
+                        idle_start_ts = None
+                else:
+                    idle_start_ts = None
+            except Exception:
+                idle_start_ts = None
+
             # Map aria2 status to our states
             st = (getattr(download, "status", "") or "").lower()
             if st in ("complete", "seeding"):
+                d.status = config.Status.completed
+                emit_status("completed")
+                emit_progress(100)
+                notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+                return
+            
+            vl = _safe_int(getattr(download, "verified_length", 0))
+
+            if vl and total and vl >= total:
                 d.status = config.Status.completed
                 emit_status("completed")
                 emit_progress(100)
