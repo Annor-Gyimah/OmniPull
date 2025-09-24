@@ -696,10 +696,6 @@ class DownloadManagerUI(QMainWindow):
 
 
         # load stored setting from disk
-        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen', log_level=1)
-        # log('starting application')
-        log(f'operating system: {config.operating_system_info}', log_level=1)
-        log(f'current working directory: {config.current_directory}', log_level=1)
         os.chdir(config.current_directory)
 
         # load stored setting from disk
@@ -985,7 +981,7 @@ class DownloadManagerUI(QMainWindow):
             qm_path = self.resource_path2(f"modules/translations/{file_map[language]}")
             if self.translator.load(qm_path):
                 QCoreApplication.instance().installTranslator(self.translator)
-                log(f"[Language] Loaded {language} translation.", log_level=2)
+                log(f"[Language] Loaded {language}", log_level=2)
             else:
                 log(f"[Language] Failed to load {qm_path}", log_level=3)
 

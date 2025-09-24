@@ -923,9 +923,9 @@ class SettingsWindow(QDialog):
             qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
             if self.translator.load(qm_path):
                 QCoreApplication.instance().installTranslator(self.translator)
-                print(f"[Language] Loaded {language} translation.")
+                # log(f"[Language] Loaded {language}")
             else:
-                print(f"[Language] Failed to load {qm_path}")
+                pass
 
        
 
