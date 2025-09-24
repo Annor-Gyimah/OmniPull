@@ -63,7 +63,7 @@ def get_changelog() -> Tuple[str | None, str | None]:
         assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
         changelog_url = (
             assets.get("ChangeLog.txt") or
-            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt"
+            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Linux/ChangeLog.txt"
         )
 
         # Fetch changelog text (best-effort)
