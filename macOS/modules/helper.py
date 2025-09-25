@@ -1,8 +1,26 @@
-from modules import config
-from PySide6.QtWidgets import QApplication, QMessageBox
-from PySide6.QtCore import Qt
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 import re
+import os
 import ctypes
+from modules import config
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 
 
@@ -103,13 +121,67 @@ def open_with_dialog_windows(self, file_path):
     result = ShellExecuteEx(ctypes.byref(execute_info))
     return result
 
+
+def _pick_container_from_video(video_path: str) -> str:
+    ext = os.path.splitext(video_path)[1].lower().lstrip('.')
+    # Favor mp4/mkv if uncertain. WebM video + m4a audio → mkv is safest for stream copy.
+    if ext in ('mp4', 'm4v', 'mov'):
+        return 'mp4'
+    if ext in ('webm',):
+        return 'mkv'
+    if ext in ('mkv', 'ts'):
+        return 'mkv'
+        # default
+        return 'mp4'
+    
+def _norm_title(s: str) -> str:
+    """
+    Normalize a title for robust filename matching:
+    - strip path + extension
+    - lower
+    - replace non-alnum with single underscore
+    - collapse multiple underscores
+    - trim underscores
+    """
+    base = os.path.splitext(os.path.basename(s))[0]
+    base = base.lower()
+    base = re.sub(r'[^a-z0-9]+', '_', base)
+    base = re.sub(r'_+', '_', base).strip('_')
+    return base
+
+def _extract_title_from_pattern(filename: str, prefix: str) -> str | None:
+    """
+    Given a filename and a known prefix ('_temp_' or 'audio_for_'),
+    return the normalized <TITLE> portion if it follows the pattern.
+    """
+    base = os.path.splitext(os.path.basename(filename))[0]
+    if not base.startswith(prefix):
+        return None
+    title_raw = base[len(prefix):]
+    return _norm_title(title_raw)
+
+def _expected_paths(folder: str, title_norm: str):
+    # Allowed containers/codecs for stream-copy merges
+    video_exts = ('mp4', 'm4v', 'mov', 'webm', 'mkv', 'ts')
+    audio_exts = ('m4a', 'mp4', 'aac', 'webm', 'opus', 'mp3', 'wav')  # include common audio
+    video_candidates = [os.path.join(folder, f"_temp_{title_norm}.{ext}") for ext in video_exts]
+    audio_candidates = [os.path.join(folder, f"audio_for_{title_norm}.{ext}") for ext in audio_exts]
+    return video_candidates, audio_candidates
+
+def _best_existing(paths: list[str]) -> str | None:
+    # Pick the first existing path, else None
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return None
+
 def toolbar_buttons_state(status: str) -> dict:
     status_map = {
         config.Status.completed: {
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -121,11 +193,11 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
-            "Schedule All": False,
+            "Schedule All": True,
             "Settings": True,
             "Download Window": False,
         },
@@ -133,7 +205,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -145,7 +217,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -157,7 +229,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": True,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -169,7 +241,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -181,7 +253,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": True,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": True,
             "Resume All": False,
             "Stop All": False,
@@ -193,7 +265,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": True,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,
@@ -205,7 +277,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": True,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,
@@ -217,11 +289,23 @@ def toolbar_buttons_state(status: str) -> dict:
             "Resume": False,
             "Pause": False,
             "Delete": False,
-            "Delete All": False,
+            "Delete All": True,
             "Refresh": False,
             "Resume All": False,
             "Stop All": False,
             "Schedule All": False,
+            "Settings": True,
+            "Download Window": False,
+        },
+        config.Status.network_error: {
+            "Resume": True,
+            "Pause": False,
+            "Delete": True,
+            "Delete All": True,
+            "Refresh": True,
+            "Resume All": False,
+            "Stop All": False,
+            "Schedule All": True,
             "Settings": True,
             "Download Window": False,
         },
@@ -241,7 +325,7 @@ def get_msgbox_style(msg_type: str) -> str:
                 stop: 1 #050708
             );
             color: white;
-            font-family: 'Segoe UI';
+            font-family: 'Monaco';
             font-size: 13px;
             border-radius: 12px;
         }
@@ -311,7 +395,7 @@ def get_msgbox_style(msg_type: str) -> str:
                 stop: 1 #050708
                 );
                 color: white;
-                font-family: 'Segoe UI';
+                font-family: 'Monaco';
                 font-size: 13px;
                 border-radius: 12px;
             }

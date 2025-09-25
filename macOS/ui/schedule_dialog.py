@@ -1,10 +1,24 @@
 
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PySide6.QtWidgets import (QVBoxLayout, QLabel, QPushButton, QHBoxLayout,  QDialog, 
-QComboBox, QDateTimeEdit)
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 from PySide6.QtCore import Qt,  QDateTime, QTime, QDate
 from PySide6.QtWidgets import QCalendarWidget, QTimeEdit
-
+from PySide6.QtWidgets import (QVBoxLayout, QLabel, QPushButton, QHBoxLayout,  QDialog)
 
 # Redesigned ScheduleDialog with modern, sleek UI look
 class ScheduleDialog(QDialog):
@@ -117,37 +131,6 @@ class ScheduleDialog(QDialog):
         self.message_label = QLabel(msg)
         layout.addWidget(self.message_label)
 
-        # row_layout = QHBoxLayout()
-        # row_layout.setSpacing(10)
-
-        # self.hour_label = QLabel(self.tr("Hours:"))
-        # row_layout.addWidget(self.hour_label)
-        # self.hours_combo = QComboBox(self)
-        # self.hours_combo.addItems([str(i) for i in range(1, 13)])
-        # row_layout.addWidget(self.hours_combo)
-
-        # self.minute_label = QLabel(self.tr("Minutes:"))
-        # row_layout.addWidget(self.minute_label)
-        # self.minutes_combo = QComboBox(self)
-        # self.minutes_combo.addItems([f"{i:02d}" for i in range(0, 60)])
-        # row_layout.addWidget(self.minutes_combo)
-
-        # layout.addLayout(row_layout)
-
-        # am_pm_layout = QHBoxLayout()
-        # am_pm_layout.setAlignment(Qt.AlignCenter)
-        # self.am_pm_combo = QComboBox(self)
-        # self.am_pm_combo.addItems(['AM', 'PM'])
-        # am_pm_layout.addWidget(self.am_pm_combo)
-        # layout.addLayout(am_pm_layout)
-
-        # dateti = QHBoxLayout()
-        # self.datetime_edit = QDateTimeEdit(self)
-        # self.datetime_edit.setCalendarPopup(True)
-        # self.datetime_edit.setDateTime(QDateTime.currentDateTime())
-        # dateti.addWidget(self.datetime_edit)
-        # layout.addLayout(dateti)
-
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
         layout.addWidget(self.calendar)
@@ -226,17 +209,4 @@ class ScheduleDialog(QDialog):
         return date_str, time_str
 
 
-    # @property
-    # def response(self):
-    #     h = int(self.hours_combo.currentText())
-    #     m = int(self.minutes_combo.currentText())
-    #     am_pm = self.am_pm_combo.currentText()
-
-    #     # print(f'FROM AD {self.datetime_edit}')
-
-    #     if am_pm == 'PM' and h != 12:
-    #         h += 12
-    #     elif am_pm == 'AM' and h == 12:
-    #         h = 0
-
-    #     return h, m
+#####################################################################################

@@ -1,3 +1,19 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
 import os
 import re
@@ -18,7 +34,7 @@ from modules.aria2c_manager import aria2c_manager
 from modules.postprocessing import async_merge_video_audio
 from modules.config import Status, APP_NAME, get_ffmpeg_path 
 from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
-from modules.video import (is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls) 
+from modules.video import (is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls, unzip_ffmpeg) 
 
 
 
@@ -39,7 +55,89 @@ def set_signal_emitter(emitter):
     global signal_emitter
     signal_emitter = emitter
 
-# brain.py
+
+def _select_streams_for_aria2(d, vid_info, preferred_langs=None):
+    """
+    Choose video/audio streams for aria2 respecting user selection + language.
+    Returns (video_stream, audio_stream) or (None, None) if not suitable.
+    """
+    if preferred_langs is None:
+        preferred_langs = ["en-US", "en", "eng", None]  # None -> unlabeled
+
+    # Wrap yt-dlp formats with Stream class
+    streams = [Stream(f) for f in vid_info.get("formats", [])]
+    videos  = [s for s in streams if s.mediatype in ("dash", "normal") and s.vcodec != "none"]
+    audios  = [s for s in streams if s.mediatype in ("dash", "audio") and s.acodec != "none"]
+
+    # If user provided explicit ids, honor them
+    v = next((s for s in videos if getattr(d, "format_id", None) and s.format_id == d.format_id), None)
+    a = next((s for s in audios if getattr(d, "audio_format_id", None) and s.format_id == d.audio_format_id), None)
+
+    # Fallback: pick a sane video for aria2 (avoid m3u8)
+    def is_ok_for_aria2(s):
+        proto = (s.protocol or "").lower()
+        # aria2 handles http(s) progressive URLs well; m3u8 is a no-go here
+        return ("m3u8" not in proto)
+
+    if v is None:
+        # prefer the user’s selected resolution if its on d.selected_stream
+        target_w  = getattr(getattr(d, "selected_stream", None), "width", None)
+        target_h  = getattr(getattr(d, "selected_stream", None), "height", None)
+
+        candidates = [s for s in videos if is_ok_for_aria2(s)]
+        if target_w and target_h:
+            # closest by resolution
+            def vscore(s):
+                dw = abs((s.width or 0) - target_w)
+                dh = abs((s.height or 0) - target_h)
+                # prefer mp4-ish for easier mux
+                ext_bonus = 10 if (s.extension or "").lower() in {"mp4", "m4v", "mov"} else 0
+                return (-ext_bonus, dw + dh, -(s.tbr or 0))
+            v = min(candidates, key=vscore) if candidates else None
+        else:
+            # generic best non-m3u8
+            def vscore2(s):
+                ext_bonus = 10 if (s.extension or "").lower() in {"mp4", "m4v", "mov"} else 0
+                return (-(s.quality or 0), -(s.tbr or 0), -ext_bonus)
+            v = sorted(candidates, key=vscore2)[0] if candidates else None
+
+    # If chosen video is m3u8, do not proceed with aria2
+    if not v or "m3u8" in (v.protocol or "").lower():
+        return None, None
+
+    # Fallback: pick audio by preferred language and container compatibility
+    compat = {
+        "mp4":  {"m4a", "mp4", "aac"},
+        "m4v":  {"m4a", "mp4", "aac"},
+        "mov":  {"m4a", "mp4", "aac"},
+        "webm": {"webm", "opus"},
+        "mkv":  {"webm", "opus", "m4a", "aac"},
+    }
+    vext = (v.extension or "").lower()
+    allowed_aext = compat.get(vext, {"m4a", "aac", "mp4", "webm", "opus"})
+
+    if a is None:
+        # try language-preferred audio first, then best bitrate
+        def ascore(s):
+            lang = (getattr(s, "language", None) or getattr(s, "lang", None) or None)
+            try:
+                lang_rank = preferred_langs.index(lang) if lang in preferred_langs else len(preferred_langs)
+            except Exception:
+                lang_rank = len(preferred_langs)
+            # favor compatible container, higher abr/tbr
+            ext_ok = 1 if (s.extension or "").lower() in allowed_aext else 0
+            return (lang_rank, -int(s.abr or s.tbr or 0), -ext_ok)
+
+        a_candidates = [s for s in audios if (s.extension or "").lower() in allowed_aext]
+        if not a_candidates:
+            a_candidates = audios[:]  # any audio
+
+        a = sorted(a_candidates, key=ascore)[0] if a_candidates else None
+
+    return v, a
+
+
+
 def brain(d=None, emitter=None):
     log(f"[brain] ENGINE DEBUG — d.engine={d.engine} | d.type={d.type} | protocol={d.protocol} | url={d.url}")
 
@@ -62,30 +160,34 @@ def brain(d=None, emitter=None):
         elif getattr(d, "vid_info", None):
             log(f"[brain] Reusing existing vid_info for {d.name}")
 
+        
         if getattr(d, "vid_info", None):
-            streams = [Stream(f) for f in d.vid_info.get("formats", [])]
-            dash_streams = [s for s in streams if s.mediatype == 'dash']
-            audio_streams = [s for s in streams if s.mediatype == 'audio']
+            # Pick streams that match user’s choice and avoid m3u8 for aria2
+            v, a = _select_streams_for_aria2(d, d.vid_info, preferred_langs=getattr(config, "preferred_audio_langs", None))
 
-            best_dash = max(dash_streams, key=lambda s: s.quality, default=None)
-            best_audio = max(audio_streams, key=lambda s: s.quality, default=None)
-
-            if not best_dash or not best_audio:
-                log("[brain] Could not find valid dash/audio streams — falling back to yt-dlp.")
-                run_ytdlp_download(d, emitter)
+            if not v:
+                log("[brain] Selected stream is m3u8 or none suitable for aria2 — using yt-dlp/native HLS")
+                run_ytdlp_download(d, emitter)  
                 return
 
-            d.eff_url = best_dash.url
-            d.audio_url = best_audio.url
-            d.format_id = best_dash.format_id
-            d.audio_format_id = best_audio.format_id
+            # Set URLs/ids for the aria2 pair
+            d.eff_url = v.url
+            d.url = d.eff_url
+            d.format_id = v.format_id
 
-            d.name = validate_file_name(d.vid_info.get("title"))
-            
+            if a:
+                d.audio_url = a.url
+                d.audio_format_id = a.format_id
+            else:
+                d.audio_url = None
+                d.audio_format_id = None
 
-            d.url = d.eff_url  # Set after original_url is saved
+            # Safe final name (keep original title if present)
+            title = d.vid_info.get("title") or d.name
+            d.name = validate_file_name(title)
 
             run_aria2c_video_audio_download(d, emitter)
+
         else:
             log("[Aria2c] Running normal static file download")
             d.original_url = d.url
@@ -271,7 +373,7 @@ def run_aria2c_download(d,  emitter=None):
     options = {
         "dir": folder,        # download directory
         "out": name,          # file name (ignored by multi-file torrents)
-        # Add more options you use elsewhere: "max-connection-per-server": "16", etc.
+        # Add more options to use elsewhere: "max-connection-per-server": "16", etc.
     }
 
     # --- start the download ---------------------------------------------------
@@ -350,12 +452,16 @@ def run_aria2c_download(d,  emitter=None):
                         break
                 # --- inside the monitor loop when `download` is None and not found in stopped:
                 if not found:
-                    # No info found at all; instead of hard error, re-add the task.
+                    # If the user paused/cancelled in the app, do NOT recreate the task
+                    if getattr(d, "status", None) in (config.Status.cancelled, "cancelled"):
+                        emit_log("Aria2 task missing but item is paused/cancelled; not re-adding.")
+                        return  # exit the monitor cleanly
+
                     emit_log("Aria2 GID not found; re-adding download.")
                     d.aria_gid = None
                     # Re-enter the start logic:
                     try:
-                        # Re-run the add logic you already have above
+                        # Re-run the add logic already above
                         url = d.url or d.eff_url or ""
                         is_torrent_file = url.lower().endswith(".torrent") or d.name.lower().endswith(".torrent")
                         is_magnet_link = url.startswith("magnet:?")
@@ -405,7 +511,7 @@ def run_aria2c_download(d,  emitter=None):
                 done  = _safe_int(download.completed_length)
                 spd   = _safe_int(download.download_speed)
 
-                # Keep these fresh; your progress property uses them
+                # Keep these fresh; the progress property uses them
                 d._speed = spd
                 if total > 0:
                     d.size = total
@@ -427,7 +533,6 @@ def run_aria2c_download(d,  emitter=None):
                 if now - last_emit_time > 0.5:
                     last_emit_time = now
                     emit_progress(d.progress)
-                    # keep logs light; you can comment this out if noisy
                     emit_log(f"{done}/{total} bytes @ {spd} B/s")
 
             except Exception as e:
@@ -439,6 +544,7 @@ def run_aria2c_download(d,  emitter=None):
                 d.status = config.Status.completed
                 emit_status("completed")
                 emit_progress(100)
+                notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
                 return
 
             if st in ("error", "removed"):
@@ -448,7 +554,14 @@ def run_aria2c_download(d,  emitter=None):
 
             if st == "paused":
                 d.status = config.Status.cancelled
+                
+                log(f"[brain] cancelled manually for: {d.name}")
+                if d.in_queue:
+                    d.status = Status.queued
+
                 emit_status("paused")
+                emit_log("Aria2 paused; monitor exiting.")
+                return
                 # continue to monitor
             
             # Treat 'waiting' like an active state (metadata fetching/queueing)
@@ -467,215 +580,319 @@ def run_aria2c_download(d,  emitter=None):
         return
 
 
-
-
-
 def run_aria2c_video_audio_download(d, emitter=None):
-    log(f"[Aria2c] Starting: {d.name}")
+    """
+    aria2-driven download of separate video/audio HTTP streams (e.g., YouTube DASH direct links).
+    - Uses distinct part files: <base>.video.mp4 and <base>.audio.(m4a/webm)
+    - Resumes via 'continue:true'
+    - Attaches to existing tasks by output filename when possible (prevents duplicates)
+    - Merges parts into a temp file, then moves to final target (never in-place)
+    """
+    
+    # -------- emitter helpers --------
+    def emit_status(s):
+        if emitter:
+            try: emitter.status_changed.emit(s)
+            except: pass
+
+    def emit_progress(p):
+        if emitter:
+            try: emitter.progress_changed.emit(int(p))
+            except: pass
+
+    def emit_log(msg):
+        if emitter:
+            try: emitter.log_updated.emit(str(msg))
+            except: pass
+
+    def _safe_int(x):
+        try: return int(x)
+        except: return 0
+
+    # -------- derive paths / names --------
+    base = safe_filename(os.path.splitext(d.name)[0]) or "download"
+    # final user-visible target
+    final_target = d.target_file or os.path.join(d.folder, base + ".mp4")
+    if not final_target.lower().endswith(".mp4"):
+        final_target = os.path.splitext(final_target)[0] + ".mp4"
+    d.target_file = final_target
+
+    # part files (NEVER equal to final_target)
+    video_part = os.path.join(d.folder, base + ".video.mp4")
+    audio_is_present = bool(d.audio_url and d.audio_url != d.url)
+    if audio_is_present:
+        audio_ext = ".m4a" if video_part.lower().endswith((".mp4", ".m4v", ".mov")) else ".webm"
+        audio_part = os.path.join(d.folder, base + ".audio" + audio_ext)
+        d.audio_file = audio_part
+    else:
+        audio_part = None
+
+    video_aria2 = video_part + ".aria2"
+    audio_aria2 = (audio_part + ".aria2") if audio_part else None
+
+    # -------- connect aria2 --------
+    aria2 = aria2c_manager.get_api()
+    if not aria2:
+        d.status = Status.error
+        emit_status("error")
+        emit_log("[Aria2c] API unavailable")
+        return
+
     d.status = Status.downloading
+    emit_status("downloading")
+    emit_progress(0)
     d._progress = 0
     d.remaining_parts = 1
     d.last_known_progress = 0
 
-    video_path = os.path.join(d.folder, d.name)
-    aria2_temp = video_path + '.aria2'
+    # -------- helpers to attach/add --------
+    def _attach_gid_by_out(out_name):
+        """Find an existing aria2 task whose first file path basename == out_name."""
+        try:
+            for dl in aria2.get_downloads() or []:
+                try:
+                    f0 = dl.files[0].path if dl.files and dl.files[0].path else ""
+                    if os.path.basename(f0) == out_name:
+                        return dl.gid
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        return None
 
-    if os.path.exists(video_path) or os.path.exists(aria2_temp):
-        log(f"[Aria2c] Video part already exists: {video_path}, skipping add_uris")
-    # else:
-    #     added_video = aria2.add_uris([...])
-    #     d.aria_gid = added_video.gid
+    def _get_download(gid):
+        if not gid:
+            return None
+        try:
+            return aria2.get_download(gid)
+        except Exception:
+            return None
 
+    # -------- VIDEO task: attach or add --------
+    v_dl = None
+    if getattr(d, "aria_gid", None):
+        v_dl = _get_download(d.aria_gid)
+        if v_dl and getattr(v_dl, "status", "").lower() == "paused":
+            try: v_dl.resume()
+            except: pass
+        if not v_dl or getattr(v_dl, "status", "").lower() == "removed":
+            v_dl = None
+            d.aria_gid = None
 
+    if not v_dl:
+        attach_v = _attach_gid_by_out(os.path.basename(video_part))
+        if attach_v:
+            d.aria_gid = attach_v
+            v_dl = _get_download(attach_v)
 
-    try:
-        aria2 = aria2c_manager.get_api()
-
-        download = None
-        if d.aria_gid:
-            try:
-                download = aria2.get_download(d.aria_gid)
-                if download is None or download.status == 'removed':
-                    raise Exception("GID not found or removed")
-                if download.status == 'paused':
-                    download.resume()
-            except Exception as e:
-                log(f"[Aria2c] Resume failed or GID not valid: {e}")
-                d.aria_gid = None  # fallback to new
-
-        # ---- Handle single or dual download case ----
-        audio_is_present = bool(d.audio_url and d.audio_url != d.url)
-
-        # Submit video file
-        added_video = aria2.add_uris([d.url], options={
+    if not v_dl:
+        opts_v = {
             "dir": d.folder,
-            "out": d.name,
-            "pause": "false",
+            "out": os.path.basename(video_part),
+            "continue": "true",
+            "always-resume": "true",
+            "max-connection-per-server": str(config.aria2c_config["max_connections"]),
             "file-allocation": config.aria2c_config["file_allocation"],
-            "max-connection-per-server": config.aria2c_config["max_connections"],
-            "follow-torrent": "true" if config.aria2c_config["follow_torrent"] else "false",
-            "enable-dht": "true" if config.aria2c_config["enable_dht"] else "false",
-        })
+        }
+        added_video = aria2.add_uris([d.url], options=opts_v)
         d.aria_gid = added_video.gid
-        log(f"[Aria2c] Video GID assigned: {d.aria_gid}")
+        emit_log(f"[Aria2c] Video GID: {d.aria_gid}")
+        v_dl = _get_download(d.aria_gid)
 
-        # Submit audio file separately
-        if audio_is_present:
-            #audio_out = f"audio_for_{d.name}"
-            audio_out = os.path.basename(d.audio_file)  # 👈 Matches exactly
+    # -------- AUDIO task: attach or add --------
+    a_dl = None
+    if audio_is_present:
+        if getattr(d, "audio_gid", None):
+            a_dl = _get_download(d.audio_gid)
+            if a_dl and getattr(a_dl, "status", "").lower() == "paused":
+                try: a_dl.resume()
+                except: pass
+            if not a_dl or getattr(a_dl, "status", "").lower() == "removed":
+                a_dl = None
+                d.audio_gid = None
 
-            added_audio = aria2.add_uris([d.audio_url], options={
+        if not a_dl:
+            attach_a = _attach_gid_by_out(os.path.basename(audio_part))
+            if attach_a:
+                d.audio_gid = attach_a
+                a_dl = _get_download(attach_a)
+
+        if not a_dl:
+            opts_a = {
                 "dir": d.folder,
-                "out": audio_out,
-                "pause": "false",
+                "out": os.path.basename(audio_part),
+                "continue": "true",
+                "always-resume": "true",
+                "max-connection-per-server": str(config.aria2c_config["max_connections"]),
                 "file-allocation": config.aria2c_config["file_allocation"],
-                "max-connection-per-server": config.aria2c_config["max_connections"],
-            })
+            }
+            added_audio = aria2.add_uris([d.audio_url], options=opts_a)
             d.audio_gid = added_audio.gid
-            log(f"[Aria2c] Audio GID assigned: {d.audio_gid}")
+            emit_log(f"[Aria2c] Audio GID: {d.audio_gid}")
+            a_dl = _get_download(d.audio_gid)
 
-        if emitter:
-            emitter.status_changed.emit("downloading")
-            emitter.progress_changed.emit(0)
-
-        video_complete = False
-        audio_complete = not audio_is_present  # mark true if no audio
-        last_progress = -1
-
+    # -------- monitor loop --------
+    last_progress = -1
+    try:
         while True:
-            # Video progress
+            time.sleep(0.5)
+
+            # refresh handles (they can change)
+            v_dl = _get_download(d.aria_gid)
+            a_dl = _get_download(d.audio_gid) if audio_is_present else None
+
+            # early exit on paused
             try:
-                v = aria2.get_download(d.aria_gid)
-                video_complete = v.is_complete
-                v_percent = int(v.progress)
-            except:
-                v_percent = 0
-            
-            d._downloaded = int(v.completed_length)
-            d.size = int(v.total_length) if v.total_length else 0
-    
-
-            # d._total_size = int(v.total_length)
-            d._speed = int(v.download_speed)
-            d.remaining_time = v.eta if v.eta != -1 else 0
-
-
-            # Audio progress
+                if v_dl and (getattr(v_dl, "status", "") or "").lower() == "paused":
+                    d.status = Status.cancelled
+                    emit_status("paused")
+                    emit_log(f"[Aria2c] Video paused; exiting monitor for {d.name}")
+                    return
+            except Exception:
+                pass
             if audio_is_present:
                 try:
-                    a = aria2.get_download(d.audio_gid)
-                    audio_complete = a.is_complete
-                    a_percent = int(a.progress)
+                    if a_dl and (getattr(a_dl, "status", "") or "").lower() == "paused":
+                        d.status = Status.cancelled
+                        emit_status("paused")
+                        emit_log(f"[Aria2c] Audio paused; exiting monitor for {d.name}")
+                        return
+                except Exception:
+                    pass
+
+            # progress & completion flags
+            v_done = False
+            a_done = not audio_is_present
+
+            # VIDEO state
+            if v_dl:
+                v_status = (getattr(v_dl, "status", "") or "").lower()
+                v_done = v_status in ("complete", "seeding")
+                v_percent = _safe_int(getattr(v_dl, "progress", 0))
+                d._downloaded = _safe_int(getattr(v_dl, "completed_length", 0))
+                v_total = _safe_int(getattr(v_dl, "total_length", 0))
+                if v_total > 0:
+                    d.size = v_total
+                d._speed = _safe_int(getattr(v_dl, "download_speed", 0))
+                try:
+                    d.remaining_time = v_dl.eta if v_dl.eta != -1 else 0
                 except:
-                    a_percent = 0
+                    pass
+            else:
+                v_percent = 100 if (os.path.exists(video_part) and not os.path.exists(video_aria2)) else 0
+                v_done = v_percent == 100
+
+            # AUDIO state
+            if audio_is_present:
+                if a_dl:
+                    a_status = (getattr(a_dl, "status", "") or "").lower()
+                    a_done = a_status in ("complete", "seeding")
+                    a_percent = _safe_int(getattr(a_dl, "progress", 0))
+                else:
+                    a_percent = 100 if (os.path.exists(audio_part) and not os.path.exists(audio_aria2)) else 0
+                    a_done = a_percent == 100
             else:
                 a_percent = 0
 
-            # Average progress
-            combined = (v_percent + a_percent) // (2 if audio_is_present else 1)
-            print(combined, v_percent, a_percent, d._downloaded, d.size)
+            # combined progress for UI
+            combined = (v_percent + (a_percent if audio_is_present else 0)) // (2 if audio_is_present else 1)
             d._progress = combined
             d.last_known_progress = combined
 
             if emitter and combined != last_progress:
-                emitter.progress_changed.emit(combined)
-                emitter.log_updated.emit(
-                    f"⬇ {size_format(d.downloaded)} | Video: {v_percent}% | Audio: {a_percent if audio_is_present else '—'}%"
-                )
+                emit_progress(combined)
+                emit_log(f"⬇ {size_format(getattr(d,'downloaded',0))} | Video: {v_percent}% | Audio: {a_percent if audio_is_present else '—'}%")
                 last_progress = combined
 
+            # completion → merge/finalize
+            if v_done and a_done:
+                # single progressive file: just move to final if needed
+                if not audio_is_present:
+                    if os.path.abspath(video_part) != os.path.abspath(final_target):
+                        try:
+                            if os.path.exists(final_target):
+                                os.remove(final_target)
+                            rename_file(video_part, final_target)
+                        except Exception as e:
+                            log(f"[Aria2c] Finalize move failed: {e}", log_level=3)
+                            d.status = Status.error
+                            emit_status("error")
+                            return
+                    d.status = Status.completed
+                    emit_status("completed")
+                    emit_progress(100)
+                    notify(f"File: {os.path.basename(final_target)} \n saved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+                    return
 
-            if video_complete and audio_complete:
+                # separate A/V → MERGE parts to a TEMP then move to final
+                d.status = Status.merging_audio
+                emit_status("merging_audio")
+                temp_out = os.path.join(d.folder, base + ".merge.tmp.mp4")
+                if os.path.exists(temp_out):
+                    try: os.remove(temp_out)
+                    except: pass
 
-                # Both video and audio are complete
+                # sanity checks
+                if not os.path.exists(video_part):
+                    log(f"[Aria2c] Missing video part: {video_part}")
+                    d.status = Status.error
+                    emit_status("error")
+                    return
+                if not os.path.exists(audio_part):
+                    log(f"[Aria2c] Missing audio part: {audio_part}")
+                    d.status = Status.error
+                    emit_status("error")
+                    return
 
-                if d.type == 'dash' or 'm3u8' in d.protocol:
-                    log(f"[Aria2c] Both video and audio completed for: {d.name}")
-                    # output_file = d.target_file.replace(' ', '_')
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                error, output = loop.run_until_complete(
+                    async_merge_video_audio(video_part, audio_part, temp_out, d)
+                )
 
-                    # Force clean filename and extension
-                    safe_name = safe_filename(d.name)
-                    if not safe_name.endswith('.mp4'):
-                        safe_name += '.mp4'
-                        # safe_name = config.ytdlp_config['merge_output_format']
+                if error:
+                    log(f"[Merge] FFmpeg merge failed: {output}", log_level=3)
+                    d.status = Status.error
+                    emit_status("error")
+                    return
 
-                    output_file = os.path.join(d.folder, safe_name)
-                    video_path = os.path.join(d.folder, d.name)
-
-                    # if not is_download_complete(d):
-                    #     log(f"Skipping merge: {d.name} is not fully downloaded.")
-                    #     d.status = Status.error
-                    #     break
-
-                    d.status = Status.merging_audio
-                    log(f"This is the temp_file{video_path} and audio {d.audio_file}", log_level=3)
-                    # error, output = merge_video_audio(d.temp_file, d.audio_file, output_file, d)
-                    if not os.path.exists(video_path):
-                        log(f"[Aria2c] ERROR: Video file not found at {video_path}")
-                        d.status = Status.error
-                        break
-
-                    if not os.path.exists(d.audio_file):
-                        log(f"[Aria2c] ERROR: Audio file not found at {d.audio_file}")
-                        d.status = Status.error
-                        break
-
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    error, output = loop.run_until_complete(
-                        async_merge_video_audio(video_path, d.audio_file, output_file, d)
-                    )
-                    
-                    if error:
-                        log(f"[Merge] FFmpeg merge failed: {output}")
-                        d.status = Status.error
-                        # show_critical(title="Merge Error", msg="FFmpeg merge failed, needs re-merging. Right click on the download item to select remerged.")
-                        break
-
-                    # if not error:
-                    #     rename_file(output_file, d.target_file)
-                    #     d.delete_tempfiles()
-                    # else:
-                    #     d.status = Status.error
-                    #     break
-
-                    if not error:
-                        log(f'[Aria2c] Renaming output file to: {output_file} from {d.target_file}', log_level=1)
-                        if os.path.exists(d.target_file):
-                            os.remove(d.target_file)  # Prevent WinError 183
-                        # rename_file(output_file, d.target_file)
-                        rename_file(d.target_file, output_file)
-                        d.delete_tempfiles()
-                        d.name = safe_name
-                    else:
-                        d.status = Status.error
-                        break
-
+                # finalize: temp_out → final_target
+                try:
+                    if os.path.exists(final_target):
+                        os.remove(final_target)
+                    rename_file(temp_out, final_target)
+                    d.target_file = final_target
+                    # cleanup parts + .aria2 sidecars
+                    try:
+                        for f in (video_part, audio_part, video_aria2, audio_aria2):
+                            if f and os.path.exists(f):
+                                os.remove(f)
+                    except Exception:
+                        pass
+                    d.name = os.path.basename(final_target)
+                except Exception as e:
+                    log(f"[Aria2c] Post-merge move failed: {e}", log_level=3)
+                    d.status = Status.error
+                    emit_status("error")
+                    return
 
                 d.status = Status.completed
-                log(f"[Aria2c] Download completed for: {d.name}")
-                if emitter:
-                    emitter.status_changed.emit("completed")
-                    emitter.progress_changed.emit(100)
+                emit_status("completed")
+                emit_progress(100)
                 notify(f"File: {d.name} \n saved at: {d.folder}", title=f'{APP_NAME} - Download completed')
-                break
+                return
 
-           
+            # user cancelled mid-way
             if d.status == Status.cancelled:
                 log(f"[Aria2c] Download cancelled: {d.name}")
-                break
-
-            time.sleep(1)
+                return
 
     except Exception as e:
         d.status = Status.error
-        log(f"[Aria2c] Exception during download: {e}")
-        if emitter:
-            emitter.status_changed.emit("error")
-
+        emit_status("error")
+        log(f"[Aria2c] Exception during download: {e}", log_level=3)
     finally:
-        if emitter:
-            emitter.log_updated.emit(f"[Aria2c] Done processing {d.name}")
+        emit_log(f"[Aria2c] Done processing {d.name}")
         log(f"[Aria2c] Done processing {d.name}")
 
 
@@ -889,10 +1106,14 @@ def file_manager(d, keep_segments=False, emitter=None):
             # Handle m3u8 streams (HLS)
             if 'm3u8' in d.protocol:
                 d.status = Status.merging_audio
+                log(f"[Merge] Merging started for for this video", log_level=1)
                 success = post_process_hls(d)
                 if not success:
                     d.status = Status.error
                     break
+                else:
+                    rename_file(d.temp_file, d.target_file)
+                    delete_folder(d.temp_folder)
 
             # Handle DASH (separate audio/video)
             if d.type == 'dash':
@@ -942,8 +1163,6 @@ def file_manager(d, keep_segments=False, emitter=None):
 
 
 def thread_manager(d, emitter=None):
-    # from worker import Worker
-    # import config
 
     workers = [Worker(tag=i, d=d) for i in range(config.max_connections)]
     free_workers = list(reversed(range(config.max_connections)))

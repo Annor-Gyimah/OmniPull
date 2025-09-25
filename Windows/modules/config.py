@@ -1,18 +1,30 @@
-"""
-    OmniPull - a free and open source download manager for Windows, Linux, and MacOS.
-    OmniPull is a cross-platform, multi-threaded, multi-segment, and multi-connections internet download manager, based on "pyCuRL/curl", "yt-dlp", and "PySide6"
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
-# configurations
-from queue import Queue
 import os
 import sys
 import platform
-from modules.version import __version__
+
+from queue import Queue
+
 from modules.utils import log
+from modules.version import __version__
+
+
 
 
 # CONSTANTS
@@ -31,7 +43,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 DEFAULT_LOG_LEVEL = 1
  
 APP_LATEST_VERSION = ''  # get value from update module
-ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported
+ytdl_VERSION = 'xxx'  # will be loaded once yt-dlp get imported
 ytdl_LATEST_VERSION = None  # get value from update module
 
 TEST_MODE = False
@@ -155,7 +167,7 @@ aria2c_config = {
     "rpc_port": 6800
 }
 
-
+preferred_audio_langs = ["en-US", "en", "eng", None]
 ytdlp_fragments = 5  # default number of threads/fragments
 ytdlp_config = {
     "no_playlist": True,
@@ -194,7 +206,7 @@ settings_keys = ['current_theme','machine_id', 'tutorial_completed', 'download_e
                  'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app', 'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
                  'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries', 'retry_scheduled_interval_mins', 'aria2c_config',
-                 'aria2_verified', 'ytdlp_config']
+                 'aria2_verified', 'ytdlp_config', 'preferred_audio_langs']
 
 # -------------------------------------------------------------------------------------
 

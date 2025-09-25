@@ -1,35 +1,82 @@
-name: Build OmniPull macOS DMG
+---
+name: Build & Release OmniPull (Apple Silicon)
 
 on:
-  push:
-    branches:
-      - macOS
-  workflow_dispatch:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: write
 
 jobs:
-  build-macos:
-    runs-on: macos-latest
-
+  release-on-merge:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'master' &&
+      github.event.pull_request.head.ref == 'macOS'
+    runs-on: macos-14
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
+      EDGE_EXTENSION_ID: "mkhncokjlhefbbnjlgmnifmgejdclbhj"
+      FIREFOX_EXTENSION_ID: "{e899b50f-2a29-4bad-ab4d-b192447a10d0}"
+      VERSION: "2.0.0"   # <— set your version here
+      RELEASE_TAG: ${{ vars.RELEASE_TAG }}
     defaults:
       run:
         working-directory: macOS
 
     steps:
-      - name: Checkout code
+      - name: Checkout master (post-merge)
         uses: actions/checkout@v4
+        with:
+          ref: master
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      
+
+
+
+      - name: Compute final release tag (v.${VERSION} or override)
+        id: rtag
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Trim whitespace
+          VER="$(printf "%s" "${VERSION:-}" | tr -d '[:space:]')"
+          if [[ -z "$VER" ]]; then
+            echo "ERROR: VERSION is empty. Set env.VERSION or repo variable VERSION." >&2
+            exit 1
+          fi
+
+          # If you always want v.<semver>, uncomment regex below to enforce
+          # [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "ERROR: VERSION must be x.y.z"; exit 1; }
+
+          # Prefer RELEASE_TAG (if provided), otherwise build v.<version>
+          TAG_RAW="${RELEASE_TAG:-}"
+          TAG="$(printf "%s" "$TAG_RAW" | tr -d '[:space:]')"
+          if [[ -z "$TAG" ]]; then
+            TAG="v.${VER}"
+          fi
+
+          # Basic sanity: tag cannot be empty, nor look like a branch ref
+          [[ -n "$TAG" ]] || { echo "ERROR: tag is empty"; exit 1; }
+          [[ "$TAG" != refs/heads/* ]] || { echo "ERROR: tag cannot be a branch ref ($TAG)"; exit 1; }
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "Using release tag: ${TAG}"
+
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
           pip install -r requirements.txt
+          pip install pyinstaller
 
-      - name: Build OmniPull executable with PyInstaller
+      - name: Build arm64 with PyInstaller (no aria2/ffmpeg)
         run: |
           pyinstaller main.py \
             --noconfirm \
@@ -37,52 +84,231 @@ jobs:
             --windowed \
             --name OmniPull \
             --icon icons/logo.icns \
-            --add-data "modules/translations:translations"
+            --add-data "modules/translations:modules/translations"
 
-      - name: Create OmniPull.app bundle manually
+      - name: Assemble OmniPull.app (no third-party binaries)
+        shell: bash
         run: |
-          rm -rf dist/OmniPull.app
-          mkdir -p dist/OmniPull.app/Contents/MacOS
-          cp dist/OmniPull dist/OmniPull.app/Contents/MacOS/OmniPull
-          chmod +x dist/OmniPull.app/Contents/MacOS/OmniPull
+          set -euo pipefail
+          VER="${VERSION:?VERSION is empty; set env.VERSION (e.g., 2.0.0)}"
+          APP_DIR="dist/OmniPull.app"
+          mkdir -p "$APP_DIR/Contents/MacOS" \
+                   "$APP_DIR/Contents/Resources/connector"
 
-          # Add basic Info.plist
-          cat <<EOF > dist/OmniPull.app/Contents/Info.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>CFBundleName</key>
-              <string>OmniPull</string>
-              <key>CFBundleDisplayName</key>
-              <string>OmniPull</string>
-              <key>CFBundleExecutable</key>
-              <string>OmniPull</string>
-              <key>CFBundleIdentifier</key>
-              <string>com.omnipull.app</string>
-              <key>CFBundleVersion</key>
-              <string>1.0</string>
-              <key>CFBundlePackageType</key>
-              <string>APPL</string>
-          </dict>
-          </plist>
-          EOF
+          # Main binary + icon
+          cp dist/OmniPull "$APP_DIR/Contents/MacOS/OmniPull"
+          chmod +x "$APP_DIR/Contents/MacOS/OmniPull"
+          cp icons/logo.icns "$APP_DIR/Contents/Resources/logo.icns"
 
-      - name: Verify .app structure
-        run: ls -R dist/OmniPull.app
+          # Info.plist via PlistBuddy (avoids huge heredocs)
+          PLIST="$APP_DIR/Contents/Info.plist"
+          /usr/bin/plutil -create xml1 "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleName string OmniPull" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string OmniPull" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleExecutable string OmniPull" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.omnipull.app" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $VER" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $VER" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundlePackageType string APPL" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string logo" "$PLIST"
+
+          # Connector assets
+          cp omnipull-watcher.py \
+             "$APP_DIR/Contents/Resources/connector/omnipull-watcher.py"
+          chmod 644 "$APP_DIR/Contents/Resources/connector/omnipull-watcher.py"
+
+          cat > "$APP_DIR/Contents/Resources/connector/omnipull-watcher" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          SELF="$(cd "$(dirname "$0")" && pwd)"
+          PY="$SELF/omnipull-watcher.py"
+          if command -v perl >/dev/null 2>&1; then
+            perl -i -pe 's/\r\n?/\n/g' "$PY"
+          else
+            sed -i '' $'s/\r$//' "$PY" || true
+          fi
+          exec /usr/bin/env python3 "$PY"
+          SH
+          chmod 755 "$APP_DIR/Contents/Resources/connector/omnipull-watcher"
+
+          if [[ -f browser_extensions/firefox/com.omnipull.downloader.json ]]; then
+            cp browser_extensions/firefox/com.omnipull.downloader.json \
+               "$APP_DIR/Contents/Resources/connector/com.omnipull.downloader.template.json"
+            chmod 644 \
+              "$APP_DIR/Contents/Resources/connector/com.omnipull.downloader.template.json"
+          fi
+
+      - name: Prepare DMG helper scripts (one Firefox + one Edge)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # 1) Install app to ~/Applications
+          cat > "Install to User Applications.command" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          APP_NAME="OmniPull"
+          THIS_DIR="$(cd "$(dirname "$0")" && pwd)"
+          SRC_APP="$THIS_DIR/${APP_NAME}.app"
+          DEST_DIR="$HOME/Applications"
+          DEST_APP="$DEST_DIR/${APP_NAME}.app"
+          mkdir -p "$DEST_DIR"
+          /usr/bin/ditto "$SRC_APP" "$DEST_APP"
+          xattr -dr com.apple.quarantine "$DEST_APP" || true
+          open "$DEST_APP"
+          echo "Installed to: $DEST_APP"
+          SH
+          chmod 755 "Install to User Applications.command"
+
+          # 2) Firefox connector — single helper
+          FFX_ID="${FIREFOX_EXTENSION_ID}"
+          cat > "Install Firefox Connector (User).command" <<SH
+          #!/usr/bin/env bash
+          set -euo pipefail
+          APP_NAME="OmniPull"
+          APP_SUPPORT="\$HOME/Library/Application Support/\$APP_NAME"
+          NATIVE_DIR="\$HOME/Library/Application Support/Mozilla/NativeMessagingHosts"
+          MANIFEST="\$NATIVE_DIR/com.omnipull.downloader.json"
+
+          THIS_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+          SRC_DIR="\$THIS_DIR/\${APP_NAME}.app/Contents/Resources/connector"
+
+          mkdir -p "\$APP_SUPPORT" "\$NATIVE_DIR"
+          /usr/bin/ditto "\$SRC_DIR/omnipull-watcher"    "\$APP_SUPPORT/omnipull-watcher"
+          /usr/bin/ditto "\$SRC_DIR/omnipull-watcher.py" "\$APP_SUPPORT/omnipull-watcher.py"
+
+          if command -v perl >/dev/null 2>&1; then
+            perl -i -pe 's/\r\n?/\n/g' "\$APP_SUPPORT/omnipull-watcher" "\$APP_SUPPORT/omnipull-watcher.py"
+          else
+            sed -i '' \$'s/\r$//' "\$APP_SUPPORT/omnipull-watcher" || true
+            sed -i '' \$'s/\r$//' "\$APP_SUPPORT/omnipull-watcher.py" || true
+          fi
+
+          chmod 755 "\$APP_SUPPORT/omnipull-watcher"
+          chmod 644 "\$APP_SUPPORT/omnipull-watcher.py"
+          xattr -dr com.apple.quarantine "\$APP_SUPPORT/omnipull-watcher" "\$APP_SUPPORT/omnipull-watcher.py" 2>/dev/null || true
+
+          cat > "\$MANIFEST" <<JSON
+          {
+            "name": "com.omnipull.downloader",
+            "description": "Native messaging host for OmniPull",
+            "path": "\$APP_SUPPORT/omnipull-watcher",
+            "type": "stdio",
+            "allowed_extensions": ["${FFX_ID}"]
+          }
+          JSON
+
+          chmod 644 "\$MANIFEST"
+          echo "Firefox user connector installed."
+          echo "  Watcher : \$APP_SUPPORT/omnipull-watcher"
+          echo "  Manifest: \$MANIFEST"
+          SH
+          chmod 755 "Install Firefox Connector (User).command"
+
+          # 3) Edge connector — single helper
+          EDGE_ID="${EDGE_EXTENSION_ID}"
+          cat > "Install Edge Connector (User).command" <<SH
+          #!/usr/bin/env bash
+          set -euo pipefail
+          APP_NAME="OmniPull"
+
+          NATIVE_DIR="\$HOME/Library/Application Support/Microsoft Edge/NativeMessagingHosts"
+          MANIFEST="\$NATIVE_DIR/com.omnipull.downloader.json"
+
+          THIS_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+          SRC_DIR="\$THIS_DIR/\${APP_NAME}.app/Contents/Resources/connector"
+          APP_SUPPORT="\$HOME/Library/Application Support/\$APP_NAME"
+
+          mkdir -p "\$APP_SUPPORT" "\$NATIVE_DIR"
+          /usr/bin/ditto "\$SRC_DIR/omnipull-watcher"    "\$APP_SUPPORT/omnipull-watcher"
+          /usr/bin/ditto "\$SRC_DIR/omnipull-watcher.py" "\$APP_SUPPORT/omnipull-watcher.py"
+
+          if command -v perl >/dev/null 2>&1; then
+            perl -i -pe 's/\r\n?/\n/g' "\$APP_SUPPORT/omnipull-watcher" "\$APP_SUPPORT/omnipull-watcher.py"
+          else
+            sed -i '' \$'s/\r$//' "\$APP_SUPPORT/omnipull-watcher" || true
+            sed -i '' \$'s/\r$//' "\$APP_SUPPORT/omnipull-watcher.py" || true
+          fi
+
+          chmod 755 "\$APP_SUPPORT/omnipull-watcher"
+          chmod 644 "\$APP_SUPPORT/omnipull-watcher.py"
+          xattr -dr com.apple.quarantine "\$APP_SUPPORT/omnipull-watcher" "\$APP_SUPPORT/omnipull-watcher.py" 2>/dev/null || true
+
+          cat > "\$MANIFEST" <<JSON
+          {
+            "name": "com.omnipull.downloader",
+            "description": "Native messaging host for OmniPull",
+            "path": "\$APP_SUPPORT/omnipull-watcher",
+            "type": "stdio",
+            "allowed_origins": [
+              "chrome-extension://${EDGE_ID}/"
+            ]
+          }
+          JSON
+
+          chmod 644 "\$MANIFEST"
+          echo "Edge user connector installed."
+          echo "  Watcher : \$APP_SUPPORT/omnipull-watcher"
+          echo "  Manifest: \$MANIFEST"
+          echo "  Edge ID : ${EDGE_ID}"
+          SH
+          chmod 755 "Install Edge Connector (User).command"
 
       - name: Install appdmg
         run: npm install -g appdmg
 
-      - name: Prepare for DMG creation
-        run: cp -R dist/OmniPull.app OmniPull.app
-
-      - name: Create DMG using appdmg
+      - name: Create DMG (omnipull-arm64-${VERSION}.dmg)
+        shell: bash
         run: |
-          appdmg appdmg.json dist/OmniPull.dmg
+          set -euo pipefail
+          VER="${VERSION:?VERSION is empty; set env.VERSION (e.g., 2.0.0)}"
+          APPDMG_JSON="$(pwd)/_appdmg.json"
+          TITLE="OmniPull (Apple Silicon)"
+          BG="icons/logo4.png"
+          [[ -f "$BG" ]] || BG=""
 
-      - name: Upload DMG as artifact
-        uses: actions/upload-artifact@v4
+          {
+            echo '{'
+            echo '  "title": "'"$TITLE"'",'
+            if [[ -n "$BG" ]]; then
+              echo '  "background": "'$(basename "$BG")'",'
+              cp "$BG" "./$(basename "$BG")"
+            fi
+            echo '  "icon-size": 100,'
+            echo '  "window": { "size": { "width": 720, "height": 520 } },'
+            echo '  "contents": ['
+            echo '    { "x": 160, "y": 180, "type": "file", "path": "dist/OmniPull.app" },'
+            echo '    { "x": 480, "y": 180, "type": "link", "path": "/Applications" },'
+            echo '    { "x": 160, "y": 320, "type": "file", "path": "Install to User Applications.command" },'
+            echo '    { "x": 480, "y": 320, "type": "file", "path": "Install Firefox Connector (User).command" },'
+            echo '    { "x": 320, "y": 420, "type": "file", "path": "Install Edge Connector (User).command" }'
+            echo '  ]'
+            echo '}'
+          } > "$APPDMG_JSON"
+
+          DMG_OUT="dist/omnipull-arm64-${VER}.dmg"
+          rm -f "$DMG_OUT"
+          appdmg "$APPDMG_JSON" "$DMG_OUT"
+          ls -lh "$DMG_OUT"
+
+      - name: Verify binary is arm64 and no aria2/ffmpeg
+        shell: bash
+        run: |
+          set -euo pipefail
+          file "dist/OmniPull.app/Contents/MacOS/OmniPull" | tee /dev/stderr | grep -q "Mach-O.*arm64"
+          if find dist/OmniPull.app -iname "aria2*" -o -iname "ffmpeg*" | grep . ; then
+            echo "ERROR: Found aria2/ffmpeg in app bundle."
+            exit 1
+          fi
+
+      - name: Create/Update GitHub Release and Upload DMG
+        uses: softprops/action-gh-release@v2
         with:
-          name: OmniPull-dmg-${{ github.sha }}
-          path: macOS/dist/OmniPull.dmg
+          tag_name: ${{ steps.rtag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: OmniPull ${{ steps.rtag.outputs.tag }}
+          draft: false
+          prerelease: false
+          files: macOS/dist/omnipull-arm64-${{ env.VERSION }}.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

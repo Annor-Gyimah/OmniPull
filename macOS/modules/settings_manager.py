@@ -1,8 +1,29 @@
-from modules import config
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
+
 import os
 import json
-from modules.utils import log, handle_exceptions, update_object
+
+from modules import config
 from modules.downloaditem import DownloadItem
+from modules.utils import log, handle_exceptions, update_object
+
 
 class SettingsManager:
     _instance = None
@@ -117,6 +138,11 @@ class SettingsManager:
     def _clean_d_list(self, d_list):
         """Clean and update download list statuses"""
         for d in d_list:
+            if d.status == config.Status.error:
+                d.status = config.Status.error
+                d.live_connections = 0
+                continue
+
             status = None
             if d.progress >= 100:
                 status = config.Status.completed

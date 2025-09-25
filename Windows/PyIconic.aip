@@ -15,23 +15,23 @@
     <ROW Property="ARPCONTACT" Value="eannor707@gmail.com"/>
     <ROW Property="ARPHELPTELEPHONE" Value="+233 546402108"/>
     <ROW Property="ARPNOREPAIR" MultiBuildValue="DefaultBuild:1"/>
-    <ROW Property="ARPPRODUCTICON" Value="logo4.exe" Type="8"/>
+    <ROW Property="ARPPRODUCTICON" Value="logo4_1.exe" Type="8"/>
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
-    <ROW Property="ARPURLINFOABOUT" Value="https://dynamite0.pythonanywhere.com"/>
-    <ROW Property="AppLogoIcon" Value="applogoicon.bmp" MultiBuildValue="DefaultBuild:logo4.ico" Type="1" MsiKey="AppLogoIcon"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://omnipull.pythonanywhere.com"/>
+    <ROW Property="AppLogoIcon" Value="applogoicon.bmp" MultiBuildValue="DefaultBuild:logo4.ico_1" Type="1" MsiKey="AppLogoIcon"/>
     <ROW Property="Background" Value="background" MultiBuildValue="MsiBuild:logo4.ico" Type="1" MsiKey="Background"/>
     <ROW Property="CTRLS" Value="2"/>
     <ROW Property="Manufacturer" Value="Annorion"/>
-    <ROW Property="ProductCode" Value="1033:{3F703EBE-3212-42ED-839A-693EDE43F613} " Type="16"/>
+    <ROW Property="ProductCode" Value="1031:{3F703EBE-3212-42ED-839A-693EDE43F613} 1033:{3F703EBE-3212-42ED-839A-693EDE43F613} 1036:{3F703EBE-3212-42ED-839A-693EDE43F613} 1041:{3F703EBE-3212-42ED-839A-693EDE43F613} 1042:{3F703EBE-3212-42ED-839A-693EDE43F613} 1049:{3F703EBE-3212-42ED-839A-693EDE43F613} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="OmniPull"/>
-    <ROW Property="ProductVersion" Value="1.3.0" Options="32"/>
+    <ROW Property="ProductVersion" Value="2.0.0" Options="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{8FB13A03-654A-47CB-A19B-1A76A847D16B}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
-    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 7 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 7 x86, Windows 8 x86, Windows 8.1 x86" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0#MsiBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0#MsiBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000#MsiBuild:Windows 2000" ValueLocId="-"/>
@@ -40,9 +40,9 @@
     <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003#MsiBuild:Windows XP/2003" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT60" MultiBuildValue="DefaultBuild:Windows Vista/Server 2008#MsiBuild:Windows Vista/Server 2008" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT60Display" MultiBuildValue="DefaultBuild:Windows Vista/Server 2008#MsiBuild:Windows Vista/Server 2008" ValueLocId="-"/>
-    <ROW Property="WindowsTypeNT64" MultiBuildValue="DefaultBuild:Windows 7 x64, Windows Server 2008 R2 x64, Windows Server 2012 x64, Windows Server 2012 R2 x64, Windows Server x64" ValueLocId="-"/>
-    <ROW Property="WindowsTypeNT64Display" MultiBuildValue="DefaultBuild:Windows 7 x64, Windows Server 2008 R2 x64, Windows Server 2012 x64, Windows Server 2012 R2 x64, Windows Server x64" ValueLocId="-"/>
-    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:Windows 7 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT64" MultiBuildValue="DefaultBuild:Windows 7 x64, Windows Server 2008 R2 x64, Windows 8 x64, Windows Server 2012 x64, Windows 8.1 x64, Windows Server 2012 R2 x64, Windows Server x64" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT64Display" MultiBuildValue="DefaultBuild:Windows 7 x64, Windows Server 2008 R2 x64, Windows 8 x64, Windows Server 2012 x64, Windows 8.1 x64, Windows Server 2012 R2 x64, Windows Server x64" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:Windows 7 x86, Windows 8 x86, Windows 8.1 x86" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -78,6 +78,7 @@
     <ROW Component="__3" ComponentId="{28347609-22B6-4B4F-B4EE-0A5FEDB0298C}" Directory_="APPDIR" Attributes="260" KeyPath="__3"/>
     <ROW Component="aria2c.exe" ComponentId="{2303637D-97F0-4128-ADB8-AA167FF79B94}" Directory_="YT_DLP_Dir" Attributes="256" KeyPath="aria2c.exe"/>
     <ROW Component="com.omnipull.downloader.firefox.json" ComponentId="{24C3985E-4896-4783-883F-7010599786EB}" Directory_="APPDIR" Attributes="0" KeyPath="com.omnipull.downloader.firefox.json" Type="0"/>
+    <ROW Component="ffmpeg.exe" ComponentId="{B57993B5-79A6-4F38-9EF9-8459078CFAA2}" Directory_="YT_DLP_Dir" Attributes="256" KeyPath="ffmpeg.exe"/>
     <ROW Component="main.exe" ComponentId="{9BF3FDC0-B9D1-40B5-8516-4D645F56CC9B}" Directory_="APPDIR" Attributes="256" KeyPath="main.exe"/>
     <ROW Component="omnipullwatcher.exe" ComponentId="{D8CE5E3A-C367-4A97-9139-7CAED59765CC}" Directory_="APPDIR" Attributes="256" KeyPath="omnipullwatcher.exe"/>
   </COMPONENT>
@@ -87,12 +88,13 @@
     <ATTRIBUTE name="CurrentFeature" value="AI64BitFiles"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="main.exe" Component_="main.exe" FileName="main.exe" Attributes="0" SourcePath="main.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="omnipullwatcher.exe" Component_="omnipullwatcher.exe" FileName="OMNIPU~1.EXE|omnipull-watcher.exe" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\omnipull-watcher.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="com.omnipull.downloader.firefox.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~1.JSO|com.omnipull.downloader.firefox.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\firefox\com.omnipull.downloader.firefox.json" SelfReg="false"/>
+    <ROW File="main.exe" Component_="main.exe" FileName="main.exe" Attributes="0" SourcePath="..\..\..\Apps\main.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="omnipullwatcher.exe" Component_="omnipullwatcher.exe" FileName="OMNIPU~1.EXE|omnipull-watcher.exe" Attributes="0" SourcePath="..\..\..\Apps\omnipull-watcher.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="com.omnipull.downloader.firefox.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~1.JSO|com.omnipull.downloader.firefox.json" Attributes="0" SourcePath="..\..\browser_extensions\firefox\com.omnipull.downloader.firefox.json" SelfReg="false"/>
     <ROW File="com.omnipull.downloader.chrome.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~2.JSO|com.omnipull.downloader.chrome.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\chrome\com.omnipull.downloader.chrome.json" SelfReg="false"/>
-    <ROW File="com.omnipull.downloader.edge.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~3.JSO|com.omnipull.downloader.edge.json" Attributes="0" SourcePath="..\Softenv\OmniPull\Windows\browser_extensions\edge\com.omnipull.downloader.edge.json" SelfReg="false"/>
-    <ROW File="aria2c.exe" Component_="aria2c.exe" FileName="aria2c.exe" Attributes="0" SourcePath="..\..\AppData\Roaming\.OmniPull\aria2c.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="com.omnipull.downloader.edge.json" Component_="com.omnipull.downloader.firefox.json" FileName="COMOMN~3.JSO|com.omnipull.downloader.edge.json" Attributes="0" SourcePath="..\..\browser_extensions\edge\com.omnipull.downloader.edge.json" SelfReg="false"/>
+    <ROW File="aria2c.exe" Component_="aria2c.exe" FileName="aria2c.exe" Attributes="0" SourcePath="..\..\..\Apps\aria2c.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="ffmpeg.exe" Component_="ffmpeg.exe" FileName="ffmpeg.exe" Attributes="0" SourcePath="..\..\..\Apps\ffmpeg.exe" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.custcomp.MsiShortcutPropertyComponent">
     <ROW MsiShortcutProperty="OmniPull_10" Shortcut_="OmniPull_1" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
@@ -105,12 +107,17 @@
     <ROW Action="AI_DetectSoftware" Sequence="151"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.3.0" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="..\Softenv\OmniPull\Windows\icons\logo4.ico" SummInfoMetadata="Page Count:450" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" Options="8" UseLargeSchema="true" ExeName="OmniPull_v1.3.0" MsiPackageType="AI_ALL"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.3.0" Languages="en;fr;de;ja;ko;ru" LangOpt="1" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="2" PackageType="1" FilesInsideExe="true" ExeIconPath="icons\logo4.ico" SummInfoMetadata="Page Count:450" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" Options="8" UseLargeSchema="true" ExeName="OmniPull_v1.3.0" MsiPackageType="AI_ALL"/>
     <ROW BuildKey="MsiBuild" BuildName="MsiBuild" BuildOrder="2" BuildType="0" PackageFolder="." PackageFileName="OmniPull_v1.2.25" Languages="en" InstallationType="4" UseLargeSchema="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_fr.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_de.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_ja.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_ko.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_ru.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
     <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="0" SignTool="0" EnableLUAPatching="1" UseSha256="1" Store="User\MY" CustomToolPath="&lt;AI_SIGNTOOL_FOLDER&gt;signtool.exe" CustomToolCmdLine="sign /a /d &quot;[|ProductName]&quot; /fd SHA256 /tr &quot;http://timestamp.digicert.com&quot; /td sha256 "/>
@@ -146,6 +153,7 @@
     <ROW Name="SoftwareDetector.dll" SourcePath="&lt;AI_CUSTACTS&gt;SoftwareDetector.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="logo4.ico" SourcePath="..\Softenv\OmniPull\Windows\icons\logo4.ico"/>
+    <ROW Name="logo4.ico_1" SourcePath="icons\logo4.ico"/>
     <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
@@ -153,7 +161,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="CustomizeDlg" Control="CustomizeDlgDialogInitializer" Type="DialogInitializer" X="0" Y="0" Width="0" Height="0" Attributes="0" Order="-1" TextLocId="-" HelpLocId="-" ExtDataLocId="-"/>
-    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="17" Y="122" Width="312" Height="227" Attributes="3" Property="EulaRead" Text="..\Softenv\OmniPull\Windows\License.rtf" Order="600" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText" MsiKey="LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="17" Y="122" Width="312" Height="227" Attributes="3" Property="EulaRead" Text="License.rtf" Order="600" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText" MsiKey="LicenseAgreementDlg#AgreementText"/>
     <ROW Dialog_="MsiRMFilesInUse" Control="Cancel" Type="ImageButton" X="163" Y="359" Width="78" Height="28" Attributes="2" Text="[NextCancelButtons]" TextStyle="[MetroButtonText]" Order="100" MsiKey="MsiRMFilesInUse#Cancel" Options="1" ExtType="ImageButton" ExtData="[ButtonText_Cancel]" ExtDataLocId="-"/>
     <ROW Dialog_="PatchWelcomeDlg" Control="PatchWelcomeDlgDialogInitializer" Type="DialogInitializer" X="0" Y="0" Width="0" Height="0" Attributes="0" Order="-1" TextLocId="-" HelpLocId="-" ExtDataLocId="-"/>
     <ROW Dialog_="PatchWelcomeDlg" Control="ProductNameTitle" Type="Text" X="83" Y="21" Width="250" Height="80" Attributes="196611" Text="[ProductName]" TextStyle="[ProductNameForSplash]" Order="600" TextLocId="Metro.Control.Text.ProductName" MsiKey="PatchWelcomeDlg#ProductNameTitle"/>
@@ -295,9 +303,11 @@
     <ROW Feature_="AI64BitFiles" Component_="__3"/>
     <ROW Feature_="AI64BitFiles" Component_="AI_ExePath"/>
     <ROW Feature_="AI64BitFiles" Component_="aria2c.exe"/>
+    <ROW Feature_="AI64BitFiles" Component_="ffmpeg.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="logo4.exe" SourcePath="..\Softenv\OmniPull\Windows\icons\logo4.ico" Index="0"/>
+    <ROW Name="logo4_1.exe" SourcePath="icons\logo4.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -342,8 +352,8 @@
     <ROW Action="AI_DetectSoftware" Sequence="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
-    <ROW Condition="( Version9X OR ( NOT VersionNT64 ) OR ( VersionNT64 AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 602) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 603) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 1000) OR (MsiNTProductType = 1)) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT64Display]." DescriptionLocId="AI.LaunchCondition.NoSpecificNT64" IsPredefined="true" Builds="DefaultBuild"/>
-    <ROW Condition="( Version9X OR VersionNT64 OR ( VersionNT AND (VersionNT &lt;&gt; 601) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNTDisplay]." DescriptionLocId="AI.LaunchCondition.NoSpecificNT" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="( Version9X OR ( NOT VersionNT64 ) OR ( VersionNT64 AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 602) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 602) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 603) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 603) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 1000) OR (MsiNTProductType = 1)) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT64Display]." DescriptionLocId="AI.LaunchCondition.NoSpecificNT64" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="( Version9X OR VersionNT64 OR ( VersionNT AND (VersionNT &lt;&gt; 601) AND (VersionNT &lt;&gt; 602) AND (VersionNT &lt;&gt; 603) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNTDisplay]." DescriptionLocId="AI.LaunchCondition.NoSpecificNT" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="((VersionNT &lt;&gt; 501) AND (VersionNT &lt;&gt; 502))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild;MsiBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild;MsiBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild;MsiBuild"/>

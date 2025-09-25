@@ -1,32 +1,41 @@
-# aria2c_manager.py
-# This script manages the aria2c download manager, providing functionality to start the RPC server,
-# pause, resume downloads, and match download GIDs.
-# This file is part of the application and is licensed under the MIT License.
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# aria2c_manager.py
-# Manages the aria2c RPC server and download lifecycle, including resume, pause, remove and session handling
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
 import os
-import subprocess
 import time
 import psutil
 import aria2p
-from modules import config, setting
+import subprocess
+
 from modules.utils import log
-from modules.settings_manager import SettingsManager
+from modules import config, setting
 from modules.setting import load_d_list
+from modules.settings_manager import SettingsManager
+
 
 class Aria2cManager:
     def __init__(self):
         self.api = None
         self.client = None
-        #self.settings_manager = SettingsManager()
         self.session_file = os.path.join(config.sett_folder, "aria2c.session")
         config.aria2c_path = os.path.join(config.sett_folder, "aria2c.exe")
         self._ensure_session_file()
-        #self._terminate_existing_processes()
         setting.load_setting()
-        #self.settings_manager.load_settings()
+
         
         self._start_rpc_server()
         self._connect_api()
@@ -158,90 +167,18 @@ class Aria2cManager:
             return 0
 
 
-    
-    def force_clean_and_save_session(self):
-        """
-        Freeze aria2 state and save session without nuking resumable tasks.
-        - Keeps active/waiting/paused items (so GIDs survive restarts).
-        - Skips torrent parents/children and relation-linked entries.
-        - Purges only truly stale *results* (complete/removed), not live tasks.
-        """
+    def save_session_only(self):
+        """Lightweight: save current aria2 state without pausing/resuming or purging."""
+        api = self.api
+        if not api:
+            log("[aria2c] Cannot save session. API not available.", log_level=2)
+            return
         try:
-            api = self.api
-            if not api:
-                log("[aria2c] Cannot clean/save session. API not available.", log_level=2)
-                return
-
-            # 1) Freeze current state so the session snapshot is consistent.
-            try:
-                api.pause_all(force=False)
-                log("[aria2c] pause_all issued before save", log_level=1)
-            except Exception as e:
-                log(f"[aria2c] pause_all failed: {e}", log_level=2)
-
-            # 2) Purge only stale results; KEEP anything resumable or relation-linked.
-            def _has_relations(dl) -> bool:
-                # Parent/child relationships (naming varies by aria2p/version)
-                for k in ("following", "followed_by", "followedBy"):
-                    v = getattr(dl, k, None)
-                    if v:
-                        if isinstance(v, (list, tuple)):
-                            if any(v):  # non-empty
-                                return True
-                        else:
-                            return True
-                return False
-
-            downloads = []
-            try:
-                downloads = api.get_downloads()
-            except Exception as e:
-                log(f"[aria2c] get_downloads failed: {e}", log_level=2)
-
-            for dl in downloads or []:
-                st = (getattr(dl, "status", "") or "").lower()
-                is_bt = getattr(dl, "bittorrent", None) is not None
-
-                # Keep anything that could be resumed
-                if st in ("active", "waiting", "paused"):
-                    continue
-
-                # Be conservative with torrents and relation-linked entries
-                if is_bt or _has_relations(dl):
-                    # Even if 'complete' or 'error', skip purging here to preserve linkage.
-                    continue
-
-                # Only purge finished/removed *results* (do not delete files)
-                if st in ("complete", "removed"):
-                    try:
-                        if hasattr(api, "remove_download_result"):
-                            api.remove_download_result(dl.gid)
-                        elif hasattr(dl, "remove_result"):
-                            dl.remove_result()
-                        else:
-                            api.client.call("aria2.removeDownloadResult", dl.gid)
-                        log(f"[aria2c] Purged stale result GID#{dl.gid}", log_level=1)
-                    except Exception as e:
-                        log(f"[aria2c] Failed to purge result GID#{dl.gid}: {e}", log_level=3)
-
-                # Note: do NOT purge 'error' here; leaving it keeps metadata/relations intact
-                # so a later resume can re-attach correctly.
-
-            # 3) Save the session snapshot
-            try:
-                result = api.client.call("aria2.saveSession")
-                log(f"[aria2c] Session saved. Result: {result}", log_level=1)
-            except Exception as e:
-                log(f"[aria2c] saveSession failed: {e}", log_level=3)
-
-            # 4) Optionally resume all (light-touch) — comment out if you prefer manual control
-            try:
-                api.resume_all()
-            except Exception:
-                pass
-
+            result = api.client.call("aria2.saveSession")
+            log(f"[aria2c] Session saved (light). Result: {result}", log_level=1)
         except Exception as e:
-            log(f"[aria2c] force_clean_and_save_session error: {e}", log_level=3)
+            log(f"[aria2c] save_session_only failed: {e}", log_level=3)
+
 
 
 
@@ -250,7 +187,8 @@ class Aria2cManager:
             download = self.api.get_download(gid)
             if download and download.is_complete:
                 download.remove(force=True, files=False)
-                self.force_clean_and_save_session()
+                # self.force_clean_and_save_session()
+                self.save_session_only()
         except Exception:
             pass
 
@@ -389,6 +327,72 @@ class Aria2cManager:
 
         except Exception as e:
             log(f"[aria2c] Failed to clean session file: {e}", log_level=3)
+
+    
+    def shutdown_freeze_and_save(self, purge=True):
+        """
+        Shutdown path: pause all, (optionally) purge stale results, save session.
+        Do NOT resume here; the app is exiting.
+        """
+        api = self.api
+        if not api:
+            log("[aria2c] Cannot freeze/save on shutdown. API not available.", log_level=2)
+            return
+        # 1) Freeze
+        try:
+            api.pause_all(force=False)
+            log("[aria2c] pause_all issued for shutdown", log_level=1)
+        except Exception as e:
+            log(f"[aria2c] pause_all failed: {e}", log_level=2)
+
+        # 2) Purge finished/removed (optional)
+        if purge:
+            try:
+                def _has_relations(dl):
+                    for k in ("following", "followed_by", "followedBy"):
+                        v = getattr(dl, k, None)
+                        if v:
+                            if isinstance(v, (list, tuple)):
+                                if any(v):
+                                    return True
+                            else:
+                                return True
+                    return False
+
+                for dl in api.get_downloads() or []:
+                    st = (getattr(dl, "status", "") or "").lower()
+                    is_bt = getattr(dl, "bittorrent", None) is not None
+
+                    # Keep resumables
+                    if st in ("active", "waiting", "paused"):
+                        continue
+                    # Keep torrent parents/children for linkage safety
+                    if is_bt or _has_relations(dl):
+                        continue
+
+                    if st in ("complete", "removed"):
+                        try:
+                            if hasattr(api, "remove_download_result"):
+                                api.remove_download_result(dl.gid)
+                            elif hasattr(dl, "remove_result"):
+                                dl.remove_result()
+                            else:
+                                api.client.call("aria2.removeDownloadResult", dl.gid)
+                            log(f"[aria2c] Purged stale result GID#{dl.gid}", log_level=1)
+                        except Exception as e:
+                            log(f"[aria2c] Failed to purge result GID#{dl.gid}: {e}", log_level=3)
+            except Exception as e:
+                log(f"[aria2c] purge loop failed: {e}", log_level=2)
+
+        # 3) Save snapshot
+        try:
+            result = api.client.call("aria2.saveSession")
+            log(f"[aria2c] Session saved (shutdown). Result: {result}", log_level=1)
+        except Exception as e:
+            log(f"[aria2c] saveSession (shutdown) failed: {e}", log_level=3)
+
+        
+
 
 
 

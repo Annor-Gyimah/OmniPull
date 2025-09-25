@@ -1,7 +1,24 @@
-# user_guide_dialog.py
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QPushButton, QScrollArea, QWidget, QHBoxLayout
-from PySide6.QtGui import QPixmap
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel,  QPushButton, QScrollArea, QWidget, QHBoxLayout
+
 
 class UserGuideDialog(QDialog):
     def __init__(self, parent=None):
@@ -234,16 +251,6 @@ class UserGuideDialog(QDialog):
             body_label.setWordWrap(True)
             body_label.setStyleSheet("font-size: 13px; margin-bottom: 8px;")
             scroll_layout.addWidget(body_label)
-
-        # for title, body in sections:
-        #     title_label = QLabel(title)
-        #     title_label.setStyleSheet("font-weight: bold; font-size: 15px; margin-top: 12px;")
-        #     text = QLabel(body)
-        #     text.setWordWrap(True)
-        #     text.setStyleSheet("font-size: 13px; margin-bottom: 8px;")
-
-        #     scroll_layout.addWidget(title_label)
-        #     scroll_layout.addWidget(text)
 
         scroll_content.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_content)
