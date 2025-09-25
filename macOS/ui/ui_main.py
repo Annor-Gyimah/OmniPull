@@ -718,7 +718,7 @@ class Ui_MainWindow(object):
                 border-radius: 16px;
                 color: white;
                 border: 1px solid #333;
-                font-family: Monaco, Courier New, monospace;
+                font-family: Monaco;
                 font-size: 12px;
                 padding: 10px;
             }

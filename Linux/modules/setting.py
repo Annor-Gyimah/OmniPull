@@ -152,7 +152,6 @@ def save_d_list(d_list):
 def load_setting():
     settings = {}
     try:
-        log(f'Load Application setting from {config.sett_folder}', log_level=1)
         file = os.path.join(config.sett_folder, 'setting.cfg')
         with open(file, 'r') as f:
             settings = json.load(f)

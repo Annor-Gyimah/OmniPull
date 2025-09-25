@@ -91,12 +91,21 @@ class Aria2cManager:
                 continue
 
     def _start_rpc_server(self):
+
+        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen', log_level=1)
+        # log('starting application')
+        log(f'operating system: {config.operating_system_info}', log_level=1)
+        log(f'current working directory: {config.current_directory}', log_level=1)
         
         if not config.aria2c_path or not os.path.exists(config.aria2c_path):
             log("[aria2c] Executable not found. RPC server will not start.", log_level=2)
+            config.aria2_verified = False
             return
         else:
             log("[aria2c] Executable found. Starting RPC server.", log_level=1)
+            config.aria2_verified = True
+
+        setting.save_setting()
         
         max_conn = config.aria2c_config.get("max_connections", 16)
         if not isinstance(max_conn, int) or not (1 <= max_conn <= 16):

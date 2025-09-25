@@ -1,9 +1,29 @@
-from PySide6.QtCore import QObject, QThread, Signal, QTimer
-from ui.download_worker import DownloadWorker
-from ui.download_window import DownloadWindow
+
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
 from modules import config
 from modules.utils import log
-from PySide6.QtCore import QMetaObject, Qt, Slot, Q_ARG
+
+from ui.download_worker import DownloadWorker
+from ui.download_window import DownloadWindow
+
+from PySide6.QtCore import QObject, QThread, Signal, QTimer
+
 
 class QueueRunner(QObject):
     queue_finished = Signal(str)  # queue_id
@@ -70,37 +90,6 @@ class QueueRunner(QObject):
         self.threads.append(thread)
 
        
-
-        
-        # if config.show_download_window:
-        #     def show_window():
-        #         main_window = self.parent()
-        #         if hasattr(main_window, "download_windows"):
-        #             if d.id in main_window.download_windows:
-        #                 old_win = main_window.download_windows.pop(d.id)
-        #                 try:
-        #                     old_win.close()
-        #                 except Exception as e:
-        #                     log(f"[QueueRunner] Warning closing previous window: {e}")
-
-        #             win = DownloadWindow(d)
-        #             main_window.download_windows[d.id] = win
-        #             win.show()
-
-        #             # Connect worker signals to the download window
-        #             worker.progress_changed.connect(win.on_progress_changed)
-        #             worker.status_changed.connect(win.on_status_changed)
-        #             worker.log_updated.connect(win.on_log_updated)
-        #             win = DownloadWindow(d)
-        #             main_window.download_windows[d.id] = win
-        #             win.setAttribute(Qt.WA_DeleteOnClose)
-        #             win.show()
-
-        #             ✅ NO SIGNALS CONNECTED YET
-
-
-        #     QTimer.singleShot(300, show_window)
-
     def handle_finished(self, d):
         log(f"[QueueRunner] Successfully finished: {d.name}", log_level=2)
         self._close_window(d)

@@ -166,7 +166,7 @@ class SettingsWindow(QDialog):
         """)
         
         self.qt_font_dpi.setToolTip(self.tr('Set value for DPI. Restart app to reflect.'))
-        self.qt_font_dpi.addItems([str(i) for i in range(60, 151)])
+        self.qt_font_dpi.addItems([str(i) for i in range(40, 151)])
 
         self.language_combo = QComboBox()
         self.language_combo.setToolTip(self.tr('Select your preferred language'))
@@ -909,9 +909,8 @@ class SettingsWindow(QDialog):
             qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
             if self.translator.load(qm_path):
                 QCoreApplication.instance().installTranslator(self.translator)
-                print(f"[Language] Loaded {language} translation.")
             else:
-                print(f"[Language] Failed to load {qm_path}")
+                pass
 
        
 

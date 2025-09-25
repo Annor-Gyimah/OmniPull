@@ -18,98 +18,93 @@
 
 # check and update application
 # import io
-import py_compile
-import shutil
+
+import os
 import sys
+import wget
+import time
+import stat
+import httpx
+import shutil
 import tarfile
 import zipfile
-import time
 import tempfile
-import wget
-import subprocess
-from . import config
-import os
-from datetime import datetime, timedelta
-from . import video
-from .utils import log, download, run_command, delete_folder, popup
-import webbrowser
-import httpx
-import socket
-import uuid
 import requests
-import stat
+import subprocess
+import py_compile
 from pathlib import Path
+from typing import Tuple
+from modules import config
+from datetime import datetime, timedelta
+from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
-# def get_changelog():
-#     """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
-#     """
 
-#     # url will be chosen depend on frozen state of the application
-#     source_code_url = 'http://localhost/lite/ChangeLog.txt'
-#     new_release_url = 'http://localhost/lite/ChangeLog.txt'
-#     url = new_release_url if config.FROZEN else source_code_url
-
-#     # url = new_release_url
-
-#     # get BytesIO object
-#     buffer = download(url)
-
-#     if buffer:
-#         # convert to string
-#         contents = buffer.getvalue().decode()
-
-#         # extract version number from contents
-#         latest_version = contents.splitlines()[0].replace(':', '').strip()
-
-#         return latest_version, contents
-#     else:
-#         log("check_for_update() --> couldn't check for update, url is unreachable")
-#         return None
-
-
-def get_changelog():
-    """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
+def get_changelog() -> Tuple[str | None, str | None]:
     """
+    Returns (latest_version, contents) or (None, None) on failure.
+    """
+    try:
+        r = httpx.get(
+            "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": f"{config.APP_NAME}-Updater"
+            },
+            follow_redirects=True, timeout=30.0
+        )
+        r.raise_for_status()
+        data = r.json()
 
-    # Get latest release info from GitHub API
-    content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest", headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
-                        follow_redirects=True).json()
+        raw_tag = (data.get("tag_name") or "").strip()
+        latest = _normalize_version_str(raw_tag)  # reuse helper above
 
-    # Extract tagName and remove any unwanted characters like leading dots
-    tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
-    
+        # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
+        assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
+        changelog_url = (
+            assets.get("ChangeLog.txt") or
+            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Linux/ChangeLog.txt"
+        )
 
-    
-    # currentVersion = list(map(int, config.APP_VERSION.split(".")))
-    
-    source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Linux/ChangeLog.txt'
-    new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Linux/ChangeLog.txt'
+        # Fetch changelog text (best-effort)
+        text = None
+        try:
+            c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
+                follow_redirects=True, timeout=30.0)
+            if c.status_code == 200:
+                text = c.text
+            else:
+                log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
+        except httpx.RequestError as e:
+            log(f"Changelog fetch error: {e}", log_level=2)
 
-    url = new_release_url if config.FROZEN else source_code_url
+        if not latest:
+            log("Unable to parse latest version from GitHub response.", log_level=2)
+
+        return latest, text
+
+    except httpx.HTTPStatusError as e:
+        log(f"GitHub API error: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except httpx.RequestError as e:
+        log(f"Network error while checking release: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except Exception as e:
+        log(f"Unexpected error in get_changelog: {e}", log_level=3)
+        return config.APP_VERSION, None
 
 
-    # get BytesIO object
-    buffer = download(url)
+def format_progress_bar(percentage, bar_length=20):
+    filled_length = int(bar_length * percentage // 100)
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+    return f"{percentage:3.0f}%|{bar}"
 
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        #latest_version = contents.splitlines()[0].replace(':', '').strip()
-        latest_version = tagName
-
-        config.APP_LATEST_VERSION = latest_version
-       
-
-        return latest_version, contents
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
-
-
+def sizeof_fmt(num, suffix="B"):
+    for unit in ['','K','M','G','T']:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}P{suffix}"
 
 def detect_install_mode() -> str:
     """
@@ -128,7 +123,6 @@ def detect_install_mode() -> str:
     # Fallback to deb updater; it’s the safer default for a non-AppImage run
     return "deb"
 
-
 def update(via: str | None = None):
     """
     Auto-selects the right updater unless 'via' is explicitly provided.
@@ -146,8 +140,76 @@ def update(via: str | None = None):
     except Exception as e:
         log(f"Update failed in mode={mode}: {e}", log_level=3)
 
+def download_deb_with_progress_httpx(url: str, dest_path: Path, *, log, chunk_size: int = 1024 * 1024):
+    """
+    Download URL -> dest_path with resume support and tqdm-like logging via `log()`.
+    """
+    headers = {"User-Agent": "Mozilla/5.0"}
+    file_mode = "wb"
+    existing_size = 0
+
+    if dest_path.exists():
+        existing_size = dest_path.stat().st_size
+        headers["Range"] = f"bytes={existing_size}-"
+        file_mode = "ab"
+        log(f"Resuming download from byte {existing_size}")
+    else:
+        log("Starting new download")
+
+    try:
+        with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=60.0) as r:
+            if r.status_code not in (200, 206):
+                raise RuntimeError(f"Unexpected status code: {r.status_code}")
+
+            # Determine total size (if available)
+            if "Content-Range" in r.headers:
+                # e.g. "bytes 100-999/1000" -> take the total part after '/'
+                total_size = int(r.headers["Content-Range"].split("/")[-1])
+            else:
+                total_size = int(r.headers.get("Content-Length", 0)) or 0
+
+            # Add the bytes we already have on disk (for percentage calc)
+            total_size = total_size if total_size > 0 else 0
+            bytes_downloaded = existing_size
+
+            start_time = time.time()
+            last_logged_bucket = -1  # track 5% buckets
+
+            with open(dest_path, file_mode) as f:
+                for chunk in r.iter_bytes(chunk_size=chunk_size):
+                    if not chunk:
+                        continue
+                    f.write(chunk)
+                    bytes_downloaded += len(chunk)
+
+                    elapsed = max(time.time() - start_time, 1e-6)
+                    speed = bytes_downloaded / elapsed  # B/s
+
+                    if total_size > 0:
+                        percent = (bytes_downloaded / total_size) * 100
+                        eta = (total_size - bytes_downloaded) / speed if speed > 0 else 0
+                        bucket = int(percent // 5)  # log every 5%
+                        if bucket != last_logged_bucket or bytes_downloaded == total_size:
+                            bar = format_progress_bar(percent)
+                            log(
+                                f"Downloading update: {bar} | "
+                                f"{sizeof_fmt(bytes_downloaded)}/{sizeof_fmt(total_size)} "
+                                f"[{elapsed:05.0f}s<{eta:02.0f}s, {sizeof_fmt(speed)}/s]"
+                            )
+                            last_logged_bucket = bucket
+                    else:
+                        # Unknown total size -> log every ~5MB increment
+                        if bytes_downloaded % (5 * 1024 * 1024) < chunk_size:
+                            log(
+                                f"Downloading update: {sizeof_fmt(bytes_downloaded)} "
+                                f"[{elapsed:05.0f}s, {sizeof_fmt(speed)}/s]"
+                            )
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {url}: {e}")
+
 
 ############################# deb #################################################
+
 
 def deb_update():
     """
@@ -180,12 +242,14 @@ def deb_update():
         # download
         log('Downloading update from', main_tar_url)
         popup(title="Update Info", msg='Downloading update, please wait... \n Do not close the app yet.', type_='info')
-        with requests.get(main_tar_url, stream=True) as r:
-            r.raise_for_status()
-            with open(tar_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
+        # with requests.get(main_tar_url, stream=True) as r:
+        #     r.raise_for_status()
+        #     with open(tar_path, "wb") as f:
+        #         for chunk in r.iter_content(chunk_size=1024 * 1024):
+        #             if chunk:
+        #                 f.write(chunk)
+
+        download_deb_with_progress_httpx(main_tar_url, tar_path, log=log)
 
         # unpack to a temporary folder first
         unpack = Path(tempfile.mkdtemp(prefix=".omni_unpack_"))
@@ -240,7 +304,7 @@ def deb_update():
         # optional: prune old versions (keep 2)
         keep = 2
         kids = sorted([d for d in versions.iterdir() if d.is_dir()],
-                      key=lambda p: p.stat().st_mtime, reverse=True)
+            key=lambda p: p.stat().st_mtime, reverse=True)
         for d in kids[keep:]:
             shutil.rmtree(d, ignore_errors=True)
 
@@ -257,10 +321,94 @@ def deb_update():
 
 
 
+
 ############################## APP IMAGE ###########################################
+
+
+def download_appimage_with_progress_httpx(url: str, dest_path: Path, *, log, chunk_size: int = 1024 * 1024):
+    """
+    Download URL -> dest_path with resume support (only if dest_path has >0 bytes).
+    Logs in ~5% buckets when total size is known, else every ~5MB.
+    """
+    headers = {"User-Agent": "Mozilla/5.0"}
+    file_mode = "wb"
+    existing_size = 0
+
+    if dest_path.exists():
+        existing_size = dest_path.stat().st_size
+        if existing_size > 0:
+            headers["Range"] = f"bytes={existing_size}-"
+            file_mode = "ab"
+            log(f"Resuming download from byte {existing_size}")
+        else:
+            # zero-byte file -> treat as fresh download to avoid Range: 0-
+            log("Existing zero-byte temp file; starting fresh download")
+            file_mode = "wb"
+    else:
+        log("Starting new download")
+
+    timeout = httpx.Timeout(connect=10.0, read=120.0, write=120.0, pool=60.0)
+
+    try:
+        with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=timeout) as r:
+            if r.status_code not in (200, 206):
+                raise RuntimeError(f"Unexpected status code: {r.status_code}")
+
+            # Figure out total size if provided
+            if "Content-Range" in r.headers:
+                # "bytes 100-999/1000" -> take the part after '/'
+                total_size = int(r.headers["Content-Range"].split("/")[-1])
+            else:
+                total_size = int(r.headers.get("Content-Length") or 0)
+
+            bytes_downloaded = existing_size
+            start_time = time.time()
+            last_logged_bucket = -1
+
+            # Ensure parent dir exists
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(dest_path, file_mode) as f:
+                for chunk in r.iter_bytes(chunk_size=chunk_size):
+                    if not chunk:
+                        continue
+                    f.write(chunk)
+                    bytes_downloaded += len(chunk)
+
+                    elapsed = max(time.time() - start_time, 1e-6)
+                    speed = bytes_downloaded / elapsed  # B/s
+
+                    if total_size > 0:
+                        percent = (bytes_downloaded / total_size) * 100.0
+                        eta = (total_size - bytes_downloaded) / speed if speed > 0 else 0
+                        bucket = int(percent // 5)
+                        if bucket != last_logged_bucket or bytes_downloaded == total_size:
+                            bar = format_progress_bar(percent)
+                            log(f"Downloading update: {bar} | "
+                                f"{sizeof_fmt(bytes_downloaded)}/{sizeof_fmt(total_size)} "
+                                f"[{elapsed:05.0f}s<{eta:02.0f}s, {sizeof_fmt(speed)}/s]")
+                            last_logged_bucket = bucket
+                    else:
+                        # Unknown total size -> log every ~5MB increment
+                        if bytes_downloaded % (5 * 1024 * 1024) < chunk_size:
+                            log(f"Downloading update: {sizeof_fmt(bytes_downloaded)} "
+                                f"[{elapsed:05.0f}s, {sizeof_fmt(speed)}/s]")
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {url}: {e}")
 
 def _appimage_path() -> str:
     return os.environ.get("APPIMAGE") or str(Path.home() / "Applications" / "OmniPull.AppImage")
+
+
+
+def _tmp_download_path(target_path: str) -> str:
+    # put temp file in the same directory as target, but do NOT create it yet
+    d = os.path.dirname(target_path)
+    os.makedirs(d, exist_ok=True)
+    # unique name next to target
+    return os.path.join(d, f".OmniPull.{int(time.time())}.download")
+
+
 
 def appimage_update():
     OWNER = "Annor-Gyimah"
@@ -281,16 +429,18 @@ def appimage_update():
 
         # Download to a temp file next to target
         os.makedirs(os.path.dirname(TARGET), exist_ok=True)
-        fd, tmp = tempfile.mkstemp(prefix=".OmniPull.", dir=os.path.dirname(TARGET))
-        os.close(fd)
+        # fd, tmp = tempfile.mkstemp(prefix=".OmniPull.", dir=os.path.dirname(TARGET))
+        tmp = _tmp_download_path(TARGET)
+        # os.close(fd)
         popup(title="Update Info", msg='Downloading update, please wait... \n Do not close the app yet.', type_='info')
         log(f"Downloading {url} to {tmp}")
-        with requests.get(url, stream=True) as resp:
-            resp.raise_for_status()
-            with open(tmp, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=1024*1024):
-                    if chunk:
-                        f.write(chunk)
+        # with requests.get(url, stream=True) as resp:
+        #     resp.raise_for_status()
+        #     with open(tmp, "wb") as f:
+        #         for chunk in resp.iter_content(chunk_size=1024*1024):
+        #             if chunk:
+        #                 f.write(chunk)
+        download_appimage_with_progress_httpx(url, tmp, log=log)
 
         # Make executable and swap atomically
         st = os.stat(tmp)
