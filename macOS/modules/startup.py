@@ -1,6 +1,24 @@
-import platform
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
 import os
 import sys
+import platform
 from modules.Os import OS
 
 home_address = os.path.expanduser("~")
@@ -30,25 +48,6 @@ def checkStartUp():
         else:
             return False
 
-    # check if it is Windows
-    elif os_type == OS.WINDOWS:
-        # try to open startup key and check dynamite value
-        try:
-            aKey = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, winreg.KEY_ALL_ACCESS)
-            startupvalue = winreg.QueryValueEx(aKey, 'main')
-            startup = True
-        except WindowsError:
-            startup = False
-
-        # Close the connection
-        winreg.CloseKey(aKey)
-
-        # if the startup enabled or disabled
-        if startup:
-            return True
-        if not startup:
-            return False
 
 # add startup file
 
