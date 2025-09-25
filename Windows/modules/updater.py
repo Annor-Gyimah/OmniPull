@@ -220,8 +220,6 @@ def update():
     main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
     update_cleanup_script_url = assets.get("update_and_cleanup.bat") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/update_and_cleanup.bat"
 
-    # main_zip_url = 'http://localhost/lite/main.zip'
-    # update_cleanup_script_url = 'http://localhost/lite/update_and_cleanup.bat'
 
     temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
     download_zip = temp_dir / "main.zip"
@@ -245,17 +243,17 @@ def update():
         # Schedule tasks – one-time run 5 minutes from now
         today = datetime.now()
 
-        # Set time to 1:00 PM today
-        # when = today.replace(hour=1, minute=6, second=0, microsecond=0)
+        # Set time to 12:00 PM 
+        when = today.replace(hour=12, minute=5, second=0, microsecond=0)
 
-        now = datetime.now()
-        when = now.replace(hour=1, minute=10, second=0, microsecond=0)
-        if now >= when:
-            when += timedelta(days=1)
+        # now = datetime.now()
+        # when = now.replace(hour=1, minute=10, second=0, microsecond=0)
+        # if now >= when:
+        #     when += timedelta(days=1)
 
         schedule_one_shot_update(exe_path, temp_dir, when)
 
-        popup(title=config.APP_NAME, msg=f"Update scheduled at {when.strftime('%Y-%m-%d %H:%M')}. The app may close briefly.", type_="info")
+        popup(title=config.APP_NAME, msg=f"Update scheduled at {when.strftime('%Y-%m-%d %H:%M')}.", type_="info")
         config.confirm_update = True
     except Exception as e:
         config.confirm_update = False
@@ -274,7 +272,7 @@ def schedule_one_shot_update(exe_path: Path, temp_dir: Path, when: datetime):
     sd = when.strftime("%Y/%m/%d")
 
     bat = Path(os.path.expanduser("~")) / "update_and_cleanup.bat"  # write or download this once
-    # Make sure the file is unblocked if you downloaded it
+
     subprocess.run(["powershell","-NoProfile","-Command", f"Unblock-File -LiteralPath '{bat}'"], check=True)
 
     # Action: run via cmd.exe for reliability; pass both args: exe and temp_dir

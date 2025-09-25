@@ -11,7 +11,8 @@
 
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/latest/total)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/total)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total)
+[![Download OmniPull](https://img.shields.io/sourceforge/dd/omnipull.svg)](https://sourceforge.net/projects/omnipull/files/latest/download)
 
     
 </div>
@@ -108,17 +109,64 @@ chmod +x omnipull*.appimage
 
 
 
-### 🖥️ MacOS Installation
+### 🖥️ macOS Installation
 
-You can [download the latest OmniPull installer for MacOS](https://github.com/Annor-Gyimah/omnipull/releases) from the Releases section. 
+Download the latest OmniPull for macOS from the [Releases](https://github.com/Annor-Gyimah/omnipull/releases) page.
 
-- After download of the latest version release, use xattr to relief it of the gatekeeper.
-- Change permissions of the dmg by using chmod.
-- Double click to then install by dragging the OmniPull to the application's folder and double click on the Browser connectors to install the them.
-- Summary
+**Recommended: direct latest links**
+- Intel: https://github.com/Annor-Gyimah/omnipull/releases/latest/download/omnipull-intel.dmg  
+- Apple Silicon: https://github.com/Annor-Gyimah/omnipull/releases/latest/download/omnipull-arm64.dmg
+
+---
+
+#### Option A — No-Terminal (UI) install
+
+1. **Open the DMG**
+   - Double-click the downloaded `.dmg` (e.g., `omnipull-intel-2.0.0.dmg` or `omnipull-arm64-2.0.0.dmg`).
+
+2. **Install the app**
+   - In the window that appears, **drag `OmniPull.app` into the `Applications` folder** shortcut.
+
+3. **Install browser connectors (from the same DMG window)**
+   - **Double-click `Firefox Connector`** and follow the prompts to add/enable the extension.
+   - **Double-click `Edge Connector`** and follow the prompts to add/enable the extension.
+
+4. **Eject the DMG**
+   - Click the eject button next to the mounted volume in Finder (or right-click the volume → *Eject*).
+
+5. **Launch OmniPull**
+   - Open **Applications → OmniPull**.  
+   - If you see a security prompt:
+     - **Right-click the app → Open → Open** (creates a one-time Gatekeeper exception), **or**
+     - Go to **System Settings → Privacy & Security**, scroll to *“OmniPull was blocked”* and click **Open Anyway**.
+
+> Tip: If the browser shows an *“Are you sure?”* dialog while adding the connector, choose **Allow** / **Add** to enable it.
+
+---
+
+#### Option B — Install via Terminal
+
 ```bash
+cd ~/Downloads
+FILE="omnipull-intel-2.0.0.dmg"   # or omnipull-arm64-2.0.0.dmg
 
+# Remove quarantine from the DMG (prevents it from propagating):
+xattr -d com.apple.quarantine "$FILE" || true
 
+# Mount and capture the mount point:
+MOUNT_POINT="$(hdiutil attach "$FILE" | awk '/Volumes/ {print $3; exit}')"
+
+# Copy the app into Applications:
+cp -R "$MOUNT_POINT/OmniPull.app" /Applications/
+
+# Eject the DMG:
+hdiutil detach "$MOUNT_POINT"
+
+# (Optional) Ensure the installed app isn't quarantined:
+xattr -dr com.apple.quarantine /Applications/OmniPull.app || true
+
+# Launch:
+open -a "OmniPull"
 ```
 
 

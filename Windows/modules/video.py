@@ -567,7 +567,7 @@ def unzip_ffmpeg():
         delete_file(file_name)
         delete_folder(extracted_folder, verbose=True)
         
-        param = dict(title='Ffmpeg Info', msg='Ffmpeg is now available. Please try download again.', type_='info')
+        param = dict(title='Ffmpeg Info', msg='Ffmpeg is now available. Please try download the video again.', type_='info')
         config.main_window_q.put(('popup', param))
         log('ffmpeg update:', 'ffmpeg .. is ready at: ', folder)
     except Exception as e:
