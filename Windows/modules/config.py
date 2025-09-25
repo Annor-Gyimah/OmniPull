@@ -59,7 +59,7 @@ machine_id = None
 terminate = False 
 
 # download engine
-download_engine = 'yt-dlp'  # download engine to be used, aria2c or yt-dlp
+download_engine = 'curl'  # download engine to be used, aria2c or yt-dlp
 
 
 # settings parameters

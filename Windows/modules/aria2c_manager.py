@@ -58,11 +58,20 @@ class Aria2cManager:
 
     def _start_rpc_server(self):
         
+        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen', log_level=1)
+        # log('starting application')
+        log(f'operating system: {config.operating_system_info}', log_level=1)
+        log(f'current working directory: {config.current_directory}', log_level=1)
+
         if not config.aria2c_path or not os.path.exists(config.aria2c_path):
             log("[aria2c] Executable not found. RPC server will not start.", log_level=2)
+            config.aria2_verified = False
             return
         else:
             log("[aria2c] Executable found. Starting RPC server.", log_level=1)
+            config.aria2_verified = True
+        
+        setting.save_setting()
         
         max_conn = config.aria2c_config.get("max_connections", 16)
         if not isinstance(max_conn, int) or not (1 <= max_conn <= 16):
@@ -141,6 +150,102 @@ class Aria2cManager:
         except Exception as e:
             log(f"[aria2c] Failed to resume GID#{gid}: {e}", log_level=3)
         return False
+    
+
+    def _collect_related_gids(self, root_gid):
+        """
+        Return a set of GIDs related to root_gid:
+        - direct relations via following/followedBy/belongsTo
+        - any torrent downloads sharing the same infoHash
+        """
+        api = self.api
+        if not api or not root_gid:
+            return set()
+
+        related = set()
+        stack = [root_gid]
+        seen = set()
+
+        # Try to read the infoHash of the root (to match siblings)
+        try:
+            root = api.get_download(root_gid)
+        except Exception:
+            root = None
+
+        root_infohash = None
+        if root is not None:
+            # aria2p exposes .info_hash (if available)
+            root_infohash = getattr(root, "info_hash", None) or getattr(root, "infoHash", None)
+
+        while stack:
+            gid = stack.pop()
+            if gid in seen:
+                continue
+            seen.add(gid)
+            related.add(gid)
+            try:
+                dl = api.get_download(gid)
+            except Exception:
+                dl = None
+
+            if not dl:
+                continue
+
+            # pull relation fields if present
+            for key in ("following", "followed_by", "followedBy", "belongsTo"):
+                rel = getattr(dl, key, None)
+                if not rel:
+                    continue
+                if isinstance(rel, (list, tuple)):
+                    for g in rel:
+                        if g and g not in seen:
+                            stack.append(g)
+                elif isinstance(rel, str):
+                    if rel not in seen:
+                        stack.append(rel)
+
+            # also collect all downloads with the same infoHash
+            try:
+                if root_infohash:
+                    for other in api.get_downloads() or []:
+                        ih = getattr(other, "info_hash", None) or getattr(other, "infoHash", None)
+                        if ih and ih == root_infohash and other.gid not in related:
+                            stack.append(other.gid)
+            except Exception:
+                pass
+
+        return related
+    
+    def pause_family(self, root_gid):
+        """
+        Force-pause the whole torrent family for the given root GID.
+        """
+        api = self.api
+        if not api or not root_gid:
+            return False
+        gids = self._collect_related_gids(root_gid)
+        paused_any = False
+        for gid in gids:
+            try:
+                # forcePause via raw RPC is the most reliable for BT trees
+                api.client.call("aria2.forcePause", gid)
+                paused_any = True
+            except Exception:
+                try:
+                    dl = api.get_download(gid)
+                    if dl and not dl.is_complete:
+                        dl.pause()
+                        paused_any = True
+                except Exception:
+                    pass
+
+        # Persist, but don't resume anything
+        try:
+            api.client.call("aria2.saveSession")
+        except Exception:
+            pass
+        return paused_any
+        
 
     def remove(self, gid):
         try:

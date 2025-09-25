@@ -18,49 +18,20 @@
 
 # check and update application
 # import io
-import py_compile
-import shutil
+
+import os
 import sys
+import wget
+import time
+import httpx
+import shutil
 import zipfile
 import tempfile
-import wget
 import subprocess
-from . import config
-import os
+import py_compile
+from modules import config
 from datetime import datetime, timedelta
-from . import video
-from .utils import log, download, run_command, delete_folder, popup, get_mac_id
-import webbrowser
-import httpx
-import socket
-import uuid
-import requests
-
-def check_for_update():
-    """download version.py from github, extract latest version number return app latest version"
-    """
-
-    # do not use, will use get_changelog() instead
-
-    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/Windows/pyidm/version.py'
-    new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
-    url = new_release_url if config.FROZEN else source_code_url
-
-    # get BytesIO object
-    buffer = download(url)
-
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        latest_version = contents.rsplit(maxsplit=1)[-1].replace("'", '')
-
-        return latest_version
-
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
+from modules.utils import log, download, run_command, delete_folder, popup
 
 
 def get_changelog():
@@ -77,8 +48,8 @@ def get_changelog():
         
 
         # url will be chosen depend on frozen state of the application
-        source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
-        new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/ChangeLog.txt'
+        source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt'
+        new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt'
         url = new_release_url if config.FROZEN else source_code_url
         # url = new_release_url
 
@@ -102,7 +73,178 @@ def get_changelog():
         log(f"An error occurred while fetching the changelog: {e}", log_level=3)
         return None, None
     
+
+
+
+
+
+def format_progress_bar(percentage, bar_length=20):
+    filled_length = int(bar_length * percentage // 100)
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+    return f"{percentage:3.0f}%|{bar}"
+
+def sizeof_fmt(num, suffix="B"):
+    # Human-readable file size
+    for unit in ['','K','M','G','T']:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}P{suffix}"
+
+def download_main_zip_httpx_resume(url, dest_path):
+    headers = {}
+    file_mode = "wb"
+
+    if dest_path.exists():
+        existing_size = dest_path.stat().st_size
+        headers["Range"] = f"bytes={existing_size}-"
+        file_mode = "ab"
+        log(f"Resuming download from byte {existing_size}")
+    else:
+        existing_size = 0
+        log("Starting new download")
+
+    try:
+        with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=60.0) as r:
+            if r.status_code in (200, 206):
+                total_size = int(r.headers.get("Content-Range", "").split("/")[-1]) if "Content-Range" in r.headers else int(r.headers.get("Content-Length", 0))
+                total_size += existing_size
+                bytes_downloaded = existing_size
+
+                start_time = time.time()
+                last_log_percent = -1
+
+                with open(dest_path, file_mode) as f:
+                    for chunk in r.iter_bytes():
+                        f.write(chunk)
+                        bytes_downloaded += len(chunk)
+
+                        percent = (bytes_downloaded / total_size) * 100
+                        now = time.time()
+                        elapsed = now - start_time
+                        speed = bytes_downloaded / elapsed if elapsed > 0 else 0
+                        eta = (total_size - bytes_downloaded) / speed if speed > 0 else 0
+
+                        # Only log every 5% or on last chunk
+                        current_percent = int(percent // 5) * 5
+                        if current_percent != last_log_percent or bytes_downloaded == total_size:
+                            bar = format_progress_bar(percent)
+                            log(f"Downloading update:  {bar} | {sizeof_fmt(bytes_downloaded)}/{sizeof_fmt(total_size)} "
+                                f"[{elapsed:05.0f}s<{eta:02.0f}s, {sizeof_fmt(speed)}/s]")
+                            last_log_percent = current_percent
+            else:
+                raise Exception(f"Unexpected status code: {r.status_code}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {url}: {e}")
+
+def is_main_zip_fully_downloaded(url, dest_path):
+    try:
+        r = httpx.head(url, follow_redirects=True, timeout=15.0)
+        total_size = int(r.headers.get("Content-Length", 0))
+        return dest_path.exists() and dest_path.stat().st_size >= total_size
+    except Exception:
+        return False
+
+
+def update():
+    # Get the latest release from GitHub API
+    content = httpx.get(
+        url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest", 
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"
+        },
+        follow_redirects=True
+    ).json()
+
+    tagName = content["tag_name"].lstrip('.')  # Remove any leading dots
+
+    # url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
+    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/update.bat"  # URL for update.sh
+    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/cleanup.bat"
+    main_zip_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tagName}/main.zip"
+
+
     
+    # Create a hidden temporary directory in the user's home directory
+    temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
+    download_path = os.path.join(temp_dir, "main.zip")
+    update_script_path = os.path.join(temp_dir, "update.bat")
+    dir = os.path.expanduser("~")
+    cleanup_script_path = os.path.join(dir, "cleanup.bat")
+
+    current_time = datetime.now()
+    #run_time = current_time + timedelta(minutes=2)
+    run_time2 = current_time + timedelta(minutes=5)
+
+    try:
+        # Download update files to the temporary directory
+        log(f"Downloading update files...", log_level=1)
+        popup(title="Update Info", msg="Downloading updates, please wait... \n Do not close the app yet.", type_="info")
+        wget.download(update_script_url, update_script_path)
+        download_main_zip_httpx_resume(main_zip_url, download_path)
+
+        if not os.path.exists(cleanup_script_path): wget.download(cleanup_script_url, cleanup_script_path)
+
+        log(f"\nDownload completed.", log_level=1)
+
+        # Extract the downloaded tar.gz file in the temporary directory
+        log(f"Extracting update package...", log_level=1)
+        with zipfile.ZipFile(download_path, 'r') as zip_ref:  # extract zip file
+            zip_ref.extractall(temp_dir)
+        log(f"Extraction completed.", log_level=1)
+
+        source_file = os.path.join(temp_dir, "main.exe")
+        update_command = f'"{update_script_path}" "{source_file}"'
+        cleanup_command = f'"{cleanup_script_path}" "{temp_dir}"'
+        try:
+            # Construct a command to create a scheduled task
+            task_name = f"{config.APP_NAME}_Update"
+
+            task_command = (
+                
+                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
+
+            )
+
+        
+            # Schedule the cleanup task
+            task_name_cleanup = f"{config.APP_NAME}_Cleanup"
+            task_command_cleanup = (
+                f'schtasks /create /tn "{task_name_cleanup}" /tr "{cleanup_command}" /sc daily /st 12:05:00 /f'
+            )
+            
+            # Run the command as administrator
+            # popup(msg="Updates to be installed at 12:00:00 pm", title=config.APP_NAME, type_="info")
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command_cleanup}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
+            log(f"Update scheduled to run on the next reboot.", log_level=3)
+            config.confirm_update = True
+            # end_time = current_time + timedelta(seconds=5)
+            # popup(msg=f"Ending the application in {end_time}", title=config.APP_NAME, type_="quit_app")
+
+        except subprocess.CalledProcessError as e:
+            log(f"Failed to schedule update: {e}", log_level=3)
+            config.confirm_update = False
+    except Exception as e:
+        log(f"An error occurred during update: {e}", log_level=3)
+        
+        popup(
+            msg="Windows Defender real-time protection is enabled. "
+                "Please disable it temporarily and start the updating process again.",
+            title=config.APP_NAME,
+            type_="critical"
+        )
+   
+   
+
 
 
 def update():
@@ -120,8 +262,8 @@ def update():
     
      
     # url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/update.bat"  # URL for update.sh
-    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/Windows/Windows/cleanup.bat"
+    update_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/update.bat"  # URL for update.sh
+    cleanup_script_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/cleanup.bat"
     main_zip_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tagName}/main.zip"
 
 
@@ -136,8 +278,6 @@ def update():
     current_time = datetime.now()
     #run_time = current_time + timedelta(minutes=2)
     run_time2 = current_time + timedelta(minutes=5)
-   
-
 
 
     try:
@@ -165,23 +305,12 @@ def update():
             task_name = f"{config.APP_NAME}_Update"
 
             task_command = (
-                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc minute /mo 3 /rl HIGHEST /f'
-
-                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
-
+                
                 f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
 
-                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
-
-                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" 'f'/sc daily /st 12:00 /ri 60 /du 24:00 /rl HIGHEST /f'
-
-            
-                
             )
 
-            
-            
-
+        
             # Schedule the cleanup task
             task_name_cleanup = f"{config.APP_NAME}_Cleanup"
             task_command_cleanup = (
@@ -321,64 +450,3 @@ def update_youtube_dl():
     log('delete temp folder')
     log('youtube_dl module ..... done updating')
 
-
-class SoftwareUpdateChecker:
-    def __init__(self, api_url, software_version):
-        self.api_url = api_url
-        self.software_version = software_version
-        self.machine_id = self.get_machine_id()
-
-
-    def get_machine_id(self):
-        # Check if machine_id already exists in a local file
-        # config_file = 'machine_config.json'
-        # if os.path.exists(config_file):
-        #     with open(config_file, 'r') as file:
-        #         data = json.load(file)
-        #         return data.get('machine_id')
-        
-        # If no machine_id found, generate it based on the MAC address or UUID
-        mac_address = get_mac_id()
-        machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
-        config.machine_id = machine_id
-
-        # Save it for future use
-        # with open(config_file, 'w') as file:
-        #     json.dump({'machine_id': machine_id}, file)
-
-        return machine_id
-
-    def get_machine_info(self):
-        # Get the system information (for example: MAC address, computer name, etc.)
-        mac_address = get_mac_id()
-        computer_name = socket.gethostname()
-        operating_system = config.operating_system_info
-
-        return {
-            'mac_address': mac_address,
-            'computer_name': computer_name,
-            'operating_system': operating_system,
-            'software_version': self.software_version,
-            'machine_id': f'{str(uuid.uuid5(uuid.NAMESPACE_DNS, get_mac_id))}' if config.machine_id == None else self.machine_id
-        }
-
-
-    def server_check_update(self):
-        machine_info = self.get_machine_info()
-
-        try:
-            response = requests.post(
-                f"{self.api_url}/software-update/",
-                json=machine_info
-            )
-            if response.status_code == 200:
-                update_status = response.json()
-                print(update_status)
-                if update_status.get('update_needed'):
-                    log(f"Update required: {update_status.get('new_version')}")
-                else:
-                    log(f"You are up to date. Version: {self.software_version}")
-            else:
-                log("Error checking update status")
-        except requests.RequestException as e:
-            log(f"Error connecting to the server: {e}")

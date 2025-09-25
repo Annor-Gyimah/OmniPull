@@ -233,7 +233,7 @@ class SettingsWindow(QDialog):
 
 
         download_engine = QComboBox()
-        download_engine.addItems(["yt-dlp", "aria2", "curl"])
+        download_engine.addItems(["aria2", "curl", "yt-dlp"])
         self.download_engine_combo = download_engine
 
         self.curl_proxy_checkBox = QCheckBox(self.tr("Use Proxy"))
@@ -923,9 +923,9 @@ class SettingsWindow(QDialog):
             qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
             if self.translator.load(qm_path):
                 QCoreApplication.instance().installTranslator(self.translator)
-                print(f"[Language] Loaded {language} translation.")
+                # log(f"[Language] Loaded {language}")
             else:
-                print(f"[Language] Failed to load {qm_path}")
+                pass
 
        
 
