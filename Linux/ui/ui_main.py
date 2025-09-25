@@ -1,14 +1,37 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+import psutil
+import resources_rc
+
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QMenuBar, QLabel, QPushButton, QGridLayout,
     QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
-    QHeaderView, QMenu, QButtonGroup, QSizePolicy
+    QHeaderView, QMenu, QButtonGroup, QSizePolicy, QStyledItemDelegate, QStyleOptionViewItem, QStyle
 )
-from PySide6.QtGui import QIcon
-from random import randint
-import os
-import psutil
-import resources_rc
+
+
+class NoFocusDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if option.state & QStyle.State_HasFocus:
+            option.state = option.state ^ QStyle.State_HasFocus
+        super().paint(painter, option, index)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -93,7 +116,7 @@ class Ui_MainWindow(object):
         self.help_menu.addAction("Check for Updates")
         self.help_menu.addAction("User Guide")
         self.help_menu.addAction("Visual Tutorials")
-        self.help_menu.addAction("Report Issue")
+        self.help_menu.addAction("Report Issues")
         # self.help_menu.addAction("Supported Sites")
 
         self.top_layout.addWidget(self.menubar)
@@ -582,7 +605,7 @@ class Ui_MainWindow(object):
         self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)
-
+        self.table.setItemDelegate(NoFocusDelegate())
         self.table.setStyleSheet("""
             QTableWidget {
                 background-color: qlineargradient(
@@ -597,6 +620,14 @@ class Ui_MainWindow(object):
                 gridline-color: rgba(255, 255, 255, 0.05);
                 font-size: 13px;
             }
+            
+            QTableWidget::item:alternate {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+            QTableWidget::item {
+                background-color: transparent;
+            }
+            
             QHeaderView::section {
                 background-color: qlineargradient(
                 x1: 0, y1: 0, x2: 1, y2: 1,
@@ -606,12 +637,16 @@ class Ui_MainWindow(object):
                 color: white;
                 padding: 4px;
                 border: none;
-                color: white;
                 font-weight: bold;
             }
             QTableWidget::item:selected {
                 background-color: rgba(0, 255, 180, 0.25);
             }
+            QTableWidget::item:focus {
+                outline: none;
+                border: none;
+            }
+            
         """)
 
         for row in range(5):
@@ -775,6 +810,8 @@ class Ui_MainWindow(object):
         self.status_wrapper_layout.addWidget(self.status_frame)
 
         self.main_layout.addWidget(self.status_wrapper)
+        
+    
 
     def get_disk_usage(self, path="/"):
         usage = psutil.disk_usage(path)

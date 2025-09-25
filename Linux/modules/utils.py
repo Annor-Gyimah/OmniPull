@@ -1,25 +1,55 @@
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
+
+
+
 import os
-import sys
 import io
-import pycurl
+import re
+import sys
 import time
-
+import uuid
+import json
 import plyer
-import certifi
+import base64
+import socket
+import psutil
+import pycurl
 import shutil
+import shlex
+import certifi
+import hashlib
+import platform
 import zipfile
 import subprocess
 import py_compile
-import shlex
-import re
-import uuid
-import json
+from notifypy import Notify
 import pyperclip as clipboard
 from getmac import get_mac_address
-from notifypy import Notify
-import psutil
+
+
+try:
+    from packaging.version import Version, InvalidVersion
+except Exception:
+    Version = None
+    InvalidVersion = Exception    
+
+
+
 try:
     from PIL import Image
 except:
@@ -41,26 +71,16 @@ def notify(msg, title='', timeout=2):
     # show os notification at tray icon area
     # title=f'{APP_NAME}'
     try:
-        plyer.notification.notify(title=title, message=msg, app_name=config.APP_NAME)
+        # notification = Notify()
+        # notification.application_name = f"{config.APP_NAME}"
+        # notification.title = f"{title}"
+        # notification.message = f"{msg}"
+        # notification.icon = resource_path2("logo1.png")
+        # notification.send(block=False)
+        plyer.notification.notify(title=title, message=msg, app_name=config.APP_TITLE)
     except Exception as e:
-        log(f"Notification error: {e}", log_level=1)
-        print(f"Notification error: {e}")
         handle_exceptions(f'notifypy notification: {e}')
 
-# def notify(msg, title='', timeout=2):
-#     log(f"notify() called with title: {title}, message: {msg}", log_level=3)
-#     try:
-#         notification = Notify()
-#         notification.application_name = f"{config.APP_NAME}"
-#         notification.title = f"{title}"
-#         notification.message = f"{msg}"
-#         notification.icon = "../icons/logo1.png" #resource_path2("../icons/logo1.png")
-#         notification.send()
-#     except Exception as e:
-#         log(f"Notification error: {e}", log_level=1)
-#         handle_exceptions(f'notifypy notification: {e}')
-
-# Global variable to track initialization
 
 def handle_exceptions(error):
     if config.TEST_MODE:
@@ -787,62 +807,103 @@ def process_thumbnail(url):
     except Exception as e:
         log(f'process_thumbnail()> error {e}', log_level=3)
         return None
-    
-def get_available_interfaces():
-    """Detect all available network interfaces on the system."""
-    interfaces = []
-    
-    # Get interfaces using psutil (works across OSes)
-    for interface, addrs in psutil.net_if_addrs().items():
-        interfaces.append(interface)
-    
-    return interfaces
 
-def get_mac_by_interface(interface):
-    """Get the MAC address for a specified interface using the getmac library."""
-    try:
-        mac = get_mac_address(interface=interface)
-        if mac:
-            return mac
-        else:
+
+
+def get_machine_id_raw():
+    """Return the raw OS-level machine identifier (platform-dependent)."""
+    system = platform.system().lower()
+
+    if system == "windows":
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Cryptography"
+            )
+            value, _ = winreg.QueryValueEx(key, "MachineGuid")
+            return value
+        except Exception:
             return None
-    except Exception as e:
+
+    elif system == "linux":
+        for path in ["/etc/machine-id", "/var/lib/dbus/machine-id"]:
+            try:
+                with open(path, "r") as f:
+                    return f.read().strip()
+            except FileNotFoundError:
+                continue
         return None
 
-def get_mac_id():
-    """Get a hashed machine ID based on the MAC address of a specified interface."""
-    interfaces = get_available_interfaces()
-    
-    if 'wlo1' in interfaces:
-        interface = 'wlo1'  # Wi-Fi interface on Linux
-    elif 'enp0s25' in interfaces:
-        interface = 'enp0s25'  # Ethernet interface on Linux
-    elif 'Ethernet' in interfaces:
-        interface = 'Ethernet'  # Ethernet on Windows
-    elif 'Wi-Fi' in interfaces:
-        interface = 'Wi-Fi'  # Wi-Fi on Windows
-    elif 'en0' in interfaces:
-        interface = 'en0'  # Ethernet or Wi-Fi on macOS
-    elif 'en1' in interfaces:
-        interface = 'en1'  # Secondary network interface on macOS
-    else:
+    elif system == "darwin":  # macOS
+        try:
+            output = subprocess.check_output(
+                ["ioreg", "-rd1", "-c", "IOPlatformExpertDevice"],
+                text=True
+            )
+            for line in output.splitlines():
+                if "IOPlatformUUID" in line:
+                    return line.split('"')[-2]
+        except Exception:
+            return None
+
+    return None
+
+
+def get_machine_id(hashed=True):
+    """
+    Return a stable, cross-platform machine ID.
+    By default, the raw ID is SHA-256 hashed.
+    """
+    raw_id = get_machine_id_raw()
+    if not raw_id:
         return None
+    if hashed:
+        return hashlib.sha256(raw_id.encode("utf-8")).hexdigest()
+    return raw_id
 
-    mac = get_mac_by_interface(interface)
-    if mac:
-        return mac
-        
-    else:
+
+
+
+def _normalize_version_str(s: str | None) -> str | None:
+    if not s:
         return None
-    
+    # strip common prefixes/wrappers like v, [ ], spaces
+    s = s.strip().lstrip('v').lstrip('.').strip('[](){} ').strip()
+    return s or None
 
-def get_machine_id(self):
-    """Get a hashed machine ID based on the MAC address of a specified interface."""
-    mac_address = get_mac_id()
-    machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
+def _parse_version(s: str | None):
+    s = _normalize_version_str(s)
+    if not s:
+        return None
+    if Version:
+        try:
+            return Version(s)
+        except InvalidVersion:
+            pass
+    # fallback: parse numbers only (1.2.3 → (1,2,3))
+    nums = re.findall(r'\d+', s)
+    if not nums:
+        return None
+    return tuple(int(n) for n in nums)
 
-    
-    return machine_id
+def compare_versions_2(a: str | None, b: str | None) -> int | None:
+    """
+    Returns 1 if a>b, 0 if a==b, -1 if a<b, None if either unparsable.
+    """
+    va, vb = _parse_version(a), _parse_version(b)
+    if va is None or vb is None:
+        return None
+    if Version and isinstance(va, Version) and isinstance(vb, Version):
+        return (va > vb) - (va < vb)
+    # tuple fallback: pad to same length
+    la, lb = list(va), list(vb)
+    L = max(len(la), len(lb))
+    la += [0]*(L-len(la))
+    lb += [0]*(L-len(lb))
+    return (la > lb) - (la < lb)
+
+
 
 
 __all__ = [
@@ -851,6 +912,6 @@ __all__ = [
     'run_command', 'print_object', 'update_object', 'truncate', 'sort_dictionary', 'popup', 'compare_versions',
     'translate_server_code', 'validate_url', 'open_file', 'clipboard_read', 'clipboard_write', 'delete_file',
     'rename_file', 'load_json', 'save_json', 'echo_stdout', 'echo_stderr', 'log_recorder', 'natural_sort',
-    'process_thumbnail'
+    'process_thumbnail', 'compare_version_2'
 
 ]

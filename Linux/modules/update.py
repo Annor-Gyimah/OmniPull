@@ -1,326 +1,459 @@
-"""
-    pyIDM
+#####################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySimpleGUI"
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
+#####################################################################################
 
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
 
 # check and update application
 # import io
-import py_compile
-import shutil
-import sys
-import zipfile
-import tarfile
-import wget
-import subprocess
-from . import config
+
 import os
+import sys
+import wget
 import time
-import tempfile
+import stat
 import httpx
-import socket
-import uuid
+import shutil
+import tarfile
+import zipfile
+import tempfile
 import requests
-from . import video
-from .downloaditem import DownloadItem
-from .utils import log, download, run_command, delete_folder, delete_file, popup, get_mac_id
-import webbrowser
+import subprocess
+import py_compile
+from pathlib import Path
+from typing import Tuple
+from modules import config
+from datetime import datetime, timedelta
+from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
-def check_for_update():
-    """download version.py from github, extract latest version number return app latest version"
+
+def get_changelog() -> Tuple[str | None, str | None]:
     """
-
-    # do not use, will use get_changelog() instead
-
-    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/master/pyidm/version.py'
-    new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
-
-    
-    url = new_release_url if config.FROZEN else source_code_url
-
-    # get BytesIO object
-    buffer = download(url)
-
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        latest_version = contents.rsplit(maxsplit=1)[-1].replace("'", '')
-
-        return latest_version, contents
-
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
-    
-
-# def get_changelog():
-#     """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
-#     """
-
-#     # url will be chosen depend on frozen state of the application
-#     source_code_url = 'http://localhost/lite/ChangeLog.txt'
-#     new_release_url = 'http://localhost/lite/ChangeLog.txt'
-#     url = new_release_url if config.FROZEN else source_code_url
-
-#     # url = new_release_url
-
-#     # get BytesIO object
-#     buffer = download(url)
-
-#     if buffer:
-#         # convert to string
-#         contents = buffer.getvalue().decode()
-
-#         # extract version number from contents
-#         latest_version = contents.splitlines()[0].replace(':', '').strip()
-
-#         return latest_version, contents
-#     else:
-#         log("check_for_update() --> couldn't check for update, url is unreachable")
-#         return None
-
-
-def get_changelog():
-    """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
+    Returns (latest_version, contents) or (None, None) on failure.
     """
+    try:
+        r = httpx.get(
+            "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": f"{config.APP_NAME}-Updater"
+            },
+            follow_redirects=True, timeout=30.0
+        )
+        r.raise_for_status()
+        data = r.json()
 
-    # Get latest release info from GitHub API
-    content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
-                        follow_redirects=True).json()
+        raw_tag = (data.get("tag_name") or "").strip()
+        latest = _normalize_version_str(raw_tag)  # reuse helper above
 
-    # Extract tagName and remove any unwanted characters like leading dots
-    tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
-    
+        # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
+        assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
+        changelog_url = (
+            assets.get("ChangeLog.txt") or
+            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Linux/ChangeLog.txt"
+        )
 
-    
-    # currentVersion = list(map(int, config.APP_VERSION.split(".")))
-    
-    # url will be chosen depend on frozen state of the application
-    source_code_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/ChangeLog.txt'
-    new_release_url = 'https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/ChangeLog.txt'
+        # Fetch changelog text (best-effort)
+        text = None
+        try:
+            c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
+                follow_redirects=True, timeout=30.0)
+            if c.status_code == 200:
+                text = c.text
+            else:
+                log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
+        except httpx.RequestError as e:
+            log(f"Changelog fetch error: {e}", log_level=2)
 
-    url = new_release_url if config.FROZEN else source_code_url
+        if not latest:
+            log("Unable to parse latest version from GitHub response.", log_level=2)
+
+        return latest, text
+
+    except httpx.HTTPStatusError as e:
+        log(f"GitHub API error: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except httpx.RequestError as e:
+        log(f"Network error while checking release: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except Exception as e:
+        log(f"Unexpected error in get_changelog: {e}", log_level=3)
+        return config.APP_VERSION, None
 
 
-    # get BytesIO object
-    buffer = download(url)
+def format_progress_bar(percentage, bar_length=20):
+    filled_length = int(bar_length * percentage // 100)
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+    return f"{percentage:3.0f}%|{bar}"
 
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
+def sizeof_fmt(num, suffix="B"):
+    for unit in ['','K','M','G','T']:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}P{suffix}"
 
-        # extract version number from contents
-        #latest_version = contents.splitlines()[0].replace(':', '').strip()
-        latest_version = tagName
+def detect_install_mode() -> str:
+    """
+    Returns one of: 'appimage', 'deb'
+    - 'appimage' if running from an AppImage (APPIMAGE env is set)
+    - otherwise 'deb' (your user-space symlink/versions layout)
+    """
+    if os.environ.get("APPIMAGE"):
+        return "appimage"
 
-        config.latest_version = latest_version
-       
+    # Heuristic: your deb/launcher layout creates ~/.local/share/OmniPull/{versions,current}
+    base = Path.home() / ".local" / "share" / "OmniPull"
+    if (base / "current" / "omnipull").exists() or (base / "versions").exists():
+        return "deb"
 
-        return latest_version, contents
+    # Fallback to deb updater; it’s the safer default for a non-AppImage run
+    return "deb"
+
+def update(via: str | None = None):
+    """
+    Auto-selects the right updater unless 'via' is explicitly provided.
+    """
+    mode = via or detect_install_mode()
+    log(f"Updater mode detected: {mode} (APPIMAGE={'set' if os.environ.get('APPIMAGE') else 'unset'})")
+    try:
+        if mode == "appimage":
+            appimage_update()
+        elif mode == "deb":
+            deb_update()
+        else:
+            log(f"Unknown update mode: {mode}, defaulting to deb")
+            deb_update()
+    except Exception as e:
+        log(f"Update failed in mode={mode}: {e}", log_level=3)
+
+def download_deb_with_progress_httpx(url: str, dest_path: Path, *, log, chunk_size: int = 1024 * 1024):
+    """
+    Download URL -> dest_path with resume support and tqdm-like logging via `log()`.
+    """
+    headers = {"User-Agent": "Mozilla/5.0"}
+    file_mode = "wb"
+    existing_size = 0
+
+    if dest_path.exists():
+        existing_size = dest_path.stat().st_size
+        headers["Range"] = f"bytes={existing_size}-"
+        file_mode = "ab"
+        log(f"Resuming download from byte {existing_size}")
     else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
+        log("Starting new download")
 
-def update():
-    # Get the latest release from GitHub API
+    try:
+        with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=60.0) as r:
+            if r.status_code not in (200, 206):
+                raise RuntimeError(f"Unexpected status code: {r.status_code}")
+
+            # Determine total size (if available)
+            if "Content-Range" in r.headers:
+                # e.g. "bytes 100-999/1000" -> take the total part after '/'
+                total_size = int(r.headers["Content-Range"].split("/")[-1])
+            else:
+                total_size = int(r.headers.get("Content-Length", 0)) or 0
+
+            # Add the bytes we already have on disk (for percentage calc)
+            total_size = total_size if total_size > 0 else 0
+            bytes_downloaded = existing_size
+
+            start_time = time.time()
+            last_logged_bucket = -1  # track 5% buckets
+
+            with open(dest_path, file_mode) as f:
+                for chunk in r.iter_bytes(chunk_size=chunk_size):
+                    if not chunk:
+                        continue
+                    f.write(chunk)
+                    bytes_downloaded += len(chunk)
+
+                    elapsed = max(time.time() - start_time, 1e-6)
+                    speed = bytes_downloaded / elapsed  # B/s
+
+                    if total_size > 0:
+                        percent = (bytes_downloaded / total_size) * 100
+                        eta = (total_size - bytes_downloaded) / speed if speed > 0 else 0
+                        bucket = int(percent // 5)  # log every 5%
+                        if bucket != last_logged_bucket or bytes_downloaded == total_size:
+                            bar = format_progress_bar(percent)
+                            log(
+                                f"Downloading update: {bar} | "
+                                f"{sizeof_fmt(bytes_downloaded)}/{sizeof_fmt(total_size)} "
+                                f"[{elapsed:05.0f}s<{eta:02.0f}s, {sizeof_fmt(speed)}/s]"
+                            )
+                            last_logged_bucket = bucket
+                    else:
+                        # Unknown total size -> log every ~5MB increment
+                        if bytes_downloaded % (5 * 1024 * 1024) < chunk_size:
+                            log(
+                                f"Downloading update: {sizeof_fmt(bytes_downloaded)} "
+                                f"[{elapsed:05.0f}s, {sizeof_fmt(speed)}/s]"
+                            )
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {url}: {e}")
+
+
+############################# deb #################################################
+
+
+def deb_update():
+    """
+    User-space update for .deb installs:
+    - Download app payload (tar.gz) to ~/.local/share/OmniPull/versions/<tag>/
+    - Atomically switch ~/.local/share/OmniPull/current -> that folder
+    """
+    
+
+    # 1) discover latest tag
     content = httpx.get(
-        url="https://api.github.com/repos/Annor-Gyimah/Li-Dl/releases/latest", 
-        headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"
-        },
+        url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+        headers={"User-Agent": "Mozilla/5.0"},
         follow_redirects=True
     ).json()
+    tag = content["tag_name"].lstrip('.').lstrip('v')  
+    main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
 
-    tagName = content["tag_name"].lstrip('.')  # Remove 'v' and any leading dots
-    print(f"Current version: {tagName}")
-    
-    url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "https://github.com/Annor-Gyimah/Li-Dl/raw/refs/heads/master/Linux/update.sh"  # URL for update.sh
-    main_tar_url = f"https://github.com/Annor-Gyimah/Li-Dl/releases/download/{tagName}/main.tar.gz"     # URL for main.tar.gz
 
-    # update_script_url = "http://localhost/lite/update.sh"  # URL for update.sh
-    # main_tar_url = f"http://localhost/lite/main.tar.gz"     # URL for main.tar.gz
+    # 2) paths in user space
+    base = Path.home() / ".local" / "share" / "OmniPull"
+    versions = base / "versions"
+    current = base / "current"
+    versions.mkdir(parents=True, exist_ok=True)
 
-    
-
-    # Create a hidden temporary directory in the user's home directory
-    temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
-    download_path = os.path.join(temp_dir, "main.tar.gz")
-    update_script_path = os.path.join(temp_dir, "update.sh")
+    tmpdir = Path(tempfile.mkdtemp(prefix=".omni_up_"))
+    tar_path = tmpdir / "main.tar.gz"
 
     try:
-        # Download update files to the temporary directory
-        log("Downloading update files...")
-        wget.download(update_script_url, update_script_path)
-        wget.download(main_tar_url, download_path)
-        log("\nDownload completed.")
+        # download
+        log('Downloading update from', main_tar_url)
+        popup(title="Update Info", msg='Downloading update, please wait... \n Do not close the app yet.', type_='info')
+        # with requests.get(main_tar_url, stream=True) as r:
+        #     r.raise_for_status()
+        #     with open(tar_path, "wb") as f:
+        #         for chunk in r.iter_content(chunk_size=1024 * 1024):
+        #             if chunk:
+        #                 f.write(chunk)
 
-        # Extract the downloaded tar.gz file in the temporary directory
-        log("Extracting update package...")
-        with tarfile.open(download_path, 'r:gz') as tar_ref:
-            tar_ref.extractall(temp_dir)
-        log("Extraction completed.")
+        download_deb_with_progress_httpx(main_tar_url, tar_path, log=log)
 
-        # Make the update script executable
-        os.chmod(update_script_path, 0o755)
-        source_file = os.path.join(temp_dir, "main")
+        # unpack to a temporary folder first
+        unpack = Path(tempfile.mkdtemp(prefix=".omni_unpack_"))
+        log('Unpacking to', unpack)
+        with tarfile.open(tar_path, "r:gz") as tar:
+            tar.extractall(path=unpack)
 
-        # Schedule update.sh to run at next reboot with cron
-        cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
+        # detect the runnable top
+        # Case A: single top-level dir -> use it
+        # Case B: flat tar -> use the unpack dir
+        entries = [p for p in unpack.iterdir() if not p.name.startswith(".")]
+        if len(entries) == 1 and entries[0].is_dir():
+            top = entries[0]
+        else:
+            top = unpack
+
+        # read version from VERSION if present, else use tag
+        ver = None
+        vfile = top / "VERSION"
+        if vfile.exists():
+            try:
+                ver = vfile.read_text().strip().split()[0]
+            except Exception:
+                ver = None
+        ver = ver or tag
+
+        # target dir for this version
+        verdir = versions / ver
+        if verdir.exists():
+            shutil.rmtree(verdir, ignore_errors=True)
+
+        # move the actual runnable dir so that omnipull is directly under verdir/
+        # If the tar had a top folder (like "OmniPull"), moving `top` to `verdir` yields
+        # ~/.local/share/OmniPull/versions/<ver>/omnipull  (correct)
+        shutil.move(str(top), str(verdir))
+        log('Moved to', verdir)
+        popup(title="Update Info", msg='Download complete. Finalizing update...', type_='info')
+
+        # ensure executable bit on the app binary (and helpers if present)
+        for name in ("omnipull", "ffmpeg", "aria2c", "omnipull-watcher"):
+            p = verdir / name
+            if p.exists():
+                p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        # atomically flip current -> verdir
+        tmp_link = base / ".current.new"
+        if tmp_link.exists():
+            tmp_link.unlink()
+        os.symlink(verdir, tmp_link)
+        os.replace(tmp_link, current)
+
+        # optional: prune old versions (keep 2)
+        keep = 2
+        kids = sorted([d for d in versions.iterdir() if d.is_dir()],
+            key=lambda p: p.stat().st_mtime, reverse=True)
+        for d in kids[keep:]:
+            shutil.rmtree(d, ignore_errors=True)
+
+        # success note
+        popup(title="Update", msg=f"Updated to {tag}. Restart OmniPull to use the new version.", type_="info")
+
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        # remove the unpack dir, but only if we created it
         try:
-            popup(msg="Please authenticate to install updates on reboot", title=config.APP_NAME, type_="info")
-            subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
-            log("Update scheduled to run on the next reboot.")
-            config.confirm_update = True
-
-        except subprocess.CalledProcessError as e:
-            log(f"Failed to schedule update: {e}")
-            config.confirm_update = False
-
-        # cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
-        # try:
-        #     popup(msg="Please authenticate to install updates on reboot", title=config.APP_NAME, type_="info")
-        #     subprocess.run(f'echo "{cron_job}" | pkexec crontab -u root -', shell=True, check=True)
-        #     log("Update scheduled to run on the next reboot.")
-        #     config.confirm_update = True
-
-        # except subprocess.CalledProcessError as e:
-        #     log(f"Failed to schedule update: {e}")
-        #     config.confirm_update = False
+            shutil.rmtree(unpack, ignore_errors=True)
+        except Exception:
+            pass
 
 
-    except Exception as e:
-        log(f"An error occurred during update: {e}")
-
-# def update():
-#     #url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-#     update_script_url = "http://localhost/lite/update.sh"  # URL for update.sh script
-#     main_tar_url = "http://localhost/lite/main.tar.gz"     # URL for main.tar.gz
-
-#     # Define paths on the Desktop for downloading
-#     temp_dir = os.path.join(os.path.expanduser("~"), "Desktop", "temp")
-#     if os.path.exists(temp_dir):
-#         pass
-#     else:
-#         os.mkdir(temp_dir)
-#     download_path = os.path.join(temp_dir, "main.tar.gz")
-#     update_script_path = os.path.join(temp_dir, "update.sh")
-    
-    
-
-#     try:
-#         # Download update files
-#         log("Downloading update files...")
-#         wget.download(update_script_url, update_script_path)
-#         wget.download(main_tar_url, download_path)
-#         log("\nDownload completed.")
-
-#         # Extract the downloaded tar.gz file
-#         log("Extracting update package...")
-#         with tarfile.open(download_path, 'r:gz') as tar_ref:
-#             tar_ref.extractall(temp_dir)
-#         log("Extraction completed.")
-#         os.chmod(update_script_path, 0o755) 
-#         schedule_update()
-        
-#         # Schedule update.sh to run at the next reboot
-#         # Use `sudo crontab -u root` to add job directly to root's crontab
-#         cron_job = f"@reboot /bin/bash {update_script_path} {temp_dir} && rm -rf {temp_dir}"  # delete temp folder after execution
-#         try:
-#             subprocess.run(f'(crontab -l; echo "{cron_job}") | crontab -', shell=True, check=True)
-#             log("Update scheduled to run on the next reboot.")
-#         except subprocess.CalledProcessError as e:
-#             log(f"Failed to schedule update: {e}")
 
 
-#         # # Define the path to the new 'main' file (adjust as necessary)
-#         # new_main_path = os.path.join(extract_path, "main")  # Adjust if main file is in a different location
-
-       
-
-#     except Exception as e:
-#         log(f"An error occurred during update: {e}")
-    
+############################## APP IMAGE ###########################################
 
 
-def schedule_update():
-    source_file = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "main")
-    update_script = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "update.sh")
+def download_appimage_with_progress_httpx(url: str, dest_path: Path, *, log, chunk_size: int = 1024 * 1024):
+    """
+    Download URL -> dest_path with resume support (only if dest_path has >0 bytes).
+    Logs in ~5% buckets when total size is known, else every ~5MB.
+    """
+    headers = {"User-Agent": "Mozilla/5.0"}
+    file_mode = "wb"
+    existing_size = 0
 
-    # Define the cron job with explicit `root` crontab
-    cron_job = f"@reboot /bin/bash {update_script} {source_file}"
-    
-    # Use `sudo crontab -u root` to add job directly to root's crontab
-    try:
-        
-        subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
-        log("Update scheduled to run on the next reboot.")
-    except subprocess.CalledProcessError as e:
-        log(f"Failed to schedule update: {e}")
+    if dest_path.exists():
+        existing_size = dest_path.stat().st_size
+        if existing_size > 0:
+            headers["Range"] = f"bytes={existing_size}-"
+            file_mode = "ab"
+            log(f"Resuming download from byte {existing_size}")
+        else:
+            # zero-byte file -> treat as fresh download to avoid Range: 0-
+            log("Existing zero-byte temp file; starting fresh download")
+            file_mode = "wb"
+    else:
+        log("Starting new download")
 
-def on_exit():
-    log("Preparing to start updater service...")
-
-    source_file = os.path.join(os.path.expanduser("~"), "Desktop", "AppUpdate", "main")  # Path to new 'main'
-    destination_dir = "/opt/main/"  # Directory where 'main' should go
-    updater_script = os.path.join(os.path.expanduser("~"), "Desktop", "AppUpdate", "updater_service.py")
+    timeout = httpx.Timeout(connect=10.0, read=120.0, write=120.0, pool=60.0)
 
     try:
-        # Launch the updater service
-        subprocess.Popen(["python3", updater_script, source_file, destination_dir])
-        
-        log("Updater service started successfully.")
-        time.sleep(2)  # Brief wait to allow updater to initialize
+        with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=timeout) as r:
+            if r.status_code not in (200, 206):
+                raise RuntimeError(f"Unexpected status code: {r.status_code}")
 
+            # Figure out total size if provided
+            if "Content-Range" in r.headers:
+                # "bytes 100-999/1000" -> take the part after '/'
+                total_size = int(r.headers["Content-Range"].split("/")[-1])
+            else:
+                total_size = int(r.headers.get("Content-Length") or 0)
+
+            bytes_downloaded = existing_size
+            start_time = time.time()
+            last_logged_bucket = -1
+
+            # Ensure parent dir exists
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(dest_path, file_mode) as f:
+                for chunk in r.iter_bytes(chunk_size=chunk_size):
+                    if not chunk:
+                        continue
+                    f.write(chunk)
+                    bytes_downloaded += len(chunk)
+
+                    elapsed = max(time.time() - start_time, 1e-6)
+                    speed = bytes_downloaded / elapsed  # B/s
+
+                    if total_size > 0:
+                        percent = (bytes_downloaded / total_size) * 100.0
+                        eta = (total_size - bytes_downloaded) / speed if speed > 0 else 0
+                        bucket = int(percent // 5)
+                        if bucket != last_logged_bucket or bytes_downloaded == total_size:
+                            bar = format_progress_bar(percent)
+                            log(f"Downloading update: {bar} | "
+                                f"{sizeof_fmt(bytes_downloaded)}/{sizeof_fmt(total_size)} "
+                                f"[{elapsed:05.0f}s<{eta:02.0f}s, {sizeof_fmt(speed)}/s]")
+                            last_logged_bucket = bucket
+                    else:
+                        # Unknown total size -> log every ~5MB increment
+                        if bytes_downloaded % (5 * 1024 * 1024) < chunk_size:
+                            log(f"Downloading update: {sizeof_fmt(bytes_downloaded)} "
+                                f"[{elapsed:05.0f}s, {sizeof_fmt(speed)}/s]")
     except Exception as e:
-        log(f"Failed to start updater service: {e}")
+        raise RuntimeError(f"Failed to download {url}: {e}")
+
+def _appimage_path() -> str:
+    return os.environ.get("APPIMAGE") or str(Path.home() / "Applications" / "OmniPull.AppImage")
 
 
-    # first check windows 32 or 64
-#     import platform
-#     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
-#     if platform.machine().endswith('64'):
-#         # 64 bit link
-#         url = 'http://localhost/lite/pyiconic/main.tar.gz'
-#     else:
-#         # 32 bit link
-#         url = 'http://localhost/lite/pyiconic/main.tar.gz'
 
-#     log('downloading: ', url)
+def _tmp_download_path(target_path: str) -> str:
+    # put temp file in the same directory as target, but do NOT create it yet
+    d = os.path.dirname(target_path)
+    os.makedirs(d, exist_ok=True)
+    # unique name next to target
+    return os.path.join(d, f".OmniPull.{int(time.time())}.download")
 
-#     # create a download object, will store ffmpeg in setting folder
-#     # print('config.sett_folder = ', config.sett_folder)
-#     d = DownloadItem(url=url, folder=config.update_folder)
-#     d.update(url)
-#     d.name = 'main.tar.gz'  # must rename it for unzip to find it
-#     # print('d.folder = ', d.folder)
 
-#     # post download
-#     d.callback = 'unzip_main'
 
-#     # send download request to main window
-#     config.main_window_q.put(('download', (d, True)))
+def appimage_update():
+    OWNER = "Annor-Gyimah"
+    REPO  = "OmniPull"
+    TARGET = _appimage_path() # os.path.expanduser("~/Applications/OmniPull.AppImage")
+    ARCH_TAG = "x86_64"  # or detect via platform.machine()
 
-# def unzip_main():
-#     log('unzip_main:', 'unzipping')
+    api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
+    r = requests.get(api, headers={"Accept": "application/vnd.github+json"})
+    r.raise_for_status()
+    rel = r.json()
 
-#     try:
-#         file_name = os.path.join(config.update_folder, 'main.tar.gz')
-#         with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
-#             zip_ref.extractall(config.update_folder)
+    # Pick the AppImage asset by name
+    assets = rel.get("assets", [])
+    asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
+    url = asset["browser_download_url"]
+    try:
 
-#         log('main update:', 'delete zip file')
-#         delete_file(file_name)
-#         log('main update:', 'main .. is ready at: ', config.update_folder)
-#     except Exception as e:
-#         log('unzip_main: error ', e)
+        # Download to a temp file next to target
+        os.makedirs(os.path.dirname(TARGET), exist_ok=True)
+        # fd, tmp = tempfile.mkstemp(prefix=".OmniPull.", dir=os.path.dirname(TARGET))
+        tmp = _tmp_download_path(TARGET)
+        # os.close(fd)
+        popup(title="Update Info", msg='Downloading update, please wait... \n Do not close the app yet.', type_='info')
+        log(f"Downloading {url} to {tmp}")
+        # with requests.get(url, stream=True) as resp:
+        #     resp.raise_for_status()
+        #     with open(tmp, "wb") as f:
+        #         for chunk in resp.iter_content(chunk_size=1024*1024):
+        #             if chunk:
+        #                 f.write(chunk)
+        download_appimage_with_progress_httpx(url, tmp, log=log)
+
+        # Make executable and swap atomically
+        st = os.stat(tmp)
+        os.chmod(tmp, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        shutil.move(tmp, TARGET)
+
+
+        log(f"Updated {TARGET} to {asset['name']}")
+        
+        popup(title="Update Info", msg='Update was successfull. Please restart the app to reflect the changes.', type_='info')
+    except Exception as e:
+        popup(title='Update Error', msg=f'Update failed. Please try again later. {e}', type_='error')
+        
 
 
 def check_for_ytdl_update():
@@ -428,64 +561,4 @@ def update_youtube_dl():
 
 
 
-class SoftwareUpdateChecker:
-    def __init__(self, api_url, software_version):
-        self.api_url = api_url
-        self.software_version = software_version
-        self.machine_id = self.get_machine_id()
 
-
-    def get_machine_id(self):
-        # Check if machine_id already exists in a local file
-        # config_file = 'machine_config.json'
-        # if os.path.exists(config_file):
-        #     with open(config_file, 'r') as file:
-        #         data = json.load(file)
-        #         return data.get('machine_id')
-        
-        # If no machine_id found, generate it based on the MAC address or UUID
-        mac_address = get_mac_id()
-        machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
-        config.machine_id = machine_id
-
-        # Save it for future use
-        # with open(config_file, 'w') as file:
-        #     json.dump({'machine_id': machine_id}, file)
-
-        return machine_id
-
-    def get_machine_info(self):
-        # Get the system information (for example: MAC address, computer name, etc.)
-        mac_address = get_mac_id()
-        computer_name = socket.gethostname()
-        operating_system = config.operating_system_info
-
-        return {
-            'mac_address': mac_address,
-            'computer_name': computer_name,
-            'operating_system': operating_system,
-            'software_version': self.software_version,
-            'machine_id': f'{str(uuid.uuid5(uuid.NAMESPACE_DNS, get_mac_id))}' if config.machine_id == None else self.machine_id
-        }
-
-
-    def server_check_update(self):
-        machine_info = self.get_machine_info()
-
-        try:
-            response = requests.post(
-                f"{self.api_url}/software-update/",
-                json=machine_info
-            )
-            if response.status_code == 200:
-                update_status = response.json()
-                print(update_status)
-                if update_status.get('update_needed'):
-                    print(f"Update required: {update_status.get('new_version')}")
-                else:
-                    print(f"You are up to date. Version: {self.software_version}")
-            else:
-                print("Error checking update status")
-        except requests.RequestException as e:
-            pass
-            print(f"Error connecting to the server: {e}")
