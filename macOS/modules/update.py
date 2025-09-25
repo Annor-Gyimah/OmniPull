@@ -28,81 +28,71 @@ import py_compile
 
 
 from tqdm import tqdm
+from typing import Tuple
 from pathlib import Path
 from modules import video
 from modules import config
 from datetime import datetime, timedelta
-from modules.utils import log, download, run_command, delete_folder, popup
+from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
 
-def check_for_update():
-    """download version.py from github, extract latest version number return app latest version"
+
+
+
+def get_changelog() -> Tuple[str | None, str | None]:
     """
-
-    # do not use, will use get_changelog() instead
-
-    source_code_url = 'https://github.com/pyIDM/pyIDM/blob/master/pyidm/version.py'
-    new_release_url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/version.py'
-    url = new_release_url if config.FROZEN else source_code_url
-
-    # get BytesIO object
-    buffer = download(url)
-
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        latest_version = contents.rsplit(maxsplit=1)[-1].replace("'", '')
-
-        return latest_version
-
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
-
-
-def get_changelog():
-    """download ChangeLog.txt from github, extract latest version number, return a tuple of (latest_version, contents)
+    Returns (latest_version, contents) or (None, None) on failure.
     """
+    try:
+        r = httpx.get(
+            "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": f"{config.APP_NAME}-Updater"
+            },
+            follow_redirects=True, timeout=30.0
+        )
+        r.raise_for_status()
+        data = r.json()
 
-    # Get latest release info from GitHub API
-    content = httpx.get(url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest", headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64"},
-                        follow_redirects=True).json()
+        raw_tag = (data.get("tag_name") or "").strip()
+        latest = _normalize_version_str(raw_tag)  # reuse helper above
 
-    # Extract tagName and remove any unwanted characters like leading dots
-    tagName = content["tag_name"].lstrip('v').lstrip('.').rstrip('[').lstrip(']')  # Remove 'v' or any leading dots
-    
+        # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
+        assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
+        changelog_url = (
+            assets.get("ChangeLog.txt") or
+            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/macOS/ChangeLog.txt"
+        )
 
-    
-    # currentVersion = list(map(int, config.APP_VERSION.split(".")))
-    
-    source_code_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/macOS/ChangeLog.txt'
-    new_release_url = 'https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/macOS/ChangeLog.txt'
+        # Fetch changelog text (best-effort)
+        text = None
+        try:
+            c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
+                          follow_redirects=True, timeout=30.0)
+            if c.status_code == 200:
+                text = c.text
+            else:
+                log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
+        except httpx.RequestError as e:
+            log(f"Changelog fetch error: {e}", log_level=2)
 
-    url = new_release_url if config.FROZEN else source_code_url
+        if not latest:
+            log("Unable to parse latest version from GitHub response.", log_level=2)
 
+        return latest, text
 
-    # get BytesIO object
-    buffer = download(url)
+    except httpx.HTTPStatusError as e:
+        log(f"GitHub API error: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except httpx.RequestError as e:
+        log(f"Network error while checking release: {e}", log_level=3)
+        return config.APP_VERSION, None
+    except Exception as e:
+        log(f"Unexpected error in get_changelog: {e}", log_level=3)
+        return config.APP_VERSION, None
 
-    if buffer:
-        # convert to string
-        contents = buffer.getvalue().decode()
-
-        # extract version number from contents
-        #latest_version = contents.splitlines()[0].replace(':', '').strip()
-        latest_version = tagName
-
-        config.APP_LATEST_VERSION = latest_version
-       
-
-        return latest_version, contents
-    else:
-        log("check_for_update() --> couldn't check for update, url is unreachable")
-        return None
 
 def download_dmg_httpx(url, dest_path):
     with httpx.stream("GET", url, follow_redirects=True, timeout=60.0) as r:
@@ -199,15 +189,12 @@ def update():
     dmg_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tagName}/omnipull-intel-{tagName}.dmg"  # Assuming the DMG file is named as such
 
     # Create a temporary directory to store the downloaded .dmg file
-    # temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
-    # dmg_path = os.path.join(temp_dir, f"Li-Dl-{tagName}.dmg")
     hidden_temp_dir = Path.home() / "Downloads" / ".omnipull_update_tmp"
     hidden_temp_dir.mkdir(parents=True, exist_ok=True)
 
     hidden_dmg_path = hidden_temp_dir / f"omnipull-intel-{tagName}.dmg"
     final_dmg_path = Path.home() / "Downloads" / f"omnipull-intel-{tagName}.dmg"
 
-    dmg_path = Path.home() / 'Downloads' / f"omnipull-intel-{tagName}.dmg"  # Save to Downloads folder
 
     if is_dmg_fully_downloaded(dmg_url, final_dmg_path):
         popup(

@@ -69,7 +69,7 @@ from modules.settings_manager import SettingsManager
 from modules import config, brain, setting, video, update, setting
 from modules.video import (Video, check_ffmpeg, download_ffmpeg, download_aria2c)
 from modules.utils import (size_format, validate_file_name, compare_versions, log, time_format,
-    notify, run_command, handle_exceptions, get_machine_id)
+    notify, run_command, handle_exceptions, get_machine_id, compare_versions_2)
 from modules.helper import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern)
@@ -338,7 +338,6 @@ class ServerSoftwareCheckThread(QThread):
 
     def run(self):
         try:
-            # url = "http://127.0.0.1:8000/api/software-update/"  # ensure 127.0.0.1 not 127.0.0.0
             url = "https://omnipull.pythonanywhere.com/api/software-update/"
             data = self._get_machine_info()
             # If you want to omit snapshot when None:
@@ -417,48 +416,6 @@ class FileOpenThread(QThread):
                 'OS Error', 
                 f"An OS error occurred while opening the file: {e}"
             )
-
-
-# class LogRecorderThread(QThread):
-#     """
-#     Thread to record logs and write them to a file.
-#     """
-#     error_signal = Signal(str)  # Signal to report errors to the main thread
-
-#     def __init__(self):
-#         """Initialize the log recorder with an empty buffer and prepare the log file."""
-#         super().__init__()
-#         self.buffer = ''
-#         self.file = os.path.join(config.sett_folder, 'log.txt')
-#         # Clear previous log file
-#         try:
-#             with open(self.file, 'w') as f:
-#                 f.write(self.buffer)
-        
-#         except Exception as e:
-#             self.error_signal.emit(f'Failed to clear log file: {str(e)}')
-
-#     def run(self):
-#         """Run the log recorder to continuously write log messages to the file."""
-#         while not config.terminate:
-#             try:
-#                 # Read log messages from queue
-#                 q = config.log_recorder_q
-#                 for _ in range(q.qsize()):
-#                     self.buffer += q.get()
-
-#                 # Write buffer to file
-#                 if self.buffer:
-#                     with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
-#                         f.write(self.buffer)
-#                         self.buffer = ''  # Reset buffer
-
-#                 # Sleep briefly to prevent high CPU usage
-#                 self.msleep(100)  # QThread's msleep is more precise than time.sleep
-
-#             except Exception as e:
-#                 self.error_signal.emit(f'Log recorder error: {str(e)}')
-#                 self.msleep(100)
 
 
 class LogRecorderThread(QThread):
@@ -737,11 +694,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.version_value.setText(f"App Version: {config.APP_VERSION}")
 
 
-        # load stored setting from disk
-        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen', log_level=1)
-        # log('starting application')
-        log(f'operating system: {config.operating_system_info}', log_level=1)
-        log(f'current working directory: {config.current_directory}', log_level=1)
+        
         os.chdir(config.current_directory)
 
         # load stored setting from disk
@@ -1027,7 +980,7 @@ class DownloadManagerUI(QMainWindow):
             qm_path = self.resource_path2(f"modules/translations/{file_map[language]}")
             if self.translator.load(qm_path):
                 QCoreApplication.instance().installTranslator(self.translator)
-                log(f"[Language] Loaded {language} translation.", log_level=2)
+                log(f"[Language] Loaded {language}.", log_level=2)
             else:
                 log(f"[Language] Failed to load {qm_path}", log_level=3)
 
@@ -2865,62 +2818,7 @@ class DownloadManagerUI(QMainWindow):
     
 
     
-    # def closeEvent(self, event):
-    #     """Gracefully shutdown all running threads on app close."""
-
-    #     if event.spontaneous() and config.hide_app == True:
-    #         self.tray_manager.handle_window_close()
-    #         event.ignore()
-    #     else:
-    #         log("Application is closing, shutting down background threads...", log_level=1)
-
-    #         # Signal terminate if needed
-    #         config.terminate = True
-    #         # Gracefully close all threads
-    #         for thread in self.background_threads:
-    #             if thread and thread.isRunning():
-    #                 thread.quit()
-    #                 thread.wait(2000)  # wait max 2 seconds
-    #         # self.background_threads.clear()
-            
-    #         # aria2c_manager.cleanup_orphaned_paused_downloads()
-    #         # aria2c_manager.shutdown_freeze_and_save(purge=True)
-    #         # aria2c_manager._terminate_existing_processes()
-    #         if config.aria2_verified is True: aria2c_manager.cleanup_orphaned_paused_downloads(); aria2c_manager.shutdown_freeze_and_save(purge=True); aria2c_manager._terminate_existing_processes()
-    #         self.quit_app()
-    #         super().closeEvent(event)
-            
-    #         event.accept()
     
-            
-            # confirmation = QMessageBox(self)
-            # confirmation.setStyleSheet(get_msgbox_style('warning'))
-            # confirmation.setWindowTitle(self.tr('Confirm Exit'))
-            # confirmation.setIcon(QMessageBox.Question)
-            # confirmation.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            # confirmation.setText(self.tr('Are you sure you want to close the application?'))
-            # reply = confirmation.exec()
-
-            # if reply == QMessageBox.Yes:
-            #     log("Application is closing, shutting down background threads...", log_level=1)
-
-            #     # Signal terminate if needed
-            #     config.terminate = True
-            #     # Gracefully close all threads
-            #     for thread in self.background_threads:
-            #         if thread and thread.isRunning():
-            #             thread.quit()
-            #             thread.wait(2000)  # wait max 2 seconds
-            #     # self.background_threads.clear()
-                
-            #     aria2c_manager.cleanup_orphaned_paused_downloads()
-            #     # aria2c_manager._terminate_existing_processes()
-            #     super().closeEvent(event)
-
-            #     event.accept()
-            # else:
-            #     event.ignore()
-
 
     # Clear Log
     def clear_log(self):
@@ -3136,22 +3034,6 @@ class DownloadManagerUI(QMainWindow):
         if d.status == config.Status.completed:
             return
 
-        # ✅ Aria2c pause
-        # if d.engine == "aria2c" and hasattr(d, "aria_gid"):
-        #     try:
-        #         aria2 = aria2c_manager.get_api()
-        #         download = aria2.get_download(d.aria_gid)
-        #         if download:
-        #             download.pause()
-        #             # aria2c_manager.force_save_session()
-        #             # aria2c_manager.force_clean_and_save_session()
-        #             aria2c_manager.save_session_only()
-        #             d.status = config.Status.cancelled
-        #             time.sleep(0.5)  # Give the file_manager and thread_manager time to clean up
-        #             log(f"[Pause] Aria2c paused: {d.name}", log_level=1)
-        #     except Exception as e:
-        #         log(f"[Pause] Failed to pause aria2c: {e}", log_level=3)
-        #         d.status = config.Status.error
         # ✅ Aria2c pause (torrent-aware)
         if d.engine == "aria2c" and getattr(d, "aria_gid", None):
             try:
@@ -3605,25 +3487,7 @@ class DownloadManagerUI(QMainWindow):
     def selected_d(self, value):
         self._selected_d = value
 
-    # def populate_table(self):
-    #     """Offload preparing the table data to a background thread."""
-        
-
-    #     self.table_thread = QThread()
-    #     self.worker = PopulateTableWorker(self.d_list)
-    #     self.worker.moveToThread(self.table_thread)
-
-    #     # Add cleanup connections
-    #     self.worker.finished.connect(self.table_thread.quit)  
-    #     self.worker.finished.connect(self.worker.deleteLater)  
-    #     self.table_thread.finished.connect(self.table_thread.deleteLater)
-
-    #     self.worker.data_ready.connect(self.populate_table_apply)
-    #     self.table_thread.started.connect(self.worker.run)
-    #     # self.table_thread.finished.connect(self.table_thread.deleteLater)
-
-    #     self.table_thread.start()
-    #     self.background_threads.append(self.table_thread)
+    
 
     def populate_table(self):
         # If a previous table thread is still running, stop it first
@@ -4683,10 +4547,14 @@ class DownloadManagerUI(QMainWindow):
     
 
     def _handle_version_status(self):
-        status = config.APP_LATEST_VERSION
-        if status == config.APP_VERSION:
-            widgets.version_value.setStyleSheet(
-                """
+        latest = getattr(config, "APP_LATEST_VERSION", None)
+        current = getattr(config, "APP_VERSION", None)
+
+        cmp = compare_versions_2(latest, current)
+
+        if cmp == 0:
+            # up to date
+            widgets.version_value.setStyleSheet("""
                 QLabel {
                     color: #4CAF50;
                     font-weight: bold;
@@ -4694,36 +4562,45 @@ class DownloadManagerUI(QMainWindow):
                     border-radius: 10px;
                     background: rgba(76, 175, 80, 0.1);
                 }
-
-                """
-            )
+            """)
             widgets.version_value.setToolTip('No new updates')
-        elif status > config.APP_VERSION:
-            widgets.version_value.setStyleSheet(
-                """
+        elif cmp == 1:
+            # newer available
+            widgets.version_value.setStyleSheet("""
                 QLabel {
                     color: #F44336;
                     padding: 6px 16px;
                     font-weight: bold;
                     border-radius: 10px;
                     background: rgba(244, 67, 54, 0.1);  
-                } 
-                """
-            )
-            widgets.version_value.setToolTip('Version is old, new version available')
-        else:
-            widgets.version_value.setStyleSheet(
-                """
+                }
+            """)
+            widgets.version_value.setToolTip(f'New version available: {latest}')
+        elif cmp == -1:
+            # current > latest (dev build ahead)
+            widgets.version_value.setStyleSheet("""
                 QLabel {
-                    color: #4CAF50;
+                    color: #2196F3;
+                    padding: 6px 16px;
+                    font-weight: bold;
+                    border-radius: 10px;
+                    background: rgba(33, 150, 243, 0.1);
+                }
+            """)
+            widgets.version_value.setToolTip(f'Running a newer/dev build ({current})')
+        else:
+            # Unknown (None / unparsable)
+            widgets.version_value.setStyleSheet("""
+                QLabel {
+                    color: #9E9E9E;
                     font-weight: bold;
                     padding: 5px 10px;
                     border-radius: 10px;
-                    background: rgba(76, 175, 80, 0.1);
+                    background: rgba(158, 158, 158, 0.1);
                 }
-                """
-            )
-            widgets.version_value.setToolTip('Unable to check for new updates')
+            """)
+            widgets.version_value.setToolTip('Unable to determine latest version')
+
 
         
     
@@ -4960,10 +4837,12 @@ class DownloadManagerUI(QMainWindow):
         self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
         self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
         self.update_thread.start()  # Start the thread
+        self.change_page(btn=None, btnName=None, idx=2)
         
 
     def on_update_finished(self):
-        show_information(title=config.APP_NAME, inform='', msg=self.tr("Updates to be installed at 12:00:00 pm"))
+        log('Updates Done')
+        
     def check_for_ytdl_update(self):
         config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
 

@@ -22,18 +22,31 @@ import io
 import re
 import sys
 import time
+import uuid
 import json
 import plyer
 import base64
+import socket
+import psutil
 import pycurl
 import shutil
 import shlex
-import hashlib
 import certifi
+import hashlib
 import platform
+import zipfile
 import subprocess
+import py_compile
 from notifypy import Notify
 import pyperclip as clipboard
+from getmac import get_mac_address
+
+
+try:
+    from packaging.version import Version, InvalidVersion
+except Exception:
+    Version = None
+    InvalidVersion = Exception 
 
 
 
@@ -848,12 +861,52 @@ def get_machine_id(hashed=True):
     return raw_id
 
 
+def _normalize_version_str(s: str | None) -> str | None:
+    if not s:
+        return None
+    # strip common prefixes/wrappers like v, [ ], spaces
+    s = s.strip().lstrip('v').lstrip('.').strip('[](){} ').strip()
+    return s or None
+
+def _parse_version(s: str | None):
+    s = _normalize_version_str(s)
+    if not s:
+        return None
+    if Version:
+        try:
+            return Version(s)
+        except InvalidVersion:
+            pass
+    # fallback: parse numbers only (1.2.3 → (1,2,3))
+    nums = re.findall(r'\d+', s)
+    if not nums:
+        return None
+    return tuple(int(n) for n in nums)
+
+def compare_versions_2(a: str | None, b: str | None) -> int | None:
+    """
+    Returns 1 if a>b, 0 if a==b, -1 if a<b, None if either unparsable.
+    """
+    va, vb = _parse_version(a), _parse_version(b)
+    if va is None or vb is None:
+        return None
+    if Version and isinstance(va, Version) and isinstance(vb, Version):
+        return (va > vb) - (va < vb)
+    # tuple fallback: pad to same length
+    la, lb = list(va), list(vb)
+    L = max(len(la), len(lb))
+    la += [0]*(L-len(la))
+    lb += [0]*(L-len(lb))
+    return (la > lb) - (la < lb)
+
+
+
 __all__ = [
     'notify', 'handle_exceptions', 'get_headers', 'download', 'size_format', 'time_format', 'log',
     'validate_file_name', 'size_splitter', 'delete_folder', 'get_seg_size',
     'run_command', 'print_object', 'update_object', 'truncate', 'sort_dictionary', 'popup', 'compare_versions',
     'translate_server_code', 'validate_url', 'open_file', 'clipboard_read', 'clipboard_write', 'delete_file',
     'rename_file', 'load_json', 'save_json', 'echo_stdout', 'echo_stderr', 'log_recorder', 'natural_sort',
-    'process_thumbnail'
+    'process_thumbnail', 'compare_versions_2'
 
 ]

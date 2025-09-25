@@ -115,6 +115,6 @@ websockets==15.0.1
 wget==3.2
 win32_setctime==1.2.0
 yarg==0.1.10
-yt-dlp==2024.10.20.232914.dev0
+yt-dlp==2025.9.23
 zope.event==5.0
 zope.interface==7.2

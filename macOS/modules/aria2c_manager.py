@@ -121,7 +121,10 @@ class Aria2cManager:
 
 
     def _start_rpc_server(self):
-        
+        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen', log_level=1)
+        # log('starting application')
+        log(f'operating system: {config.operating_system_info}', log_level=1)
+        log(f'current working directory: {config.current_directory}', log_level=1)
         aria2c_path = self._get_aria2c_path()
 
         # If aria2c is not found, log and return early
