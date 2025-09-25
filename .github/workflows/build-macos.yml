@@ -19,8 +19,8 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: "11.0"
       EDGE_EXTENSION_ID: "mkhncokjlhefbbnjlgmnifmgejdclbhj"
       FIREFOX_EXTENSION_ID: "{e899b50f-2a29-4bad-ab4d-b192447a10d0}"
-      RELEASE_TAG: ${{ vars.RELEASE_TAG }}
       VERSION: "2.0.0"   # <— set your version here
+      RELEASE_TAG: ${{ vars.RELEASE_TAG }}
     defaults:
       run:
         working-directory: macOS
@@ -45,12 +45,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VER="${{ steps.ver.outputs.version }}"
-          TAG="${RELEASE_TAG:-}"
-          if [[ -z "$TAG" ]]; then
-            TAG="v.${VER}"   # <— matches your existing tag style
+          # Trim whitespace
+          VER="$(printf "%s" "${VERSION:-}" | tr -d '[:space:]')"
+          if [[ -z "$VER" ]]; then
+            echo "ERROR: VERSION is empty. Set env.VERSION or repo variable VERSION." >&2
+            exit 1
           fi
+
+          # If you always want v.<semver>, uncomment regex below to enforce
+          # [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "ERROR: VERSION must be x.y.z"; exit 1; }
+
+          # Prefer RELEASE_TAG (if provided), otherwise build v.<version>
+          TAG_RAW="${RELEASE_TAG:-}"
+          TAG="$(printf "%s" "$TAG_RAW" | tr -d '[:space:]')"
+          if [[ -z "$TAG" ]]; then
+            TAG="v.${VER}"
+          fi
+
+          # Basic sanity: tag cannot be empty, nor look like a branch ref
+          [[ -n "$TAG" ]] || { echo "ERROR: tag is empty"; exit 1; }
+          [[ "$TAG" != refs/heads/* ]] || { echo "ERROR: tag cannot be a branch ref ($TAG)"; exit 1; }
+
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
           echo "Using release tag: ${TAG}"
 
       - name: Install Python deps
@@ -288,9 +305,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.rtag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           name: OmniPull ${{ steps.rtag.outputs.tag }}
           draft: false
           prerelease: false
-          files: macOS/dist/omnipull-arm64-${{ steps.ver.outputs.version }}.dmg
+          files: macOS/dist/omnipull-arm64-${{ steps.rtag.outputs.version }}.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
