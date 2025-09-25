@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VER="${{ steps.ver.outputs.version }}"
+          VER="${VERSION:?VERSION is empty; set env.VERSION (e.g., 2.0.0)}"
           APP_DIR="dist/OmniPull.app"
           mkdir -p "$APP_DIR/Contents/MacOS" \
                    "$APP_DIR/Contents/Resources/connector"
@@ -261,7 +261,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VER="${{ steps.ver.outputs.version }}"
+          VER="${VERSION:?VERSION is empty; set env.VERSION (e.g., 2.0.0)}"
           APPDMG_JSON="$(pwd)/_appdmg.json"
           TITLE="OmniPull (Apple Silicon)"
           BG="icons/logo4.png"
@@ -309,6 +309,6 @@ jobs:
           name: OmniPull ${{ steps.rtag.outputs.tag }}
           draft: false
           prerelease: false
-          files: macOS/dist/omnipull-arm64-${{ steps.rtag.outputs.version }}.dmg
+          files: macOS/dist/omnipull-arm64-${{ env.VERSION }}.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
