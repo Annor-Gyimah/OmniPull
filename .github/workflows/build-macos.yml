@@ -35,37 +35,43 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Determine version from version.py (robust)
+      - name: Determine version from version.py (macOS/modules)
         id: ver
         shell: bash
-        working-directory: .
         run: |
           set -euo pipefail
-          # Look for version.py in common places
-          CANDIDATES=( "macOS/version.py" "version.py" "src/version.py" "app/version.py" "omnipull/version.py" )
+          echo "PWD: $(pwd)"
+          echo "Looking for version.py…"
+          CANDIDATES=( "modules/version.py" "version.py" "../macOS/modules/version.py" "../version.py" )
           FILE=""
           for p in "${CANDIDATES[@]}"; do
             if [[ -f "$p" ]]; then FILE="$p"; break; fi
           done
           if [[ -z "$FILE" ]]; then
             echo "ERROR: Could not locate version.py. Checked: ${CANDIDATES[*]}"
+            ls -la
             exit 1
           fi
 
+          # Parse __version__ = 'x.y.z'
           VER="$(python - <<PY
-            import re
-            s=open("$FILE",'r',encoding='utf-8').read()
+            import re, sys
+            with open("$FILE",'r',encoding='utf-8') as f:
+                s=f.read()
             m=re.search(r"__version__\\s*=\\s*['\\"]([^'\\"]+)['\\"]", s)
             print(m.group(1) if m else '')
             PY
           )"
           if [[ -z "$VER" ]]; then
             echo "ERROR: Could not parse __version__ from $FILE"
+            echo "File contents:"
+            sed -n '1,120p' "$FILE"
             exit 1
           fi
 
           echo "version=$VER" >> "$GITHUB_OUTPUT"
           echo "Resolved VERSION=$VER from $FILE"
+
 
 
       - name: Compute final release tag (v.${VERSION} or override)
