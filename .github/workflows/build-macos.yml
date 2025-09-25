@@ -20,6 +20,7 @@ jobs:
       EDGE_EXTENSION_ID: "mkhncokjlhefbbnjlgmnifmgejdclbhj"
       FIREFOX_EXTENSION_ID: "{e899b50f-2a29-4bad-ab4d-b192447a10d0}"
       RELEASE_TAG: ${{ vars.RELEASE_TAG }}
+      VERSION: "2.0.0"   # <— set your version here
     defaults:
       run:
         working-directory: macOS
@@ -35,42 +36,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Determine version from version.py (macOS/modules)
-        id: ver
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "PWD: $(pwd)"
-          echo "Looking for version.py…"
-          CANDIDATES=( "modules/version.py" "version.py" "../macOS/modules/version.py" "../version.py" )
-          FILE=""
-          for p in "${CANDIDATES[@]}"; do
-            if [[ -f "$p" ]]; then FILE="$p"; break; fi
-          done
-          if [[ -z "$FILE" ]]; then
-            echo "ERROR: Could not locate version.py. Checked: ${CANDIDATES[*]}"
-            ls -la
-            exit 1
-          fi
-
-          # Parse __version__ = 'x.y.z'
-          VER="$(python - <<PY
-            import re, sys
-            with open("$FILE",'r',encoding='utf-8') as f:
-                s=f.read()
-            m=re.search(r"__version__\\s*=\\s*['\\"]([^'\\"]+)['\\"]", s)
-            print(m.group(1) if m else '')
-            PY
-          )"
-          if [[ -z "$VER" ]]; then
-            echo "ERROR: Could not parse __version__ from $FILE"
-            echo "File contents:"
-            sed -n '1,120p' "$FILE"
-            exit 1
-          fi
-
-          echo "version=$VER" >> "$GITHUB_OUTPUT"
-          echo "Resolved VERSION=$VER from $FILE"
+      
 
 
 
