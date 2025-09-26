@@ -175,7 +175,7 @@ open -a "OmniPull"
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/omnipull.git
+git clone https://github.com/Annor-Gyimah/omnipull.git
 
 # Navigate to the project directory
 cd omnipull
