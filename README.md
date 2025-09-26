@@ -208,6 +208,8 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+<a href="https://www.producthunt.com/products/omnipull-downloader?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-omnipull&#0045;downloader" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1020162&theme=light&t=1758846969900" alt="OmniPull&#0032;Downloader - Open&#0032;source&#0032;downloader | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 ## 📄 License
 This project is licensed under the GPLV3 License - see the [LICENSE](LICENSE) file for details.
 
