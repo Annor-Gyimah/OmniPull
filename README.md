@@ -6,13 +6,23 @@
 
 <div align="center">
 
-![GitHub Release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull)
-![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&label=Release)
 
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/Annor-Gyimah/Li-Dl/latest/total)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total)
-[![Download OmniPull](https://img.shields.io/sourceforge/dd/omnipull.svg)](https://sourceforge.net/projects/omnipull/files/latest/download)
+![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?label=License&style=for-the-badge&logo=Google%20Docs&logoColor=blue&color=blue)
+
+
+![GitHub all releases](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?label=Total%20Downloads&style=for-the-badge)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/latest/total?label=Latest%20Release&style=for-the-badge)
+
+![GitHub repo stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
+![GitHub forks](https://img.shields.io/github/forks/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
+![GitHub watchers](https://img.shields.io/github/watchers/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
+
+
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Annor-Gyimah/OmniPull?style=for-the-badge)
+
+![GitHub last commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?style=for-the-badge)
+
 
     
 </div>
