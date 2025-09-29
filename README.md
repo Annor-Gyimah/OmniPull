@@ -6,25 +6,23 @@
 
 <div align="center">
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&label=Release)
-
+<!-- 📦 Release & License -->
+![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&label=Release&color=brightgreen)
 ![GitHub License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?label=License&style=for-the-badge&logo=Google%20Docs&logoColor=blue&color=blue)
 
+<!-- 📥 Downloads -->
+![GitHub all releases](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?label=Total%20Downloads&style=for-the-badge&color=orange)
+![GitHub release downloads](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/latest/total?label=Latest%20Release&style=for-the-badge&color=orange)
 
-![GitHub all releases](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?label=Total%20Downloads&style=for-the-badge)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/latest/total?label=Latest%20Release&style=for-the-badge)
+<!-- 🌟 Repo Stats -->
+![GitHub stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&color=yellow)
+![GitHub forks](https://img.shields.io/github/forks/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&color=lightgrey)
+![GitHub watchers](https://img.shields.io/github/watchers/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github&color=blue)
 
-![GitHub repo stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
-![GitHub forks](https://img.shields.io/github/forks/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
-![GitHub watchers](https://img.shields.io/github/watchers/Annor-Gyimah/OmniPull?style=for-the-badge&logo=github)
+<!-- ⚙️ Development -->
+![GitHub code size](https://img.shields.io/github/languages/code-size/Annor-Gyimah/OmniPull?style=for-the-badge&color=purple)
+![GitHub last commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?style=for-the-badge&color=grey)
 
-
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Annor-Gyimah/OmniPull?style=for-the-badge)
-
-![GitHub last commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?style=for-the-badge)
-
-
-    
 </div>
 
 OmniPull is a powerful, cross-platform download manager built with Python and PySide6. It provides a modern, intuitive interface for managing downloads with advanced features like multi-threading, queue management, and media extraction.
