@@ -17,8 +17,12 @@
 
 import os
 import sys
-
+import json
+import stat
+import shlex
+import subprocess
 from modules import config
+from functools import partial
 from modules.utils import log, delete_file
 from modules.settings_manager import SettingsManager
 
@@ -28,7 +32,7 @@ from PySide6.QtCore import Qt, QCoreApplication, QTranslator
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
     QSpinBox, QLineEdit, QPushButton, QListWidget, QListWidgetItem, QStackedWidget, QFrame, QMessageBox,
-    QGroupBox,  QTabWidget, QFileDialog
+    QGroupBox,  QTabWidget, QFileDialog, QSizePolicy, QGroupBox
 )
 
 
@@ -46,6 +50,8 @@ class SettingsWindow(QDialog):
         self.settings_manager = SettingsManager()
 
         self.translator = QTranslator()
+
+        
 
         
 
@@ -79,8 +85,10 @@ class SettingsWindow(QDialog):
         icon_map = {
             self.tr("General"): "icons/general.png",
             self.tr("Engine Config"): "icons/cil-link.png",
+            self.tr("Backend Paths"): "icons/cli-link.png",
             self.tr("Browser"): "icons/extension.png",
             self.tr("Updates"): "icons/updates.svg",
+            
         }
 
         for key, icon in icon_map.items():
@@ -162,9 +170,13 @@ class SettingsWindow(QDialog):
         # Initialize sections
         self.setup_general_tab()
         self.setup_engine_config_tab()
+        self.setup_backend_paths_tab()
         self.setup_browser_tab()
         self.setup_updates_tab()
+        
         self.check_update_btn.clicked.connect(self.on_call_update)
+        self.yt_dlp_update_btn.clicked.connect(self.on_call_ytdlp_update)
+        
 
 
         self.load_values(config)
@@ -187,7 +199,7 @@ class SettingsWindow(QDialog):
 
         self.language_combo = QComboBox()
         self.language_combo.setToolTip(self.tr('Select your preferred language'))
-        self.language_combo.addItems(["English","Chinese", "Spanish", "Korean", "French", "Japanese"])
+        self.language_combo.addItems(["English","Chinese", "Spanish", "Korean", "French", "Japanese", "Hindi"])
 
         self.setting_scope_combo = QComboBox()
         self.setting_scope_combo.setToolTip(self.tr('Set settings to Global or Local. Recommend: Global.'))
@@ -386,10 +398,14 @@ class SettingsWindow(QDialog):
         self.ignore_errors_cb.setToolTip(self.tr("Continue downloading even if errors occur."))
         self.list_formats_cb = QCheckBox(self.tr("List Formats"))
         self.list_formats_cb.setToolTip(self.tr("List available formats for the video instead of downloading."))
+        self.use_ytdlp_exe_cb = QCheckBox(self.tr("Use YT-DLP executable"))
+        self.use_ytdlp_exe_cb.setToolTip(self.tr("Check to use the yt-dlp binary or use the bundled."))
+
 
         extraction_group_layout.addWidget(self.no_playlist_cb)
         extraction_group_layout.addWidget(self.ignore_errors_cb)
         extraction_group_layout.addWidget(self.list_formats_cb)
+        extraction_group_layout.addWidget(self.use_ytdlp_exe_cb)
         extraction_group.setLayout(extraction_group_layout)
         ytdlp_layout.addWidget(extraction_group)
 
@@ -583,12 +599,500 @@ class SettingsWindow(QDialog):
         sut1 = self.tr('App Version:')
         self.version_label = QLabel(f"{sut1} {config.APP_VERSION}")
         self.check_update_btn = QPushButton(self.tr("Check for update"))
+        self.check_update_btn.setCursor(Qt.PointingHandCursor)
+
+        # --- yt-dlp version check ---
+        yt_dlp_version = ""
+        yt_dlp_path = getattr(config, "yt_dlp_exe", "") or config.yt_dlp_actual_path
+        if yt_dlp_path and os.path.isfile(yt_dlp_path):
+            try:
+                kwargs = dict(capture_output=True, text=True, timeout=8)
+                if sys.platform.startswith("win"):
+                    kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    si.wShowWindow = subprocess.SW_HIDE
+                    kwargs["startupinfo"] = si
+                proc = subprocess.run([yt_dlp_path, "--version"], **kwargs)
+                yt_dlp_version = proc.stdout.strip().splitlines()[0] if proc.stdout else ""
+            except Exception:
+                yt_dlp_version = self.tr("Unknown")
+        else:
+            yt_dlp_version = self.tr("Not set")
+
+        self.yt_dlp_version_label = QLabel(self.tr("yt-dlp version: ") + yt_dlp_version)
+        self.yt_dlp_update_btn = QPushButton(self.tr("Check yt-dlp update"))
+        self.yt_dlp_update_btn.setCursor(Qt.PointingHandCursor)
+        #self.yt_dlp_update_btn.clicked.connect(self.check_yt_dlp_update)
+
+        updates_layout.addRow(QLabel(self.tr("Check for update every (days):")), self.check_interval_combo)
+        # updates_layout.addRow()
+        updates_layout.addRow(self.version_label, self.check_update_btn)
+        updates_layout.addRow(self.yt_dlp_version_label, self.yt_dlp_update_btn)
+        self.stack.addWidget(updates_widget)
+
+
 
     
-        updates_layout.addRow(QLabel(self.tr("Check for update every (days):")), self.check_interval_combo)
-        updates_layout.addRow(self.version_label)
-        updates_layout.addRow(self.check_update_btn)
-        self.stack.addWidget(updates_widget)
+    def setup_backend_paths_tab(self):
+        # TODO Allow users to select their custom cookies.txt and ffmpeg.exe -- Next Version 
+        """
+        Tab allowing selection of:
+        - optional custom yt-dlp executable (checkbox to enable)
+        - cookies.txt file 
+        - ffmpeg executable
+
+        Adds inline validation labels under each row to show problems.
+        Exposes getters:
+        - self.get_custom_ytdlp_path()
+        - self.get_cookies_path()
+        - self.get_ffmpeg_path()
+        """
+        tab = QWidget()
+        main_layout = QVBoxLayout(tab)
+        main_layout.setContentsMargins(8, 8, 8, 8)
+        main_layout.setSpacing(12)
+
+        def _select_file(target_lineedit: QLineEdit = None,
+                        caption: str = "Select file",
+                        file_filter: str = "All Files (*)") -> str:
+            """Flexible file chooser: if target_lineedit provided, it will be updated.
+            NOTE: This function is only called from Browse button handlers, not at startup."""
+            initial_dir = None
+            if target_lineedit and target_lineedit.text():
+                initial_dir = os.path.dirname(target_lineedit.text())
+            if not initial_dir or not os.path.exists(initial_dir):
+                initial_dir = os.path.expanduser("~")
+
+            parent = tab
+            path, _ = QFileDialog.getOpenFileName(parent, caption, initial_dir, file_filter)
+            if path and target_lineedit:
+                target_lineedit.setText(path)
+            return path
+
+        def _make_row(label_text: str, placeholder: str):
+            """Create a horizontal row containing a label, QLineEdit and Browse button."""
+            row_container = QWidget()
+            row_layout = QHBoxLayout(row_container)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(8)
+
+            label = QLabel(label_text)
+            label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+
+            line = QLineEdit()
+            line.setPlaceholderText(placeholder)
+
+            browse = QPushButton(self.tr("Browse"))
+            browse.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+            row_layout.addWidget(label)
+            row_layout.addWidget(line, 1)
+            row_layout.addWidget(browse)
+            return row_container, line, browse
+
+        def _make_warning_label():
+            lbl = QLabel("")  # empty by default
+            lbl.setWordWrap(True)
+            lbl.setVisible(False)
+            lbl.setStyleSheet("color: rgb(190,0,0); font-size: 11px;")
+            return lbl
+        
+        def _make_success_label():
+            lbl = QLabel("")  # empty by default
+            lbl.setWordWrap(True)
+            lbl.setVisible(False)
+            lbl.setStyleSheet("color: rgb(0,190,0); font-size: 11px;")
+            return lbl
+
+        # ---------- validators ----------
+        def _is_executable_file(path: str) -> bool:
+            if not path:
+                return False
+            if not os.path.isfile(path):
+                return False
+            try:
+                st = os.stat(path)
+                # On Windows checking execute bit is unreliable; assume file exists is okay and has .exe
+                if sys.platform.startswith("win"):
+                    return path.lower().endswith(".exe")
+                else:
+                    return bool(st.st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH))
+            except Exception:
+                return False
+
+        def _suggest_chmod_cmd(path: str) -> str:
+            return f"On Unix run: chmod +x {path}"
+
+        # Try to run '<exe> --version' to check it behaves like yt-dlp/ffmpeg.
+        # Uses short timeout so UI won't hang.
+
+        def _probe_exe_for_signature(path: str, expected_keywords: list[str], timeout: float = 8.0) -> tuple[bool, str]:
+            if not path or not os.path.isfile(path):
+                return False, "File not found."
+
+            args = [path, "--version"]
+
+            kwargs = dict(capture_output=True, text=True, timeout=timeout)
+            if sys.platform.startswith("win"):
+                kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+                kwargs["startupinfo"] = si
+        
+            try:
+                proc = subprocess.run(args, **kwargs)
+                combined = (proc.stdout or "") + "\n" + (proc.stderr or "")
+                for kw in expected_keywords:
+                    if kw.lower() in combined.lower():
+                        return True, combined.strip()
+                return False, combined.strip() or "No output from --version."
+            except subprocess.TimeoutExpired:
+                return False, "Probe timed out (the executable may block or be slow)."
+            except PermissionError:
+                return False, "Permission denied when attempting to run the executable."
+            except Exception as exc:
+                return False, f"Failed to run --version probe: {exc}"
+
+
+        # ---------- validation functions ----------
+        def _validate_yt_path():
+            """Validate the yt-dlp path only when the custom checkbox is checked."""
+            if not self.yt_checkbox.isChecked():
+                self.yt_warning.setVisible(False)
+                return True
+            
+            p = config.get_effective_ytdlp() or self.yt_lineedit.text().strip()
+
+            # p = self.yt_lineedit.text().strip()
+            if not p:
+                self.yt_warning.setText(self.tr("Custom yt-dlp is enabled but no path was provided."))
+                self.yt_warning.setVisible(True)
+                return False
+            if not os.path.exists(p):
+                self.yt_warning.setText(self.tr("The selected yt-dlp path does not exist."))
+                self.yt_warning.setVisible(True)
+                return False
+            if not os.path.isfile(p):
+                self.yt_warning.setText(self.tr("Selected yt-dlp path is not a file."))
+                self.yt_warning.setVisible(True)
+                return False
+            if not _is_executable_file(p):
+                # Detailed suggestion for permissions
+                if sys.platform.startswith("win"):
+                    a = self.tr("The selected yt-dlp does not look like an executable (.exe). ")
+                    b = self.tr("Make sure you picked the yt-dlp executable file or use the Python module instead.")
+                    self.yt_warning.setText(
+                        f'{a}'
+                        f'{b}'
+                    )
+                else:
+                    self.yt_warning.setText(
+                        self.tr("The selected yt-dlp file is not marked executable. ") +
+                        _suggest_chmod_cmd(p)
+                    )
+                self.yt_warning.setVisible(True)
+                return False
+
+            # Probe the exe to ensure it behaves like yt-dlp
+            suggestion = ""
+            if sys.platform.startswith("win"):
+                suggestion = self.tr("Ensure this is the yt-dlp executable (filename ends with .exe) or leave blank to use the Python package.")
+            else:
+                suggestion = _suggest_chmod_cmd(p) + self.tr(" or ensure this binary is yt-dlp.")
+            
+            pot = self.tr('Probe output:')
+            self.yt_warning.setText(
+                # f"Selected file did not identify as yt-dlp when probed with '--version'.\n"
+                
+                f"{pot}\n {suggestion}"
+            )
+            self.yt_warning.setVisible(True)
+            return False
+        
+            # BUG: Calling the _probe_exe_for_signature delays the program
+            # looks_like, msg = _probe_exe_for_signature(p, expected_keywords=["yt-dlp", "yt_dlp.exe", "yt-dlp version"], timeout=8.0)
+            # if not looks_like:
+            #     # More detailed message: include probe output (shortened) to help debugging
+            #     short = (msg[:300] + "...") if msg and len(msg) > 300 else msg
+            #     suggestion = ""
+            #     if sys.platform.startswith("win"):
+            #         suggestion = self.tr("Ensure this is the yt-dlp executable (filename ends with .exe) or leave blank to use the Python package.")
+            #     else:
+            #         suggestion = _suggest_chmod_cmd(p) + self.tr(" or ensure this binary is yt-dlp.")
+                
+            #     pot = self.tr('Probe output:')
+            #     self.yt_warning.setText(
+            #         # f"Selected file did not identify as yt-dlp when probed with '--version'.\n"
+                    
+            #         f"{pot} {short}\n{suggestion}"
+            #     )
+            #     self.yt_warning.setVisible(True)
+            #     return False
+
+            # # OK
+            # self.yt_warning.setVisible(False)
+            # return True
+
+
+        
+        def _validate_cookies_path():
+            p = self.cookies_lineedit.text().strip()
+            if not p:
+                # cookies are optional — hide warning for empty
+                self.cookies_warning.setVisible(False)
+                return True
+            if not os.path.exists(p):
+                self.cookies_warning.setText("cookies.txt not found at the selected path.")
+                self.cookies_warning.setVisible(True)
+                return False
+            if not os.path.isfile(p):
+                self.cookies_warning.setText("Selected cookies path is not a regular file.")
+                self.cookies_warning.setVisible(True)
+                return False
+            try:
+                size = os.path.getsize(p)
+                if size == 0:
+                    self.cookies_warning.setText("cookies.txt is empty.")
+                    self.cookies_warning.setVisible(True)
+                    return False
+            except Exception:
+                self.cookies_warning.setText("Unable to read cookies file.")
+                self.cookies_warning.setVisible(True)
+                return False
+            # OK
+            self.cookies_warning.setVisible(False)
+            return True
+
+        def _validate_ffmpeg_path():
+            p = self.ffmpeg_lineedit.text().strip()
+            if not p:
+                # empty means "use system ffmpeg" — OK
+                self.ffmpeg_warning.setVisible(False)
+                return True
+            if not os.path.exists(p):
+                self.ffmpeg_warning.setText("ffmpeg path does not exist.")
+                self.ffmpeg_warning.setVisible(True)
+                return False
+            if not os.path.isfile(p):
+                self.ffmpeg_warning.setText("Selected ffmpeg is not a file.")
+                self.ffmpeg_warning.setVisible(True)
+                return False
+            if not _is_executable_file(p):
+                if sys.platform.startswith("win"):
+                    self.ffmpeg_warning.setText(
+                        "The selected ffmpeg does not look like an executable (.exe). Make sure you selected ffmpeg binary."
+                    )
+                else:
+                    self.ffmpeg_warning.setText(
+                        "The selected ffmpeg is not executable. " + _suggest_chmod_cmd(p)
+                    )
+                self.ffmpeg_warning.setVisible(True)
+                return False
+
+            # Probe the binary for ffmpeg signature
+            looks_like, msg = _probe_exe_for_signature(p, expected_keywords=["ffmpeg", "ffmpeg version"])
+            if not looks_like:
+                short = (msg[:300] + "...") if msg and len(msg) > 300 else msg
+                self.ffmpeg_warning.setText(
+                    f"Selected file did not identify as ffmpeg when probed with '--version'.\n"
+                    f"Probe output: {short}\n"
+                    "If this is a wrapper, ensure it forwards --version or select the real ffmpeg binary."
+                )
+                self.ffmpeg_warning.setVisible(True)
+                return False
+
+            self.ffmpeg_warning.setVisible(False)
+            return True
+
+        def _validate_all():
+            # returns True if everything valid
+            a = _validate_yt_path()
+            # b = _validate_cookies_path()
+            # c = _validate_ffmpeg_path()
+            return a # and b and c 
+
+        # ---------- yt-dlp UI ----------
+        yt_group = QGroupBox(self.tr("yt-dlp (optional custom path)"))
+        yt_layout = QVBoxLayout(yt_group)
+        yt_layout.setContentsMargins(6, 6, 6, 6)
+        yt_layout.setSpacing(6)
+
+        self.yt_checkbox = QCheckBox(self.tr("Use custom yt-dlp executable"))
+        yt_layout.addWidget(self.yt_checkbox)
+
+        yt_row_widget, self.yt_lineedit, self.yt_browse_btn = _make_row(
+            "yt-dlp:", "Path to yt-dlp executable (leave blank to use bundled/default)"
+        )
+
+        # Prefill from config if available (no dialogs at startup)
+        try:
+            initial = getattr(config, "yt_dlp_exe", "") or ""
+            if initial:
+                self.yt_lineedit.setText(initial)
+                # enable checkbox if user already has a saved exe
+                self.yt_checkbox.setChecked(True)
+        except Exception:
+            pass
+
+        self.yt_lineedit.setEnabled(self.yt_checkbox.isChecked())
+        self.yt_browse_btn.setEnabled(self.yt_checkbox.isChecked())
+
+        if sys.platform.startswith("win"):
+            yt_filter = "Executables (*.exe);;All Files (*)"
+        else:
+            yt_filter = "All Files (*)"
+
+        # Browse handler: called when user clicks Browse
+        def _on_browse_yt():
+            selected = _select_file(self.yt_lineedit, "Select yt-dlp executable", yt_filter)
+            if not selected:
+                return
+
+            # Set the UI lineedit immediately
+            self.yt_lineedit.setText(selected)
+
+            # Tell config about the user-selected path and resolve the effective path
+            # (this updates config.yt_dlp_exe and config.yt_dlp_actual_path via set_user_ytdlp)
+            resolved = config.set_user_ytdlp(selected)
+
+            # If resolution failed, still store the literal path in legacy var (keeps older code happy)
+            if not resolved:
+                config.yt_dlp_exe = selected
+            else:
+                # keep legacy variable in sync
+                config.yt_dlp_exe = resolved
+
+            # Optionally prefer the exe immediately when a user chooses one
+            config.use_ytdlp_exe = True
+
+            # Run the validator which will show inline warnings if the file is not executable/valid
+            _validate_yt_path()
+
+
+        self.yt_browse_btn.clicked.connect(_on_browse_yt)
+        # toggle enabling of widgets and validate when toggled
+        self.yt_checkbox.toggled.connect(lambda checked: (
+            self.yt_lineedit.setEnabled(checked),
+            self.yt_browse_btn.setEnabled(checked),
+            _validate_yt_path()
+        ))
+        
+
+        # inline warning label for yt-dlp
+        self.yt_warning = _make_warning_label()
+        self.yt_success = _make_success_label()
+        yt_layout.addWidget(yt_row_widget)
+        yt_layout.addWidget(self.yt_warning)
+        yt_layout.addWidget(self.yt_success)
+        main_layout.addWidget(yt_group)
+
+        # ---------- cookies UI ----------
+        cookies_group = QGroupBox("Cookies")
+        cookies_layout = QVBoxLayout(cookies_group)
+        cookies_layout.setContentsMargins(6, 6, 6, 6)
+        cookies_layout.setSpacing(6)
+
+        cookies_row_widget, self.cookies_lineedit, self.cookies_browse_btn = _make_row(
+            "cookies.txt:", "Path to cookies.txt (Optional)"
+        )
+        # Prefill cookies path from config if available
+        try:
+            initial_c = getattr(config, "cookies_path", "") or ""
+            if initial_c:
+                self.cookies_lineedit.setText(initial_c)
+        except Exception:
+            pass
+
+        cookies_filter = "Cookies files (*.txt);;All Files (*)"
+        def _on_browse_cookies():
+            selected = _select_file(self.cookies_lineedit, "Select cookies.txt file", cookies_filter)
+            if not selected:
+                return
+            # Save chosen path to config if you want
+            try:
+                config.cookies_path = selected
+            except Exception:
+                pass
+            _validate_cookies_path()
+
+        self.cookies_browse_btn.clicked.connect(_on_browse_cookies)
+
+        self.cookies_warning = _make_warning_label()
+        cookies_layout.addWidget(cookies_row_widget)
+        cookies_layout.addWidget(self.cookies_warning)
+        # main_layout.addWidget(cookies_group)
+
+        # ---------- ffmpeg UI ----------
+        ffmpeg_group = QGroupBox("ffmpeg")
+        ffmpeg_layout = QVBoxLayout(ffmpeg_group)
+        ffmpeg_layout.setContentsMargins(6, 6, 6, 6)
+        ffmpeg_layout.setSpacing(6)
+
+        ff_row_widget, self.ffmpeg_lineedit, self.ffmpeg_browse_btn = _make_row(
+            "ffmpeg:", "Path to ffmpeg executable (leave blank to use system ffmpeg)"
+        )
+
+        # Prefill ffmpeg from config if available
+        try:
+            initial_ff = getattr(config, "ffmpeg_path", "") or ""
+            if initial_ff:
+                self.ffmpeg_lineedit.setText(initial_ff)
+        except Exception:
+            pass
+
+        if sys.platform.startswith("win"):
+            ff_filter = "Executables (*.exe);;All Files (*)"
+        else:
+            ff_filter = "All Files (*)"
+
+        def _on_browse_ffmpeg():
+            selected = _select_file(self.ffmpeg_lineedit, "Select ffmpeg executable", ff_filter)
+            if not selected:
+                return
+            try:
+                config.ffmpeg_path = selected
+            except Exception:
+                pass
+            _validate_ffmpeg_path()
+
+        self.ffmpeg_browse_btn.clicked.connect(_on_browse_ffmpeg)
+
+        self.ffmpeg_warning = _make_warning_label()
+        ffmpeg_layout.addWidget(ff_row_widget)
+        ffmpeg_layout.addWidget(self.ffmpeg_warning)
+        # main_layout.addWidget(ffmpeg_group)
+
+        main_layout.addStretch(1)
+
+        # ---------- wire live validation ----------
+        # Validate when text changes (user typed or browse set text)
+        self.yt_lineedit.textChanged.connect(_validate_yt_path)
+        # self.cookies_lineedit.textChanged.connect(_validate_cookies_path)
+        # self.ffmpeg_lineedit.textChanged.connect(_validate_ffmpeg_path)
+
+        # Also validate once on creation to show any initial issues
+        _validate_all()
+
+        # ---------- getters ----------
+        def _get_yt_path():
+            return self.yt_lineedit.text().strip() if self.yt_checkbox.isChecked() else ""
+
+        def _get_cookies_path():
+            return self.cookies_lineedit.text().strip()
+
+        def _get_ffmpeg_path():
+            return self.ffmpeg_lineedit.text().strip()
+
+        self.get_custom_ytdlp_path = _get_yt_path
+        # self.get_cookies_path = _get_cookies_path
+        # self.get_ffmpeg_path = _get_ffmpeg_path
+
+        # Add tab to the stack 
+        self.stack.addWidget(tab)
+
+
 
     def dark_stylesheet(self):
         return """
@@ -753,6 +1257,7 @@ class SettingsWindow(QDialog):
         self.no_playlist_cb.setChecked(config.ytdlp_config['no_playlist'])
         self.ignore_errors_cb.setChecked(config.ytdlp_config['ignore_errors'])
         self.list_formats_cb.setChecked(config.ytdlp_config['list_formats'])
+        self.use_ytdlp_exe_cb.setChecked(config.use_ytdlp_exe)
         self.out_template.setText(config.ytdlp_config['outtmpl'])
         self.format_combo.setCurrentText(config.ytdlp_config['merge_output_format'])
         self.frag_spin.setValue(config.ytdlp_config['concurrent_fragment_downloads'])
@@ -789,6 +1294,10 @@ class SettingsWindow(QDialog):
 
         # Browser Integration
         self.browser_integration_cb.setChecked(config.browser_integration_enabled)
+
+        # Backend Paths
+        self.yt_checkbox.setChecked(config.enable_ytdlp_exe)
+        self.yt_lineedit.setText(config.yt_dlp_exe if config.yt_dlp_exe else '')
 
         # Check for updates settings
         self.check_interval_combo.setCurrentText(str(config.update_frequency))
@@ -845,6 +1354,7 @@ class SettingsWindow(QDialog):
         config.ytdlp_config['no_playlist'] = self.no_playlist_cb.isChecked()
         config.ytdlp_config['ignore_errors'] = self.ignore_errors_cb.isChecked()
         config.ytdlp_config['list_formats'] = self.list_formats_cb.isChecked()
+        config.use_ytdlp_exe = self.use_ytdlp_exe_cb.isChecked()
         config.ytdlp_config['outtmpl'] = self.out_template.text()
         config.ytdlp_config['merge_output_format'] = self.format_combo.currentText()
         config.ytdlp_config['concurrent_fragment_downloads'] = self.frag_spin.value()
@@ -883,6 +1393,10 @@ class SettingsWindow(QDialog):
         # Browser Integration
         config.browser_integration_enabled = self.browser_integration_cb.isChecked()
 
+        # Backend Paths
+        config.yt_dlp_exe = self.yt_lineedit.text().strip()
+        config.enable_ytdlp_exe = self.yt_checkbox.isChecked()
+
         # Check for updates settings
         config.update_frequency = int(self.check_interval_combo.currentText())
         
@@ -917,6 +1431,7 @@ class SettingsWindow(QDialog):
             "Korean": "app_ko.qm",
             "Japanese": "app_ja.qm",
             "English": "app_en.qm",
+            "Hindi": "app_hi.qm"
         }
 
         if language in file_map:
@@ -938,8 +1453,9 @@ class SettingsWindow(QDialog):
 
         self.sidebar.item(0).setText(self.tr("General"))
         self.sidebar.item(1).setText(self.tr("Engine Config"))
-        self.sidebar.item(2).setText(self.tr("Browser"))
-        self.sidebar.item(3).setText(self.tr("Updates"))
+        self.sidebar.item(2).setText(self.tr("Backend Paths"))
+        self.sidebar.item(3).setText(self.tr("Browser"))
+        self.sidebar.item(4).setText(self.tr("Updates"))
 
         # General Tab
         self.monitor_clipboard_cb.setText(self.tr("Monitor Copied URLs"))
@@ -978,7 +1494,7 @@ class SettingsWindow(QDialog):
 
         # Updates Tab
         self.check_update_btn.setText(self.tr("Check for update"))
-        self.stack.widget(3).layout().labelForField(self.check_interval_combo).setText(self.tr("Check for update every (days):"))
+        self.stack.widget(4).layout().labelForField(self.check_interval_combo).setText(self.tr("Check for update every (days):"))
 
         # Language label and others
         self.stack.widget(0).layout().labelForField(self.language_combo).setText(self.tr("Choose Language:"))
@@ -991,6 +1507,13 @@ class SettingsWindow(QDialog):
         config.main_window_q.put(("update call", ""))
         # Close the settings window after calling the update function
         self.close()
+
+    def on_call_ytdlp_update(self):
+        # Call the yt-dlp update function from the main window
+        config.main_window_q.put(("yt-dlp update call", ""))
+        # Close the settings window after calling the update function
+        self.close()
+        
         
 
     # region settings

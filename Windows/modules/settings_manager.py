@@ -44,6 +44,7 @@ class SettingsManager:
             self.sett_folder = self._get_global_sett_folder()
             self._ensure_config_files_exist()
 
+
     def _get_global_sett_folder(self):
         """Return a proper global setting folder"""
         home_folder = os.path.expanduser('~')
@@ -92,6 +93,20 @@ class SettingsManager:
             self._settings_loaded = True
             # log("Settings loaded successfully")
             log(f'Loaded Application setting from {self.sett_folder}', log_level=1)
+            config.ffmpeg_actual_path = config._find_tool(
+                "ffmpeg",
+                selected=config.user_selected_ffmpeg,
+                bundled_name="ffmpeg.exe",
+                extra_paths=config._ffmpeg_extra_paths,
+            )
+            log(f'ffmpeg path: {config.ffmpeg_actual_path}', log_level=1)
+            config.yt_dlp_actual_path = config._find_tool(
+                "yt-dlp",
+                selected=(config.yt_dlp_exe or config.user_selected_ytdlp),
+                bundled_name="yt-dlp.exe",
+                extra_paths=config._ytdlp_extra_paths,
+            )
+            log(f'yt-dlp path: {config.yt_dlp_actual_path}', log_level=1)
 
         except Exception as e:
             log(f"Error loading settings: {e}", log_level=3)
