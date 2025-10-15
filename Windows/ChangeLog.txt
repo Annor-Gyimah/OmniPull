@@ -1,3 +1,12 @@
+2.0.3
+-Cookies enabled fully in both extraction and downloading
+-Hindi Translation added
+-Can now download and convert into multiple formats e.g. .avi, .mp4, .mkv
+-Enhanced tutorial overlay to prevent UI blocking
+-Updated yt-dlp version['2025.10.14']
+-Ability to use both yt-dlp executable and python api
+-Add a what's new feature to know literally know What's New
+
 2.0.0
 -Complete UI redesign
 -New download protocols support
