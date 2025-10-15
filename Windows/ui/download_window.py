@@ -152,20 +152,35 @@ class DownloadWindow(QWidget):
         self.timer.timeout.connect(self.update_gui)
         self.timer.start(500)
 
+    
+
     def update_gui(self):
         name = truncate(self.d.name, 50)
         out = (f"\n File: {name} \n"
-               f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
-               f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
-               f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
+            f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
+            f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
+            f"\n Live connections: {getattr(self.d, 'live_connections', 0)} - Remaining parts: {getattr(self.d, 'remaining_parts', 0)} \n")
         self.out_label.setText(out)
 
-        if self.d.progress:
-            self.set_progress_mode('determinate')
-            self.progress_bar.setValue(int(self.d.progress))
-        else:
-            self.set_progress_mode('indeterminate')
+        # Use numeric progress property; treat > 0 as determinate
+        try:
+            prog = float(getattr(self.d, "progress", 0.0) or 0.0)
+        except Exception:
+            prog = 0.0
 
+        if prog > 0.0:
+            self.set_progress_mode('determinate')
+            # clamp 0-100
+            prog_clamped = max(0.0, min(100.0, prog))
+            self.progress_bar.setValue(int(prog_clamped))
+            self.percent_label.setText(f"{prog_clamped:.1f}%")
+        else:
+            # show indeterminate only if truly no progress
+            self.set_progress_mode('indeterminate')
+            # show 0.0% visually too
+            self.percent_label.setText("0.0%")
+
+        # rest unchanged...
         if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error) and config.auto_close_download_window:
             self.close()
 
@@ -175,13 +190,7 @@ class DownloadWindow(QWidget):
             self.cancel_button.setStyleSheet('background-color: grey; color: white;')
 
         self.log_display.setPlainText(config.log_entry)
-        self.percent_label.setText(f"{self.d.progress}%")
-        self.percent_label.setStyleSheet("""
-            QLabel {
-                color: white;
-            }
-                                         
-        """)
+        self.percent_label.setStyleSheet("QLabel { color: white; }")
         self.status_label.setText(f"{self.d.status}  {self.d.i}")
 
     def cancel(self):

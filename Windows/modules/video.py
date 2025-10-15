@@ -21,6 +21,8 @@ import os
 import re
 import sys
 import copy
+import json
+import math
 import time
 import shlex
 import shutil
@@ -29,9 +31,10 @@ import zipfile
 import platform
 import subprocess
 from modules import config
+from typing import Dict, Any
 from urllib.parse import urljoin
 from modules.threadpool import executor
-from modules.config import get_ffmpeg_path
+from modules.config import get_effective_ffmpeg
 from modules.downloaditem import DownloadItem, Segment
 from modules.utils import log, validate_file_name, get_headers, size_format, run_command, \
     delete_file, download, process_thumbnail, popup, delete_folder
@@ -66,7 +69,11 @@ def get_ytdl_options():
         'formats': 'bv*+ba/best',
         'listformats': config.ytdlp_config.get('list_formats', False),
         'noplaylist': config.ytdlp_config.get('no_playlist', True),
-        'ignore_errors': config.ytdlp_config.get('ignore_errors', True)
+        'ignoreerrors': config.ytdlp_config.get('ignore_errors', True),
+        'cookies': config.ytdlp_config['cookiesfile'],
+        'verbose': True,
+
+
         
     }
     if config.proxy != "":
@@ -84,10 +91,209 @@ def get_ytdl_options():
     return ydl_opts
 
 
-def extract_info_blocking(url, ydl_opts):
+
+
+
+
+# def extract_info_blocking(url, ydl_opts):
+#     import yt_dlp as ytdl
+#     with ytdl.YoutubeDL(ydl_opts) as ydl:
+#         return ydl.extract_info(url, download=False, process=True)
+    
+def _ydl_opts_to_args(ydl_opts: dict, allow_listformats: bool = False) -> list[str]:
+    """
+    Convert ydl_opts to CLI args. If allow_listformats is False, do not emit --list-formats
+    because it prints human output and breaks --dump-single-json.
+    """
+    args = []
+
+    # Cookie file
+    cookiefile = ydl_opts.get("cookiefile") or ydl_opts.get("cookies") or ydl_opts.get("cookiesfile")
+    if cookiefile:
+        args += ["--cookies", str(cookiefile)]
+
+    # Proxy
+    if ydl_opts.get("proxy"):
+        args += ["--proxy", str(ydl_opts["proxy"])]
+
+    # No warnings
+    if ydl_opts.get("no_warnings", False):
+        args.append("--no-warnings")
+
+    # Ignore errors
+    if ydl_opts.get("ignore_errors", False):
+        args.append("--ignore-errors")
+
+    # Playlist handling
+    if ydl_opts.get("noplaylist", False) or ydl_opts.get("no_playlist", False):
+        args.append("--no-playlist")
+
+    # List formats: only add if explicitly allowed (we won't allow it when requesting JSON)
+    if allow_listformats and ydl_opts.get("listformats", False):
+        args.append("--list-formats")
+
+    # Formats / format
+    fmt = ydl_opts.get("formats") or ydl_opts.get("formats")
+    if fmt:
+        args += ["-f", str(fmt)]
+
+    # Prefer insecure
+    if ydl_opts.get("prefer_insecure", False):
+        args.append("--prefer-insecure")
+
+    return args
+
+# Helper: turn bytes into human-readable size
+def _human_filesize(num_bytes):
+    try:
+        if num_bytes is None:
+            return ""
+        n = float(num_bytes)
+    except Exception:
+        return ""
+    if n <= 0:
+        return ""
+    units = ["B", "KB", "MB", "GB", "TB"]
+    idx = int(math.floor(math.log(n, 1024)))
+    idx = min(idx, len(units) - 1)
+    value = n / (1024 ** idx)
+    # show one decimal for >=KB
+    if idx == 0:
+        return f"{int(value)}{units[idx]}"
+    else:
+        return f"{value:.1f}{units[idx]}"
+
+# ANSI color helpers
+class Colors:
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+
+def formats_to_table_html(info: dict) -> str:
+    formats = info.get("formats", [])
+    if not formats:
+        return '<span style="color: orange;">[yt-dlp] No formats available</span>'
+
+    header = (
+        f"<b>{'ID':<8}{'EXT':<6}{'RES':<10}{'FPS':<5}{'VCODEC':<15}{'ACODEC':<10}{'SIZE':<10}{'TBR':<6}</b>"
+    )
+    lines = [header, "-" * 80]
+
+    for f in formats:
+        fid = f.get("format_id", "")
+        ext = f.get("ext", "")
+        res = f.get("resolution", "") or f"{f.get('width', '')}x{f.get('height', '')}"
+        fps = str(f.get("fps", "")) if f.get("fps") else ""
+        vcodec = f.get("vcodec", "unknown")
+        acodec = f.get("acodec", "unknown")
+        size = f.get("filesize") or f.get("filesize_approx") or ""
+        if isinstance(size, int):
+            size = f"{size/1024/1024:.1f}MiB"
+        tbr = str(f.get("tbr", ""))
+
+        line = (
+            f"{fid:<8}"
+            f"<span style='color: teal;'>{ext:<6}</span>"
+            f"{res:<10}{fps:<5}"
+            f"<span style='color: green;'>{vcodec:<15}</span>"
+            f"<span style='color: green;'>{acodec:<10}</span>"
+            f"<span style='color: blue;'>{size:<10}</span>"
+            f"{tbr:<6}"
+        )
+        lines.append(line)
+
+    return "<pre>" + "\n".join(lines) + "</pre>"
+
+
+
+
+def _run_ytdlp_python_api(url: str, ydl_opts: dict):
     import yt_dlp as ytdl
-    with ytdl.YoutubeDL(ydl_opts) as ydl:
+    safe_opts = dict(ydl_opts)
+    safe_opts.pop("logger", None)
+    with ytdl.YoutubeDL(safe_opts) as ydl:
         return ydl.extract_info(url, download=False, process=True)
+
+
+
+
+
+
+def extract_info_blocking(url: str, ydl_opts: dict = None, exe_timeout: float = 15.0):
+    """
+    Extract info for `url` using either the configured standalone exe or the Python API.
+
+    If listformats=True in ydl_opts:
+      - prefer Python API (structured formats)
+      - log() the human-readable formats table in addition to returning JSON
+    """
+    if ydl_opts is None:
+        ydl_opts = get_ytdl_options()
+
+    wants_listformats = bool(ydl_opts.get("listformats", False))
+
+    # -----------------------
+    # Executable path
+    # -----------------------
+    if config.get_effective_ytdlp() and getattr(config, "use_ytdlp_exe", False):
+        exe_path = config.get_effective_ytdlp()
+        if not exe_path or not os.path.isfile(exe_path):
+            raise FileNotFoundError(f"yt-dlp executable not found: {exe_path}")
+
+        if wants_listformats:
+            # Force Python API instead so we can pretty-print formats
+            log("[yt-dlp.exe] Using Python API for listformats")
+            info = _run_ytdlp_python_api(url, ydl_opts)
+            log(formats_to_table_html(info))   # dump the table to your custom log
+            return info
+
+        # Normal JSON extraction via exe
+        cli_args = _ydl_opts_to_args(ydl_opts, allow_listformats=False)
+        forced = ["--dump-single-json", "--no-warnings", "--no-progress"]
+        cmd = [exe_path] + cli_args + forced + [url]
+
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=exe_timeout)
+        stdout = (proc.stdout or "").strip()
+        stderr = (proc.stderr or "").strip()
+
+        if stdout:
+            try:
+                return json.loads(stdout)
+            except json.JSONDecodeError:
+                pass
+
+        # salvage JSON if mixed output
+        combined = stdout + "\n" + stderr
+        first_lbrace = combined.find("{")
+        last_rbrace = combined.rfind("}")
+        if first_lbrace != -1 and last_rbrace > first_lbrace:
+            try:
+                return json.loads(combined[first_lbrace:last_rbrace + 1])
+            except json.JSONDecodeError:
+                pass
+
+        raise RuntimeError(
+            f"yt-dlp executable did not return valid JSON.\n"
+            f"Exit code: {proc.returncode}\n"
+            f"Command: {shlex.join(cmd)}\n"
+            f"Stdout:\n{stdout[:500]}\n\nStderr:\n{stderr[:500]}"
+        )
+
+    # -----------------------
+    # Python API fallback
+    # -----------------------
+    log("[yt-dlp] Using Python API")
+    info = _run_ytdlp_python_api(url, ydl_opts)
+
+    if wants_listformats:
+        log(formats_to_table_html(info))
+
+    return info
 
 
 class Video(DownloadItem):
@@ -715,7 +921,7 @@ def merge_video_audio(video, audio, output, d):
     log('merging video and audio')
 
     # ffmpeg file full location
-    ffmpeg = get_ffmpeg_path()
+    ffmpeg = get_effective_ffmpeg()
 
 
     # very fast audio just copied, format must match [mp4, m4a] and [webm, webm]
@@ -736,7 +942,6 @@ def merge_video_audio(video, audio, output, d):
         error, output = run_command(cmd2, verbose=verbose, shell=True, hide_window=True, d=d)
 
     return error, output
-            
 
 def import_ytdl():
     # import youtube_dl using thread because it takes sometimes 20 seconds to get imported and impact app startup time

@@ -312,6 +312,7 @@ class Worker:
                 self.report_not_completed()
 
             response_code = self.c.getinfo(pycurl.RESPONSE_CODE)
+            self.debug(f"HTTP response code: {response_code}")
             if response_code in range(400, 512):
                 self.debug('server refuse connection', response_code, 'cancel download and try to refresh link')
 
