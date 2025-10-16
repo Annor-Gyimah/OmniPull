@@ -31,8 +31,12 @@
         <file>icons/logo4.png</file>
         <file>icons/microsoft-edge.svg</file>
         <file>icons/multi_trash.svg</file>
+        <file>icons/next.png</file>
+        <file>icons/omnipull.ico</file>
+        <file>icons/omnipull.png</file>
         <file>icons/pause.svg</file>
         <file>icons/playlist.png</file>
+        <file>icons/previous.png</file>
         <file>icons/queues.png</file>
         <file>icons/refresh.svg</file>
         <file>icons/refresh.png</file>
@@ -42,6 +46,7 @@
         <file>icons/remove-queue.svg</file>
         <file>icons/sche.png</file>
         <file>icons/schedule.svg</file>
+        <file>icons/sparkling.png</file>
         <file>icons/stop_all.svg</file>
         <file>icons/stop.svg</file>
         <file>icons/started.svg</file>

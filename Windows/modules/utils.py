@@ -284,8 +284,17 @@ def time_format(t, tail=''):
 
 
 def log(*args, log_level=1):
-    if not config.show_all_logs:
-        if log_level < config.log_level:
+    # Special rules for level 4 (yt-dlp / stderr):
+    #  - level 4 is only shown when show_all_logs is False AND config.log_level == 4
+    if log_level == 4:
+        if config.show_all_logs or config.log_level != 4:
+            return
+
+    else:
+        # For non-4 logs:
+        #  - if show_all_logs is True -> show everything (except level 4 handled above)
+        #  - if show_all_logs is False -> respect config.log_level threshold
+        if not config.show_all_logs and log_level < config.log_level:
             return
 
     text = '>> ' + ' '.join(str(arg) for arg in args)

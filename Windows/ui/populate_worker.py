@@ -16,7 +16,7 @@
 #####################################################################################
 
 from modules import config
-
+from modules.utils import size_format, log
 from PySide6.QtCore import QObject, Signal, Slot
 
 class PopulateTableWorker(QObject):
@@ -31,26 +31,40 @@ class PopulateTableWorker(QObject):
     def run(self):
         prepared_rows = []
 
+        
+
         for d in reversed(self.d_list):
             # Fix invalid states here
             if d.in_queue and not getattr(d, 'queue_name', ''):
                 d.in_queue = False
                 d.queue_position = 0
 
-            
+            # ensure numeric fallbacks
+            progress_val = getattr(d, "progress", 0.0) or 0.0
+            speed_val = getattr(d, "speed", 0.0) or 0.0
+            downloaded_val = getattr(d, "downloaded", 0) or 0
+            total_val = getattr(d, "total_size", None)
+            if total_val is None:
+                # try d.size if used elsewhere
+                total_val = getattr(d, "size", 0) or 0
+
+            # build display-ready 'done' string (you can also keep raw numeric if UI expects it)
+            done_display = f"{size_format(downloaded_val)} / {size_format(total_val)}" if total_val else f"{size_format(downloaded_val)}"
 
             row_data = {
                 'id': d.id,
                 'name': d.name[:-8] if d.name.endswith('.torrent') else d.name,
-                'progress': d.progress or 0,
-                'speed': getattr(d, 'speed', 0),
+                'progress': float(progress_val),
+                'speed': float(speed_val),
                 'time_left': getattr(d, 'time_left', ''),
-                'downloaded': getattr(d, 'downloaded', 0),
-                'total_size': getattr(d, 'total_size', 0),
+                'downloaded': int(downloaded_val),
+                'total_size': int(total_val or 0),
+                'done_display': done_display,   
                 'status': d.status,
                 'i': "✔"  if d.status == config.Status.completed else d.i, 
                 'folder': getattr(d, 'folder', ''),
             }
             prepared_rows.append(row_data)
+
 
         self.data_ready.emit(prepared_rows)

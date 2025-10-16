@@ -18,7 +18,7 @@
 
 from modules import config, setting
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QEvent
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
@@ -78,6 +78,20 @@ class TutorialOverlay(QWidget):
         self.label.setWordWrap(True)
         self.label.setAlignment(Qt.AlignCenter)
 
+        # MARK TO COMPLETE button (above title)
+        self.mark_complete_button = QPushButton("Mark to complete", self)
+        self.mark_complete_button.setCursor(Qt.PointingHandCursor)
+        self.mark_complete_button.setStyleSheet("""
+            background-color: #FFB300;
+            color: black;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+        """)
+        self.mark_complete_button.clicked.connect(self.mark_complete)
+
+
         # Buttons
         # Buttons with individual styles
         self.previous_button = QPushButton("Previous", self)
@@ -91,17 +105,18 @@ class TutorialOverlay(QWidget):
         """)
         self.previous_button.clicked.connect(self.previous_step)
 
-        self.exit_button = QPushButton("Exit", self)
-        self.exit_button.setStyleSheet("""
-            background-color: #4CAF50;  /* Green */
-            color: white;
-            padding: 6px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-        """)
-        self.exit_button.clicked.connect(self.finish_tutorial)
-        self.exit_button.setVisible(show_exit_button)
+        # self.exit_button = QPushButton("Exit", self)
+        # self.exit_button.setStyleSheet("""
+        #     background-color: #4CAF50;  /* Green */
+        #     color: white;
+        #     padding: 6px 16px;
+        #     border: none;
+        #     border-radius: 4px;
+        #     font-size: 14px;
+        # """)
+        self.exit_button_func()
+        # self.exit_button.clicked.connect(self.finish_tutorial)
+        # self.exit_button.setVisible(show_exit_button)
 
         self.next_button = QPushButton("Next", self)
         self.next_button.setStyleSheet("""
@@ -130,6 +145,11 @@ class TutorialOverlay(QWidget):
         self.layout.addStretch()
         self.layout.addWidget(self.image_label, alignment=Qt.AlignCenter)
         self.layout.addSpacing(10)
+        self.mark_row = QHBoxLayout()
+        self.mark_row.addStretch()
+        self.mark_row.addWidget(self.mark_complete_button)
+        self.mark_row.addStretch()
+        self.layout.addLayout(self.mark_row)
         self.layout.addWidget(self.label)
         self.layout.addSpacing(10)
         self.layout.addLayout(self.button_layout)
@@ -139,6 +159,20 @@ class TutorialOverlay(QWidget):
 
         self.update_step()
         self.showFullScreen()  # Ensure it covers the screen
+
+    def exit_button_func(self):
+        self.exit_button = QPushButton("Exit", self)
+        self.exit_button.setStyleSheet("""
+            background-color: #4CAF50;  /* Green */
+            color: white;
+            padding: 6px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+        """)
+        self.exit_button.clicked.connect(self.finish_tutorial)
+        self.exit_button.setVisible(self.show_exit_button)
+        return self.exit_button
 
     def update_step(self):
         if self.current_step >= len(self.steps):
@@ -172,7 +206,27 @@ class TutorialOverlay(QWidget):
             self.finish_tutorial()
 
 
-    def finish_tutorial(self):
-        config.tutorial_completed = True
-        setting.save_setting()
+    def mark_complete(self):
+        try:
+            config.tutorial_completed = True
+            if hasattr(setting, "save_setting"):
+                setting.save_setting()
+            elif hasattr(setting, "save_settings"):
+                setting.save_settings()
+        except Exception:
+            pass
+        # try:
+        #     if self.parent_widget is not None:
+        #         self.parent_widget.removeEventFilter(self)
+        # except Exception:
+        #     pass
         self.close()
+
+    def finish_tutorial(self):
+        # reuse mark_complete behavior
+        self.mark_complete()
+
+    # def finish_tutorial(self):
+    #     config.tutorial_completed = True
+    #     setting.save_setting()
+    #     self.close()

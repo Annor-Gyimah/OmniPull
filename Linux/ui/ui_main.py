@@ -556,7 +556,8 @@ class Ui_MainWindow(object):
             "Schedule All": ":/icons/sche.png",
             "Settings": ":/icons/setting.svg",
             "Download Window": ":/icons/d_window.png",
-            "Queues": ":/icons/queues.png"
+            "Queues": ":/icons/queues.png",
+            "Whats New": ':/icons/sparkling.png'
             
         }
 
@@ -708,7 +709,7 @@ class Ui_MainWindow(object):
         self.log_level_label.setStyleSheet("color: white; font-size: 12px;")
 
         self.log_level_combo = QComboBox()
-        self.log_level_combo.addItems(["1", "2", "3"])
+        self.log_level_combo.addItems(["1", "2", "3", "4"])
         self.log_level_combo.setStyleSheet("""
             QComboBox {
                 background-color: #2b2b2b;

@@ -92,6 +92,20 @@ class SettingsManager:
             self._settings_loaded = True
             # log("Settings loaded successfully")
             log(f'Loaded Application setting from {self.sett_folder}', log_level=1)
+            config.ffmpeg_actual_path = config._find_tool(
+                "ffmpeg",
+                selected=config.user_selected_ffmpeg,
+                bundled_name="ffmpeg",
+                extra_paths=config._ffmpeg_extra_paths,
+            )
+            log(f'ffmpeg path: {config.ffmpeg_actual_path}', log_level=1)
+            config.yt_dlp_actual_path = config._find_tool(
+                "yt-dlp_linux",
+                selected=(config.yt_dlp_exe or config.user_selected_ytdlp),
+                bundled_name="yt-dlp_linux",
+                extra_paths=config._ytdlp_extra_paths,
+            )
+            log(f'yt-dlp path: {config.yt_dlp_actual_path}', log_level=1)
 
         except Exception as e:
             log(f"Error loading settings: {e}", log_level=3)

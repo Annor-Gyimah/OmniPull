@@ -21,6 +21,7 @@
 
 import os
 import sys
+import json
 import wget
 import time
 import httpx
@@ -33,6 +34,7 @@ from pathlib import Path
 from typing import Tuple
 from modules import config
 from datetime import datetime, timedelta
+from PySide6.QtCore import QCoreApplication
 from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
@@ -201,7 +203,7 @@ def find_exe(dest_dir: Path, exe_name="main.exe") -> Path:
 
 
 
-def get_latest_release():
+def get_app_latest_release():
     r = httpx.get(
         "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
         headers={"Accept": "application/vnd.github+json",
@@ -212,7 +214,7 @@ def get_latest_release():
     return r.json()
 
 def update():
-    rel = get_latest_release()
+    rel = get_app_latest_release()
     tag = rel["tag_name"].lstrip(".")
     # Prefer assets attached to the release:
     # e.g., look up 'main.zip', 'update.bat', 'cleanup.bat' in rel["assets"]
@@ -227,7 +229,8 @@ def update():
 
     try:
         log("Downloading update files...", log_level=1)
-        popup(title="Update", msg="Downloading updates. Please wait…", type_="info")
+        msg = QCoreApplication.translate('updater', 'Downloading updates. Please wait…')
+        popup(title="Update", msg=f"{msg}", type_="info")
 
         # Download scripts with httpx (avoid mixing wget)
         download_with_resume(main_zip_url, download_zip, type_update_file='main.zip')
@@ -253,13 +256,17 @@ def update():
 
         schedule_one_shot_update(exe_path, temp_dir, when)
 
-        popup(title=config.APP_NAME, msg=f"Update scheduled at {when.strftime('%Y-%m-%d %H:%M')}.", type_="info")
+        ab = QCoreApplication.translate('updater', 'Update scheduled at')
+        popup(title=config.APP_NAME, msg=f"{ab} {when.strftime('%Y-%m-%d %H:%M')}.", type_="info")
         config.confirm_update = True
     except Exception as e:
         config.confirm_update = False
         log(f"Update failed: {e}", log_level=3)
+        uf = QCoreApplication.translate('updater', 'Update failed')
+        de = QCoreApplication.translate('updater', 'Details:')
+        ift = QCoreApplication.translate('updater', 'If this keeps happening, check your network and antivirus exclusions for')
         popup(
-            msg=f"Update failed.\n\nDetails:\n{e}\n\nIf this keeps happening, check your network and antivirus exclusions for {config.APP_NAME}.",
+            msg=f"{uf}\n\n{de}\n{e}\n\n {ift} {config.APP_NAME}.",
             title=config.APP_NAME,
             type_="critical"
         )
@@ -311,3 +318,151 @@ def run_daily_task_now():
          f"Start-Process cmd -ArgumentList '/c schtasks /run /tn \"{task_name}\"' -Verb RunAs"],
         shell=True, check=True
     )
+
+
+def get_ytdlp_latest_release():
+    r = httpx.get(
+        "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest",
+        headers={"Accept": "application/vnd.github+json",
+                 "User-Agent": "OmniPull-Updater"},
+        follow_redirects=True, timeout=30.0
+    )
+    r.raise_for_status()
+    return r.json()
+
+def safe_replace_exe(new_exe_path: Path, target_exe_path: Path):
+    try:
+        os.replace(str(new_exe_path), str(target_exe_path))
+        return True, "yt-dlp has been updated successfully."
+    except PermissionError:
+        pending_update = target_exe_path.with_suffix('.exe.new')
+        try:
+            shutil.move(str(new_exe_path), str(pending_update))
+            return False, "yt-dlp is currently in use. Update saved and will be applied on next app restart."
+        except Exception as e:
+            return False, f"PermissionError and failed to save pending update: {e}"
+    except Exception as e:
+        return False, f"Failed to replace yt-dlp: {e}"
+
+
+def update_yt_dlp():
+    yt_dlp_path = getattr(config, "yt_dlp_exe", "") or config.yt_dlp_actual_path
+    if not yt_dlp_path or not os.path.isfile(yt_dlp_path):
+        # popup(
+        #     msg="yt-dlp not set\nNo yt-dlp executable is configured.",
+        #     title=config.APP_NAME,
+        #     type_="critical"
+        # )
+        return False, "yt-dlp not set or not found."
+
+    target_exe = Path(yt_dlp_path)
+    tmp_exe = target_exe.with_suffix('.exe.tmp')
+    pending_exe = target_exe.with_suffix('.exe.new')
+
+    # get current version
+    try:
+        kwargs = dict(capture_output=True, text=True, timeout=8)
+        if sys.platform.startswith("win"):
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs["startupinfo"] = si
+        proc = subprocess.run([str(target_exe), "--version"], **kwargs)
+        current_version = proc.stdout.strip().splitlines()[0] if proc.stdout else ""
+    except Exception as e:
+        return False, f"Failed to get yt-dlp version: {e}"
+
+    # get latest release info
+    try:
+        log('Checking for latest version')
+        rel = get_ytdlp_latest_release()
+        tag = rel.get("tag_name", "")
+        latest_version = tag
+        log(f'Latest version: {latest_version}')
+    except Exception as e:
+        return False, f"Failed to check latest yt-dlp version: {e}"
+
+    if not latest_version or not current_version or latest_version.lstrip("v") == current_version.lstrip("v"):
+        log(f'Current version: {current_version}')
+        msg = QCoreApplication.translate("updater", "yt-dlp is up to date.")
+        return False, msg
+        # return False, "yt-dlp is up to date."
+
+    # Download URL (your source)
+    assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
+    exe_url = assets.get('yt-dlp.exe') or f"https://github.com/yt-dlp/yt-dlp/releases/download/{tag}/yt-dlp.exe"
+    log(f"Updating yt-dlp from {current_version} to {latest_version}", log_level=1)
+
+    # ensure any leftover tmp file is removed (optional)
+    try:
+        if tmp_exe.exists():
+            tmp_exe.unlink()
+    except Exception:
+        pass
+
+    try:
+        # download to tmp file first
+        download_with_resume(exe_url, tmp_exe, type_update_file='yt-dlp.exe')
+
+        # Attempt to atomically replace (preferred)
+        try:
+            # os.replace is atomic on same filesystem
+            os.replace(str(tmp_exe), str(target_exe))
+            msg = QCoreApplication.translate("updater", f"yt-dlp has been updated to the latest version ({latest_version}).")
+            return True, msg
+
+        except PermissionError:
+            # target EXE is in use -> move tmp to .exe.new (pending)
+            try:
+                shutil.move(str(tmp_exe), str(pending_exe))
+            except Exception as e_move:
+                # if move fails, try to clean tmp and return a failure
+                try:
+                    if tmp_exe.exists():
+                        tmp_exe.unlink()
+                except Exception:
+                    pass
+                msg = QCoreApplication.translate("updater", f"yt-dlp is in use and the update could not be staged: {e_move}")
+                return False, f"{msg}"
+            # success: staged update for next restart
+            msg = QCoreApplication.translate("updater", f"yt-dlp is currently in use. Update downloaded and will be applied on next app restart ({latest_version}).")
+            return False, msg
+        except Exception:
+            # fallback: try shutil.move as a last attempt
+            try:
+                shutil.move(str(tmp_exe), str(target_exe))
+                msg = QCoreApplication.translate("updater", f'yt-dlp has been updated to the latest version ({latest_version}).')
+                return True, msg
+            except PermissionError:
+                # same as above: move to pending
+                try:
+                    shutil.move(str(tmp_exe), str(pending_exe))
+                except Exception as e_move:
+                    try:
+                        if tmp_exe.exists():
+                            tmp_exe.unlink()
+                    except Exception:
+                        pass
+                    msg = QCoreApplication.translate("updater", f"yt-dlp is in use and the update could not be staged: {e_move}")
+                    return False, msg
+                msg = QCoreApplication.translate("updater", f"yt-dlp is currently in use. Update downloaded and will be applied on next app restart ({latest_version}).")
+                return False, msg
+            except Exception as e_fallback:
+                try:
+                    if tmp_exe.exists():
+                        tmp_exe.unlink()
+                except Exception:
+                    pass
+                msg = QCoreApplication.translate("updater", f"Failed to replace yt-dlp: {e_fallback}")
+                return False, msg
+
+    except Exception as e:
+        # download failed or other unexpected error
+        try:
+            if tmp_exe.exists():
+                tmp_exe.unlink()
+        except Exception:
+            pass
+        msg = QCoreApplication.translate("updater", f"Failed to download new yt-dlp executable: {e}")
+        return False, msg

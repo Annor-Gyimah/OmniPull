@@ -15,6 +15,7 @@
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
+import re
 import os
 import time
 import mimetypes
@@ -214,6 +215,8 @@ class DownloadItem:
         self.aria_gid = None
         self.audio_gid = None
 
+        self._RE_BYTES_NUM = re.compile(r"([\d\.,]+)\s*([KMGTP]?i?B)?", re.IGNORECASE)
+
 
 
 
@@ -342,68 +345,251 @@ class DownloadItem:
     
     
 
-    @property
-    def speed(self):
-        """return an average of some speed values will give a stable speed reading"""
-        if self.status != config.Status.downloading: # or not self.speed_buffer:
-            self._speed = 0
-        else:
-            if not self.prev_downloaded_value:
-                self.prev_downloaded_value = self.downloaded
+    
 
-            time_passed = time.time() - self.speed_timer
-            if time_passed >= self.speed_refresh_rate:
-                self.speed_timer= time.time()
-                delta = self.downloaded - self.prev_downloaded_value
-                self.prev_downloaded_value = self.downloaded
-                _speed = delta / time_passed
+    
 
-                # to get a stable speed reading will use an average of multiple speed readings
-                self.speed_buffer.append(_speed)
-                avg_speed = sum(self.speed_buffer) / len(self.speed_buffer)
-                if len(self.speed_buffer) > 10:
-                    self.speed_buffer.popleft()
-
-                if avg_speed:
-                    self._speed = avg_speed
-
-        return self._speed
+    def _human_to_bytes(self, s):
+        """Convert strings like '34.4MiB' or '123.4KiB' or '1024' to integer bytes; return None if unparsable."""
+        if s is None:
+            return None
+        if isinstance(s, (int, float)):
+            return int(s)
+        s = str(s).strip()
+        if not s:
+            return None
+        s = s.replace("~", "").replace(",", "").strip()
+        m = self._RE_BYTES_NUM.search(s)
+        if not m:
+            try:
+                return int(float(s))
+            except Exception:
+                return None
+        val = float(m.group(1))
+        unit = (m.group(2) or "").lower()
+        mul = 1
+        if unit in ("kb", "kib"):
+            mul = 1024
+        elif unit in ("mb", "mib"):
+            mul = 1024 ** 2
+        elif unit in ("gb", "gib"):
+            mul = 1024 ** 3
+        elif unit in ("tb", "tib"):
+            mul = 1024 ** 4
+        elif unit in ("pb", "pib"):
+            mul = 1024 ** 5
+        return int(val * mul)
 
     @property
     def downloaded(self):
-        return self._downloaded
+        # return integer bytes (0 if unknown)
+        return getattr(self, "_downloaded", 0) or 0
 
     @downloaded.setter
     def downloaded(self, value):
-        """this property might be set from threads, expecting int (number of bytes)"""
-        if not isinstance(value, int):
+        """
+        Accept:
+        - int / float (will convert to int bytes)
+        - numeric strings like "12345" or "12.3"
+        - human size strings like "34.4MiB" or "66.47KiB"
+        Reject other values silently to avoid crashes.
+        """
+        try:
+            if value is None:
+                return
+            # if it's already int/float -> cast to int
+            if isinstance(value, (int, float)):
+                new_val = int(value)
+            else:
+                # try parse human string -> bytes
+                maybe = self._human_to_bytes(value)
+                if maybe is None:
+                    # try plain int conversion as last resort
+                    try:
+                        new_val = int(float(str(value)))
+                    except Exception:
+                        return
+                else:
+                    new_val = maybe
+
+            with lock:
+                # store as int
+                self._downloaded = int(new_val)
+        except Exception:
+            # defensive: don't propagate exceptions from background threads
+            return
+        
+    # ---------- speed property (thread-safe, numeric) ----------
+    @property
+    def speed(self) -> float:
+        """
+        Return a smoothed bytes/second numeric speed.
+        This computes incremental speeds at most once per `speed_refresh_rate` seconds,
+        stores the recent values in speed_buffer, and returns the averaged speed.
+        Always returns a float (0.0 if unknown).
+        """
+        # ensure attributes exist
+        if not hasattr(self, "speed_buffer"):
+            self.speed_buffer = deque(maxlen=10)
+        if not hasattr(self, "speed_timer"):
+            self.speed_timer = time.time()
+        if not hasattr(self, "prev_downloaded_value"):
+            self.prev_downloaded_value = getattr(self, "downloaded", 0) or 0
+        if not hasattr(self, "speed_refresh_rate"):
+            self.speed_refresh_rate = 0.5
+
+        # If not downloading, keep speed at 0.0 (do not attempt to compute)
+        if getattr(self, "status", None) != config.Status.downloading:
+            with lock:
+                self._speed = float(0.0)
+            return float(self._speed or 0.0)
+
+        # compute delta only occasionally to reduce noise
+        now = time.time()
+        time_passed = now - self.speed_timer if hasattr(self, "speed_timer") else 0.0
+        if time_passed >= getattr(self, "speed_refresh_rate", 0.5):
+            # sample new speed
+            with lock:
+                current_downloaded = int(getattr(self, "_downloaded", getattr(self, "downloaded", 0) or 0))
+            # protect prev_downloaded_value initialization
+            if not getattr(self, "prev_downloaded_value", None):
+                self.prev_downloaded_value = current_downloaded
+                self.speed_timer = now
+                return float(getattr(self, "_speed", 0.0) or 0.0)
+
+            delta = current_downloaded - int(self.prev_downloaded_value or 0)
+            # avoid negative delta
+            if delta < 0:
+                delta = 0
+            # avoid division by zero
+            if time_passed <= 0:
+                instant_speed = 0.0
+            else:
+                instant_speed = float(delta) / float(time_passed)
+
+            # update trackers
+            self.prev_downloaded_value = current_downloaded
+            self.speed_timer = now
+
+            # push to buffer and compute average
+            try:
+                self.speed_buffer.append(instant_speed)
+            except Exception:
+                # fallback: recreate buffer
+                self.speed_buffer = deque([instant_speed], maxlen=10)
+
+            avg_speed = float(sum(self.speed_buffer) / len(self.speed_buffer)) if self.speed_buffer else 0.0
+
+            with lock:
+                self._speed = float(avg_speed or 0.0)
+
+        # always return numeric float
+        return float(getattr(self, "_speed", 0.0) or 0.0)
+
+    @speed.setter
+    def speed(self, value):
+        """
+        Allow external assignment of numeric speeds. Accept ints/floats (bytes/sec)
+        and numeric-like strings; coerce to float. If invalid, ignore.
+        """
+        try:
+            if value is None:
+                return
+            if isinstance(value, (int, float)):
+                v = float(value)
+            else:
+                # try to extract a number from a string like '66.47KiB/s' not handled here;
+                # prefer letting the downloader logic use parse_speed_to_bps and set numeric bytes/sec.
+                s = str(value).strip()
+                # try a pure numeric parse
+                m = re.search(r"[-+]?\d*\.?\d+", s)
+                v = float(m.group(0)) if m else None
+                if v is None:
+                    return
+            with lock:
+                self._speed = float(max(0.0, v))
+        except Exception:
             return
 
-        with lock:
-            self._downloaded = value
-
+    # ---------- progress property (thread-safe, numeric) ----------
     @property
-    def progress(self):
-        if self.status == config.Status.completed:
-            p = 100
-        elif self.total_size == 0:
-            # to handle fragmented files
-            finished = len([seg for seg in self.segments if seg.completed]) if self.segments else 0
-            p = round(finished * 100 / len(self.segments), 1)
-        else:
-            p = round(self.downloaded * 100 / self.total_size, 1)
+    def progress(self) -> float:
+        """
+        Compute percent downloaded:
+        - If completed -> 100
+        - If fragmented and total_size == 0: compute by finished segments / total segments (guard zero len)
+        - else: downloaded/total_size * 100 (guard zero total_size)
+        Always returns float (0.0 - 100.0).
+        Maintains last_known_progress so that temporary 0 values don't reset UI.
+        """
+        try:
+            # Completed -> 100
+            if getattr(self, "status", None) == config.Status.completed:
+                p = 100.0
+            else:
+                total = int(getattr(self, "total_size", 0) or getattr(self, "size", 0) or 0)
+                downloaded = int(getattr(self, "_downloaded", getattr(self, "downloaded", 0) or 0))
 
-        p = p if p <= 100 else 100
+                if total == 0:
+                    # fragmented (HLS etc.) -> use segments if available
+                    segs = getattr(self, "segments", None)
+                    if segs and isinstance(segs, (list, tuple)) and len(segs) > 0:
+                        finished = sum(1 for seg in segs if getattr(seg, "completed", False))
+                        p = round((finished * 100.0) / max(1, len(segs)), 1)
+                    else:
+                        # no size & no segments: return last known progress (avoid flipping to 0)
+                        p = float(getattr(self, "last_known_progress", 0.0) or 0.0)
+                else:
+                    p = round((float(downloaded) * 100.0) / float(total), 1)
 
-        if not p:
-            return self.last_known_progress
+            # clamp
+            if p > 100.0:
+                p = 100.0
+            elif p < 0.0:
+                p = 0.0
 
-        self.last_known_progress = p  # to be loaded when restarting application
-        return p
-    
-    @progress.setter 
+            # If p==0, return last known progress (so UI does not jump to indeterminate)
+            if p == 0.0:
+                # ensure last_known_progress exists
+                last = float(getattr(self, "last_known_progress", 0.0) or 0.0)
+                return last
+
+            # update last_known_progress
+            with lock:
+                self.last_known_progress = float(p)
+
+            return float(self.last_known_progress)
+        except Exception:
+            # defensive default
+            return float(getattr(self, "_progress", 0.0) or 0.0)
+
+    @progress.setter
     def progress(self, value):
-        self._progress = value
+        """
+        Accept numeric or numeric-string; coerce to float and store in _progress and last_known_progress.
+        Keep thread-safety.
+        """
+        try:
+            if value is None:
+                return
+            if isinstance(value, (int, float)):
+                v = float(value)
+            else:
+                s = str(value).strip().rstrip("%")
+                m = re.search(r"[-+]?\d*\.?\d+", s)
+                v = float(m.group(0)) if m else None
+                if v is None:
+                    return
+            v = max(0.0, min(100.0, v))
+            with lock:
+                self._progress = v
+                if v > 0.0:
+                    self.last_known_progress = v
+        except Exception:
+            return
+        
+
+    
 
     @property
     def time_left(self):
