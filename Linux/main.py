@@ -55,6 +55,7 @@ from ui.ui_main import Ui_MainWindow
 from ui.about_dialog import AboutDialog
 from ui.queue_dialog import QueueDialog
 from ui.tray_icon import TrayIconManager
+from ui.changelog_diaglog import WhatsNew
 from ui.setting_dialog import SettingsWindow
 from ui.download_window import DownloadWindow
 from ui.schedule_dialog import ScheduleDialog
@@ -285,6 +286,19 @@ class CheckUpdateAppThread(QThread):
             
         change_cursor('normal') # Revert cursor to normal
         setting.save_setting()
+
+
+
+class YtDlpUpdateThread(QThread):
+    """
+    Thread to perform yt-dlp update and signal when it is finished.
+    """
+    update_finished = Signal(bool, str)  # Signal to indicate that the update is finished
+
+    def run(self):
+        """Run the yt-dlp update process and emit the signal when finished."""
+        success, message = update.update_yt_dlp()  # Perform the yt-dlp update here
+        self.update_finished.emit(success, message)  # Emit the signal when done
 
     
 class UpdateThread(QThread):
@@ -769,6 +783,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.help_menu.actions()[3].triggered.connect(self.show_visual_tutorial)
         widgets.help_menu.actions()[4].triggered.connect(self.open_github_issues)
         widgets.toolbar_buttons["Queues"].clicked.connect(self.show_queue_dialog)
+        widgets.toolbar_buttons["Whats New"].clicked.connect(self.show_changelog_dialog)
 
 
         self.update_gui_signal.connect(self.process_gui_updates)
@@ -793,6 +808,7 @@ class DownloadManagerUI(QMainWindow):
         self.scheduler_timer = QTimer(self)
         self.scheduler_timer.timeout.connect(self.check_scheduled_queues)
         self.scheduler_timer.start(60000)  # Every 60 seconds
+        self.apply_pending_yt_dlp_update_on_startup()
     
 
     def show_visual_tutorial(self):
@@ -979,7 +995,8 @@ class DownloadManagerUI(QMainWindow):
             "Spanish": "app_es",
             "Chinese": "app_zh",
             "Korean":  "app_ko",
-            "Japanese":"app_ja",
+            "Japanese": "app_ja.qm",
+            "Hindi":"app_hi.qm"
         }
         target_stem = file_map.get(language)
         if not target_stem:
@@ -1152,7 +1169,7 @@ class DownloadManagerUI(QMainWindow):
             # Enable only global buttons
             for key in widgets.toolbar_buttons:
                 widgets.toolbar_buttons[key].setEnabled(key in {
-                    "Stop All", "Resume All", "Settings", "Schedule All", "Queues",
+                    "Stop All", "Resume All", "Settings", "Schedule All", "Queues","Whats New"
                 })
             return
 
@@ -1247,6 +1264,8 @@ class DownloadManagerUI(QMainWindow):
                 self._queue_or_start_download(*v)
             elif k == "update call":
                 self.start_update(*v)
+            elif k == "yt-dlp update call":
+                self.start_update_yt_dlp(*v)
 
 
     def run(self):
@@ -1684,6 +1703,10 @@ class DownloadManagerUI(QMainWindow):
         
         # check for ffmpeg availability in case this is a dash video
         if d.type == 'dash' or 'm3u8' in d.protocol:
+
+            if not self.d.ext:
+                self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
+                
             # log('Dash video detected')
             if not self.ffmpeg_check():
                 log('Download cancelled, FFMPEG is missing', log_level=2)
@@ -2634,7 +2657,7 @@ class DownloadManagerUI(QMainWindow):
             self.show_message("Error", "aria2c is already installed.")
             s2 = self.tr('"aria2c" is required to download files.')
             s3, s3a = self.tr('Executable must be found at'), self.tr("folder or add the aria2c path to system PATH.")
-            s4 = self.tr("Please do 'sudo apt-get update' and 'sudo apt-get install aria2' on Linux or 'brew install aria2' on MacOS.")
+            s4 = self.tr('Please do sudo apt-get update and sudo apt-get install aria2 on Linux or brew install aria2 on MacOS.')
             QMessageBox.critical(self,
                                 self.tr('aria2c is missing'),
                                 f'{s2} \n'
@@ -3461,6 +3484,10 @@ class DownloadManagerUI(QMainWindow):
         self.ui_queues.d_list = self.d_list  # Update d_list for the dialog
         self.ui_queues.populate_queue_items()
         self.ui_queues.exec() # Show the existing instance
+    
+    def show_changelog_dialog(self):
+        dialog = WhatsNew(parent=self)
+        dialog.exec()
 
     # endregion
 
@@ -4197,7 +4224,7 @@ class DownloadManagerUI(QMainWindow):
 
     
     def _start_ffmpeg_remerge(self, d, video_path: str, audio_path: str, output_path: str, row_index: int):
-        ffmpeg = config.get_ffmpeg_path()
+        ffmpeg = config.ffmpeg_actual_path
         if not ffmpeg or not os.path.exists(ffmpeg):
             show_warning(self.tr("FFmpeg not found"), self.tr("Please install or configure FFmpeg in Settings."))
             return
@@ -4668,6 +4695,46 @@ class DownloadManagerUI(QMainWindow):
         self.start_update_thread.app_update.connect(self.update_app)
         self.start_update_thread.start()
 
+    def start_update_yt_dlp(self):
+        self.yt_dlp_update_thread = YtDlpUpdateThread()
+        self.yt_dlp_update_thread.update_finished.connect(self.on_yt_dlp_update_finished)
+        self.yt_dlp_update_thread.start()
+        self.background_threads.append(self.yt_dlp_update_thread)
+        self.change_page(btn=None, btnName=None, idx=2)
+
+
+    def on_yt_dlp_update_finished(self, success, message):
+        log("yt-dlp update finished")
+        if success:
+            show_information(title=self.tr("yt-dlp Update"), inform="", msg=self.tr("yt-dlp has been updated to the latest version."))
+            if sys.platform.startswith('linux') or sys.platform == 'darwin':
+                # On Linux and macOS, we can apply the update immediately
+                show_information(title=self.tr('yt-dlp Update'), inform='', msg=self.tr(f"On Unix run: chmod 777 \n {config.yt_dlp_actual_path}"))
+        else:
+            show_warning(title=self.tr("yt-dlp Update Error"), msg=message or self.tr("yt-dlp update failed or is already up to date."))
+        self.change_page(btn=None, btnName=None, idx=0)
+    
+
+    def apply_pending_yt_dlp_update_on_startup(self):
+        yt_dlp_path = getattr(config, "yt_dlp_exe", "") or ""
+        if not yt_dlp_path:
+            return False, "No yt-dlp path configured."
+
+        target_exe = Path(yt_dlp_path)
+        pending_exe = target_exe.with_suffix('.exe.new')
+
+        if pending_exe.exists():
+            try:
+                # attempt atomic replace
+                os.replace(str(pending_exe), str(target_exe))
+                log("Applied pending yt-dlp update on startup.", log_level=1)
+                show_information(title=self.tr('yt-dlp Update'), inform='', msg=self.tr('yt-dlp has been updated to the latest version.'))
+            except Exception as e:
+                # If it fails, leave the .exe.new in place for next restart
+                log(f"Failed to apply pending yt-dlp update on startup: {e}", log_level=3)
+                show_critical(title=self.tr('yt-dlp Update Error', self.tr(f'Failed to apply pending update: {e}')))
+        return False, "No pending yt-dlp update."
+
     def update_app(self, new_version_available):
         """Show changelog with latest version and ask user for update."""
         if new_version_available:
@@ -4827,7 +4894,7 @@ def ask_for_sched_time(msg=''):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(":/icons/logo1.png"))
+    app.setWindowIcon(QIcon(":/icons/omnipull.png"))
     app_id = "omnipull"
     single_instance = SingleInstanceApp(app_id)
 

@@ -32,7 +32,7 @@ class TrayIconManager:
     def init_tray_icon(self):
         
 
-        self.tray_icon = QSystemTrayIcon(QIcon(':/icons/logo1.png'), self.main_window)
+        self.tray_icon = QSystemTrayIcon(QIcon(':/icons/omnipull.png'), self.main_window)
         tray_menu = QMenu()
         
         restore_action = QAction(QIcon(':/icons/window.svg'), "Restore", self.main_window)

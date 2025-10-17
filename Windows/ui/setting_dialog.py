@@ -27,7 +27,7 @@ from modules.utils import log, delete_file
 from modules.settings_manager import SettingsManager
 
 from PySide6.QtGui import QIntValidator
-from PySide6.QtCore import Qt, QCoreApplication, QTranslator
+from PySide6.QtCore import Qt, QCoreApplication, QTranslator, Signal, Slot, QThread, QTimer, QObject
 
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QComboBox, QCheckBox,
