@@ -18,6 +18,7 @@
 import os
 import re
 import json
+import sys
 import time
 import queue
 import socket
@@ -1196,9 +1197,20 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
 
     cli_args = _build_cli_args_for_download(d, ydl_opts, use_progress_template=use_progress_template)
     cmd = [exe] + cli_args + [d.url]
-
+    
     # Launch process combining stderr into stdout so we capture everything
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True)
+    kwargs = dict(stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+    if sys.platform.startswith("win"):
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+        kwargs["startupinfo"] = si
+
+    proc = subprocess.Popen(cmd, **kwargs)
+
+    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True)
 
     q = queue.Queue()
     reader = Thread(target=_enqueue_output, args=(proc.stdout, q), daemon=True)
@@ -1471,8 +1483,10 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
                         "-shortest",
                         output_file
                     ]
-
-                    result = subprocess.run(cmd_ff, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    kwargs = dict(capture_output=True, text=True)
+                    if sys.platform.startswith("win"):
+                        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+                    result = subprocess.run(cmd_ff, **kwargs)
                     if result.returncode == 0:
                         d.status = Status.completed
                         d._progress = 100
