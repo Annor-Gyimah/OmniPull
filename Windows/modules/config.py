@@ -36,7 +36,7 @@ APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
 APP_FONT_DPI = 96
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
-DEFAULT_THEME = 'DarkGrey2'
+DEFAULT_THEME = 'Dark'
 DEFAULT_CONNECTIONS = 64
 DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
@@ -127,7 +127,7 @@ sys.path.insert(0, current_directory)
 sett_folder = os.path.dirname(os.path.abspath(__file__))
 # location where user-specific bundled binaries might live:
 USER_CURRENT = Path(sett_folder) 
-global_sett_folder = None
+global_sett_folder = ""
 download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # user-selected overrides (UI should set these when user browses)

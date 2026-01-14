@@ -316,8 +316,25 @@ class WhatsNew(QDialog):
 
         if changelog is None:
             changelog = [
-                
                 {'version': f'{__version__}',
+                    'date': '2026-01-14',
+                    'highlights': [
+                        '🔧 Updated bundled yt-dlp to nightly (2026.1.6.233142.dev0)',
+                        '🛡️ Change download page to use a convenient simpler add download popup',
+                        '🔧 Updated deno version to 2.6.4',
+                        '🔁 Improved functionalities and logic',
+                    ],
+                    'details': (
+                        "This long awaited release updates the bundled yt-dlp to the latest nightly (2026.1.6.233142.dev0) "
+                        "and deno a js runtime engine to 2.6.4"
+                        " The download page has changed from being a stacked widget to a simple popup."
+                        " This is to ensure it follows the general download logic and UI/UX flow. Same design though. It has however introduced a slight delay of about 1.5 secs in the loading of the download table"
+                        "but will be fixed in the subsequent updates. Yt-dlp.exe has also been updated to the latest which of this time was version 2025.12.08"
+                        " There have been an improvement in overall download logic and the stuatus quo. Annoying popups from ffmpeg when downloading youtube videos have been stopped."
+                    ),
+                    'url': 'https://github.com/Annor-Gyimah/OmniPull/releases/tag/v.2.1.1'
+                },
+                {'version': f'2.0.8',
                     'date': '2025-11-27',
                     'highlights': [
                         '🔧 Updated bundled yt-dlp to nightly (2025.11.24.232953.dev0)',

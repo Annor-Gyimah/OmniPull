@@ -178,6 +178,7 @@ def _best_existing(paths: list[str]) -> str | None:
 def toolbar_buttons_state(status: str) -> dict:
     status_map = {
         config.Status.completed: {
+            "Add Download": True,
             "Resume": False,
             "Pause": False,
             "Delete": True,
@@ -190,6 +191,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.cancelled: {
+            "Add Download": True,
             "Resume": True,
             "Pause": False,
             "Delete": True,
@@ -202,6 +204,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.error: { 
+            "Add Download": True,
             "Resume": True,
             "Pause": False,
             "Delete": True,
@@ -214,6 +217,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.paused: {
+            "Add Download": True,
             "Resume": True,
             "Pause": False,
             "Delete": True,
@@ -226,6 +230,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },  
         config.Status.failed: {
+            "Add Download": True,
             "Resume": True,
             "Pause": False,
             "Delete": True,
@@ -238,6 +243,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         }, 
         config.Status.deleted: {
+            "Add Download": True,
             "Resume": False,
             "Pause": False,
             "Delete": True,
@@ -250,6 +256,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.scheduled: {
+            "Add Download": True,
             "Resume": False,
             "Pause": False,
             "Delete": True,
@@ -262,6 +269,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.downloading: {
+            "Add Download": True,
             "Resume": False,
             "Pause": True,
             "Delete": False,
@@ -274,6 +282,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": True,
         },
         config.Status.pending: {
+            "Add Download": True,
             "Resume": False,
             "Pause": True,
             "Delete": False,
@@ -286,6 +295,7 @@ def toolbar_buttons_state(status: str) -> dict:
             "Download Window": False,
         },
         config.Status.merging_audio: {
+            "Add Download": True,
             "Resume": False,
             "Pause": False,
             "Delete": False,

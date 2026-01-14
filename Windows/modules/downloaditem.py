@@ -217,6 +217,11 @@ class DownloadItem:
 
         self._RE_BYTES_NUM = re.compile(r"([\d\.,]+)\s*([KMGTP]?i?B)?", re.IGNORECASE)
 
+        # --- NEW: per-connection stats for the download window ---
+        # Each entry is a dict: {"downloaded": int, "info": str}
+        # Index corresponds to Worker.tag for curl (and can be reused for other engines).
+        self.connection_stats = []
+
 
 
 

@@ -37,6 +37,7 @@ from pathlib import Path
 from collections import deque
 from threading import Thread, Timer
 from typing import Callable, Optional
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
@@ -44,7 +45,7 @@ from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 from PySide6 import QtGui, QtWidgets
 from yt_dlp.utils import DownloadError, ExtractorError
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
-QCoreApplication, Qt, QTime, QProcess)
+QCoreApplication, Qt, QTime, QProcess, QEvent)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QActionGroup, QKeySequence, QColor
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
@@ -54,6 +55,7 @@ QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QScrollArea, QCheckB
 # region UI import
 from ui.ui_main import Ui_MainWindow 
 from ui.about_dialog import AboutDialog
+from ui.add_downloads import AddDownloadPage
 from ui.queue_dialog import QueueDialog
 from ui.tray_icon import TrayIconManager
 from ui.changelog_diaglog import WhatsNew
@@ -89,6 +91,7 @@ os.environ["QT_FONT_DPI"] = f"{config.APP_FONT_DPI}"  # FIX Problem for High DPI
 widgets = None
 widgets_settings = None
 widgets_about = None
+widgets_add_download = None
 
 
 
@@ -186,11 +189,18 @@ class YouTubeThread(QThread):
     
     async def _run_async(self):
         try:
-            widgets.download_btn.setEnabled(False)
-            widgets.playlist_btn.setEnabled(False)
+            # widgets.download_btn.setEnabled(False)
+            # widgets.playlist_btn.setEnabled(False)
+            # widgets_settings.monitor_clipboard_cb.setChecked(False)
+            # widgets.combo1.clear()
+            # widgets.combo2.clear()
+
+            widgets_add_download.download_btn.setEnabled(False)
+            widgets_add_download.playlist_btn.setEnabled(False)
             widgets_settings.monitor_clipboard_cb.setChecked(False)
-            widgets.combo1.clear()
-            widgets.combo2.clear()
+            widgets_add_download.combo1.clear()
+            widgets_add_download.combo2.clear()
+
             change_cursor('busy')
             log(f"[AsyncYTDL] Extracting info for URL: {self.url}", log_level=1)
             vid_info = await video.Video.extract_metadata(self.url)
@@ -237,6 +247,7 @@ class YouTubeThread(QThread):
         finally:
             change_cursor('normal')
             widgets.download_btn.setEnabled(True)
+            widgets_add_download.download_btn.setEnabled(True)
             widgets_settings.monitor_clipboard_cb.setChecked(True)
 
 
@@ -529,6 +540,7 @@ class DownloadManagerUI(QMainWindow):
         # Intialization 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui_add_download = AddDownloadPage(self)
         self.ui_settings = SettingsWindow(self)
         self.last_schedule_check = {}  # queue_id: QTime
         self.running_queues = {}
@@ -628,11 +640,14 @@ class DownloadManagerUI(QMainWindow):
         """)
 
         # Global widgets
-        global widgets
+        global widgets, widgets_main
         widgets = self.ui
+        widgets_main = self.ui
         global widgets_settings
+        global widgets_add_download
         
         widgets_settings = self.ui_settings
+        widgets_add_download = self.ui_add_download
         self.setWindowTitle(config.APP_TITLE)
         self.d = DownloadItem() # current download_item
         self.yt_thread = None # Setup YouTube thread and connect signals
@@ -679,7 +694,7 @@ class DownloadManagerUI(QMainWindow):
         self.clipboard.dataChanged.connect(self.on_clipboard_change)
         self.old_clipboard_data = ''
 
-        # Initialize the PyQt run loop with a timer (to replace the PySimpleGUI event loop)
+        # Setup timer to run every 500ms
         self.run_timer = QTimer(self)
         self.run_timer.timeout.connect(self.run)
         self.run_timer.start(900)  # Runs every 500ms
@@ -701,17 +716,27 @@ class DownloadManagerUI(QMainWindow):
         widgets.folder_btn.clicked.connect(self.open_folder_dialog)
         widgets.folder_input.setText(config.download_folder)
         widgets.filename_input.textChanged.connect(self.on_filename_changed)
-        widgets.download_btn.clicked.connect(self.on_download_button_clicked)
-        widgets.playlist_btn.clicked.connect(self.download_playlist)
+        # widgets_add_download.download_btn.clicked.connect(self.on_download_button_clicked)
+        # widgets_add_download.playlist_btn.clicked.connect(self.download_playlist)
         # Enable custom context menu on the table widget
-        widgets.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        widgets.table.customContextMenuRequested.connect(self.show_table_context_menu)
+        widgets_main.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        widgets_main.table.customContextMenuRequested.connect(self.show_table_context_menu)
         widgets.log_clear_btn.clicked.connect(self.clear_log)
         
 
-        widgets.combo2.currentTextChanged.connect(self.stream_OnChoice)
+      
 
-        widgets.version_value.setText(f"App Version: {config.APP_VERSION}")
+        widgets_main.version_value.setText(f"App Version: {config.APP_VERSION}")
+
+                # --- Wire ADD DOWNLOAD dialog widgets to the same logic ---
+        widgets_add_download.retry_btn.clicked.connect(self.retry)
+        widgets_add_download.folder_btn.clicked.connect(self.open_folder_dialog)
+        widgets_add_download.folder_input.setText(config.download_folder)
+        widgets_add_download.filename_input.textChanged.connect(self.on_filename_changed)
+        widgets_add_download.download_btn.clicked.connect(self.on_download_button_clicked)
+        widgets_add_download.playlist_btn.clicked.connect(self.download_playlist)
+        widgets_add_download.combo2.currentTextChanged.connect(self.stream_OnChoice)
+
 
 
         # load stored setting from disk
@@ -732,6 +757,7 @@ class DownloadManagerUI(QMainWindow):
         widgets.log_level_combo.setCurrentText(str(config.log_level))
     
         widgets.toolbar_buttons["Settings"].clicked.connect(self.open_settings)
+        widgets.toolbar_buttons['Add Download'].clicked.connect(self.open_add_download)
 
         widgets.export_dl.triggered.connect(self.export_downloads_list)
         widgets.quitt.triggered.connect(self.exit_app)
@@ -821,8 +847,6 @@ class DownloadManagerUI(QMainWindow):
         """Show a visual tutorial overlay with multiple steps."""
         overlay = TutorialOverlay(self, tutorial_steps, show_exit_button=True)
         overlay.show()
-
-
 
     # region Menu bar     
     def export_downloads_list(self):
@@ -1013,21 +1037,21 @@ class DownloadManagerUI(QMainWindow):
         """Texts, objects, buttons, etc to translate"""
         # Home Translations
         # widgets.home_link_label.setText(self.tr("LINK"))
-        widgets.retry_btn.setText(self.tr("Retry"))
-        widgets.folder_btn.setText(self.tr("Open"))
-        widgets.folder_label.setText(self.tr("CHOOSE FOLDER"))
-        widgets.filename_label.setText(self.tr("FILENAME"))
-        widgets.link_input.setPlaceholderText(self.tr("Place download link here"))
-        widgets.filename_input.setPlaceholderText(self.tr("Filename goes here"))
-        widgets.combo1_label.setText(self.tr("Download Item:"))
-        widgets.combo2_label.setText(self.tr("Resolution:"))
-        widgets.combo3_label.setText(self.tr("Queue:"))
-        widgets.playlist_btn.setText(self.tr("Playlist"))
-        widgets.download_btn.setText(self.tr("Download"))
-        widgets.size_label.setText(self.tr("Size:"))
-        widgets.type_label.setText(self.tr("Type:"))
+        widgets_add_download.retry_btn.setText(self.tr("Retry"))
+        widgets_add_download.folder_btn.setText(self.tr("Open"))
+        widgets_add_download.folder_label.setText(self.tr("CHOOSE FOLDER"))
+        widgets_add_download.filename_label.setText(self.tr("FILENAME"))
+        widgets_add_download.link_input.setPlaceholderText(self.tr("Place download link here"))
+        widgets_add_download.filename_input.setPlaceholderText(self.tr("Filename goes here"))
+        widgets_add_download.combo1_label.setText(self.tr("Download Item:"))
+        widgets_add_download.combo2_label.setText(self.tr("Resolution:"))
+        widgets_add_download.combo3_label.setText(self.tr("Queue:"))
+        widgets_add_download.playlist_btn.setText(self.tr("Playlist"))
+        widgets_add_download.download_btn.setText(self.tr("Download"))
+        widgets_add_download.size_label.setText(self.tr("Size:"))
+        widgets_add_download.type_label.setText(self.tr("Type:"))
         widgets.protocol_label.setText(self.tr("Protocol:"))
-        widgets.resume_label.setText(self.tr("Resumable:"))
+        widgets_add_download.resume_label.setText(self.tr("Resumable:"))
         widgets.file_menu.setTitle(self.tr('File'))
         widgets.export_dl.setText(self.tr('Export Downloads List'))
         widgets.quitt.setText(self.tr('Exit'))
@@ -1110,8 +1134,8 @@ class DownloadManagerUI(QMainWindow):
         # self.queues = setting.load_queues()
         # self.queues = self.settings_manager.load_queues()
         self.queues = self.settings_manager.queues
-        widgets.combo3.clear()
-        widgets.combo3.addItems(["None"] + [q["name"] for q in self.queues])
+        widgets_add_download.combo3.clear()
+        widgets_add_download.combo3.addItems(["None"] + [q["name"] for q in self.queues])
 
     def queue_combo(self):
         # self.queues = setting.load_queues()
@@ -1120,30 +1144,30 @@ class DownloadManagerUI(QMainWindow):
         if not self.queues:
             return
 
-        widgets.combo3.clear()
+        widgets_add_download.combo3.clear()
 
-        widgets.combo3.addItem("None")
+        widgets_add_download.combo3.addItem("None")
         for queue in self.queues:
             name = queue.get("name")
             if name:
-                widgets.combo3.addItem(name)
+                widgets_add_download.combo3.addItem(name)
     
     # endregion
     
 
     def update_toolbar_buttons_for_selection(self):
-        selected_rows = widgets.table.selectionModel().selectedRows()
+        selected_rows = widgets_main.table.selectionModel().selectedRows()
 
         if not selected_rows:
             # Enable only global buttons
             for key in widgets.toolbar_buttons:
                 widgets.toolbar_buttons[key].setEnabled(key in {
-                    "Stop All", "Resume All", "Settings", "Schedule All", "Queues", "Whats New"
+                    "Add Download","Stop All", "Resume All", "Settings", "Schedule All", "Queues", "Whats New"
                 })
             return
 
         selected_ids = [
-            widgets.table.item(row.row(), 0).data(Qt.UserRole)
+            widgets_main.table.item(row.row(), 0).data(Qt.UserRole)
             for row in selected_rows
         ]
 
@@ -1187,11 +1211,11 @@ class DownloadManagerUI(QMainWindow):
 
             if k == 'log':
                 try:
-                    contents = widgets.terminal_log.toPlainText()
+                    contents = widgets_main.terminal_log.toPlainText()
                     if len(contents) > config.max_log_size:
                         # delete 20% of contents to keep size under max_log_size
                         slice_size = int(config.max_log_size * 0.2)
-                        widgets.terminal_log.setPlainText(contents[slice_size:])
+                        widgets_main.terminal_log.setPlainText(contents[slice_size:])
 
                     # parse youtube output while fetching playlist info with option "process=True"
                     if '[download]' in v and 'Downloading video' in v and 'of' in v:
@@ -1204,15 +1228,26 @@ class DownloadManagerUI(QMainWindow):
                         except Exception as e:
                             log(f"[read_q] Error parsing download progress: {e}", log_level=3)
 
-                    widgets.terminal_log.append(v)
+                    widgets_main.terminal_log.append(v)
                 except Exception as e:
                     log(f"{e}", log_level=3)
 
+            # elif k == 'url':
+            #     # Update the QLineEdit with the new URL
+            #     widgets.link_input.setText(v)
+            #     self.url_text_change()
+            #     #self.update_progress_bar()   
+
             elif k == 'url':
-                # Update the QLineEdit with the new URL
-                widgets.link_input.setText(v)
+                url = (v or "").strip()
+                if not url:
+                    continue
+
+                # Always write into the ADD DOWNLOAD dialog widgets
+                widgets_add_download.link_input.setText(url)
                 self.url_text_change()
-                #self.update_progress_bar()   
+
+
             elif k == "download":
                 self.start_download(*v)
             elif k == "monitor":
@@ -1288,25 +1323,25 @@ class DownloadManagerUI(QMainWindow):
         try:
             for key, value in updates.items():
                 if key == 'filename':
-                    if widgets.filename_input.text() != value:
+                    if widgets_add_download.filename_input.text() != value:
                         self.filename_set_by_program = True
-                        widgets.filename_input.setText(value)
+                        widgets_add_download.filename_input.setText(value)
                         self.filename_set_by_program = False
                 elif key == 'status_code':
                     cod = "ok" if value == 200 else ""
-                    widgets.status_value.setText(f"{value} {cod}")
+                    widgets_main.status_value.setText(f"{value} {cod}")
                 elif key == 'size':
                     size_text = size_format(value) if value else "Unknown"
-                    widgets.size_value.setText(size_text)
+                    widgets_add_download.size_value.setText(size_text)
                 elif key == 'type':
-                    widgets.type_value.setText(value)
+                    widgets_add_download.type_value.setText(value)
                 elif key == 'protocol':
-                    widgets.protocol_value.setText(value)
+                    widgets_add_download.protocol_value.setText(value)
                 elif key == 'resumable':
-                    widgets.resume_value.setText("Yes" if value else "No")
+                    widgets_add_download.resume_value.setText("Yes" if value else "No")
                 elif key == 'total_speed':
                     speed_text = f'⬇⬆ {size_format(value, "/s")}' if value else '⬇⬆ 0 bytes'
-                    widgets.speed_value.setText(speed_text)
+                    widgets_main.speed_value.setText(speed_text)
                 elif key == 'populate_table':
                     self.populate_table()
                 elif key == 'check_scheduled':
@@ -1403,7 +1438,7 @@ class DownloadManagerUI(QMainWindow):
 
     def url_text_change(self):
         """Handle URL changes in the QLineEdit."""
-        url = widgets.link_input.text().strip()
+        url = widgets_add_download.link_input.text().strip()
 
         url = self.clean_url(url) if config.ytdlp_config['no_playlist'] else url
 
@@ -1413,8 +1448,8 @@ class DownloadManagerUI(QMainWindow):
         if self.is_youtube_url(url):
             ok = self.ensure_dependency(
                 name="Deno",
-                check_func=check_deno,           # existing check
-                download_func=download_deno,     # downloader/installer
+                check_func=check_deno,
+                download_func=download_deno,
                 recommended_dir=config.global_sett_folder,
                 local_dir=config.current_directory,
                 non_windows_msg=self.tr(
@@ -1423,25 +1458,22 @@ class DownloadManagerUI(QMainWindow):
                 ),
             )
             if not ok:
-                # Abort gracefully; user cancelled or install failed
                 return
         
-
         self.reset()
         try:
             self.d.eff_url = self.d.url = url
             log(f"New URL set: {url}", log_level=1)
-            # Update the DownloadItem with the new URL
-            # schedule refresh header func
+
             if isinstance(self.url_timer, Timer):
-                self.url_timer.cancel()  # cancel previous timer
+                self.url_timer.cancel()
 
             self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
             self.url_timer.start()
-            # Trigger the progress bar update and GUI refresh
         except AttributeError as e:
             log(f"Error setting URLs in the object 'self.d': {e}", log_level=3)
-            return  # Early return if we can't set URLs properly
+            return
+
 
     def process_url(self):
         """Simulate processing the URL and update the progress bar.""" 
@@ -1451,8 +1483,9 @@ class DownloadManagerUI(QMainWindow):
             self.update_progress_bar_value(step)  # Update the progress bar in the main thread  
     
     def update_progress_bar_value(self, value):
-        """Update the progress bar value in the GUI."""
-        widgets.progress.setValue(value)       
+        """Update the progress bar value in the Add Download dialog."""
+        widgets_add_download.progress.setValue(value)
+
 
     def retry(self):
         self.d.url = ''
@@ -1559,7 +1592,8 @@ class DownloadManagerUI(QMainWindow):
 
         if url == self.d.url:
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-                widgets.download_btn.setEnabled(True)
+                # widgets.download_btn.setEnabled(True)
+                widgets_add_download.download_btn.setEnabled(True)
 
             # Use QThread for YouTube function
             self.yt_thread = YouTubeThread(url)
@@ -1575,8 +1609,10 @@ class DownloadManagerUI(QMainWindow):
             self.playlist = result
             if self.playlist:
                 self.d = self.playlist[0]
-            widgets.download_btn.setEnabled(False)
-            widgets.playlist_btn.setEnabled(True)
+            # widgets.download_btn.setEnabled(False)
+            # widgets.playlist_btn.setEnabled(True)
+            widgets_add_download.download_btn.setEnabled(False)
+            widgets_add_download.playlist_btn.setEnabled(True)
         elif isinstance(result, Video):
             self.playlist = [result]
             self.d = result
@@ -1586,17 +1622,24 @@ class DownloadManagerUI(QMainWindow):
                 self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
                 log(f"[Engine] Guessed extension from URL: {self.d.ext}", log_level=1)
             
-            widgets.download_btn.setEnabled(True)
-            widgets.playlist_btn.setEnabled(False)
+            # widgets.download_btn.setEnabled(True)
+            # widgets.playlist_btn.setEnabled(False)
+            widgets_add_download.download_btn.setEnabled(True)
+            widgets_add_download.playlist_btn.setEnabled(False)
         else:
             log("Error: YouTube extraction failed", log_level=3)
             change_cursor('normal')
             #widgets.download_btn.setEnabled(True)
-            widgets.download_btn.setEnabled(True)
-            widgets.playlist_btn.setEnabled(True)
+            # widgets.download_btn.setEnabled(True)
+            # widgets.playlist_btn.setEnabled(True)
 
-            widgets.combo1.clear()
-            widgets.combo2.clear()
+            # widgets.combo1.clear()
+            # widgets.combo2.clear()
+            widgets_add_download.download_btn.setEnabled(True)
+            widgets_add_download.playlist_btn.setEnabled(True)
+
+            widgets_add_download.combo1.clear()
+            widgets_add_download.combo2.clear()
             self.reset_to_default_thumbnail()
             return
         
@@ -1647,6 +1690,8 @@ class DownloadManagerUI(QMainWindow):
         else:
             # If no folder is selected, reset to the default folder (config.download_folder)
             widgets.folder_input.setText(config.download_folder)
+            widgets_add_download.folder_input.setText(folder_path)
+            
     
 
     def on_filename_changed(self, text: str) -> str:
@@ -1775,6 +1820,11 @@ class DownloadManagerUI(QMainWindow):
         # ------------------------------------------------------------------
         # search current list for previous item with same name, folder
         found_index = self.file_in_d_list(d.target_file)
+        
+        if found_index is not None and not os.path.exists(d.target_file):
+            found_index = None
+
+
         if found_index is not None: # might be zero, file already exist in d_list
             log('download item', d.num, 'already in list, check resume availability')
             d_from_list = self.d_list[found_index]
@@ -1911,6 +1961,25 @@ class DownloadManagerUI(QMainWindow):
                 return i
         return None
 
+    # def file_in_d_list(self, target_file):
+    #     """
+    #     Return the index of a download in d_list that has the same target_file
+    #     *and* whose file actually exists on disk.
+
+    #     This avoids triggering 'resume/overwrite' for stale entries that only
+    #     live in downloads.cfg but whose files have been moved/deleted.
+    #     """
+    #     for i, d in enumerate(self.d_list):
+    #         try:
+    #             if d.target_file == target_file and os.path.exists(d.target_file):
+    #                 return i
+    #         except Exception:
+    #             # If anything weird happens (e.g., malformed path), just ignore
+    #             # this entry and continue.
+    #             continue
+    #     return None
+
+
 
     def get_queue_id(self, name: str) -> str:
         """Generate a unique ID for the queue based on its name."""
@@ -1927,7 +1996,7 @@ class DownloadManagerUI(QMainWindow):
         
         d = copy.copy(self.d)
         d.folder = config.download_folder
-        selected_queue = widgets.combo3.currentText()
+        selected_queue = widgets_add_download.combo3.currentText()
 
         # Check for YouTube/streaming videos first
         if isinstance(self.d, Video) and selected_queue and selected_queue != "None":
@@ -2029,14 +2098,15 @@ class DownloadManagerUI(QMainWindow):
             inform = self.tr(f"{item} has been added to queue:")
             msg = self.tr("Start it from the Queues Dialog.")
             show_information(title, inform, msg)
-            self.change_page(btn=None, btnName=None, idx=1)
+            self.change_page(btn=None, btnName=None, idx=0)
         
         else:
             # Direct download
             d.queue = None
             r = self.start_download(d, downloader=downloader)
             if r not in ('error', 'cancelled', False):
-                self.change_page(btn=None, btnName=None, idx=1)
+                self.ui_add_download.hide()
+                # self.change_page(btn=None, btnName=None, idx=0)
 
 
     # endregion
@@ -2050,7 +2120,7 @@ class DownloadManagerUI(QMainWindow):
             if thumbnail is None or thumbnail == "":
                 # Reset to default thumbnail if no new thumbnail is provided
                 default_pixmap = QPixmap(":/icons/thumbnail-default.png")
-                widgets.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
+                widgets_add_download.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
                 log("Resetting to default thumbnail", log_level=2)
             elif thumbnail != self.current_thumbnail:
                 self.current_thumbnail = thumbnail
@@ -2063,7 +2133,7 @@ class DownloadManagerUI(QMainWindow):
                     # If it's a local file path
                     pixmap = QPixmap(thumbnail)
                     if not pixmap.isNull():
-                        widgets.thumbnail.setPixmap(pixmap.scaled(400, 350, Qt.KeepAspectRatio))
+                        widgets_add_download.thumbnail.setPixmap(pixmap.scaled(400, 350, Qt.KeepAspectRatio))
                     else:
                         self.reset_to_default_thumbnail()
 
@@ -2077,7 +2147,7 @@ class DownloadManagerUI(QMainWindow):
             image = QImage()
             if image.loadFromData(data):
                 pixmap = QPixmap.fromImage(image)
-                widgets.thumbnail.setPixmap(pixmap.scaled(400, 350, Qt.KeepAspectRatio))
+                widgets_add_download.thumbnail.setPixmap(pixmap.scaled(400, 350, Qt.KeepAspectRatio))
             else:
                 self.reset_to_default_thumbnail()
         else:
@@ -2085,7 +2155,7 @@ class DownloadManagerUI(QMainWindow):
 
     def reset_to_default_thumbnail(self):
         default_pixmap = QPixmap(":/icons/thumbnail-default.png")
-        widgets.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
+        widgets_add_download.thumbnail.setPixmap(default_pixmap.scaled(400, 350, Qt.KeepAspectRatio))
         log("Reset to default thumbnail due to error", log_level=2)
         widgets_settings.monitor_clipboard_cb.setChecked(True)
 
@@ -2099,10 +2169,10 @@ class DownloadManagerUI(QMainWindow):
                 return
 
             # Set the playlist combobox with video titles
-            widgets.combo1.clear()  # Clear existing items
+            widgets_add_download.combo1.clear()  # Clear existing items
             for i, video in enumerate(self.playlist):
                 if hasattr(video, 'title') and video.title:
-                    widgets.combo1.addItem(f'{i + 1} - {video.title}')
+                    widgets_add_download.combo1.addItem(f'{i + 1} - {video.title}')
                 else:
                     log(f"Warning: Video at index {i} has no title", log_level=2)
 
@@ -2129,13 +2199,13 @@ class DownloadManagerUI(QMainWindow):
                 return
 
             # Set the stream combobox with available stream options
-            widgets.combo2.clear()  # Clear existing items
-            widgets.combo2.addItems(self.d.stream_names)
+            widgets_add_download.combo2.clear()  # Clear existing items
+            widgets_add_download.combo2.addItems(self.d.stream_names)
 
             # Automatically select the first stream
             if self.d.stream_names:
                 selected_stream = self.d.stream_names[0]
-                widgets.combo2.setCurrentText(selected_stream)
+                widgets_add_download.combo2.setCurrentText(selected_stream)
                 self.stream_OnChoice(selected_stream)
 
         except Exception as e:
@@ -2405,7 +2475,7 @@ class DownloadManagerUI(QMainWindow):
         master_combo.currentTextChanged.connect(on_master_combo_change)
 
         if dialog.exec():
-            self.change_page(btn=None, btnName=None, idx=1)
+            self.change_page(btn=None, btnName=None, idx=0)
 
 
     # endregion
@@ -2860,7 +2930,7 @@ class DownloadManagerUI(QMainWindow):
 
     # Clear Log
     def clear_log(self):
-        widgets.terminal_log.clear()
+        widgets_main.terminal_log.clear()
 
     # Set Log level 
     def set_log(self):
@@ -2981,8 +3051,8 @@ class DownloadManagerUI(QMainWindow):
     def resume_btn(self):
         """Resume paused or queued downloads."""
 
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
@@ -3058,8 +3128,8 @@ class DownloadManagerUI(QMainWindow):
     def pause_btn(self):
         """Pause the selected download item (YT-DLP or aria2c)."""
 
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
@@ -3130,7 +3200,7 @@ class DownloadManagerUI(QMainWindow):
     def delete_btn(self):
         """Delete selected downloads from the download table"""
         # Get all selected rows
-        selected_rows = [index.row() for index in widgets.table.selectedIndexes()]
+        selected_rows = [index.row() for index in widgets_main.table.selectedIndexes()]
         selected_rows = list(set(selected_rows))  # Remove duplicates, as some items may be selected in multiple columns
 
         if not selected_rows:
@@ -3174,7 +3244,7 @@ class DownloadManagerUI(QMainWindow):
                 log(f"D:  {d}")
 
                 # Remove the row from the table
-                widgets.table.removeRow(row)
+                widgets_main.table.removeRow(row)
 
                 # Notify user about the deleted file
                 nt1, nt2 = self.tr("File:"), self.tr("has been deleted.")
@@ -3185,7 +3255,7 @@ class DownloadManagerUI(QMainWindow):
                 # d.delete_tempfiles()
                 # os.remove(f"{d.folder}/{d.name}")
                 self.janitor(d)
-                widgets.table.clearSelection()
+                widgets_main.table.clearSelection()
                 self.update_toolbar_buttons_for_selection()
 
         except Exception as e:
@@ -3403,8 +3473,32 @@ class DownloadManagerUI(QMainWindow):
             Thread(target=d.delete_tempfiles, daemon=True).start()
 
         self.d_list.clear()
-        widgets.table.setRowCount(0)
+        widgets_main.table.setRowCount(0)
     
+    # def refresh_link_btn(self):
+    #     """Refresh a download list item for a re-download or resume especially for streaming media"""
+    #     selected_row = widgets.table.currentRow()
+    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
+    #         show_warning(self.tr("Error"), self.tr("No download item selected"))
+    #         return
+
+    #     # Table is newest-first, d_list is oldest-first
+    #     d_index = len(self.d_list) - 1 - selected_row
+    #     d = self.d_list[d_index]
+
+    #     # Pick the right URL
+    #     url = d.original_url if d.engine in ['aria2c', 'aria2'] else d.url
+    #     folder = d.folder
+    #     config.download_folder = folder
+
+    #     log(f"Link refreshing for {d.name} at index {d_index}", log_level=1)
+
+    #     # 👉 Open the Add Download dialog, prefilled and fully processed
+    #     # self.open_add_download(url=url, folder=folder)
+    #     # url = widgets.link_input.text().strip()
+    #     # if url:
+    #     self.open_add_download()
+
     def refresh_link_btn(self):
         """Refresh a download list item for a re-download or resume especially for streaming media"""
         selected_row = widgets.table.currentRow()
@@ -3412,19 +3506,29 @@ class DownloadManagerUI(QMainWindow):
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
+        # Table is newest-first, d_list is oldest-first
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
-        config.download_folder = d.folder
-        # widgets.link_input.setText(d.url)
-        widgets.link_input.setText(d.original_url if d.engine in ['aria2c', 'aria2'] else d.url)
+        # Decide which URL to reuse
+        url = d.original_url if d.engine in ['aria2c', 'aria2'] else d.url
+        folder = d.folder
+        config.download_folder = folder
 
-
-        self.url_text_change()
-        widgets.folder_input.setText(config.download_folder)
-
-        self.change_page(btn=None, btnName=None, idx=0)
         log(f"Link refreshing for {d.name} at index {d_index}", log_level=1)
+
+        # 1️⃣ Push URL + folder back into the main "add" page
+        widgets_add_download.link_input.setText(url)
+        widgets_add_download.folder_input.setText(folder)
+
+        # 2️⃣ Re-run the normal URL processing pipeline
+        #    This will call reset(), set self.d.url/eff_url, start refresh_headers, etc.
+        self.url_text_change()
+
+        # 3️⃣ Open the Add Download dialog prefilled from the *current* main add-page
+        #    (open_add_download() calls sync_add_dialog_from_main() internally)
+        self.open_add_download()
+
 
 
     def stop_all_downloads(self):
@@ -3495,7 +3599,7 @@ class DownloadManagerUI(QMainWindow):
             show_warning(self.tr("Schedule Error"), str(e))
 
     def download_window(self):
-        selected_row = widgets.table.currentRow()
+        selected_row = widgets_main.table.currentRow()
         
         if selected_row < 0 or selected_row >= len(self.d_list):
             show_warning(self.tr("Error"), self.tr("No download item selected"))
@@ -3513,11 +3617,90 @@ class DownloadManagerUI(QMainWindow):
                     self.download_windows[d.id] = DownloadWindow(d=d)
                 else:
                     self.download_windows[d.id].focus()
+
+
+
+    def sync_add_dialog_from_main(self, dialog):
+        """
+        Copy the current state of the main add-page (self.ui / widgets_main)
+        into the Add Download dialog, so it opens prefilled.
+        """
+        src = self.ui   # main add page (same as widgets_main)
+
+        # --- Basic fields ---
+        dialog.link_input.setText(src.link_input.text())
+        dialog.folder_input.setText(src.folder_input.text())
+        dialog.filename_input.setText(src.filename_input.text())
+
+        # --- Progress bar ---
+        dialog.progress.setValue(src.progress.value())
+        dialog.progress.setFormat(src.progress.format())
+
+        # --- Combos: copy items + current index ---
+        def copy_combo(src_combo, dst_combo):
+            dst_combo.blockSignals(True)
+            dst_combo.clear()
+            for i in range(src_combo.count()):
+                text = src_combo.itemText(i)
+                data = src_combo.itemData(i)
+                dst_combo.addItem(text, data)
+            dst_combo.setCurrentIndex(src_combo.currentIndex())
+            dst_combo.blockSignals(False)
+
+        copy_combo(src.combo1, dialog.combo1)
+        copy_combo(src.combo2, dialog.combo2)
+
+        # Queue combo (combo3): we’ll rebuild from queues instead of copying,
+        # but if you prefer copying:
+        # copy_combo(src.combo3, dialog.combo3)
+
+        # --- Metadata labels ---
+        dialog.size_value.setText(src.size_value.text())
+        dialog.type_value.setText(src.type_value.text())
+        dialog.protocol_value.setText(src.protocol_value.text())
+        dialog.resume_value.setText(src.resume_value.text())
+
+        # --- Thumbnail ---
+        pix = src.thumbnail.pixmap()
+        if pix is not None:
+            dialog.thumbnail.setPixmap(pix)
+
+    def open_add_download(self):
+        """
+        Just show the Add Download dialog. All state (link, filename, etc.)
+        is always kept in widgets_add_download, even when the dialog is hidden.
+        """
+
+        # dialog = AddDownloadPage(parent=self)
+
+        # # Keep folder & queues in sync with config
+        # dialog.folder_input.setText(config.download_folder)
+
+        # dialog.combo3.clear()
+        # dialog.combo3.addItem(self.tr("None"))
+        # for q in self.queues:
+        #     dialog.combo3.addItem(q["name"])
+
+        # # Prefill the dialog from the *current* main add-page state
+        # self.sync_add_dialog_from_main(dialog)
+
+        # keep folder in sync
+        widgets_add_download.folder_input.setText(config.download_folder)
+        self.queue_combo()  # keep queues fresh in main combo; mirror if needed
+
+        self.ui_add_download.show()
+        self.ui_add_download.raise_()
+        self.ui_add_download.activateWindow()
+
+
+
+    
     
     def open_settings(self):
         dialog = SettingsWindow(self)
         if dialog.exec():
             self.queue_updates()
+            
    
    
     def show_queue_dialog(self):
@@ -3555,6 +3738,14 @@ class DownloadManagerUI(QMainWindow):
             except RuntimeError:
                 pass
 
+        # 🔹 Show loading overlay while worker prepares rows
+        # 🔹 Show loading overlay on the table, if it exists
+        # if hasattr(widgets_main, "table_loading_overlay"):
+        #     widgets_main.table_loading_overlay.setGeometry(
+        #         widgets_main.table.viewport().rect()
+        #     )
+        #     widgets_main.table_loading_overlay.show()
+
         self.table_thread = QThread(self)  # parent = self
         self.worker = PopulateTableWorker(self.d_list)
         self.worker.moveToThread(self.table_thread)
@@ -3571,7 +3762,11 @@ class DownloadManagerUI(QMainWindow):
     @Slot(list)
     def populate_table_apply(self, prepared_rows):
         """Apply the populated data to the GUI."""
-        widgets.table.setRowCount(len(prepared_rows))
+        # 🔹 Hide loading overlay now that the real data is ready
+        if hasattr(widgets_main, "table_loading_overlay"):
+            widgets_main.table_loading_overlay.hide()
+
+        widgets_main.table.setRowCount(len(prepared_rows))
 
         for row_idx, row_data in enumerate(prepared_rows):
 
@@ -3579,15 +3774,15 @@ class DownloadManagerUI(QMainWindow):
             id_item = QTableWidgetItem(str(len(prepared_rows) - row_idx))
             id_item.setData(Qt.UserRole, row_data['id'])
             id_item.setFlags(id_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 0, id_item)
+            widgets_main.table.setItem(row_idx, 0, id_item)
 
             # Name
             name_item = QTableWidgetItem(validate_file_name(row_data['name']))
             name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 1, name_item)
+            widgets_main.table.setItem(row_idx, 1, name_item)
 
             # Progress Bar (column 2)
-            progress = widgets.table.cellWidget(row_idx, 2)
+            progress = widgets_main.table.cellWidget(row_idx, 2)
             if not isinstance(progress, QProgressBar):
                 progress = QProgressBar()
                 progress.setRange(0, 100)
@@ -3605,7 +3800,7 @@ class DownloadManagerUI(QMainWindow):
                         border-radius: 4px;
                     }
                 """)
-                widgets.table.setCellWidget(row_idx, 2, progress)
+                widgets_main.table.setCellWidget(row_idx, 2, progress)
 
             progress.setValue(int(row_data['progress']))
             progress.setFormat(f"{int(row_data['progress'])}%")
@@ -3613,33 +3808,33 @@ class DownloadManagerUI(QMainWindow):
             # Speed
             speed_item = QTableWidgetItem(size_format(row_data['speed'], '/s') if row_data['speed'] else "")
             speed_item.setFlags(speed_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 3, speed_item)
+            widgets_main.table.setItem(row_idx, 3, speed_item)
 
             # Time Left
             time_item = QTableWidgetItem(str(time_format(row_data['time_left'])))
             time_item.setFlags(time_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 4, time_item)
+            widgets_main.table.setItem(row_idx, 4, time_item)
 
             # Downloaded
             downloaded_item = QTableWidgetItem(size_format(row_data['downloaded']) if row_data['downloaded'] else "")
             downloaded_item.setFlags(downloaded_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 5, downloaded_item)
+            widgets_main.table.setItem(row_idx, 5, downloaded_item)
 
             # Total Size
             total_size_item = QTableWidgetItem(size_format(row_data['total_size']) if row_data['total_size'] else "")
             total_size_item.setFlags(total_size_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 6, total_size_item)
+            widgets_main.table.setItem(row_idx, 6, total_size_item)
 
             # Status
             status_item = QTableWidgetItem(row_data['status'])
             status_item.setFlags(status_item.flags() & ~Qt.ItemIsEditable)
-            widgets.table.setItem(row_idx, 7, status_item)
+            widgets_main.table.setItem(row_idx, 7, status_item)
 
             # "i" Column
             i_item = QTableWidgetItem(row_data['i'])
             i_item.setFlags(i_item.flags() & ~Qt.ItemIsEditable)
             i_item.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            widgets.table.setItem(row_idx, 8, i_item)
+            widgets_main.table.setItem(row_idx, 8, i_item)
 
         # setting.save_d_list(self.d_list)
         self.settings_manager.save_d_list(self.d_list)
@@ -3647,9 +3842,9 @@ class DownloadManagerUI(QMainWindow):
 
 
     def update_table_progress(self):
-        for row in range(widgets.table.rowCount()):
+        for row in range(widgets_main.table.rowCount()):
             try:
-                id_item = widgets.table.item(row, 0)
+                id_item = widgets_main.table.item(row, 0)
                 if not id_item:
                     continue
 
@@ -3657,7 +3852,7 @@ class DownloadManagerUI(QMainWindow):
                 d = next((x for x in self.d_list if x.id == download_id), None)
                 if not d:
                     continue
-                progress_widget = widgets.table.cellWidget(row, 2)
+                progress_widget = widgets_main.table.cellWidget(row, 2)
                 if isinstance(progress_widget, QProgressBar):
                     if d.progress is not None:
                         progress_widget.setValue(int(d.progress))
@@ -3770,11 +3965,11 @@ class DownloadManagerUI(QMainWindow):
         self.action_pop_file_from_table.setEnabled(states["pop_download_item"])  
 
     def show_table_context_menu(self, pos: QPoint):
-        index = widgets.table.indexAt(pos)
+        index = widgets_main.table.indexAt(pos)
         if not index.isValid():
             return
 
-        id_item = widgets.table.item(index.row(), 0)
+        id_item = widgets_main.table.item(index.row(), 0)
         if not id_item:
             return
 
@@ -3786,7 +3981,7 @@ class DownloadManagerUI(QMainWindow):
         # Update state before showing menu
         self.update_context_menu_actions_state(d)
 
-        context_menu = QMenu(widgets.table)
+        context_menu = QMenu(widgets_main.table)
         context_menu.setStyleSheet("""
             background-color: qlineargradient(
                 x1: 0, y1: 0, x2: 1, y2: 1,
@@ -3810,10 +4005,10 @@ class DownloadManagerUI(QMainWindow):
         context_menu.addSeparator()
         context_menu.addAction(self.action_file_checksum)
         context_menu.addAction(self.action_file_properties)
-        context_menu.exec(widgets.table.viewport().mapToGlobal(pos))
+        context_menu.exec(widgets_main.table.viewport().mapToGlobal(pos))
 
     def open_item(self):
-        selected_row = widgets.table.currentRow()
+        selected_row = widgets_main.table.currentRow()
 
         self.selected_row_num = len(self.d_list) - 1 - selected_row
 
@@ -3839,7 +4034,7 @@ class DownloadManagerUI(QMainWindow):
 
     
     def open_item_with(self):
-        selected_row = widgets.table.currentRow()
+        selected_row = widgets_main.table.currentRow()
         self.selected_row_num = len(self.d_list) - 1 - selected_row
 
         try:
@@ -3876,7 +4071,7 @@ class DownloadManagerUI(QMainWindow):
 
 
     def watch_downloading(self):
-        selected_row = widgets.table.currentRow()
+        selected_row = widgets_main.table.currentRow()
         self.selected_row_num = len(self.d_list) - 1 - selected_row
 
         try:
@@ -3952,8 +4147,8 @@ class DownloadManagerUI(QMainWindow):
     
 
     def open_file_location(self):
-        selected_row = widgets.table.currentRow() 
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow() 
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
@@ -3984,8 +4179,8 @@ class DownloadManagerUI(QMainWindow):
 
 
     def schedule_download(self):
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
@@ -4001,8 +4196,8 @@ class DownloadManagerUI(QMainWindow):
 
     
     def cancel_schedule(self):
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
 
@@ -4013,7 +4208,7 @@ class DownloadManagerUI(QMainWindow):
         self.selected_d.status = config.Status.cancelled
 
     def file_properties(self):
-        selected_row = widgets.table.currentRow()
+        selected_row = widgets_main.table.currentRow()
         
         # Set selected_row_num to the selected row
         self.selected_row_num = len(self.d_list) - 1 - selected_row
@@ -4045,13 +4240,13 @@ class DownloadManagerUI(QMainWindow):
             show_information(self.tr("File Properties"), inform="", msg=f"{text}")
 
     def add_to_queue_from_context(self):
-        selected_items = widgets.table.selectedItems()
+        selected_items = widgets_main.table.selectedItems()
         if not selected_items:
             show_warning(self.tr("No Selection"), self.tr("Please select a download to add to the queue."))
             return
 
         selected_row = selected_items[0].row()
-        id_item = widgets.table.item(selected_row, 0)
+        id_item = widgets_main.table.item(selected_row, 0)
         download_id = id_item.data(Qt.UserRole)
         d = next((x for x in self.d_list if x.id == download_id), None)
         if not d:
@@ -4097,13 +4292,13 @@ class DownloadManagerUI(QMainWindow):
                 self.refresh_table_row(d)
 
     def remove_from_queue_from_context(self):
-        selected_items = widgets.table.selectedItems()
+        selected_items = widgets_main.table.selectedItems()
         if not selected_items:
             show_warning(self.tr("No Selection"), self.tr("Please select a download to remove from the queue."))
             return
 
         selected_row = selected_items[0].row()
-        id_item = widgets.table.item(selected_row, 0)
+        id_item = widgets_main.table.item(selected_row, 0)
         download_id = id_item.data(Qt.UserRole)
         d = next((x for x in self.d_list if x.id == download_id), None)
         if not d:
@@ -4150,8 +4345,19 @@ class DownloadManagerUI(QMainWindow):
             return audio
 
         # 2) Scan folder for any audio_for_*.* and choose the best title match
-        pattern = os.path.join(folder, "audio_for_*.*")
-        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        # pattern = os.path.join(folder, "audio_for_*.*")
+        # candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        candidates = []
+        try:
+            for p in glob.glob(os.path.join(folder, '*')):
+                if not os.path.isfile(p): continue
+                bn = os.path.basename(p)
+                # accept if normalized basename contains normalized title (handles spaces vs underscores)
+                if _norm_title(bn).find(title_norm) != -1:
+                    candidates.append(p)
+        except Exception as e:
+            candidates = [p for p in glob.glob(os.path.join(folder, 'audio_for_*.*')) if os.path.isfile(p)]
+
         if candidates:
             # compute normalized titles and compare to title_norm
             scored = []
@@ -4203,8 +4409,19 @@ class DownloadManagerUI(QMainWindow):
             return tgt
 
         # 3) Scan folder for any _temp_*.* and choose the best title match
-        pattern = os.path.join(folder, "_temp_*.*")
-        candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        # pattern = os.path.join(folder, "_temp_*.*")
+        # candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        candidates = []
+        try:
+            for p in glob.glob(os.path.join(folder, "*")):
+                if not os.path.isfile(p):
+                    continue
+                bn = os.path.basename(p)
+                # accept files that look like temp parts or contain the normalized title
+                if bn.lower().startswith("_temp_") or _norm_title(bn).find(title_norm) != -1:
+                    candidates.append(p)
+        except Exception:
+            candidates = [p for p in glob.glob(os.path.join(folder, "_temp_*.*")) if os.path.isfile(p)]
         if candidates:
             scored = []
             for p in candidates:
@@ -4362,13 +4579,13 @@ class DownloadManagerUI(QMainWindow):
 
 
     def remerge_audio_video(self):
-        selected_items = widgets.table.selectedItems()
+        selected_items = widgets_main.table.selectedItems()
         if not selected_items:
             show_warning(self.tr("No Selection"), self.tr("Please select a download that has separate audio and video files."))
             return
 
         selected_row = selected_items[0].row()
-        id_item = widgets.table.item(selected_row, 0)
+        id_item = widgets_main.table.item(selected_row, 0)
         if not id_item:
             return
         download_id = id_item.data(Qt.UserRole)
@@ -4404,8 +4621,8 @@ class DownloadManagerUI(QMainWindow):
             
 
     def start_file_checksum(self, d):
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("No Selection"), self.tr("Please select a completed download first."))
             return
 
@@ -4516,8 +4733,8 @@ class DownloadManagerUI(QMainWindow):
         dialog.exec()
 
     def pop_download_item(self):
-        selected_row = widgets.table.currentRow()
-        if selected_row < 0 or selected_row >= widgets.table.rowCount():
+        selected_row = widgets_main.table.currentRow()
+        if selected_row < 0 or selected_row >= widgets_main.table.rowCount():
             show_warning(self.tr("No Selection"), self.tr("Please select a download to remove."))
             return
 
@@ -4526,7 +4743,7 @@ class DownloadManagerUI(QMainWindow):
         d = self.d_list[d_index]
 
         self.d_list.remove(d)
-        widgets.table.removeRow(selected_row)
+        widgets_main.table.removeRow(selected_row)
     
 
     def set_row_color(self, row, status):
@@ -4550,8 +4767,8 @@ class DownloadManagerUI(QMainWindow):
         else:
             color = QtGui.QColor(255, 255, 255)  # Default white
 
-        for col in range(widgets.table.columnCount()):
-            item = widgets.table.item(row, col)
+        for col in range(widgets_main.table.columnCount()):
+            item = widgets_main.table.item(row, col)
             if item:
                 item.setForeground(color)
 
@@ -4563,8 +4780,8 @@ class DownloadManagerUI(QMainWindow):
         target_row = None
 
         # First find the row that matches the download ID
-        for row in range(widgets.table.rowCount()):
-            id_item = widgets.table.item(row, 0)
+        for row in range(widgets_main.table.rowCount()):
+            id_item = widgets_main.table.item(row, 0)
             if id_item and id_item.data(Qt.UserRole) == d.id:
                 target_row = row
                 break
@@ -4572,7 +4789,7 @@ class DownloadManagerUI(QMainWindow):
         if target_row is not None:
             # Update only the status column
             status_col = self.d_headers.index("status")
-            status_item = widgets.table.item(target_row, status_col)
+            status_item = widgets_main.table.item(target_row, status_col)
             if status_item:
                 status_item.setText(d.status)
 
@@ -4591,7 +4808,7 @@ class DownloadManagerUI(QMainWindow):
 
         if cmp == 0:
             # up to date
-            widgets.version_value.setStyleSheet("""
+            widgets_main.version_value.setStyleSheet("""
                 QLabel {
                     color: #4CAF50;
                     font-weight: bold;
@@ -4600,10 +4817,10 @@ class DownloadManagerUI(QMainWindow):
                     background: rgba(76, 175, 80, 0.1);
                 }
             """)
-            widgets.version_value.setToolTip('No new updates')
+            widgets_main.version_value.setToolTip('No new updates')
         elif cmp == 1:
             # newer available
-            widgets.version_value.setStyleSheet("""
+            widgets_main.version_value.setStyleSheet("""
                 QLabel {
                     color: #F44336;
                     padding: 6px 16px;
@@ -4612,10 +4829,10 @@ class DownloadManagerUI(QMainWindow):
                     background: rgba(244, 67, 54, 0.1);  
                 }
             """)
-            widgets.version_value.setToolTip(f'New version available: {latest}')
+            widgets_main.version_value.setToolTip(f'New version available: {latest}')
         elif cmp == -1:
             # current > latest (dev build ahead)
-            widgets.version_value.setStyleSheet("""
+            widgets_main.version_value.setStyleSheet("""
                 QLabel {
                     color: #2196F3;
                     padding: 6px 16px;
@@ -4624,10 +4841,10 @@ class DownloadManagerUI(QMainWindow):
                     background: rgba(33, 150, 243, 0.1);
                 }
             """)
-            widgets.version_value.setToolTip(f'Running a newer/dev build ({current})')
+            widgets_main.version_value.setToolTip(f'Running a newer/dev build ({current})')
         else:
             # Unknown (None / unparsable)
-            widgets.version_value.setStyleSheet("""
+            widgets_main.version_value.setStyleSheet("""
                 QLabel {
                     color: #9E9E9E;
                     font-weight: bold;
@@ -4636,7 +4853,7 @@ class DownloadManagerUI(QMainWindow):
                     background: rgba(158, 158, 158, 0.1);
                 }
             """)
-            widgets.version_value.setToolTip('Unable to determine latest version')
+            widgets_main.version_value.setToolTip('Unable to determine latest version')
 
 
     def check_scheduled(self):
@@ -4683,8 +4900,8 @@ class DownloadManagerUI(QMainWindow):
     def change_page(self, btn=None, btnName=None, idx=None):
         """ Change stack pages automatically using this method """
         if idx is not None:
-            widgets.stacked_widget.setCurrentIndex(idx)
-            for i, b in enumerate(widgets.page_buttons):
+            widgets_main.stacked_widget.setCurrentIndex(idx)
+            for i, b in enumerate(widgets_main.page_buttons):
                 b.setChecked(i == idx)
 
 
@@ -4739,7 +4956,7 @@ class DownloadManagerUI(QMainWindow):
         self.yt_dlp_update_thread.update_finished.connect(self.on_yt_dlp_update_finished)
         self.yt_dlp_update_thread.start()
         self.background_threads.append(self.yt_dlp_update_thread)
-        self.change_page(btn=None, btnName=None, idx=2)
+        self.change_page(btn=None, btnName=None, idx=1)
 
 
     def apply_pending_yt_dlp_update_on_startup(self):
@@ -4911,7 +5128,7 @@ class DownloadManagerUI(QMainWindow):
         self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
         self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
         self.update_thread.start()  # Start the thread
-        self.change_page(btn=None, btnName=None, idx=2)
+        self.change_page(btn=None, btnName=None, idx=1)
 
     def on_update_finished(self):
         log("Updates finished")

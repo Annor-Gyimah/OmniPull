@@ -50,7 +50,7 @@ class QueueDialog(QDialog):
         self.settings_manager = SettingsManager()
         self.queues = self.settings_manager.load_queues()
         self.d_list = self.settings_manager.d_list
-
+        self.current_queue_id = None
 
         # self.main_window.running_queues = {}  # key: queue_id, value: True/False
         # if self.queues:

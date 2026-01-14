@@ -1171,6 +1171,20 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
         except Exception:
             pass
 
+    # --- NEW: single “connection” row for yt-dlp in the download window ---
+    try:
+        if not hasattr(d, "connection_stats") or not isinstance(d.connection_stats, list):
+            d.connection_stats = []
+        if not d.connection_stats:
+            d.connection_stats.append(
+                {"downloaded": int(d.downloaded or 0), "info": "Receiving data..."}
+            )
+        else:
+            d.connection_stats[0]["downloaded"] = int(d.downloaded or 0)
+            d.connection_stats[0]["info"] = "Receiving data..."
+    except Exception:
+        pass
+
     output_path = os.path.join(d.folder, d.name)
     ffmpeg_path = get_effective_ffmpeg() or os.path.join(getattr(config, "sett_folder", ""), "ffmpeg.exe")
 
@@ -1309,6 +1323,16 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
                             dd = parse_human_size_to_bytes(parsed.get("downloaded") or parsed.get("downloaded_bytes"))
                             if dd is not None:
                                 d.downloaded = dd
+                        
+                        # --- NEW: keep yt-dlp's single connection row in sync ---
+                        try:
+                            stats = getattr(d, "connection_stats", None)
+                            if isinstance(stats, list) and stats:
+                                stats[0]["downloaded"] = int(d.downloaded or 0)
+                                if getattr(d, "status", None) == Status.downloading:
+                                    stats[0]["info"] = "Receiving data..."
+                        except Exception:
+                            pass
                         try:
                             total_val = parsed.get("total") or parsed.get("total_bytes") or parsed.get("total_bytes_estimate")
                             if total_val is not None:
@@ -1460,6 +1484,16 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
                 d.downloaded = getattr(d, "size", getattr(d, "total_size", d.downloaded))
             except Exception:
                 pass
+
+            # --- NEW: finalise connection row for yt-dlp ---
+            try:
+                stats = getattr(d, "connection_stats", None)
+                if isinstance(stats, list) and stats:
+                    stats[0]["downloaded"] = int(d.downloaded or 0)
+                    stats[0]["info"] = "Completed"
+            except Exception:
+                pass
+
             if emitter:
                 try:
                     emitter.progress_changed.emit(100)
@@ -1557,6 +1591,21 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
         log(f"[yt-dlp-exe] Exception during download: {exc}")
         if getattr(d, "status", None) != Status.cancelled:
             d.status = Status.error
+
+            # --- NEW: mark yt-dlp connection row as error ---
+            try:
+                stats = getattr(d, "connection_stats", None)
+                if isinstance(stats, list) and stats:
+                    stats[0]["info"] = "Error"
+            except Exception:
+                pass
+
+            if emitter:
+                try:
+                    emitter.status_changed.emit("error")
+                except Exception:
+                    pass
+
             if emitter:
                 try:
                     emitter.status_changed.emit("error")
@@ -1594,6 +1643,20 @@ def run_ytdlp_download(d, emitter=None):
     d.remaining_parts = 1
     d.last_known_progress = 0
 
+    # --- NEW: single “connection” row for yt-dlp in the download window ---
+    try:
+        if not hasattr(d, "connection_stats") or not isinstance(d.connection_stats, list):
+            d.connection_stats = []
+        if not d.connection_stats:
+            d.connection_stats.append(
+                {"downloaded": int(d.downloaded or 0), "info": "Receiving data..."}
+            )
+        else:
+            d.connection_stats[0]["downloaded"] = int(d.downloaded or 0)
+            d.connection_stats[0]["info"] = "Receiving data..."
+    except Exception:
+        pass
+
     def progress_hook(info):
         if d.status == Status.cancelled:
             raise yt_dlp.utils.DownloadCancelled("User cancelled download.")
@@ -1608,6 +1671,17 @@ def run_ytdlp_download(d, emitter=None):
             d._speed = info.get("speed", 0)
             d.remaining_time = info.get("eta", 0)
 
+            # --- NEW: keep yt-dlp's single connection row in sync ---
+            try:
+                stats = getattr(d, "connection_stats", None)
+                if isinstance(stats, list) and stats:
+                    stats[0]["downloaded"] = int(d.downloaded or 0)
+                    if getattr(d, "status", None) == Status.downloading:
+                        stats[0]["info"] = "Receiving data..."
+            except Exception:
+                pass
+
+            
             if emitter:
                 emitter.progress_changed.emit(int(d._progress))
                 emitter.status_changed.emit("downloading")
@@ -1674,6 +1748,16 @@ def run_ytdlp_download(d, emitter=None):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([d.url])
+        
+        # --- NEW: finalise connection row for yt-dlp ---
+        try:
+            stats = getattr(d, "connection_stats", None)
+            if isinstance(stats, list) and stats:
+                stats[0]["downloaded"] = int(d.downloaded or 0)
+                stats[0]["info"] = "Completed"
+        except Exception:
+            pass
+
 
         # ✅ Only mark complete after yt-dlp finishes and merges
         d.status = Status.completed

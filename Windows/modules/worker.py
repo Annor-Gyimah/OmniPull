@@ -47,6 +47,16 @@ class Worker:
         self.speed_limit = 0
         self.headers = {}
 
+        # --- NEW: ensure this worker has a slot in d.connection_stats ---
+        try:
+            if not hasattr(self.d, "connection_stats") or not isinstance(self.d.connection_stats, list):
+                self.d.connection_stats = []
+            # Grow the list so index == self.tag always exists
+            while len(self.d.connection_stats) <= self.tag:
+                self.d.connection_stats.append({"downloaded": 0, "info": ""})
+        except Exception as e:
+            log(f"[Worker {self.tag}] failed to init connection_stats: {e}", log_level=2)
+
     def debug(self, *args, log_level=2):
         # todo: make a debug levels i.e: standard, detailed, evrything
         args = [repr(arg) for arg in args]
@@ -146,13 +156,40 @@ class Worker:
         else:
             return False
 
+    # def report_not_completed(self):
+    #     self.debug('worker', self.tag, 'did not complete', self.seg.name, 'downloaded',
+    #                self.current_filesize, 'target size:', self.seg.size, 'remaining:',
+    #                self.seg.size - self.current_filesize)
+
+    #     # put back to jobs queue to try again
+    #     self.q.jobs.put(self.seg)
+
     def report_not_completed(self):
         self.debug('worker', self.tag, 'did not complete', self.seg.name, 'downloaded',
                    self.current_filesize, 'target size:', self.seg.size, 'remaining:',
                    self.seg.size - self.current_filesize)
 
+        # NEW: mark this connection as "Queued" / "Retrying"
+        try:
+            stats = getattr(self.d, "connection_stats", None)
+            if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                stats[self.tag]["info"] = "Queued for retry"
+        except Exception:
+            pass
+
         # put back to jobs queue to try again
         self.q.jobs.put(self.seg)
+
+    # def report_completed(self):
+    #     # self.debug('worker', self.tag, 'completed', self.seg.name)
+    #     self.seg.downloaded = True
+
+    #     self.debug('downloaded segment:', os.path.basename(self.seg.name))
+
+    #     # in case couldn't fetch segment size from headers we put the downloaded length as segment size
+    #     if not self.seg.size:
+    #         self.seg.size = self.downloaded
+    #     # print(self.headers)
 
     def report_completed(self):
         # self.debug('worker', self.tag, 'completed', self.seg.name)
@@ -160,10 +197,17 @@ class Worker:
 
         self.debug('downloaded segment:', os.path.basename(self.seg.name))
 
-        # in case couldn't fetch segment size from headers we put the downloaded length as segment size
         if not self.seg.size:
             self.seg.size = self.downloaded
-        # print(self.headers)
+
+        # NEW: mark this connection as completed
+        try:
+            stats = getattr(self.d, "connection_stats", None)
+            if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                stats[self.tag]["info"] = "Completed"
+        except Exception:
+            pass
+
 
     def set_options(self):
         agent = USER_AGENT
@@ -326,16 +370,45 @@ class Worker:
 
             self.report_not_completed()
 
+            # NEW: mark this connection as "Error"
+            try:
+                stats = getattr(self.d, "connection_stats", None)
+                if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                    stats[self.tag]["info"] = "Error"
+            except Exception:
+                pass
+
+    # def write(self, data):
+    #     """write to file"""
+    #     self.file.write(data)
+    #     self.downloaded += len(data)
+
+    #     self.d.downloaded += len(data)
+
+    #     # check if we getting over sized
+    #     if self.current_filesize > self.seg.size > 0:
+    #         return -1  # abort
+
     def write(self, data):
         """write to file"""
         self.file.write(data)
-        self.downloaded += len(data)
+        chunk_len = len(data)
+        self.downloaded += chunk_len
+        self.d.downloaded += chunk_len
 
-        self.d.downloaded += len(data)
+        # NEW: update per-connection stats for this worker
+        try:
+            stats = getattr(self.d, "connection_stats", None)
+            if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                stats[self.tag]["downloaded"] += chunk_len
+                stats[self.tag]["info"] = "Receiving data..."
+        except Exception as e:
+            log(f"[Worker {self.tag}] connection_stats update error: {e}", log_level=3)
 
         # check if we getting over sized
         if self.current_filesize > self.seg.size > 0:
             return -1  # abort
+
 
 
 

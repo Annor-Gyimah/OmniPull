@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QProgressBar, QTableWidget, QTableWidgetItem, QStackedWidget, QLineEdit, QComboBox, QTextEdit,
     QHeaderView, QMenu, QButtonGroup, QSizePolicy, QStyledItemDelegate, QStyleOptionViewItem, QStyle
 )
+from ui.add_downloads import AddDownloadPage
+
 
 
 class NoFocusDelegate(QStyledItemDelegate):
@@ -139,7 +141,8 @@ class Ui_MainWindow(object):
         
 
         self.page_buttons = []
-        icon_names = [":/icons/add.png", ":/icons/table.png", ":/icons/terminal.png"]
+        # icon_names = [":/icons/add.png", ":/icons/table.png", ":/icons/terminal.png"]
+        icon_names = [":/icons/table.png", ":/icons/terminal.png"]
         self.button_group = QButtonGroup()
         self.button_group.setExclusive(True)  # 👈 ensures only one button is checked
 
@@ -528,8 +531,9 @@ class Ui_MainWindow(object):
 
         self.page_add_layout.addLayout(content_container)
 
+       
 
-        self.stacked_widget.addWidget(self.page_add)
+        # self.stacked_widget.addWidget(self.page_add)
         
 
         # Page 1 - Toolbar + Table
@@ -546,6 +550,7 @@ class Ui_MainWindow(object):
 
         self.toolbar_buttons = {}
         icon_map = {
+            "Add Download": ":/icons/add.png",
             "Resume": ":/icons/play.svg",
             "Pause": ":/icons/pause.svg",
             "Stop All": ":/icons/stop_all.svg",
@@ -650,28 +655,59 @@ class Ui_MainWindow(object):
             
         """)
 
-        for row in range(5):
-            for col in range(9):
-                if col == 2:
-                    progress = QProgressBar()
-                    progress.setRange(0, 100)
-                    progress.setTextVisible(True)
-                    progress.setStyleSheet("""
-                        QProgressBar {
-                            background-color: rgba(20, 20, 20, 0.4);
-                            border: 1px solid rgba(0, 255, 180, 0.1);
-                            border-radius: 4px;
-                            text-align: center;
-                            color: white;
-                        }
-                        QProgressBar::chunk {
-                            background-color: #00C853;
-                            border-radius: 4px;
-                        }
-                    """)
-                    self.table.setCellWidget(row, col, progress)
-                else:
-                    self.table.setItem(row, col, QTableWidgetItem(f"Sample {row}-{col}"))
+        # for row in range(5):
+        #     for col in range(9):
+        #         if col == 2:
+        #             progress = QProgressBar()
+        #             progress.setRange(0, 100)
+        #             progress.setTextVisible(True)
+        #             progress.setStyleSheet("""
+        #                 QProgressBar {
+        #                     background-color: rgba(20, 20, 20, 0.4);
+        #                     border: 1px solid rgba(0, 255, 180, 0.1);
+        #                     border-radius: 4px;
+        #                     text-align: center;
+        #                     color: white;
+        #                 }
+        #                 QProgressBar::chunk {
+        #                     background-color: #00C853;
+        #                     border-radius: 4px;
+        #                 }
+        #             """)
+        #             self.table.setCellWidget(row, col, progress)
+        #         else:
+        #             self.table.setItem(row, col, QTableWidgetItem(f"Sample {row}-{col}"))
+            
+        # === TABLE LOADING OVERLAY ===
+        # A semi-transparent overlay on top of the table viewport, shown while
+        # downloads are being loaded. It uses the placeholder rows as a background.
+        self.table_loading_overlay = QWidget(self.table.viewport())
+        self.table_loading_overlay.setObjectName("TableLoadingOverlay")
+        self.table_loading_overlay.setStyleSheet("""
+            QWidget#TableLoadingOverlay {
+                background-color: rgba(0, 0, 0, 140);
+            }
+        """)
+
+        overlay_layout = QVBoxLayout(self.table_loading_overlay)
+        overlay_layout.setContentsMargins(0, 0, 0, 0)
+        overlay_layout.setAlignment(Qt.AlignCenter)
+
+        overlay_bar = QProgressBar(self.table_loading_overlay)
+        overlay_bar.setRange(0, 0)          # indeterminate
+        overlay_bar.setTextVisible(False)
+        overlay_bar.setFixedWidth(220)
+
+        overlay_label = QLabel("Loading downloads…", self.table_loading_overlay)
+        overlay_label.setStyleSheet("color: white; font-size: 12px;")
+
+        overlay_layout.addWidget(overlay_bar, alignment=Qt.AlignCenter)
+        overlay_layout.addWidget(overlay_label, alignment=Qt.AlignCenter)
+
+        # Initially hidden; main.py will decide when to show/hide
+        self.table_loading_overlay.hide()
+        self.table_loading_overlay.setGeometry(self.table.viewport().rect())
+
 
         self.page_table = QWidget()
         self.page_table_layout = QVBoxLayout(self.page_table)
