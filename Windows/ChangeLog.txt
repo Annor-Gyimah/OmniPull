@@ -1,3 +1,10 @@
+2.1.1
+- Updated bundled yt-dlp to nightly: 2026.1.6.233142.dev0
+- Change download page to use a convenient simpler add download popup
+- Updated deno version to 2.6.4
+- Improved functionalities and logic
+
+
 2.0.8
 - Updated bundled yt-dlp to nightly: 2025.11.24.232953.dev0
 - Fixed startup crash caused by invalid/empty merge_output_format (now validated, defaults to mp4)
