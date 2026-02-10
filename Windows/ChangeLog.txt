@@ -1,3 +1,9 @@
+2.1.5
+- Updated bundled yt-dlp to nightly: 2026.2.9.233747.dev0
+- Updated bundled yt-dlp.exe: 2026.02.04
+- Updated deno version to 2.6.8
+
+
 2.1.1
 - Updated bundled yt-dlp to nightly: 2026.1.6.233142.dev0
 - Change download page to use a convenient simpler add download popup

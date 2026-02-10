@@ -316,7 +316,32 @@ class WhatsNew(QDialog):
 
         if changelog is None:
             changelog = [
-                {'version': f'{__version__}',
+                {'version': f'{__version__}', # 2.1.5
+                    'date': '2026-02-10',
+                    'highlights': [
+                        '🔧 Updated bundled yt-dlp to nightly (2026.2.9.233747.dev0)',
+                        '🔧 Updated bundled yt-dlp.exe: 2026.02.04',
+                        '🔧 Updated deno version to 2.6.8',
+                        
+                    ],
+                    'details': (
+                        'This release focuses on internal tooling and dependency upgrades to improve '
+                        'stability, compatibility, and future feature support. The bundled yt-dlp has '
+                        'been upgraded to the latest nightly build, bringing upstream fixes for recent '
+                        'site changes, improved extractor reliability, and better handling of edge cases. '
+                        'The Windows-specific yt-dlp.exe has also been refreshed to ensure consistent '
+                        'behavior across platforms.\n\n'
+                        
+                        'The runtime environment has been modernized with an upgrade to Deno 2.6.8, '
+                        'providing performance improvements, enhanced security patches, and better '
+                        'standards compliance. These changes do not introduce new user-facing features '
+                        'but lay important groundwork for upcoming enhancements and reduce the likelihood '
+                        'of download or execution failures.'
+                    ),
+
+                    'url': 'https://github.com/Annor-Gyimah/OmniPull/releases/tag/v.2.1.5'
+                },
+                {'version': '2.1.1',
                     'date': '2026-01-14',
                     'highlights': [
                         '🔧 Updated bundled yt-dlp to nightly (2026.1.6.233142.dev0)',
