@@ -9,14 +9,18 @@ import platform
 from deep_translator import GoogleTranslator
 
 # --- CONFIGURATION ---
-if platform.system().lower() == "win":
-    BASE_PATH = r"C:\Users\Annorion\Desktop\softenv\New-PyIDM\modules\translations"
-else:
-    BASE_PATH = "/home/annorion/Desktop/pyiconic/New-PyIDM/modules/translations"
-    
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+BASE_PATH = os.getenv(
+    "OMNIPULL_TRANSLATIONS_PATH",
+    os.path.join(BASE_DIR, "modules", "translations")
+)
+
+os.makedirs(BASE_PATH, exist_ok=True)
+
 LANGUAGES = ['en', 'fr', 'es', 'ja', 'ko', 'zh', 'hi']
 
-# List all your UI and logic files here
+# List all needed UI and logic files here
 UI_FILES = [
     "main.py",
     "ui/setting_dialog.py",
