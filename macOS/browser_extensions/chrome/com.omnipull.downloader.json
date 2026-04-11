@@ -1,9 +1,0 @@
-{
-  "name": "com.omnipull.downloader",
-  "description": "Native messaging host for OmniPull",
-  "path": "/opt/omnipull/omnipull-watcher",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://hmmaalgjpkikpfbefceckngnklkcceik/"
-  ]
-}

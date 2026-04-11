@@ -24,7 +24,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.bootstrap
+.bootstrap*
 MANIFEST
 
 # PyInstaller
@@ -166,20 +166,20 @@ cython_debug/
 
 
 Lin_Exec
-Linux/package/
+package/
 
-Linux/omnipull*
-Linux/.pkgmeta/
-Linux/squashfs-root/
+omnipull*
+.pkgmeta/
+squashfs-root/
 Linux/build_ffmpeg.sh
-Linux/build-portable-appimage.sh
-Linux/build-standalone-deb.sh
-Linux/cleanup_omnipull.sh
+build-portable-appimage.sh
+build-standalone-deb.sh
+cleanup_omnipull.sh
 Linux/omniwatcher.json
 Linux/setup.json
-Linux/uninstall.sh
-Linux/update.sh
-Linux/package.sh
+uninstall.sh
+update.sh
+package.sh
 Linux/setup.json
 Linux/all_package.sh
 Linux/build.sh
@@ -191,3 +191,10 @@ Linux/omnipull-v_1.2.24_amd64.deb
 .github/workflows/Build_macos_universal.yml
 macOS/.build-intel
 master
+omnipull_native_host_standalone.exe
+rust_updater_helper/
+build_nuitka/
+appimagetool-x86_64.appimage
+
+
+
