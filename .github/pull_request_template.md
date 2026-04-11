@@ -19,7 +19,10 @@ Steps to verify the changes:
 - [ ] Code follows project style guidelines
 - [ ] Tests added/updated (if applicable)
 - [ ] Documentation updated (if needed)
-- [ ] No unnecessary files or comments left
+- [ ] No unnecessary files or commented code
+
+## Screenshots (if applicable)
+Add screenshots here.
 
 ## Additional Notes
-Anything else reviewers should know.
+Anything reviewers should know.
