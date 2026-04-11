@@ -2,12 +2,12 @@
 <div align="center">
 
 <a href="#readme">
-  <img src="icons/omnipull.png" alt="OmniPull" width="400" height="400">
+  <img src="icons/omnipull.png" alt="OmniPull" width="350">
 </a>
 
 
 <br>[![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?color=brightgreen&label=Download&style=for-the-badge)](#installation)
-[![License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?color=blue&style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge)](LICENSE)
 [![Total Downloads](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?color=orange&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/releases)
 [![Stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?color=yellow&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?color=grey&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/commits)
