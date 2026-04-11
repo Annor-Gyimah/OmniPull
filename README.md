@@ -38,6 +38,7 @@ OmniPull is a powerful, cross-platform download manager built with Python and Py
     * [YouTube Download](#youtube-download)
     * [Queue Management](#queue-management)
     * [Browser Integration](#browser-integration-1)
+*  [TRANSLATIONS](#translations)
 * [CONFIGURATION](#configuration)
     * [Settings Location](#settings-location)
     * [Key Settings](#key-settings)
@@ -265,6 +266,25 @@ OmniPull runs on:
 1. Install the browser extension (Chrome/Firefox)
 2. Configure the listening port in OmniPull settings
 3. Downloads from the browser will automatically be captured
+
+---
+
+# TRANSLATIONS
+
+OmniPull supports multiple languages using an automated translation workflow.
+
+**Generate translations:**
+
+```bash
+python auto_translate.py
+```
+
+This will scan source files for translatable strings, automatically translate missing entries, and compile translation files.
+
+**Improve translations:**
+
+- **Open an issue**: Report incorrect translations with the "documentation" or "translation" label
+- **Submit a PR**: Edit the `.ts` files directly and submit corrections
 
 ---
 
