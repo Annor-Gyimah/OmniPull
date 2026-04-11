@@ -1,3 +1,11 @@
+---
+name: Feature request
+about: Suggest a new feature or enhancement for OmniPull
+title: "[FEATURE] "
+labels: feature request
+assignees: ""
+---
+
 ## Feature Description
 Describe the feature you would like to see.
 

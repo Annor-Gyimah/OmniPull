@@ -1,3 +1,11 @@
+---
+name: Documentation
+about: Report missing, unclear, or incorrect documentation
+title: "[DOCS] "
+labels: documentation
+assignees: ""
+---
+
 ## Documentation Issue
 Describe what is missing, unclear, or incorrect.
 
