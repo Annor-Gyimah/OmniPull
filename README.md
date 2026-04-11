@@ -42,7 +42,6 @@ OmniPull is a powerful, cross-platform download manager built with Python and Py
 * [CONFIGURATION](#configuration)
     * [Settings Location](#settings-location)
     * [Key Settings](#key-settings)
-* [COMMAND LINE OPTIONS](#command-line-options)
 * [TECHNICAL DETAILS](#technical-details)
     * [Download Engines](#download-engines)
     * [Architecture](#architecture)
@@ -146,9 +145,11 @@ python main.py
 - Python 3.10+
 - PySide6
 - yt-dlp
-- aria2c (optional, for enhanced downloads)
-- ffmpeg (optional, for media conversion)
-
+- aria2c 
+- ffmpeg
+- [OmniPull URL Processor](https://github.com/Annor-Gyimah/omnipull-url-processor)
+- Notifypy (Works mostly for Windows)
+- Plyer (Works well for both Windows and Linux)
 ---
 
 # FEATURES
@@ -308,21 +309,6 @@ This will scan source files for translatable strings, automatically translate mi
 
 ---
 
-# COMMAND LINE OPTIONS
-
-```bash
-python main.py [OPTIONS]
-
-Options:
-  --url TEXT         Add URL to download immediately
-  --category TEXT    Category for the download
-  --threads N        Number of connection threads
-  --output PATH     Output directory
-  --quiet           Start minimized to tray
-  --help            Show this help message
-```
-
----
 
 # TECHNICAL DETAILS
 
