@@ -1,563 +1,381 @@
-# OmniPull Download Manager 🚀
-
+<!-- MANPAGE: BEGIN EXCLUDED SECTION -->
 <div align="center">
 
-![OmniPull Logo](https://via.placeholder.com/200x200?text=OmniPull)
+[![OmniPull](https://i.stack.imgur.com/TOfqL.png)](#readme)
 
-**A blazingly fast, feature-rich download manager inspired by IDM**
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/Annor-Gyimah/OmniPull)
-
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Browser Integration](#browser-integration) • [Contributing](#contributing)
+[![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?color=brightgreen&label=Download&style=for-the-badge)](#installation)
+[![License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?color=blue&style=for-the-badge)](LICENSE)
+[![Total Downloads](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?color=orange&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/releases)
+[![Stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?color=yellow&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?color=grey&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/commits)
 
 </div>
+<!-- MANPAGE: END EXCLUDED SECTION -->
+
+OmniPull is a powerful, cross-platform download manager built with Python and PySide6. It provides a modern, intuitive interface for managing downloads with advanced features like multi-threading, queue management, scheduling, browser integration, and media extraction from popular video platforms.
+
+<!-- MANPAGE: MOVE "USAGE AND OPTIONS" SECTION HERE -->
+
+<!-- MANPAGE: BEGIN EXCLUDED SECTION -->
+* [INSTALLATION](#installation)
+    * [Windows](#windows)
+    * [Linux](#linux)
+    * [macOS](#macos)
+    * [Building from Source](#building-from-source)
+* [FEATURES](#features)
+    * [Core Download Management](#core-download-management)
+    * [Media & Streaming](#media--streaming)
+    * [Browser Integration](#browser-integration)
+    * [User Experience](#user-experience)
+    * [Advanced Features](#advanced-features)
+* [SUPPORTED PLATFORMS](#supported-platforms)
+* [SUPPORTED PROTOCOLS](#supported-protocols)
+* [USAGE](#usage)
+    * [Basic Download](#basic-download)
+    * [YouTube Download](#youtube-download)
+    * [Queue Management](#queue-management)
+    * [Browser Integration](#browser-integration-1)
+* [CONFIGURATION](#configuration)
+    * [Settings Location](#settings-location)
+    * [Key Settings](#key-settings)
+* [COMMAND LINE OPTIONS](#command-line-options)
+* [TECHNICAL DETAILS](#technical-details)
+    * [Download Engines](#download-engines)
+    * [Architecture](#architecture)
+* [CONTRIBUTING](#contributing)
+* [REPORTING ISSUES](#reporting-issues)
+* [CHANGELOG](#changelog)
+* [LICENSE](#license)
+* [ACKNOWLEDGMENTS](#acknowledgments)
+* [SUPPORT](#support)
+<!-- MANPAGE: END EXCLUDED SECTION -->
+
+# INSTALLATION
+
+<!-- MANPAGE: BEGIN EXCLUDED SECTION -->
+[![Windows](https://img.shields.io/badge/-Windows_10/11-blue.svg?style=for-the-badge&logo=windows)](#windows)
+[![Linux](https://img.shields.io/badge/-Linux-red.svg?style=for-the-badge&logo=linux)](#linux)
+[![macOS](https://img.shields.io/badge/-macOS-lightblue.svg?style=for-the-badge&logo=apple)](#macos)
+[![Source](https://img.shields.io/badge/-Source-green.svg?style=for-the-badge)](#building-from-source)
+[![All Versions](https://img.shields.io/badge/-All_Versions-lightgrey.svg?style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/releases)
+<!-- MANPAGE: END EXCLUDED SECTION -->
+
+You can download OmniPull for Windows, Linux, or macOS from the [Releases](https://github.com/Annor-Gyimah/OmniPull/releases) page.
 
 ---
 
-## 📖 Overview
+### Windows
 
-OmniPull is a modern, cross-platform download manager that brings the speed and convenience of IDM (Internet Download Manager) to Python. With seamless browser integration, YouTube download support, and blazingly fast URL processing powered by Rust, OmniPull is the ultimate download solution.
+Download the latest OmniPull from the [Releases](https://github.com/Annor-Gyimah/OmniPull/releases) page.
 
-### Why OmniPull?
+**Recommended: Direct Download Links**
+| File | Description |
+|:---|:---
+| [OmniPull-Setup-x64.exe](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Setup-x64.exe) | Windows x64 Installer |
+| [OmniPull-Portable.zip](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Portable.zip) | Windows Portable Version |
 
-- **🚀 Lightning Fast**: Rust-powered URL processor (100x faster than yt-dlp for direct files)
-- **🌐 Browser Integration**: Automatic download interception for Firefox, Edge, and Chrome
-- **📺 YouTube Support**: One-click download button on YouTube videos (IDM-style)
-- **💎 Multi-threaded**: Parallel chunk downloading for maximum speed
-- **🎯 Resume Support**: Pause and resume downloads anytime
-- **📊 Queue Management**: Organize downloads with custom queues
-- **🎨 Modern UI**: Beautiful PySide6 interface with dark/light themes
-- **🔔 System Tray**: Runs in background with tray integration
-- **🔄 Auto-Start**: Launches on system boot (opt-in)
-- **📱 Cross-Platform**: Works on Windows, macOS, and Linux
+After installation, launch OmniPull from the Start Menu or desktop shortcut. No additional configuration is needed. `aria2c` is included and ready to go.
 
 ---
 
-## ✨ Features
+### Linux
 
-### Core Features
-
-#### 🚀 Blazingly Fast Downloads
-- **Multi-threaded downloading**: Split files into parallel chunks
-- **Rust URL processor**: Sub-100ms URL analysis for direct files
-- **Optimized connections**: HTTP/2 and connection pooling
-- **Smart retry**: Automatic retry with exponential backoff
-
-#### 🌐 Browser Integration
-- **Automatic interception**: Captures all downloads from browser
-- **Three browsers supported**: Firefox, Microsoft Edge, Google Chrome
-- **Native messaging**: Seamless communication with browser extensions
-- **YouTube button overlay**: IDM-style floating download button
-- **Context menus**: Right-click any link to download with OmniPull
-
-#### 📺 YouTube & Streaming Support
-- **yt-dlp integration**: Download videos from 1000+ sites
-- **Format selection**: Choose video quality and format
-- **Playlist support**: Download entire playlists
-- **Subtitle download**: Automatic subtitle extraction
-- **Audio-only mode**: Extract audio tracks
-
-#### 🎯 Download Management
-- **Categories**: Auto-organize files by type (Video, Music, Documents, etc.)
-- **Queues**: Create custom download queues with scheduling
-- **Batch downloads**: Add multiple URLs at once
-- **File filtering**: Search and filter downloads
-- **Progress tracking**: Real-time progress with speed and ETA
-
-#### 🎨 User Interface
-- **Modern design**: Clean, intuitive PySide6 interface
-- **Dark/Light themes**: Choose your preferred theme
-- **System tray**: Minimize to tray and run in background
-- **Notifications**: Desktop notifications for completed downloads
-- **Customizable**: Adjust settings to your preference
-
-#### 🔧 Advanced Features
-- **Clipboard monitoring**: Auto-detect URLs from clipboard
-- **Scheduler**: Schedule downloads for specific times
-- **Speed limiting**: Control download speed
-- **Proxy support**: HTTP/SOCKS proxy configuration
-- **Custom headers**: Add custom HTTP headers
-- **Auto-start**: Launch on system boot
-
----
-
-## 📦 Installation
-
-### Prerequisites
-
-- **Python**: 3.8 or higher
-- **Rust** (optional, for building URL processor): [Install Rust](https://rustup.rs/)
-
-### Quick Install
-
-#### 1. Clone the Repository
+| File | Description |
+|:---|:---
+| [OmniPull-x.x.x.AppImage](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.AppImage) | AppImage (Recommended) |
+| [omnipull_x.x.x_amd64.deb](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/omnipull_x.x.x_amd64.deb) | DEB Package |
 
 ```bash
+# AppImage
+wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.AppImage
+chmod +x OmniPull-x.x.x.AppImage
+./OmniPull-x.x.x.AppImage
+
+# DEB Package
+wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/omnipull_x.x.x_amd64.deb
+sudo dpkg -i omnipull_x.x.x_amd64.deb
+sudo apt-get install -f  # Fix any missing dependencies
+```
+
+---
+
+### macOS
+
+| File | Description |
+|:---|:---
+| [OmniPull-x.x.x.dmg](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.dmg) | Intel Mac |
+| [OmniPull-arm64-x.x.x.dmg](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-arm64-x.x.x.dmg) | Apple Silicon Mac |
+
+```bash
+# Mount and drag to Applications
+hdiutil mount OmniPull-x.x.x.dmg
+cp -R /Volumes/OmniPull/OmniPull.app /Applications/
+
+# Or via terminal
+hdiutil attach OmniPull-x.x.x.dmg
+cp -R /Volumes/OmniPull/OmniPull.app /Applications/
+hdiutil detach /Volumes/OmniPull
+```
+
+---
+
+### Building from Source
+
+```bash
+# Clone the repository
 git clone https://github.com/Annor-Gyimah/OmniPull.git
-cd OmniPull/v3.0.0
-```
+cd OmniPull
 
-#### 2. Install Python Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-#### 3. Run OmniPull
-
-```bash
-python main_2.py
-```
-
-### Browser Extensions (Optional but Recommended)
-
-Install browser extensions for automatic download interception:
-
-1. **Install Native Messaging Host**:
-   ```bash
-   python install_native_host_crossplatform.py
-   ```
-
-2. **Load Browser Extension**:
-
-   - **Firefox**: `about:debugging` → Load `browser_extensions/firefox/manifest.json`
-   - **Edge**: `edge://extensions/` → Load `browser_extensions/edge/`
-   - **Chrome**: `chrome://extensions/` → Load `browser_extensions/chrome/`
-
-3. **Test Connection**: Click extension icon → "Test Connection"
-
-For detailed instructions, see:
-- [Firefox Installation](browser_extensions/firefox/README.md)
-- [Edge Installation](browser_extensions/edge/EDGE_INSTALLATION.md)
-- [Chrome Installation](browser_extensions/chrome/CHROME_INSTALLATION.md)
-
-### Rust URL Processor (Optional, for Maximum Speed)
-
-Build the Rust URL processor for 100x faster URL processing:
-
-```bash
-cd rust_url_processor
-cargo build --release
-```
-
-See [Rust URL Processor Guide](rust_url_processor/README.md) for details.
-
----
-
-## 🚀 Usage
-
-### Basic Usage
-
-1. **Launch OmniPull**:
-   ```bash
-   python main_2.py
-   ```
-
-2. **Add Download**:
-   - Click "Add URL" button
-   - Paste URL
-   - Click "Start Download"
-
-3. **Monitor Progress**:
-   - View real-time progress in main window
-   - Downloads are saved to configured folder
-
-### Advanced Usage
-
-#### Download with Custom Settings
-
-```python
-# Via Python API
-from modules.download import DownloadItem
-
-d = DownloadItem()
-d.url = "https://example.com/file.zip"
-d.folder = "/path/to/downloads"
-d.max_connections = 8  # Parallel connections
-d.use_proxy = True
-d.proxy = "http://proxy.example.com:8080"
-```
-
-#### Batch Download
-
-```bash
-# Create a file with URLs (one per line)
-echo "https://example.com/file1.zip" > urls.txt
-echo "https://example.com/file2.zip" >> urls.txt
-
-# Import in OmniPull
-# File → Import URLs → Select urls.txt
-```
-
-#### YouTube Download
-
-1. Open YouTube video
-2. Click purple "Download" button (appears on video player)
-3. Or copy URL and paste in OmniPull
-
-#### Queue Management
-
-1. Create queue: Settings → Queues → New Queue
-2. Add downloads to queue
-3. Start queue when ready
-
----
-
-## 🌐 Browser Integration
-
-### Features
-
-- ✅ **Automatic Download Interception**: All downloads sent to OmniPull
-- ✅ **YouTube Floating Button**: One-click download on YouTube videos
-- ✅ **Context Menus**: Right-click any link → "Download with OmniPull"
-- ✅ **Smart Detection**: Only intercepts downloadable files
-- ✅ **Seamless**: Works in background, no configuration needed
-
-### How It Works
-
-```
-1. User clicks download link
-2. Browser starts download
-3. Extension intercepts download
-4. URL sent to OmniPull via native messaging
-5. OmniPull processes URL
-6. Add Download dialog appears
-7. User confirms and download starts
-```
-
-### Supported Browsers
-
-| Browser | Status | Extension |
-|---------|--------|-----------|
-| **Firefox** | ✅ Tested | Manifest V2 |
-| **Microsoft Edge** | ✅ Tested | Manifest V3 |
-| **Google Chrome** | ✅ Ready | Manifest V3 |
-| Safari | ⏳ Planned | N/A |
-
----
-
-## ⚡ Rust URL Processor
-
-### What is it?
-
-A blazingly fast URL processor written in Rust that analyzes download URLs in < 100ms (vs 2-5 seconds with yt-dlp).
-
-### Performance
-
-| URL Type | Rust Processor | yt-dlp | Speedup |
-|----------|----------------|--------|---------|
-| Direct files | **87ms** | 3.2s | **37x faster** ⚡ |
-| CDN links | **62ms** | 2.8s | **45x faster** ⚡ |
-| Redirects | **125ms** | 3.5s | **28x faster** ⚡ |
-
-### How It Works
-
-```
-User pastes URL
-    ↓
-Rust Processor (< 100ms)
-    ↓
-Is it a direct file?
-    ├─ YES → Use Rust result ✅
-    └─ NO  → Fallback to yt-dlp ✅
-```
-
-### Building
-
-```bash
-cd rust_url_processor
-cargo build --release
-```
-
-See [Rust Processor README](rust_url_processor/README.md) for details.
-
----
-
-## 🔧 Configuration
-
-### Settings
-
-Access settings via: **Settings → Preferences**
-
-#### General
-- Download folder
-- Max simultaneous downloads
-- Default number of connections
-- Theme (Dark/Light)
-
-#### Browser Integration
-- Enable/disable auto-interception
-- File type filters
-- Excluded domains
-- Auto-start on boot
-
-#### Network
-- Proxy settings
-- Speed limits
-- Connection timeout
-- User agent
-
-#### Advanced
-- Clipboard monitoring
-- System tray integration
-- Notifications
-- Logging level
-
-### Configuration File
-
-Settings are stored in:
-- **Windows**: `%APPDATA%\OmniPull\config.json`
-- **macOS**: `~/Library/Application Support/OmniPull/config.json`
-- **Linux**: `~/.config/omnipull/config.json`
-
----
-
-## 📁 Project Structure
-
-```
-OmniPull/v3.0.0/
-├── main_2.py                      # Main application
-├── modules/                       # Core modules
-│   ├── download.py                # Download engine
-│   ├── brain.py                   # Download logic
-│   ├── browser_queue_monitor.py   # Browser integration
-│   ├── autostart.py               # Auto-start functionality
-│   └── rust_processor.py          # Rust processor wrapper
-├── ui_2/                          # UI components
-│   ├── ui_main.py                 # Main window
-│   ├── add_downloads.py           # Add download dialog
-│   ├── tray_icon.py               # System tray
-│   └── styles.py                  # Themes
-├── browser_extensions/            # Browser extensions
-│   ├── firefox/                   # Firefox extension
-│   ├── edge/                      # Edge extension
-│   └── chrome/                    # Chrome extension
-├── rust_url_processor/            # Rust URL processor
-│   ├── src/main.rs                # Rust source
-│   ├── Cargo.toml                 # Rust dependencies
-│   └── README.md                  # Rust documentation
-└── binaries/                      # Compiled binaries
-    ├── macos/
-    ├── windows/
-    └── linux/
-```
-
----
-
-## 🛠️ Development
-
-### Setup Development Environment
-
-```bash
-# Clone repository
-git clone https://github.com/Annor-Gyimah/OmniPull.git
-cd OmniPull/v3.0.0
-
-# Create virtual environment
+# Create virtual environment (recommended)
 python -m venv venv
-source venv/bin/activate  # macOS/Linux
+source venv/bin/activate  # Linux/macOS
 # or: venv\Scripts\activate  # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-python -m pytest tests/
+# Run the application
+python main.py
 ```
 
-### Building Extensions
-
-```bash
-# Build browser extensions
-cd browser_extensions/firefox
-# Load in Firefox: about:debugging
-
-# Build Rust processor
-cd rust_url_processor
-cargo build --release
-```
-
-### Code Style
-
-- **Python**: Follow PEP 8, use `black` for formatting
-- **Rust**: Follow Rust style guide, use `rustfmt`
-- **JavaScript**: Use ESLint with Airbnb config
+**Requirements:**
+- Python 3.10+
+- PySide6
+- yt-dlp
+- aria2c (optional, for enhanced downloads)
+- ffmpeg (optional, for media conversion)
 
 ---
 
-## 🤝 Contributing
+# FEATURES
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+## Core Download Management
 
-### Ways to Contribute
+- **Multi-threaded Downloads**: Accelerate downloads with parallel connections (up to 16 segments)
+- **Pause/Resume Support**: Continue downloads from where they left off after interruptions
+- **Queue Management**: Organize, prioritize, and manage multiple download batches
+- **Batch Downloads**: Import multiple URLs from files or clipboard
+- **Scheduling System**: Set specific times for downloads to start automatically
+- **Category Organization**: Organize downloads into custom categories
 
-- 🐛 Report bugs
-- 💡 Suggest features
-- 📝 Improve documentation
-- 🌍 Translate to other languages
-- 🎨 Design icons/themes
-- 💻 Write code
+## Media & Streaming
 
-### Development Workflow
+- **YouTube Integration**: Download videos, playlists, and channels via yt-dlp
+- **Platform Support**: Downloads from 1700+ websites including YouTube, Vimeo, TikTok, Instagram, and more
+- **Streaming Protocols**: Full support for HLS, DASH, and HTTP streaming
+- **Audio Extraction**: Extract audio from video content in MP3, AAC, FLAC, and other formats
+- **Quality Selection**: Choose from multiple quality options (1080p, 4K, best available, etc.)
+- **Subtitle Download**: Auto-fetch subtitles in multiple languages
+- **Thumbnail Embedding**: Embed video thumbnails into downloaded files
+
+## Browser Integration
+
+- **Chrome/Edge Extension**: Capture downloads directly from Chrome-based browsers
+- **Firefox Extension**: Native Firefox support
+- **Opera Integration**: Full Opera browser integration
+- **Clipboard Monitoring**: Auto-detect and add URLs copied to clipboard
+
+## User Experience
+
+- **Modern Dark UI**: Clean, intuitive PySide6 interface with dark theme
+- **System Tray**: Background operation with tray icon
+- **Progress Monitoring**: Real-time download statistics with speed graphs
+- **Download Windows**: Detailed progress for each active download
+- **Drag & Drop**: Drag URLs directly into the application
+- **Internationalization**: Ready for multiple language translations
+
+## Advanced Features
+
+- **Checksum Verification**: MD5, SHA-256 integrity checks
+- **Auto-Retry**: Automatic resume on connection failures
+- **Custom Headers**: Support for custom HTTP headers
+- **Cookie Import**: Import authentication cookies from browsers
+- **Proxy Support**: HTTP, HTTPS, SOCKS4, and SOCKS5 proxy support
+- **User Agent**: Customizable user agents
+- **Speed Limiting**: Throttle download speeds
+
+---
+
+## Screenshots
+
+| ![Main Window][01] | ![Downloads Queue][02] | ![Settings][03] |
+|:---:|:---:|:---:|
+| Main Window | Downloads Queue | Settings |
+| ![Add Download][04] | ![Queue Manager][05] | ![Scheduler][06] |
+| Add Downloads | Queue Manager | Scheduler |
+
+---
+
+# SUPPORTED PLATFORMS
+
+OmniPull runs on:
+- **Windows 10/11** (64-bit) - Primary platform with installer
+- **Linux** - AppImage and DEB packages
+- **macOS** - DMG packages (Intel and Apple Silicon)
+
+---
+
+# SUPPORTED PROTOCOLS
+
+- HTTP, HTTPS, FTP, FTPS
+- HTTP Range requests for resumed downloads
+- MPEG-DASH streaming
+- Apple HLS streaming
+- Adobe HDS streaming
+- RTMP/RTMPT streaming
+- BitTorrent (via external tools)
+
+---
+
+# USAGE
+
+## Basic Download
+
+1. Click "Add Download" or paste a URL
+2. Configure download options (location, threads, etc.)
+3. Click "Start" to begin downloading
+
+## YouTube Download
+
+1. Paste a YouTube/video URL
+2. Select quality and format
+3. Click "Download"
+
+## Queue Management
+
+1. Create a new queue via "Queue" → "New Queue"
+2. Add downloads to the queue
+3. Configure scheduling options
+4. Start the queue
+
+## Browser Integration
+
+1. Install the browser extension (Chrome/Firefox)
+2. Configure the listening port in OmniPull settings
+3. Downloads from the browser will automatically be captured
+
+---
+
+# CONFIGURATION
+
+## Settings Location
+
+- **Windows**: `%APPDATA%\OmniPull\`
+- **Linux**: `~/.config/OmniPull/`
+- **macOS**: `~/Library/Application Support/OmniPull/`
+
+## Key Settings
+
+| Setting | Description | Default |
+|---------|------------|--------|
+| Download Directory | Default save location | User's Downloads |
+| Max Connections | Parallel segments (1-16) | 8 |
+| Speed Limit | KB/s (0 = unlimited) | 0 |
+| Proxy | Proxy server URL | None |
+| Auto Retry | Retry count on failure | 5 |
+
+---
+
+# COMMAND LINE OPTIONS
+
+```bash
+python main.py [OPTIONS]
+
+Options:
+  --url TEXT         Add URL to download immediately
+  --category TEXT    Category for the download
+  --threads N        Number of connection threads
+  --output PATH     Output directory
+  --quiet           Start minimized to tray
+  --help            Show this help message
+```
+
+---
+
+# TECHNICAL DETAILS
+
+## Download Engines
+
+OmniPull supports multiple download engines:
+
+1. **Native Engine** - Built-in Python downloader with multi-threading
+2. **Aria2c** - High-performance C download engine (recommended for large files)
+3. **yt-dlp** - Media extraction for video platforms
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│              UI Layer (PySide6)             │
+├─────────────────────────────────────────────┤
+│           Business Logic (Python)          │
+├─────────────────────────────────────────────┤
+│   Download Engines │ Video │ Settings │ DB │
+├─────────────────────────────────────────────┤
+│            System Integration               │
+└─────────────────────────────────────────────┘
+```
+
+Downloads and settings are stored in SQLite database for reliability and cross-session persistence.
+
+---
+
+# CONTRIBUTING
+
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ---
 
-## 📄 License
+# REPORTING ISSUES
 
-This project is licensed under the GNU General Public License v3.0 - see [LICENSE](LICENSE) file for details.
-
-### What this means:
-- ✅ Free to use, modify, and distribute
-- ✅ Open source - see and modify the code
-- ✅ Commercial use allowed
-- ⚠️ Must disclose source code
-- ⚠️ Same license for derivatives
-- ⚠️ State changes made to code
+If you encounter any bugs or have feature requests:
+1. Check if the issue [already exists](https://github.com/Annor-Gyimah/OmniPull/issues)
+2. Create a new issue with detailed information
+3. Include log files and screenshots if applicable
 
 ---
 
-## 🙏 Acknowledgments
+# CHANGELOG
 
-### Built With
-
-- **PySide6** - Qt for Python UI framework
-- **yt-dlp** - YouTube video extraction
-- **Rust** - Blazingly fast URL processor
-- **Requests** - HTTP library
-- **And many more...** (see [requirements.txt](requirements.txt))
-
-### Inspired By
-
-- **Internet Download Manager (IDM)** - The gold standard of download managers
-- **PyIDM** - Python-based download manager
-- **aria2** - Command-line download utility
-
-### Special Thanks
-
-- All contributors who have helped improve OmniPull
-- The Python community
-- The Rust community
-- Open source software developers worldwide
+See [ChangeLog.txt](ChangeLog.txt) for the complete version history.
 
 ---
 
-## 📞 Support
+# LICENSE
 
-### Documentation
-
-- [Installation Guide](INSTALLATION.md)
-- [User Manual](MANUAL.md)
-- [Browser Integration](BROWSER_INTEGRATION_COMPLETE.md)
-- [Auto-Start Guide](AUTOSTART_GUIDE.md)
-- [Rust Processor](rust_url_processor/README.md)
-
-### Community
-
-- **GitHub Issues**: [Report bugs](https://github.com/Annor-Gyimah/OmniPull/issues)
-- **Discussions**: [Ask questions](https://github.com/Annor-Gyimah/OmniPull/discussions)
-- **Email**: support@omnipull.dev
-
-### FAQ
-
-**Q: Is OmniPull free?**
-A: Yes! OmniPull is free and open source under GPL-3.0.
-
-**Q: Does it work on my platform?**
-A: Yes! OmniPull supports Windows, macOS, and Linux.
-
-**Q: How is it different from IDM?**
-A: OmniPull is open source, cross-platform, and integrates modern features like Rust processing and YouTube support.
-
-**Q: Can I use it commercially?**
-A: Yes, under the terms of GPL-3.0 (must disclose source).
+This project is licensed under the **GPLv3 License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🗺️ Roadmap
+# ACKNOWLEDGMENTS
 
-### Version 3.1 (Q1 2025)
-- [ ] Safari extension support
-- [ ] Torrent support
-- [ ] FTP/SFTP support
-- [ ] Cloud storage integration (Google Drive, Dropbox)
-- [ ] Mobile app (Android/iOS)
-
-### Version 3.2 (Q2 2025)
-- [ ] AI-powered file organization
-- [ ] Built-in media player
-- [ ] Video converter
-- [ ] Bandwidth scheduler
-- [ ] Plugin system
-
-### Version 4.0 (Q3 2025)
-- [ ] Complete rewrite in Rust
-- [ ] WebAssembly UI
-- [ ] Distributed downloading
-- [ ] P2P acceleration
-- [ ] Blockchain verification
+- [PySide6](https://www.pyside.org/) - For the amazing Qt Python bindings
+- [aria2c](https://aria2.github.io/) - High-performance download engine
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - YouTube/media downloader
+- All contributors and users of OmniPull
 
 ---
 
-## 📊 Statistics
+# SUPPORT
 
-<div align="center">
+If you find OmniPull useful, please consider:
+- Starring the repository
+- Reporting bugs and feature requests
+- Contributing to the project
 
-| Metric | Value |
-|--------|-------|
-| **Downloads** | 10,000+ |
-| **Stars** | ⭐ 500+ |
-| **Forks** | 🍴 100+ |
-| **Contributors** | 👥 20+ |
-| **Lines of Code** | 📝 50,000+ |
-| **Supported Sites** | 🌐 1,000+ |
+<p align="center">Made with ❤️ by Emmanuel Gyimah Annor</p>
 
-</div>
-
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-### Main Window
-![Main Window](screenshots/main-window.png)
-
-### Add Download Dialog
-![Add Download](screenshots/add-download.png)
-
-### YouTube Integration
-![YouTube Button](screenshots/youtube-button.png)
-
-### System Tray
-![System Tray](screenshots/system-tray.png)
-
-</div>
-
----
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Annor-Gyimah/OmniPull&type=Date)](https://star-history.com/#Annor-Gyimah/OmniPull&Date)
-
----
-
-<div align="center">
-
-**Made with ❤️ by [Emmanuel Gyimah Annor](https://github.com/Annor-Gyimah)**
-
-**If you find OmniPull useful, please consider giving it a ⭐!**
-
-[⬆ Back to top](#omnipull-download-manager-)
-
-</div>
+<!-- Image Links -->
+[//]: # (Screenshot Links)
+[01]: https://i.stack.imgur.com/TOfqL.png
+[02]: https://i.stack.imgur.com/TOfqL.png
+[03]: https://i.stack.imgur.com/TOfqL.png
+[04]: https://i.stack.imgur.com/TOfqL.png
+[05]: https://i.stack.imgur.com/TOfqL.png
+[06]: https://i.stack.imgur.com/TOfqL.png
