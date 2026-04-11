@@ -354,7 +354,7 @@ Downloads and settings are stored in SQLite database for reliability and cross-s
 
 # CONTRIBUTING
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
