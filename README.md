@@ -1,7 +1,7 @@
 <!-- MANPAGE: BEGIN EXCLUDED SECTION -->
 <div align="center">
 
-[![OmniPull](https://i.stack.imgur.com/TOfqL.png)](#readme)
+[![OmniPull](icons/omnipull.png)](#readme)
 
 [![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?color=brightgreen&label=Download&style=for-the-badge)](#installation)
 [![License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?color=blue&style=for-the-badge)](LICENSE)
@@ -201,12 +201,21 @@ python main.py
 | ![Main Window][01] | ![Downloads Queue][02] | ![Settings][03] |
 |:---:|:---:|:---:|
 | Main Window | Downloads Queue | Settings |
-| ![Add Download][04] | ![Queue Manager][05] | ![Scheduler][06] |
-| Add Downloads | Queue Manager | Scheduler |
+| ![Add Download][04] | ![Queue Manager][05] | ![Terminal][06] |
+| Light Mode | Queue Manager | Terminal |
 
 ---
 
-# SUPPORTED PLATFORMS
+<!-- Image Links -->
+[//]: # (Screenshot Links)
+[01]: Screenshots/Mainwindow_&_add_download.png
+[02]: Screenshots/Queues.png
+[03]: Screenshots/Settings.png
+[04]: Screenshots/Table_context_&_Light_mode.png
+[05]: Screenshots/Queues.png
+[06]: Screenshots/Terminal.png
+
+---
 
 OmniPull runs on:
 - **Windows 10/11** (64-bit) - Primary platform with installer
@@ -370,12 +379,3 @@ If you find OmniPull useful, please consider:
 - Contributing to the project
 
 <p align="center">Made with ❤️ by Emmanuel Gyimah Annor</p>
-
-<!-- Image Links -->
-[//]: # (Screenshot Links)
-[01]: https://i.stack.imgur.com/TOfqL.png
-[02]: https://i.stack.imgur.com/TOfqL.png
-[03]: https://i.stack.imgur.com/TOfqL.png
-[04]: https://i.stack.imgur.com/TOfqL.png
-[05]: https://i.stack.imgur.com/TOfqL.png
-[06]: https://i.stack.imgur.com/TOfqL.png
