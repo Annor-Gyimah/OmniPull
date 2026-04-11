@@ -435,12 +435,12 @@
 <context>
     <name>Deno Info</name>
     <message>
-        <location filename="../video.py" line="1447"/>
+        <location filename="../video.py" line="1330"/>
         <source>Deno Info</source>
         <translation>डेनो जानकारी</translation>
     </message>
     <message>
-        <location filename="../video.py" line="1448"/>
+        <location filename="../video.py" line="1331"/>
         <source>Deno is now available. YouTube extraction should work on the next attempt.</source>
         <translation>डेनो अब उपलब्ध है. YouTube निष्कर्षण को अगले प्रयास में काम करना चाहिए।</translation>
     </message>
@@ -448,766 +448,766 @@
 <context>
     <name>DownloadManagerWindow</name>
     <message>
-        <location filename="../../main.py" line="1257"/>
+        <location filename="../../main.py" line="1256"/>
         <source>No completed downloads</source>
         <translation>कोई पूर्ण डाउनलोड नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1964"/>
+        <location filename="../../main.py" line="1963"/>
         <source>Queue</source>
         <translation>कतार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1964"/>
+        <location filename="../../main.py" line="1963"/>
         <source>has started automatically</source>
         <translation>स्वचालित रूप से शुरू हो गया है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1967"/>
+        <location filename="../../main.py" line="1966"/>
         <source>Queue Scheduler</source>
         <translation>कतार शेड्यूलर</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2201"/>
+        <location filename="../../main.py" line="2200"/>
         <source>Add</source>
         <translation>जोड़ें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2203"/>
+        <location filename="../../main.py" line="2202"/>
         <source>Pause</source>
         <translation>रोकें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2207"/>
+        <location filename="../../main.py" line="2206"/>
         <source>Refresh</source>
         <translation>ताज़ा करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2232"/>
+        <location filename="../../main.py" line="2231"/>
         <source>Clear</source>
         <translation>साफ़</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2240"/>
+        <location filename="../../main.py" line="2239"/>
         <source>   Search: </source>
         <translation>खोज:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2711"/>
+        <location filename="../../main.py" line="2710"/>
         <source>&quot;Deno&quot; is required to solve JavaScript challenges for YouTube.
 Install from the official docs or add the deno executable to PATH.</source>
         <translation>YouTube के लिए JavaScript चुनौतियों को हल करने के लिए &quot;Deno&quot; आवश्यक है।
 अधिकृत दस्तावेज़ से इंस्टॉल करें या PATH में deno निष्पादक जोड़ें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1742"/>
-        <location filename="../../main.py" line="1793"/>
-        <location filename="../../main.py" line="1905"/>
-        <location filename="../../main.py" line="1907"/>
-        <location filename="../../main.py" line="1921"/>
-        <location filename="../../main.py" line="2817"/>
-        <location filename="../../main.py" line="4633"/>
+        <location filename="../../main.py" line="1741"/>
+        <location filename="../../main.py" line="1792"/>
+        <location filename="../../main.py" line="1904"/>
+        <location filename="../../main.py" line="1906"/>
+        <location filename="../../main.py" line="1920"/>
+        <location filename="../../main.py" line="2816"/>
+        <location filename="../../main.py" line="4632"/>
         <source>Start Download</source>
         <translation>डाउनलोड शुरू करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3340"/>
+        <location filename="../../main.py" line="3339"/>
         <source>Recommended:</source>
         <translation>अनुशंसित:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3341"/>
+        <location filename="../../main.py" line="3340"/>
         <source>Local folder:</source>
         <translation>स्थानीय फ़ोल्डर:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3357"/>
-        <location filename="../../main.py" line="5067"/>
+        <location filename="../../main.py" line="3356"/>
+        <location filename="../../main.py" line="5066"/>
         <source>Download</source>
         <translation>डाउनलोड</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2834"/>
-        <location filename="../../main.py" line="3358"/>
-        <location filename="../../main.py" line="3740"/>
-        <location filename="../../main.py" line="4143"/>
-        <location filename="../../main.py" line="4491"/>
-        <location filename="../../main.py" line="5066"/>
-        <location filename="../../main.py" line="6723"/>
+        <location filename="../../main.py" line="2833"/>
+        <location filename="../../main.py" line="3357"/>
+        <location filename="../../main.py" line="3739"/>
+        <location filename="../../main.py" line="4142"/>
+        <location filename="../../main.py" line="4490"/>
+        <location filename="../../main.py" line="5065"/>
+        <location filename="../../main.py" line="6722"/>
         <source>Cancel</source>
         <translation>रद्द करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3486"/>
+        <location filename="../../main.py" line="3485"/>
         <source>Error</source>
         <translation>त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3486"/>
-        <location filename="../../main.py" line="3590"/>
-        <location filename="../../main.py" line="4024"/>
-        <location filename="../../main.py" line="5820"/>
-        <location filename="../../main.py" line="5870"/>
+        <location filename="../../main.py" line="3485"/>
+        <location filename="../../main.py" line="3589"/>
+        <location filename="../../main.py" line="4023"/>
+        <location filename="../../main.py" line="5819"/>
+        <location filename="../../main.py" line="5869"/>
         <source>No download item selected</source>
         <translation>कोई डाउनलोड आइटम चयनित नहीं है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2171"/>
-        <location filename="../../main.py" line="2204"/>
-        <location filename="../../main.py" line="3798"/>
+        <location filename="../../main.py" line="2170"/>
+        <location filename="../../main.py" line="2203"/>
+        <location filename="../../main.py" line="3797"/>
         <source>Stop All</source>
         <translation>सभी को रोकें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2164"/>
+        <location filename="../../main.py" line="2163"/>
         <source>Add new download</source>
         <translation>नई डाउनलोड जोड़ें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3799"/>
+        <location filename="../../main.py" line="3798"/>
         <source>There are no active downloads to stop.</source>
         <translation>रोकने के लिए कोई सक्रिय डाउनलोड नहीं है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3806"/>
+        <location filename="../../main.py" line="3805"/>
         <source>Stop All Downloads?</source>
         <translation>सभी डाउनलोड को रोकें?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3849"/>
+        <location filename="../../main.py" line="3848"/>
         <source>Stopped</source>
         <translation>बंद किया गया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3989"/>
+        <location filename="../../main.py" line="3988"/>
         <source>No Downloads to Schedule</source>
         <translation>कोई डाउनलोड शेड्यूल नहीं है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4008"/>
+        <location filename="../../main.py" line="4007"/>
         <source>Schedule Error</source>
         <translation>शेड्यूल त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4193"/>
+        <location filename="../../main.py" line="4192"/>
         <source>Folder Error</source>
         <translation>फ़ोल्डर त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4198"/>
-        <location filename="../../main.py" line="4642"/>
+        <location filename="../../main.py" line="4197"/>
+        <location filename="../../main.py" line="4641"/>
         <source>Download Error</source>
         <translation>डाउनलोड त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4138"/>
+        <location filename="../../main.py" line="4137"/>
         <source>File Already Exists</source>
         <translation>फ़ाइल पहले से मौजूद है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2202"/>
-        <location filename="../../main.py" line="4141"/>
+        <location filename="../../main.py" line="2201"/>
+        <location filename="../../main.py" line="4140"/>
         <source>Resume</source>
         <translation>फिर से शुरू करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2835"/>
+        <location filename="../../main.py" line="2834"/>
         <source>Cancel URL processing</source>
         <translation>यूआरएल प्रोसेसिंग रद्द करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2989"/>
+        <location filename="../../main.py" line="2988"/>
         <source>Empty Playlist</source>
         <translation>खाली प्लेलिस्ट</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2989"/>
+        <location filename="../../main.py" line="2988"/>
         <source>The playlist appears to be empty or restricted.</source>
         <translation>प्लेलिस्ट खाली या प्रतिबंधित प्रतीत होती है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2996"/>
+        <location filename="../../main.py" line="2995"/>
         <source>Start Playlist</source>
         <translation>प्लेलिस्ट प्रारंभ करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3033"/>
+        <location filename="../../main.py" line="3032"/>
         <source>Network Error: Connectivity lost or blocked by firewall.</source>
         <translation>नेटवर्क त्रुटि: कनेक्टिविटी खो गई या फ़ायरवॉल द्वारा अवरुद्ध हो गई।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3035"/>
+        <location filename="../../main.py" line="3034"/>
         <source>YouTube API Error: The server rejected the metadata request.</source>
         <translation>यूट्यूब एपीआई त्रुटि: सर्वर ने मेटाडेटा अनुरोध को अस्वीकार कर दिया।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3037"/>
+        <location filename="../../main.py" line="3036"/>
         <source>Media Unavailable: Removed, private, or geo-blocked.</source>
         <translation>मीडिया अनुपलब्ध: हटाया गया, निजी, या भू-अवरुद्ध।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3039"/>
+        <location filename="../../main.py" line="3038"/>
         <source>An unexpected error occurred during URL processing.</source>
         <translation>यूआरएल प्रोसेसिंग के दौरान एक अप्रत्याशित त्रुटि उत्पन्न हुई।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3041"/>
+        <location filename="../../main.py" line="3040"/>
         <source>Extraction Failed</source>
         <translation>निष्कर्षण विफल</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3590"/>
-        <location filename="../../main.py" line="4024"/>
-        <location filename="../../main.py" line="5820"/>
-        <location filename="../../main.py" line="5870"/>
+        <location filename="../../main.py" line="3589"/>
+        <location filename="../../main.py" line="4023"/>
+        <location filename="../../main.py" line="5819"/>
+        <location filename="../../main.py" line="5869"/>
         <source>Action Required</source>
         <translation>कार्रवाई आवश्यक है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3666"/>
-        <location filename="../../main.py" line="3726"/>
+        <location filename="../../main.py" line="3665"/>
+        <location filename="../../main.py" line="3725"/>
         <source>Active Tasks</source>
         <translation>सक्रिय कार्य</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3667"/>
+        <location filename="../../main.py" line="3666"/>
         <source>Cannot delete items while downloads are active. Please stop all tasks first.</source>
         <translation>डाउनलोड सक्रिय होने पर आइटम हटा नहीं सकते. कृपया पहले सभी कार्य रोकें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3676"/>
+        <location filename="../../main.py" line="3675"/>
         <source>Are you sure you want to delete the selected items and their associated temporary files?</source>
         <translation>क्या आप वाकई चयनित आइटम और उनसे संबंधित अस्थायी फ़ाइलें हटाना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3675"/>
+        <location filename="../../main.py" line="3674"/>
         <source>Confirm Deletion</source>
         <translation>हटाने की पुष्टि करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3727"/>
+        <location filename="../../main.py" line="3726"/>
         <source>Global wipe blocked. Stop active downloads before proceeding.</source>
         <translation>ग्लोबल वाइप अवरुद्ध. आगे बढ़ने से पहले सक्रिय डाउनलोड रोकें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3734"/>
+        <location filename="../../main.py" line="3733"/>
         <source>This will delete ALL items and their progress files.
 Type &apos;delete&apos; to confirm.</source>
         <translation>इससे सभी आइटम और उनकी प्रगति फ़ाइलें हटा दी जाएंगी.
 पुष्टि करने के लिए &apos;हटाएं&apos; टाइप करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3732"/>
+        <location filename="../../main.py" line="3731"/>
         <source>Global Wipe</source>
         <translation>ग्लोबल वाइप</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3850"/>
+        <location filename="../../main.py" line="3849"/>
         <source>All active downloads have been successfully cancelled.</source>
         <translation>सभी सक्रिय डाउनलोड सफलतापूर्वक रद्द कर दिए गए हैं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3964"/>
+        <location filename="../../main.py" line="3963"/>
         <source>Scheduled Retry</source>
         <translation>पुनः प्रयास शेड्यूल किया गया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3965"/>
+        <location filename="../../main.py" line="3964"/>
         <source>Task &apos;{d.name}&apos; failed. Retrying at {d.sched[1]} [Attempt {d.schedule_retries}]</source>
         <translation>कार्य &apos;{d.name}&apos; विफल रहा. {d.schedule[1]} पर पुनः प्रयास करें [प्रयास {d.schedule_retries}]</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3990"/>
+        <location filename="../../main.py" line="3989"/>
         <source>There are no valid &apos;Pending&apos; or &apos;Cancelled&apos; tasks available for scheduling.</source>
         <translation>शेड्यूलिंग के लिए कोई वैध &apos;लंबित&apos; या &apos;रद्द&apos; कार्य उपलब्ध नहीं हैं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3995"/>
+        <location filename="../../main.py" line="3994"/>
         <source>Bulk Schedule Configuration</source>
         <translation>थोक शेड्यूल कॉन्फ़िगरेशन</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4142"/>
+        <location filename="../../main.py" line="4141"/>
         <source>Overwrite</source>
         <translation>अधिलेखन</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4177"/>
+        <location filename="../../main.py" line="4176"/>
         <source>&quot;ffmpeg&quot; is required for stream merging.</source>
         <translation>स्ट्रीम मर्जिंग के लिए &quot;ffmpeg&quot; आवश्यक है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4198"/>
+        <location filename="../../main.py" line="4197"/>
         <source>Invalid filename.</source>
         <translation>अमान्य फ़ाइलनाम.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4333"/>
+        <location filename="../../main.py" line="4332"/>
         <source>Fetching Resolutions…</source>
         <translation>संकल्प लाये जा रहे हैं...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4337"/>
+        <location filename="../../main.py" line="4336"/>
         <source>Fetching format data for {len(yt_items)} YouTube item(s)…</source>
         <translation>{len(yt_items)} YouTube आइटम के लिए प्रारूप डेटा लाया जा रहा है…</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4412"/>
+        <location filename="../../main.py" line="4411"/>
         <source>YouTube Resolution Selection</source>
         <translation>यूट्यूब संकल्प चयन</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4560"/>
+        <location filename="../../main.py" line="4559"/>
         <source>Nothing to Add</source>
         <translation>जोड़ने के लिए कुछ नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4561"/>
+        <location filename="../../main.py" line="4560"/>
         <source>No links have been resolved yet. Please wait for processing to finish.</source>
         <translation>अभी तक किसी भी लिंक का समाधान नहीं किया गया है. कृपया प्रसंस्करण समाप्त होने तक प्रतीक्षा करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4601"/>
+        <location filename="../../main.py" line="4600"/>
         <source>Batch Added</source>
         <translation>बैच जोड़ा गया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4602"/>
+        <location filename="../../main.py" line="4601"/>
         <source>Successfully staged {added} item(s) into &apos;{selected_queue}&apos;.</source>
         <translation>{जोड़े गए} आइटम को &apos;{selected_queue}&apos; में सफलतापूर्वक चरणबद्ध किया गया।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4643"/>
+        <location filename="../../main.py" line="4642"/>
         <source>Nothing to download</source>
         <translation>डाउनलोड करने के लिए कुछ नहीं है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4643"/>
+        <location filename="../../main.py" line="4642"/>
         <source>Check your URL or click Retry.</source>
         <translation>अपने URL की जांच करें या पुनः प्रयास पर क्लिक करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4699"/>
-        <location filename="../../main.py" line="4705"/>
-        <location filename="../../main.py" line="4721"/>
-        <location filename="../../main.py" line="4733"/>
-        <location filename="../../main.py" line="5957"/>
+        <location filename="../../main.py" line="4698"/>
+        <location filename="../../main.py" line="4704"/>
+        <location filename="../../main.py" line="4720"/>
+        <location filename="../../main.py" line="4732"/>
+        <location filename="../../main.py" line="5956"/>
         <source>Queue Error</source>
         <translation>कतार त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4706"/>
+        <location filename="../../main.py" line="4705"/>
         <source>Cannot add completed download to queue.</source>
         <translation>पूर्ण डाउनलोड को कतार में नहीं जोड़ सकते।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4725"/>
+        <location filename="../../main.py" line="4724"/>
         <source>File Exists</source>
         <translation>फ़ाइल मौजूद है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4732"/>
+        <location filename="../../main.py" line="4731"/>
         <source>Filename conflict in queue: {q_name}. Please rename or change folder.</source>
         <translation>कतार में फ़ाइल नाम विरोध: {q_name}। कृपया फ़ोल्डर का नाम बदलें या बदलें.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4766"/>
+        <location filename="../../main.py" line="4765"/>
         <source>Added to Queue</source>
         <translation>कतार में जोड़ा गया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4981"/>
-        <location filename="../../main.py" line="4995"/>
+        <location filename="../../main.py" line="4980"/>
+        <location filename="../../main.py" line="4994"/>
         <source>Playlist Download</source>
         <translation>प्लेलिस्ट डाउनलोड</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4982"/>
+        <location filename="../../main.py" line="4981"/>
         <source>Please check the URL.</source>
         <translation>कृपया URL की जांच करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4983"/>
+        <location filename="../../main.py" line="4982"/>
         <source>Playlist is empty, nothing to download.</source>
         <translation>प्लेलिस्ट खाली है, डाउनलोड करने के लिए कुछ नहीं है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5002"/>
+        <location filename="../../main.py" line="5001"/>
         <source>Select all videos</source>
         <translation>सभी वीडियो चुनें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5005"/>
+        <location filename="../../main.py" line="5004"/>
         <source>Apply format to all:</source>
         <translation>सभी पर प्रारूप लागू करें:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2248"/>
+        <location filename="../../main.py" line="2247"/>
         <source>Open File</source>
         <translation>फ़ाइल खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2161"/>
+        <location filename="../../main.py" line="2160"/>
         <source>&amp;File</source>
         <translation>&amp;फ़ाइल</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1312"/>
-        <location filename="../../main.py" line="1351"/>
-        <location filename="../../main.py" line="1390"/>
+        <location filename="../../main.py" line="1311"/>
+        <location filename="../../main.py" line="1350"/>
+        <location filename="../../main.py" line="1389"/>
         <source>Dependency Ready</source>
         <translation>निर्भरता तैयार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1313"/>
+        <location filename="../../main.py" line="1312"/>
         <source>ffmpeg is already installed and up to date.</source>
         <translation>ffmpeg पहले से ही स्थापित और अद्यतित है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1331"/>
-        <location filename="../../main.py" line="1369"/>
-        <location filename="../../main.py" line="1409"/>
+        <location filename="../../main.py" line="1330"/>
+        <location filename="../../main.py" line="1368"/>
+        <location filename="../../main.py" line="1408"/>
         <source>Installation Started</source>
         <translation>इंस्टालेशन प्रारंभ हुआ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1332"/>
+        <location filename="../../main.py" line="1331"/>
         <source>Downloading the latest ffmpeg for your system...</source>
         <translation>आपके सिस्टम के लिए नवीनतम ffmpeg डाउनलोड हो रहा है...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1336"/>
-        <location filename="../../main.py" line="1374"/>
-        <location filename="../../main.py" line="1414"/>
+        <location filename="../../main.py" line="1335"/>
+        <location filename="../../main.py" line="1373"/>
+        <location filename="../../main.py" line="1413"/>
         <source>Install Error</source>
         <translation>इंस्टॉल करने में त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1352"/>
+        <location filename="../../main.py" line="1351"/>
         <source>deno is already installed and up to date.</source>
         <translation>deno पहले से ही स्थापित और अद्यतित है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1370"/>
+        <location filename="../../main.py" line="1369"/>
         <source>Downloading the latest Deno for your system...</source>
         <translation>आपके सिस्टम के लिए नवीनतम Deno डाउनलोड हो रहा है...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1391"/>
+        <location filename="../../main.py" line="1390"/>
         <source>yt-dlp is already installed and up to date.</source>
         <translation>yt-dlp पहले से ही स्थापित और अद्यतित है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1410"/>
+        <location filename="../../main.py" line="1409"/>
         <source>Downloading the latest yt-dlp for your system...</source>
         <translation>आपके सिस्टम के लिए नवीनतम yt-dlp डाउनलोड हो रहा है...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1440"/>
+        <location filename="../../main.py" line="1439"/>
         <source>Opening Browser</source>
         <translation>ब्राउज़र खुल रहा है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1441"/>
+        <location filename="../../main.py" line="1440"/>
         <source>Redirecting you to install %1 the extension.</source>
         <translation>आपको %1 एक्सटेंशन इंस्टॉल करने के लिए रीडायरेक्ट किया जा रहा है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1442"/>
+        <location filename="../../main.py" line="1441"/>
         <source>Follow the instructions in the web store.</source>
         <translation>वेब स्टोर में दिए गए निर्देशों का पालन करें.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1448"/>
+        <location filename="../../main.py" line="1447"/>
         <source>No URL available for %1.</source>
         <translation>%1 के लिए कोई यूआरएल उपलब्ध नहीं है.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1456"/>
+        <location filename="../../main.py" line="1455"/>
         <source>Community Feedback</source>
         <translation>सामुदायिक प्रतिक्रिया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1457"/>
+        <location filename="../../main.py" line="1456"/>
         <source>Redirecting to GitHub. We appreciate your bug reports and feature requests.</source>
         <translation>GitHub पर पुनर्निर्देशित किया जा रहा है। हम आपकी बग रिपोर्ट और सुविधा अनुरोधों की सराहना करते हैं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1458"/>
+        <location filename="../../main.py" line="1457"/>
         <source>Follow the instructions on the issues page.</source>
         <translation>अंक पृष्ठ पर दिए गए निर्देशों का पालन करें.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1499"/>
+        <location filename="../../main.py" line="1498"/>
         <source>System Busy</source>
         <translation>सिस्टम व्यस्त</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1501"/>
+        <location filename="../../main.py" line="1500"/>
         <source>Downloads are currently running. Pause them to proceed with terminal execution?</source>
         <translation>डाउनलोड वर्तमान में चल रहे हैं. टर्मिनल निष्पादन के साथ आगे बढ़ने के लिए उन्हें रोकें?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1737"/>
+        <location filename="../../main.py" line="1736"/>
         <source>None</source>
         <translation>कोई नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1763"/>
+        <location filename="../../main.py" line="1762"/>
         <source>Select Links File</source>
         <translation>लिंक फ़ाइल का चयन करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1790"/>
+        <location filename="../../main.py" line="1789"/>
         <source>Calculating…</source>
         <translation>गणना हो रही है...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1822"/>
-        <location filename="../../main.py" line="1891"/>
+        <location filename="../../main.py" line="1821"/>
+        <location filename="../../main.py" line="1890"/>
         <source>Unknown size</source>
         <translation>अज्ञात आकार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1860"/>
-        <location filename="../../main.py" line="1905"/>
+        <location filename="../../main.py" line="1859"/>
+        <location filename="../../main.py" line="1904"/>
         <source>Add {count} to Queue</source>
         <translation>कतार में {गिनती} जोड़ें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1862"/>
-        <location filename="../../main.py" line="1907"/>
+        <location filename="../../main.py" line="1861"/>
+        <location filename="../../main.py" line="1906"/>
         <source>Start {count} Download{&apos;s&apos; if count != 1 else &apos;&apos;}</source>
         <translation>प्रारंभ करें {गिनती} यदि गिनती है तो डाउनलोड करें! = 1 अन्य &apos;&apos;}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1920"/>
+        <location filename="../../main.py" line="1919"/>
         <source>Import failed</source>
         <translation>आयात विफल</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1923"/>
+        <location filename="../../main.py" line="1922"/>
         <source>Batch Import Error</source>
         <translation>बैच आयात त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2162"/>
+        <location filename="../../main.py" line="2161"/>
         <source>&amp;Exit</source>
         <translation>&amp;बाहर निकलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2163"/>
+        <location filename="../../main.py" line="2162"/>
         <source>Open</source>
         <translation>खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2166"/>
+        <location filename="../../main.py" line="2165"/>
         <source>&amp;Downloads</source>
         <translation>&amp;डाउनलोड</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2170"/>
-        <location filename="../../main.py" line="2209"/>
+        <location filename="../../main.py" line="2169"/>
+        <location filename="../../main.py" line="2208"/>
         <source>Resume All</source>
         <translation>सभी को फिर से शुरू करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2172"/>
-        <location filename="../../main.py" line="2205"/>
+        <location filename="../../main.py" line="2171"/>
+        <location filename="../../main.py" line="2204"/>
         <source>Delete All</source>
         <translation>सभी को हटाएं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2174"/>
+        <location filename="../../main.py" line="2173"/>
         <source>&amp;View</source>
         <translation>&amp;देखें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2175"/>
+        <location filename="../../main.py" line="2174"/>
         <source>Theme</source>
         <translation>थीम</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2176"/>
+        <location filename="../../main.py" line="2175"/>
         <source>Dark</source>
         <translation>अंधेरा</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2177"/>
+        <location filename="../../main.py" line="2176"/>
         <source>Light</source>
         <translation>हल्का</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2179"/>
+        <location filename="../../main.py" line="2178"/>
         <source>&amp;Tools</source>
         <translation>&amp;उपकरण</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2180"/>
-        <location filename="../../main.py" line="2206"/>
+        <location filename="../../main.py" line="2179"/>
+        <location filename="../../main.py" line="2205"/>
         <source>Scheduler</source>
         <translation>शेड्यूलर</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2181"/>
-        <location filename="../../main.py" line="2239"/>
+        <location filename="../../main.py" line="2180"/>
+        <location filename="../../main.py" line="2238"/>
         <source>Categories</source>
         <translation>श्रेणियाँ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2182"/>
+        <location filename="../../main.py" line="2181"/>
         <source>Queues</source>
         <translation>कतारें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2183"/>
-        <location filename="../../main.py" line="2210"/>
+        <location filename="../../main.py" line="2182"/>
+        <location filename="../../main.py" line="2209"/>
         <source>Settings</source>
         <translation>सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2184"/>
+        <location filename="../../main.py" line="2183"/>
         <source>Install deno</source>
         <translation>डेनो स्थापित करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2185"/>
+        <location filename="../../main.py" line="2184"/>
         <source>Install ffmpeg</source>
         <translation>एफएफएमपीईजी स्थापित करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2186"/>
+        <location filename="../../main.py" line="2185"/>
         <source>Install yt-dlp</source>
         <translation>Yt-dlp स्थापित करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2187"/>
+        <location filename="../../main.py" line="2186"/>
         <source>Marketplace</source>
         <translation>बाजार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2189"/>
+        <location filename="../../main.py" line="2188"/>
         <source>Browser Extension</source>
         <translation>ब्राउज़र एक्सटेंशन</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2191"/>
+        <location filename="../../main.py" line="2190"/>
         <source>&amp;Help</source>
         <translation>&amp;सहायता</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2194"/>
+        <location filename="../../main.py" line="2193"/>
         <source>About</source>
         <translation>परिचय</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2195"/>
+        <location filename="../../main.py" line="2194"/>
         <source>Help</source>
         <translation>सहायता</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2196"/>
+        <location filename="../../main.py" line="2195"/>
         <source>Check for Updates</source>
         <translation>अपडेट की जांच करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2198"/>
+        <location filename="../../main.py" line="2197"/>
         <source>WhatsNew</source>
         <translation>नया क्या है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2213"/>
+        <location filename="../../main.py" line="2212"/>
         <source>ID</source>
         <translation>पहचान</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2214"/>
+        <location filename="../../main.py" line="2213"/>
         <source>Name</source>
         <translation>नाम</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2215"/>
+        <location filename="../../main.py" line="2214"/>
         <source>Progress</source>
         <translation>प्रगति</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2216"/>
+        <location filename="../../main.py" line="2215"/>
         <source>Speed</source>
         <translation>रफ़्तार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2217"/>
+        <location filename="../../main.py" line="2216"/>
         <source>ETA</source>
         <translation>और</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2218"/>
+        <location filename="../../main.py" line="2217"/>
         <source>Done</source>
         <translation>हो गया</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2219"/>
+        <location filename="../../main.py" line="2218"/>
         <source>Size</source>
         <translation>आकार</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2220"/>
+        <location filename="../../main.py" line="2219"/>
         <source>Status</source>
         <translation>स्थिति</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2221"/>
+        <location filename="../../main.py" line="2220"/>
         <source>I</source>
         <translation>मैं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2222"/>
+        <location filename="../../main.py" line="2221"/>
         <source>Last Try Date</source>
         <translation>अंतिम प्रयास तिथि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2254"/>
+        <location filename="../../main.py" line="2253"/>
         <source>Delete</source>
         <translation>मिटाना</translation>
+    </message>
+    <message>
+        <location filename="../../main.py" line="1508"/>
+        <location filename="../../main.py" line="3683"/>
+        <location filename="../../main.py" line="3817"/>
+        <source>Yes</source>
+        <translation>हाँ</translation>
     </message>
     <message>
         <location filename="../../main.py" line="1509"/>
         <location filename="../../main.py" line="3684"/>
         <location filename="../../main.py" line="3818"/>
-        <source>Yes</source>
-        <translation>हाँ</translation>
-    </message>
-    <message>
-        <location filename="../../main.py" line="1510"/>
-        <location filename="../../main.py" line="3685"/>
-        <location filename="../../main.py" line="3819"/>
         <source>No</source>
         <translation>नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2238"/>
+        <location filename="../../main.py" line="2237"/>
         <source>downloads
  completed</source>
         <translation>डाउनलोड
  पूरा हुआ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3319"/>
+        <location filename="../../main.py" line="3318"/>
         <source>%1 is missing</source>
         <translation>%1 गायब है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3320"/>
+        <location filename="../../main.py" line="3319"/>
         <source>%1 is missing and needs to be downloaded:</source>
         <translation>%1 गुम है और इसे डाउनलोड करने की आवश्यकता है:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3739"/>
+        <location filename="../../main.py" line="3738"/>
         <source>OK</source>
         <translation>ठीक है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3810"/>
+        <location filename="../../main.py" line="3809"/>
         <source>Active tasks (Downloading, Pending, or Merging) were detected.
 
 Do you want to stop all active processes?</source>
@@ -1216,7 +1216,7 @@ Do you want to stop all active processes?</source>
 क्या आप सभी सक्रिय प्रक्रियाओं को रोकना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4129"/>
+        <location filename="../../main.py" line="4128"/>
         <source>File with the same name:
 %1
 already exists in download list.
@@ -1235,89 +1235,89 @@ Note: To keep both, rename the file or change the folder.</source>
 नोट: दोनों को रखने के लिए, फ़ाइल का नाम बदलें या फ़ोल्डर बदलें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4700"/>
+        <location filename="../../main.py" line="4699"/>
         <source>YouTube videos in queues require aria2c or yt-dlp engine.</source>
         <translation>कतार में YouTube वीडियो के लिए aria2c या yt-dlp इंजन की आवश्यकता होती है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4720"/>
+        <location filename="../../main.py" line="4719"/>
         <source>This file already exists in queue: {existing_queue}</source>
         <translation>यह फ़ाइल पहले से ही कतार में मौजूद है: {मौजूदा_क्यू}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4724"/>
+        <location filename="../../main.py" line="4723"/>
         <source>Cannot add to queue; target file already exists: {target_path}</source>
         <translation>कतार में नहीं जोड़ा जा सकता; लक्ष्य फ़ाइल पहले से मौजूद है: {target_path}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4767"/>
+        <location filename="../../main.py" line="4766"/>
         <source>&apos;{d.name}&apos; has been added to {queue_name}.</source>
         <translation>&apos;{d.name}&apos; को {queue_name} में जोड़ा गया है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4830"/>
+        <location filename="../../main.py" line="4829"/>
         <source>No preview</source>
         <translation>कोई पूर्वावलोकन</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5060"/>
+        <location filename="../../main.py" line="5059"/>
         <source>Select videos and formats. Use the master option to apply settings globally.</source>
         <translation>वीडियो और प्रारूप चुनें. Use the master option to apply settings globally.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5571"/>
-        <location filename="../../main.py" line="5621"/>
+        <location filename="../../main.py" line="5570"/>
+        <location filename="../../main.py" line="5620"/>
         <source>The selected file could not be found on disk.</source>
         <translation>चयनित फ़ाइल डिस्क पर नहीं मिल सकी.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5573"/>
-        <location filename="../../main.py" line="5623"/>
+        <location filename="../../main.py" line="5572"/>
+        <location filename="../../main.py" line="5622"/>
         <source>Download Incomplete</source>
         <translation>अपूर्ण डाउनलोड करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5574"/>
-        <location filename="../../main.py" line="5624"/>
+        <location filename="../../main.py" line="5573"/>
+        <location filename="../../main.py" line="5623"/>
         <source>Please wait for the download to finish before opening.</source>
         <translation>कृपया खोलने से पहले डाउनलोड समाप्त होने तक प्रतीक्षा करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5696"/>
+        <location filename="../../main.py" line="5695"/>
         <source>The yt-dlp download file is not yet available on disk.
 Please wait a few moments for the download to create the file.</source>
         <translation>Yt-dlp डाउनलोड फ़ाइल अभी तक डिस्क पर उपलब्ध नहीं है।
 कृपया फ़ाइल बनाने के लिए डाउनलोड के लिए कुछ क्षण प्रतीक्षा करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5714"/>
+        <location filename="../../main.py" line="5713"/>
         <source>The temporary media file is not yet available on disk.</source>
         <translation>अस्थायी मीडिया फ़ाइल अभी तक डिस्क पर उपलब्ध नहीं है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5723"/>
+        <location filename="../../main.py" line="5722"/>
         <source>File Too Small</source>
         <translation>फ़ाइल बहुत छोटी</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5724"/>
+        <location filename="../../main.py" line="5723"/>
         <source>Please wait for more data to download before watching.
 Current size: {size_format(file_size)}</source>
         <translation>कृपया देखने से पहले अधिक डेटा डाउनलोड होने की प्रतीक्षा करें।
 वर्तमान आकार: {size_format(file_size)}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5732"/>
+        <location filename="../../main.py" line="5731"/>
         <source>Buffer Low</source>
         <translation>बफ़र कम</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5733"/>
+        <location filename="../../main.py" line="5732"/>
         <source>Please wait for 30% progress to ensure a stable playback buffer.</source>
         <translation>स्थिर प्लेबैक बफ़र सुनिश्चित करने के लिए कृपया 30% प्रगति की प्रतीक्षा करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5958"/>
+        <location filename="../../main.py" line="5957"/>
         <source>YouTube videos in queues require aria2c or yt-dlp engine.
 
 cURL cannot refresh expired YouTube stream keys during queued execution.</source>
@@ -1326,355 +1326,355 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 कतारबद्ध निष्पादन के दौरान कर्ल समाप्त हो चुकी YouTube स्ट्रीम कुंजियों को ताज़ा नहीं कर सकता।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5964"/>
+        <location filename="../../main.py" line="5963"/>
         <source>Please create a queue in the Queue Manager before adding items.</source>
         <translation>कृपया आइटम जोड़ने से पहले कतार प्रबंधक में एक कतार बनाएं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5971"/>
+        <location filename="../../main.py" line="5970"/>
         <source>Choose a destination queue:</source>
         <translation>एक गंतव्य कतार चुनें:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6215"/>
+        <location filename="../../main.py" line="6214"/>
         <source>FFmpeg Missing</source>
         <translation>एफएफएमपीईजी गायब है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6216"/>
+        <location filename="../../main.py" line="6215"/>
         <source>FFmpeg is required for merging. Please configure it in Settings.</source>
         <translation>विलय के लिए FFmpeg आवश्यक है। कृपया इसे सेटिंग्स में कॉन्फ़िगर करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6270"/>
+        <location filename="../../main.py" line="6269"/>
         <source>Streams merged successfully.</source>
         <translation>स्ट्रीम सफलतापूर्वक विलीन हो गईं.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6270"/>
+        <location filename="../../main.py" line="6269"/>
         <source>Merge Complete</source>
         <translation>मर्ज पूर्ण</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6277"/>
+        <location filename="../../main.py" line="6276"/>
         <source>Merge Failed</source>
         <translation>मर्ज विफल</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6302"/>
+        <location filename="../../main.py" line="6301"/>
         <source>Please select a task to re-merge.</source>
         <translation>कृपया पुनः विलय के लिए एक कार्य का चयन करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6317"/>
+        <location filename="../../main.py" line="6316"/>
         <source>Could not find the associated audio file.</source>
         <translation>संबंधित ऑडियो फ़ाइल नहीं मिल सकी.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6323"/>
+        <location filename="../../main.py" line="6322"/>
         <source>Could not find the associated video file.</source>
         <translation>संबंधित वीडियो फ़ाइल नहीं मिल सकी.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6348"/>
+        <location filename="../../main.py" line="6347"/>
         <source>Please select a completed download.</source>
         <translation>कृपया पूर्ण डाउनलोड का चयन करें.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6369"/>
+        <location filename="../../main.py" line="6368"/>
         <source>Failed to read the file for hashing.</source>
         <translation>हैशिंग के लिए फ़ाइल को पढ़ने में विफल.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6373"/>
+        <location filename="../../main.py" line="6372"/>
         <source>SHA-256 Checksum</source>
         <translation>SHA-256 चेकसम</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6387"/>
+        <location filename="../../main.py" line="6386"/>
         <source>Copy Hash</source>
         <translation>हैश कॉपी करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2197"/>
+        <location filename="../../main.py" line="2196"/>
         <source>Report Issues</source>
         <translation>समस्याओं की रिपोर्ट करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2229"/>
+        <location filename="../../main.py" line="2228"/>
         <source>Downloads</source>
         <translation>डाउनलोड</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2230"/>
+        <location filename="../../main.py" line="2229"/>
         <source>Sort by:</source>
         <translation>क्रमबद्ध करें:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2208"/>
-        <location filename="../../main.py" line="2231"/>
+        <location filename="../../main.py" line="2207"/>
+        <location filename="../../main.py" line="2230"/>
         <source>Terminal</source>
         <translation>टर्मिनल</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2233"/>
+        <location filename="../../main.py" line="2232"/>
         <source>Log Level:</source>
         <translation>लॉग स्तर:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2235"/>
+        <location filename="../../main.py" line="2234"/>
         <source>Last HTTP response status</source>
         <translation>अंतिम HTTP प्रतिक्रिया स्थिति</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2236"/>
+        <location filename="../../main.py" line="2235"/>
         <source>Current total download speed</source>
         <translation>वर्तमान कुल डाउनलोड गति</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2237"/>
+        <location filename="../../main.py" line="2236"/>
         <source>Today</source>
         <translation>आज</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2243"/>
+        <location filename="../../main.py" line="2242"/>
         <source>Enter command here... You can start with helpful commands like &apos;help&apos; or &apos;yt-dlp --help&apos;.</source>
         <translation>यहाँ कमांड दर्ज करें... आप &apos;help&apos; या &apos;yt-dlp --help&apos; जैसी सहायक कमांड से शुरू कर सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2245"/>
+        <location filename="../../main.py" line="2244"/>
         <source>Search downloads...</source>
         <translation>डाउनलोड खोजें...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2249"/>
+        <location filename="../../main.py" line="2248"/>
         <source>Open File With</source>
         <translation>फ़ाइल के साथ खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2250"/>
+        <location filename="../../main.py" line="2249"/>
         <source>Open File Location</source>
         <translation>फ़ाइल स्थान खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2251"/>
+        <location filename="../../main.py" line="2250"/>
         <source>Watch while downloading</source>
         <translation>डाउनलोड के दौरान देखें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2252"/>
+        <location filename="../../main.py" line="2251"/>
         <source>Schedule download</source>
         <translation>डाउनलोड शेड्यूल करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2253"/>
+        <location filename="../../main.py" line="2252"/>
         <source>Cancel schedule!</source>
         <translation>शेड्यूल रद्द करें!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2255"/>
+        <location filename="../../main.py" line="2254"/>
         <source>Re-merge audio/video</source>
         <translation>ऑडियो/वीडियो को फिर से मर्ज करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2256"/>
+        <location filename="../../main.py" line="2255"/>
         <source>File Properties</source>
         <translation>फ़ाइल गुण</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1738"/>
-        <location filename="../../main.py" line="2257"/>
-        <location filename="../../main.py" line="4492"/>
+        <location filename="../../main.py" line="1737"/>
+        <location filename="../../main.py" line="2256"/>
+        <location filename="../../main.py" line="4491"/>
         <source>Add to Queue</source>
         <translation>कतार में जोड़ें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2258"/>
+        <location filename="../../main.py" line="2257"/>
         <source>Remove from Queue</source>
         <translation>कतार से हटाएं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2259"/>
+        <location filename="../../main.py" line="2258"/>
         <source>File CheckSum!</source>
         <translation>फ़ाइल चेकसम!</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2260"/>
+        <location filename="../../main.py" line="2259"/>
         <source>Delete from Table</source>
         <translation>तालिका से हटाएं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5570"/>
-        <location filename="../../main.py" line="5597"/>
-        <location filename="../../main.py" line="5620"/>
-        <location filename="../../main.py" line="5632"/>
+        <location filename="../../main.py" line="5569"/>
+        <location filename="../../main.py" line="5596"/>
+        <location filename="../../main.py" line="5619"/>
+        <location filename="../../main.py" line="5631"/>
         <source>File Not Found</source>
         <translation>फ़ाइल नहीं मिली</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5695"/>
-        <location filename="../../main.py" line="5713"/>
+        <location filename="../../main.py" line="5694"/>
+        <location filename="../../main.py" line="5712"/>
         <source>No Temp File</source>
         <translation>कोई अस्थायी फ़ाइल नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5936"/>
-        <location filename="../../main.py" line="6016"/>
-        <location filename="../../main.py" line="6301"/>
-        <location filename="../../main.py" line="6348"/>
+        <location filename="../../main.py" line="5935"/>
+        <location filename="../../main.py" line="6015"/>
+        <location filename="../../main.py" line="6300"/>
+        <location filename="../../main.py" line="6347"/>
         <source>No Selection</source>
         <translation>कोई चयन नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5937"/>
+        <location filename="../../main.py" line="5936"/>
         <source>Please select a download to add to the queue.</source>
         <translation>कतार में जोड़ने के लिए एक डाउनलोड चुनें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5963"/>
+        <location filename="../../main.py" line="5962"/>
         <source>No Queues Available</source>
         <translation>कोई कतार उपलब्ध नहीं</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5970"/>
+        <location filename="../../main.py" line="5969"/>
         <source>Select Queue</source>
         <translation>कतार चुनें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6017"/>
+        <location filename="../../main.py" line="6016"/>
         <source>Please select a download to remove from the queue.</source>
         <translation>कतार से हटाने के लिए एक डाउनलोड चुनें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6316"/>
+        <location filename="../../main.py" line="6315"/>
         <source>Audio Missing</source>
         <translation>ऑडियो गायब</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6322"/>
+        <location filename="../../main.py" line="6321"/>
         <source>Video Missing</source>
         <translation>वीडियो गायब</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6356"/>
+        <location filename="../../main.py" line="6355"/>
         <source>Checksum is only available for completed downloads.</source>
         <translation>चेकसम केवल पूर्ण डाउनलोड के लिए उपलब्ध है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6356"/>
+        <location filename="../../main.py" line="6355"/>
         <source>Invalid Status</source>
         <translation>अमान्य स्थिति</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6369"/>
+        <location filename="../../main.py" line="6368"/>
         <source>Checksum Error</source>
         <translation>चेकसम त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2839"/>
-        <location filename="../../main.py" line="6388"/>
+        <location filename="../../main.py" line="2838"/>
+        <location filename="../../main.py" line="6387"/>
         <source>Close</source>
         <translation>बंद करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5634"/>
+        <location filename="../../main.py" line="5633"/>
         <source>The file &apos;%1&apos; could not be found or has been deleted.</source>
         <translation>फ़ाइल &apos;%1&apos; नहीं मिल सकी या हटा दी गई है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5637"/>
+        <location filename="../../main.py" line="5636"/>
         <source>Permission Error</source>
         <translation>अनुमति त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5638"/>
+        <location filename="../../main.py" line="5637"/>
         <source>Access denied: %1</source>
         <translation>प्रवेश अस्वीकृत: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5641"/>
+        <location filename="../../main.py" line="5640"/>
         <source>OS Error</source>
         <translation>ओएस त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5642"/>
+        <location filename="../../main.py" line="5641"/>
         <source>An OS error occurred: %1</source>
         <translation>एक OS त्रुटि उत्पन्न हुई: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6636"/>
-        <location filename="../../main.py" line="6662"/>
+        <location filename="../../main.py" line="6635"/>
+        <location filename="../../main.py" line="6661"/>
         <source>yt-dlp Update</source>
         <translation>yt-dlp अपडेट</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6637"/>
+        <location filename="../../main.py" line="6636"/>
         <source>yt-dlp backend has been successfully updated.</source>
         <translation>yt-dlp बैकएंड सफलतापूर्वक अद्यतन कर दिया गया है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6642"/>
+        <location filename="../../main.py" line="6641"/>
         <source>Update Error</source>
         <translation>अद्यतन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6663"/>
+        <location filename="../../main.py" line="6662"/>
         <source>yt-dlp has been updated to the latest version.</source>
         <translation>yt-dlp नवीनतम संस्करण में अपडेट किया गया है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6665"/>
+        <location filename="../../main.py" line="6664"/>
         <source>yt-dlp version: %1</source>
         <translation>yt-dlp संस्करण: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6668"/>
+        <location filename="../../main.py" line="6667"/>
         <source>Update failed or binary is already up to date.</source>
         <translation>अद्यतन विफल रहा या बाइनरी पहले से ही अद्यतित है।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6669"/>
+        <location filename="../../main.py" line="6668"/>
         <source>yt-dlp Update Error</source>
         <translation>yt-dlp अपडेट त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6690"/>
-        <location filename="../../main.py" line="6694"/>
+        <location filename="../../main.py" line="6689"/>
+        <location filename="../../main.py" line="6693"/>
         <source>App Update</source>
         <translation>ऐप अपडेट</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6690"/>
+        <location filename="../../main.py" line="6689"/>
         <source>App is up-to-date</source>
         <translation>ऐप अद्यतन है</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6695"/>
+        <location filename="../../main.py" line="6694"/>
         <source>Couldn&apos;t check for update</source>
         <translation>अद्यतन की जाँच नहीं की जा सकी</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6695"/>
+        <location filename="../../main.py" line="6694"/>
         <source>Please check your internet connection.</source>
         <translation>कृपया अपने इंटरनेट कनेक्शन की जाँच करें।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6706"/>
+        <location filename="../../main.py" line="6705"/>
         <source>Update Application</source>
         <translation>ऐप अपडेट करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6710"/>
+        <location filename="../../main.py" line="6709"/>
         <source>New version available:</source>
         <translation>नया संस्करण उपलब्ध:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6715"/>
+        <location filename="../../main.py" line="6714"/>
         <source>No changelog available.</source>
         <translation>कोई चेंजलॉग उपलब्ध नहीं है.</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6722"/>
+        <location filename="../../main.py" line="6721"/>
         <source>Update</source>
         <translation>अपडेट करें</translation>
     </message>
@@ -1752,12 +1752,12 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 <context>
     <name>FFmpeg Info</name>
     <message>
-        <location filename="../video.py" line="1428"/>
+        <location filename="../video.py" line="1311"/>
         <source>FFmpeg Info</source>
         <translation>एफएफएमपीईजी जानकारी</translation>
     </message>
     <message>
-        <location filename="../video.py" line="1429"/>
+        <location filename="../video.py" line="1312"/>
         <source>FFmpeg is now available. Please try downloading the video again.</source>
         <translation>एफएफएमपीईजी अब उपलब्ध है। कृपया वीडियो दोबारा डाउनलोड करने का प्रयास करें.</translation>
     </message>
@@ -1765,7 +1765,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 <context>
     <name>Main</name>
     <message>
-        <location filename="../../main.py" line="6827"/>
+        <location filename="../../main.py" line="6826"/>
         <source>Another instance of the application is already running.</source>
         <translation>एप्लिकेशन का एक अन्य उदाहरण पहले से ही चल रहा है।</translation>
     </message>
@@ -2032,7 +2032,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     <name>SettingsDialog</name>
     <message>
         <location filename="../../ui/setting_dialog.py" line="42"/>
-        <location filename="../../ui/setting_dialog.py" line="1091"/>
+        <location filename="../../ui/setting_dialog.py" line="1073"/>
         <source>Settings</source>
         <translation>सेटिंग्स</translation>
     </message>
@@ -2048,37 +2048,37 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="135"/>
-        <location filename="../../ui/setting_dialog.py" line="1100"/>
+        <location filename="../../ui/setting_dialog.py" line="1082"/>
         <source>Monitor clipboard</source>
         <translation>क्लिपबोर्ड की निगरानी करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="136"/>
-        <location filename="../../ui/setting_dialog.py" line="1101"/>
+        <location filename="../../ui/setting_dialog.py" line="1083"/>
         <source>Show thumbnail</source>
         <translation>थंबनेल दिखाएं</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="137"/>
-        <location filename="../../ui/setting_dialog.py" line="1102"/>
+        <location filename="../../ui/setting_dialog.py" line="1084"/>
         <source>Auto close download window</source>
         <translation>डाउनलोड विंडो को स्वचालित रूप से बंद करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="138"/>
-        <location filename="../../ui/setting_dialog.py" line="1103"/>
+        <location filename="../../ui/setting_dialog.py" line="1085"/>
         <source>Show download window</source>
         <translation>डाउनलोड विंडो दिखाएं</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="139"/>
-        <location filename="../../ui/setting_dialog.py" line="1104"/>
+        <location filename="../../ui/setting_dialog.py" line="1086"/>
         <source>Show all logs</source>
         <translation>सभी लॉग दिखाएं</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="140"/>
-        <location filename="../../ui/setting_dialog.py" line="1105"/>
+        <location filename="../../ui/setting_dialog.py" line="1087"/>
         <source>Hide app when minimized</source>
         <translation>न्यूनीकृत होने पर ऐप छिपाएं</translation>
     </message>
@@ -2089,73 +2089,73 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="177"/>
-        <location filename="../../ui/setting_dialog.py" line="1110"/>
+        <location filename="../../ui/setting_dialog.py" line="1092"/>
         <source>Browser integration</source>
         <translation>ब्राउज़र एकीकरण</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="181"/>
-        <location filename="../../ui/setting_dialog.py" line="1111"/>
+        <location filename="../../ui/setting_dialog.py" line="1093"/>
         <source>On Startup</source>
         <translation>स्टार्टअप पर</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="197"/>
-        <location filename="../../ui/setting_dialog.py" line="1114"/>
+        <location filename="../../ui/setting_dialog.py" line="1096"/>
         <source>Use proxy</source>
         <translation>प्रॉक्सी का उपयोग करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="205"/>
-        <location filename="../../ui/setting_dialog.py" line="1115"/>
+        <location filename="../../ui/setting_dialog.py" line="1097"/>
         <source>Proxy URL (host:port or full URL)</source>
         <translation>प्रॉक्सी URL (host:port या पूर्ण URL)</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="221"/>
-        <location filename="../../ui/setting_dialog.py" line="1117"/>
+        <location filename="../../ui/setting_dialog.py" line="1099"/>
         <source>User:</source>
         <translation>उपयोगकर्ता:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="223"/>
-        <location filename="../../ui/setting_dialog.py" line="1118"/>
+        <location filename="../../ui/setting_dialog.py" line="1100"/>
         <source>Username</source>
         <translation>उपयोगकर्ता नाम</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="226"/>
-        <location filename="../../ui/setting_dialog.py" line="1120"/>
+        <location filename="../../ui/setting_dialog.py" line="1102"/>
         <source>Pass:</source>
         <translation>पासवर्ड:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="228"/>
-        <location filename="../../ui/setting_dialog.py" line="1121"/>
+        <location filename="../../ui/setting_dialog.py" line="1103"/>
         <source>Password</source>
         <translation>पासवर्ड</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="254"/>
-        <location filename="../../ui/setting_dialog.py" line="1124"/>
+        <location filename="../../ui/setting_dialog.py" line="1106"/>
         <source>Retry failed scheduled downloads</source>
         <translation>विफल अनुसूचित डाउनलोड को पुनः प्रयास करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="262"/>
-        <location filename="../../ui/setting_dialog.py" line="1126"/>
+        <location filename="../../ui/setting_dialog.py" line="1108"/>
         <source>Max retries:</source>
         <translation>अधिकतम पुनः प्रयास:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="268"/>
-        <location filename="../../ui/setting_dialog.py" line="1127"/>
+        <location filename="../../ui/setting_dialog.py" line="1109"/>
         <source>Interval (minutes):</source>
         <translation>अंतराल (मिनट):</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="291"/>
-        <location filename="../../ui/setting_dialog.py" line="1093"/>
+        <location filename="../../ui/setting_dialog.py" line="1075"/>
         <source>General</source>
         <translation>सामान्य</translation>
     </message>
@@ -2166,25 +2166,25 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="343"/>
-        <location filename="../../ui/setting_dialog.py" line="1133"/>
+        <location filename="../../ui/setting_dialog.py" line="1115"/>
         <source>Accent:</source>
         <translation>उच्चारण:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="346"/>
-        <location filename="../../ui/setting_dialog.py" line="1130"/>
+        <location filename="../../ui/setting_dialog.py" line="1112"/>
         <source>Appearance</source>
         <translation>उपस्थिति</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="371"/>
-        <location filename="../../ui/setting_dialog.py" line="1148"/>
+        <location filename="../../ui/setting_dialog.py" line="1130"/>
         <source>Speed limit:</source>
         <translation>गति सीमा:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="373"/>
-        <location filename="../../ui/setting_dialog.py" line="1149"/>
+        <location filename="../../ui/setting_dialog.py" line="1131"/>
         <source>KB/s or MB/s value (numeric)</source>
         <translation>KB/s या MB/s मान (संख्यात्मक)</translation>
     </message>
@@ -2195,151 +2195,151 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="396"/>
-        <location filename="../../ui/setting_dialog.py" line="1150"/>
+        <location filename="../../ui/setting_dialog.py" line="1132"/>
         <source>Max connections:</source>
         <translation>अधिकतम कनेक्शन:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="406"/>
-        <location filename="../../ui/setting_dialog.py" line="1151"/>
+        <location filename="../../ui/setting_dialog.py" line="1133"/>
         <source>Segment Size</source>
         <translation>खंड आकार</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="414"/>
-        <location filename="../../ui/setting_dialog.py" line="1152"/>
+        <location filename="../../ui/setting_dialog.py" line="1134"/>
         <source>Segment size:</source>
         <translation>खंड का आकार:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="431"/>
-        <location filename="../../ui/setting_dialog.py" line="1155"/>
+        <location filename="../../ui/setting_dialog.py" line="1137"/>
         <source>No playlist</source>
         <translation>कोई प्लेलिस्ट नहीं</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="432"/>
-        <location filename="../../ui/setting_dialog.py" line="1156"/>
+        <location filename="../../ui/setting_dialog.py" line="1138"/>
         <source>Ignore errors</source>
         <translation>त्रुटियों को अनदेखा करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="433"/>
-        <location filename="../../ui/setting_dialog.py" line="1157"/>
+        <location filename="../../ui/setting_dialog.py" line="1139"/>
         <source>List formats</source>
         <translation>प्रारूपों की सूची</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="434"/>
-        <location filename="../../ui/setting_dialog.py" line="1158"/>
+        <location filename="../../ui/setting_dialog.py" line="1140"/>
         <source>Use yt-dlp executable</source>
         <translation>yt-dlp निष्पादक का उपयोग करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="435"/>
-        <location filename="../../ui/setting_dialog.py" line="1159"/>
+        <location filename="../../ui/setting_dialog.py" line="1141"/>
         <source>Quiet</source>
         <translation>शांत</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="447"/>
-        <location filename="../../ui/setting_dialog.py" line="1166"/>
+        <location filename="../../ui/setting_dialog.py" line="1148"/>
         <source>Write metadata</source>
         <translation>मेटाडेटा लिखें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="448"/>
-        <location filename="../../ui/setting_dialog.py" line="1167"/>
+        <location filename="../../ui/setting_dialog.py" line="1149"/>
         <source>Write info JSON</source>
         <translation>जानकारी JSON लिखें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="449"/>
-        <location filename="../../ui/setting_dialog.py" line="1168"/>
+        <location filename="../../ui/setting_dialog.py" line="1150"/>
         <source>Write description</source>
         <translation>विवरण लिखें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="450"/>
-        <location filename="../../ui/setting_dialog.py" line="1169"/>
+        <location filename="../../ui/setting_dialog.py" line="1151"/>
         <source>Write annotations</source>
         <translation>एनोटेशन लिखें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="451"/>
-        <location filename="../../ui/setting_dialog.py" line="1170"/>
+        <location filename="../../ui/setting_dialog.py" line="1152"/>
         <source>No warnings</source>
         <translation>कोई चेतावनी नहीं</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="483"/>
-        <location filename="../../ui/setting_dialog.py" line="1161"/>
+        <location filename="../../ui/setting_dialog.py" line="1143"/>
         <source>Template:</source>
         <translation>टेम्पलेट:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="487"/>
-        <location filename="../../ui/setting_dialog.py" line="1162"/>
+        <location filename="../../ui/setting_dialog.py" line="1144"/>
         <source>Format:</source>
         <translation>प्रारूप:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="494"/>
-        <location filename="../../ui/setting_dialog.py" line="1163"/>
+        <location filename="../../ui/setting_dialog.py" line="1145"/>
         <source>Concurrent fragments:</source>
         <translation>समवर्ती टुकड़े:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="498"/>
-        <location filename="../../ui/setting_dialog.py" line="1164"/>
+        <location filename="../../ui/setting_dialog.py" line="1146"/>
         <source>Retries:</source>
         <translation>पुनः प्रयास:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="527"/>
-        <location filename="../../ui/setting_dialog.py" line="1175"/>
+        <location filename="../../ui/setting_dialog.py" line="1157"/>
         <source>Enable DHT</source>
         <translation>DHT सक्षम करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="528"/>
-        <location filename="../../ui/setting_dialog.py" line="1176"/>
+        <location filename="../../ui/setting_dialog.py" line="1158"/>
         <source>Follow torrent</source>
         <translation>Torrent का अनुसरण करें</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="549"/>
-        <location filename="../../ui/setting_dialog.py" line="1177"/>
+        <location filename="../../ui/setting_dialog.py" line="1159"/>
         <source>Max connection per server:</source>
         <translation>प्रति सर्वर अधिकतम कनेक्शन:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="557"/>
-        <location filename="../../ui/setting_dialog.py" line="1178"/>
+        <location filename="../../ui/setting_dialog.py" line="1160"/>
         <source>Session interval (s):</source>
         <translation>सत्र अंतराल (s):</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="562"/>
-        <location filename="../../ui/setting_dialog.py" line="1179"/>
+        <location filename="../../ui/setting_dialog.py" line="1161"/>
         <source>File allocation:</source>
         <translation>फ़ाइल आवंटन:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="567"/>
-        <location filename="../../ui/setting_dialog.py" line="1180"/>
+        <location filename="../../ui/setting_dialog.py" line="1162"/>
         <source>Split part:</source>
         <translation>विभाजित भाग:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="572"/>
-        <location filename="../../ui/setting_dialog.py" line="1181"/>
+        <location filename="../../ui/setting_dialog.py" line="1163"/>
         <source>RPC port:</source>
         <translation>RPC पोर्ट:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="586"/>
-        <location filename="../../ui/setting_dialog.py" line="1140"/>
+        <location filename="../../ui/setting_dialog.py" line="1122"/>
         <source>Engine config</source>
         <translation>इंजन कॉन्फ़िग</translation>
     </message>
@@ -2347,9 +2347,9 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
         <location filename="../../ui/setting_dialog.py" line="610"/>
         <location filename="../../ui/setting_dialog.py" line="629"/>
         <location filename="../../ui/setting_dialog.py" line="647"/>
-        <location filename="../../ui/setting_dialog.py" line="1196"/>
-        <location filename="../../ui/setting_dialog.py" line="1203"/>
-        <location filename="../../ui/setting_dialog.py" line="1210"/>
+        <location filename="../../ui/setting_dialog.py" line="1178"/>
+        <location filename="../../ui/setting_dialog.py" line="1185"/>
+        <location filename="../../ui/setting_dialog.py" line="1192"/>
         <source>Leave blank to use bundled: </source>
         <translation>बंडल किए गए का उपयोग करने के लिए खाली छोड़ें: </translation>
     </message>
@@ -2357,9 +2357,9 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
         <location filename="../../ui/setting_dialog.py" line="612"/>
         <location filename="../../ui/setting_dialog.py" line="631"/>
         <location filename="../../ui/setting_dialog.py" line="649"/>
-        <location filename="../../ui/setting_dialog.py" line="1198"/>
-        <location filename="../../ui/setting_dialog.py" line="1205"/>
-        <location filename="../../ui/setting_dialog.py" line="1212"/>
+        <location filename="../../ui/setting_dialog.py" line="1180"/>
+        <location filename="../../ui/setting_dialog.py" line="1187"/>
+        <location filename="../../ui/setting_dialog.py" line="1194"/>
         <source>Leave blank to use bundled</source>
         <translation>बंडल किए गए का उपयोग करने के लिए खाली छोड़ें</translation>
     </message>
@@ -2377,7 +2377,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="622"/>
-        <location filename="../../ui/setting_dialog.py" line="1216"/>
+        <location filename="../../ui/setting_dialog.py" line="1198"/>
         <source>yt-dlp executable:</source>
         <translation>yt-dlp निष्पादक:</translation>
     </message>
@@ -2385,10 +2385,10 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
         <location filename="../../ui/setting_dialog.py" line="632"/>
         <location filename="../../ui/setting_dialog.py" line="650"/>
         <location filename="../../ui/setting_dialog.py" line="664"/>
-        <location filename="../../ui/setting_dialog.py" line="1188"/>
-        <location filename="../../ui/setting_dialog.py" line="1189"/>
-        <location filename="../../ui/setting_dialog.py" line="1190"/>
-        <location filename="../../ui/setting_dialog.py" line="1191"/>
+        <location filename="../../ui/setting_dialog.py" line="1170"/>
+        <location filename="../../ui/setting_dialog.py" line="1171"/>
+        <location filename="../../ui/setting_dialog.py" line="1172"/>
+        <location filename="../../ui/setting_dialog.py" line="1173"/>
         <source>Browse</source>
         <translation>ब्राउज़ करें</translation>
     </message>
@@ -2399,7 +2399,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="640"/>
-        <location filename="../../ui/setting_dialog.py" line="1217"/>
+        <location filename="../../ui/setting_dialog.py" line="1199"/>
         <source>deno executable:</source>
         <translation>deno निष्पादक:</translation>
     </message>
@@ -2410,13 +2410,13 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="657"/>
-        <location filename="../../ui/setting_dialog.py" line="1218"/>
+        <location filename="../../ui/setting_dialog.py" line="1200"/>
         <source>ffmpeg executable:</source>
         <translation>ffmpeg निष्पादक:</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="663"/>
-        <location filename="../../ui/setting_dialog.py" line="1215"/>
+        <location filename="../../ui/setting_dialog.py" line="1197"/>
         <source>Optional cookies.txt (leave blank)</source>
         <translation>वैकल्पिक cookies.txt (खाली छोड़ें)</translation>
     </message>
@@ -2432,7 +2432,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="673"/>
-        <location filename="../../ui/setting_dialog.py" line="1185"/>
+        <location filename="../../ui/setting_dialog.py" line="1167"/>
         <source>Backend paths</source>
         <translation>बैकएंड पथ</translation>
     </message>
@@ -2448,7 +2448,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="711"/>
-        <location filename="../../ui/setting_dialog.py" line="1224"/>
+        <location filename="../../ui/setting_dialog.py" line="1206"/>
         <source>Check for updates every (days):</source>
         <translation>हर (दिन) में अपडेट की जांच करें:</translation>
     </message>
@@ -2458,106 +2458,106 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
         <translation>ऐप संस्करण: %1</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="754"/>
-        <location filename="../../ui/setting_dialog.py" line="1231"/>
+        <location filename="../../ui/setting_dialog.py" line="737"/>
+        <location filename="../../ui/setting_dialog.py" line="1213"/>
         <source>yt-dlp version: %1</source>
         <translation>yt-dlp संस्करण: %1</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1227"/>
+        <location filename="../../ui/setting_dialog.py" line="1209"/>
         <source>App version: %s</source>
         <translation>ऐप संस्करण: %s</translation>
     </message>
     <message>
         <location filename="../../ui/setting_dialog.py" line="725"/>
-        <location filename="../../ui/setting_dialog.py" line="1228"/>
+        <location filename="../../ui/setting_dialog.py" line="1210"/>
         <source>Check for app update</source>
         <translation>ऐप अपडेट की जांच करें</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="756"/>
-        <location filename="../../ui/setting_dialog.py" line="1232"/>
+        <location filename="../../ui/setting_dialog.py" line="738"/>
+        <location filename="../../ui/setting_dialog.py" line="1214"/>
         <source>Check for yt-dlp update</source>
         <translation>yt-dlp अपडेट की जांच करें</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="765"/>
-        <location filename="../../ui/setting_dialog.py" line="1221"/>
+        <location filename="../../ui/setting_dialog.py" line="747"/>
+        <location filename="../../ui/setting_dialog.py" line="1203"/>
         <source>Updates</source>
         <translation>अपडेट</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1096"/>
+        <location filename="../../ui/setting_dialog.py" line="1078"/>
         <source>Choose language:</source>
         <translation>भाषा चुनें:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1097"/>
+        <location filename="../../ui/setting_dialog.py" line="1079"/>
         <source>Choose Setting:</source>
         <translation>सेटिंग चुनें:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1109"/>
+        <location filename="../../ui/setting_dialog.py" line="1091"/>
         <source>Download Engine:</source>
         <translation>डाउनलोड इंजन:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1132"/>
+        <location filename="../../ui/setting_dialog.py" line="1114"/>
         <source>Theme:</source>
         <translation>थीम:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1135"/>
+        <location filename="../../ui/setting_dialog.py" line="1117"/>
         <source>Accent Color</source>
         <translation>उच्चारण रंग</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1143"/>
+        <location filename="../../ui/setting_dialog.py" line="1125"/>
         <source>cURL</source>
         <translation>cURL</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1144"/>
+        <location filename="../../ui/setting_dialog.py" line="1126"/>
         <source>YTDLP</source>
         <translation>YTDLP</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1145"/>
+        <location filename="../../ui/setting_dialog.py" line="1127"/>
         <source>ARIA2C</source>
         <translation>ARIA2C</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1172"/>
+        <location filename="../../ui/setting_dialog.py" line="1154"/>
         <source>Output template (e.g. %(title)s.%(ext)s)</source>
         <translation>आउटपुट टेम्पलेट (जैसे %(title)s.%(ext)s)</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1261"/>
+        <location filename="../../ui/setting_dialog.py" line="1243"/>
         <source>Folder:</source>
         <translation>फ़ोल्डर:</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1261"/>
+        <location filename="../../ui/setting_dialog.py" line="1243"/>
         <source>will be created</source>
         <translation>बनाया जाएगा</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1263"/>
+        <location filename="../../ui/setting_dialog.py" line="1245"/>
         <source>Create Folder</source>
         <translation>फ़ोल्डर बनाएं</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1276"/>
+        <location filename="../../ui/setting_dialog.py" line="1258"/>
         <source>Error while creating global settings folder</source>
         <translation>वैश्विक सेटिंग्स फ़ोल्डर बनाते समय त्रुटि</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1276"/>
+        <location filename="../../ui/setting_dialog.py" line="1258"/>
         <source>Local folder will be used instead</source>
         <translation>इसके बजाय स्थानीय फ़ोल्डर का उपयोग किया जाएगा</translation>
     </message>
     <message>
-        <location filename="../../ui/setting_dialog.py" line="1278"/>
+        <location filename="../../ui/setting_dialog.py" line="1260"/>
         <source>Error</source>
         <translation>त्रुटि</translation>
     </message>
@@ -2565,42 +2565,42 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 <context>
     <name>SubtitleFailedDialog</name>
     <message>
-        <location filename="../../main.py" line="510"/>
+        <location filename="../../main.py" line="509"/>
         <source>Subtitle Download Failed</source>
         <translation>उपशीर्षक डाउनलोड विफल रहा</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="519"/>
+        <location filename="../../main.py" line="518"/>
         <source>⚠  Subtitle Could Not Be Downloaded</source>
         <translation>⚠ उपशीर्षक डाउनलोड नहीं किया जा सका</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="526"/>
+        <location filename="../../main.py" line="525"/>
         <source>YouTube returned &lt;b&gt;HTTP 429 (Too Many Requests)&lt;/b&gt; for the &lt;b&gt;{lang}&lt;/b&gt; subtitle of:&lt;br&gt;&lt;i&gt;{title}&lt;/i&gt;&lt;br&gt;&lt;br&gt;The subtitle URL is still valid. You can open it in your browser to view or save it manually.</source>
         <translation>YouTube ने &lt;b&gt;{lang}&lt;/b&gt; के उपशीर्षक के लिए &lt;b&gt;HTTP 429 (बहुत अधिक अनुरोध)&lt;/b&gt; लौटाया:&lt;br&gt;&lt;i&gt;{title}&lt;/i&gt;&lt;br&gt;&lt;br&gt;उपशीर्षक URL अभी भी मान्य है। आप इसे मैन्युअल रूप से देखने या सहेजने के लिए अपने ब्राउज़र में खोल सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="549"/>
+        <location filename="../../main.py" line="548"/>
         <source>Copy Link</source>
         <translation>लिंक की प्रतिलिपि करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="550"/>
+        <location filename="../../main.py" line="549"/>
         <source>Copy subtitle URL to clipboard</source>
         <translation>उपशीर्षक URL को क्लिपबोर्ड पर कॉपी करें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="554"/>
+        <location filename="../../main.py" line="553"/>
         <source>Open in Browser</source>
         <translation>ब्राउज़र में खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="557"/>
+        <location filename="../../main.py" line="556"/>
         <source>Open the subtitle URL in your default browser</source>
         <translation>अपने डिफ़ॉल्ट ब्राउज़र में उपशीर्षक URL खोलें</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="561"/>
+        <location filename="../../main.py" line="560"/>
         <source>Close</source>
         <translation>बंद करना</translation>
     </message>
@@ -2608,7 +2608,7 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 <context>
     <name>Update</name>
     <message>
-        <location filename="../updater.py" line="294"/>
+        <location filename="../updater.py" line="298"/>
         <source>Updating your application...
 
 This may take about 1 minute.
@@ -2621,7 +2621,7 @@ Please do not interrupt the process.</source>
 कृपया प्रक्रिया को बाधित न करें.</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="392"/>
+        <location filename="../updater.py" line="396"/>
         <source>Update failed
 
 Details:
@@ -2636,34 +2636,34 @@ If this keeps happening, check your network and antivirus exclusions.</source>
 यदि ऐसा होता रहता है, तो अपने नेटवर्क और एंटीवायरस बहिष्करण की जाँच करें।</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="549"/>
-        <location filename="../updater.py" line="588"/>
-        <location filename="../updater.py" line="675"/>
+        <location filename="../updater.py" line="553"/>
+        <location filename="../updater.py" line="592"/>
+        <location filename="../updater.py" line="678"/>
         <source>Update Info</source>
         <translation>जानकारी अपडेट करें</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="550"/>
-        <location filename="../updater.py" line="676"/>
+        <location filename="../updater.py" line="554"/>
+        <location filename="../updater.py" line="679"/>
         <source>Downloading update, please wait...
 Do not close the app yet.</source>
         <translation>अपडेट डाउनलोड हो रहा है, कृपया प्रतीक्षा करें...
 ऐप को अभी बंद न करें.</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="589"/>
+        <location filename="../updater.py" line="593"/>
         <source>Download complete. Finalizing update...</source>
         <translation>डाउनलोड पूर्ण। अद्यतन को अंतिम रूप दिया जा रहा है...</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="614"/>
-        <location filename="../updater.py" line="690"/>
+        <location filename="../updater.py" line="618"/>
+        <location filename="../updater.py" line="693"/>
         <source>Update</source>
         <translation>अद्यतन</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="615"/>
-        <location filename="../updater.py" line="691"/>
+        <location filename="../updater.py" line="619"/>
+        <location filename="../updater.py" line="694"/>
         <source>Updated to version {tag}. Restart OmniPull to use the new version.</source>
         <translation>संस्करण {टैग} में अद्यतन किया गया। नए संस्करण का उपयोग करने के लिए ओमनीपुल को पुनरारंभ करें।</translation>
     </message>
@@ -2671,40 +2671,40 @@ Do not close the app yet.</source>
 <context>
     <name>updater</name>
     <message>
-        <location filename="../updater.py" line="849"/>
+        <location filename="../updater.py" line="852"/>
         <source>yt-dlp not set or not found.</source>
         <translation>yt-dlp सेट नहीं है या नहीं मिला।</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="889"/>
+        <location filename="../updater.py" line="892"/>
         <source>yt-dlp is up to date.</source>
         <translation>yt-dlp अद्यतित है।</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="931"/>
-        <location filename="../updater.py" line="959"/>
+        <location filename="../updater.py" line="934"/>
+        <location filename="../updater.py" line="962"/>
         <source>yt-dlp has been updated to the latest version ({latest_version}).</source>
         <translation>yt-dlp को नवीनतम संस्करण ({latest_version}) में अद्यतन कर दिया गया है।</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="938"/>
-        <location filename="../updater.py" line="964"/>
+        <location filename="../updater.py" line="941"/>
+        <location filename="../updater.py" line="967"/>
         <source>yt-dlp is currently in use. Update downloaded and will be applied on next app restart ({latest_version}).</source>
         <translation>yt-dlp वर्तमान में उपयोग में है। अपडेट डाउनलोड हो गया है और इसे अगले ऐप रीस्टार्ट ({latest_version}) पर लागू किया जाएगा।</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="946"/>
-        <location filename="../updater.py" line="972"/>
+        <location filename="../updater.py" line="949"/>
+        <location filename="../updater.py" line="975"/>
         <source>yt-dlp is in use and the update could not be staged: {e_move}</source>
         <translation>yt-dlp उपयोग में है और अद्यतन चरणबद्ध नहीं किया जा सका: {e_move}</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="980"/>
+        <location filename="../updater.py" line="983"/>
         <source>Failed to replace yt-dlp: {e_fallback}</source>
         <translation>Yt-dlp को बदलने में विफल: {e_fallback}</translation>
     </message>
     <message>
-        <location filename="../updater.py" line="990"/>
+        <location filename="../updater.py" line="993"/>
         <source>Failed to download new yt-dlp executable: {e}</source>
         <translation>नया yt-dlp निष्पादन योग्य डाउनलोड करने में विफल: {e}</translation>
     </message>
