@@ -1,9 +1,12 @@
 <!-- MANPAGE: BEGIN EXCLUDED SECTION -->
 <div align="center">
 
-[![OmniPull](icons/omnipull.png)](#readme)
+<a href="#readme">
+  <img src="icons/omnipull.png" alt="OmniPull" width="400" height="400">
+</a>
 
-[![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?color=brightgreen&label=Download&style=for-the-badge)](#installation)
+
+<br>[![GitHub release](https://img.shields.io/github/v/release/Annor-Gyimah/OmniPull?color=brightgreen&label=Download&style=for-the-badge)](#installation)
 [![License](https://img.shields.io/github/license/Annor-Gyimah/OmniPull?color=blue&style=for-the-badge)](LICENSE)
 [![Total Downloads](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?color=orange&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/releases)
 [![Stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?color=yellow&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/stargazers)
