@@ -1,3 +1,11 @@
+---
+name: Bug report
+about: Report a bug to help improve OmniPull
+title: "[BUG] "
+labels: bug
+assignees: ""
+---
+
 ## Description
 A clear and concise description of the bug.
 
