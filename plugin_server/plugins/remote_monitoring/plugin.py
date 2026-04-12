@@ -1,0 +1,672 @@
+#####################################################################################
+#   Remote Monitoring Plugin for OmniPull
+#
+#   Starts a FastAPI HTTP server in a background daemon thread and serves:
+#     GET /          → responsive Tailwind CSS dashboard (index.html)
+#     GET /api/stats → live JSON snapshot of d_list
+#     GET /api/ws    → Server-Sent Events stream for real-time push updates
+#
+#   Entry-point (called by PluginManager):
+#       initialize_plugin(d_list, main_q)
+#####################################################################################
+
+__plugin_meta__ = {
+    "name": "Remote Monitoring",
+    "version": "1.0.0",
+    "author": "OmniPull Team",
+    "description": (
+        "FastAPI server that exposes real-time download progress over HTTP. "
+        "View from any device on the same network via a polished dashboard."
+    ),
+}
+
+import asyncio
+import json
+import threading
+import time
+import os
+from datetime import datetime
+from pathlib import Path
+from queue import Queue
+from typing import List, Dict, Any
+
+# ── Optional dependency guards ────────────────────────────────────────────────
+try:
+    import uvicorn
+    from fastapi import FastAPI
+    from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
+    from fastapi.middleware.cors import CORSMiddleware
+    _HAS_FASTAPI = True
+except ImportError:
+    _HAS_FASTAPI = False
+
+try:
+    from modules.utils import log
+except ImportError:
+    def log(msg, log_level=1, context="REMOTE-MON"):
+        print(f"[{context}] {msg}")
+
+
+# ── Module-level state (shared across threads) ────────────────────────────────
+_d_list: list = []
+_main_q: Queue = None
+_server_thread: threading.Thread = None
+_HOST = "0.0.0.0"
+_PORT = 7432
+
+
+# ── Entry-point ───────────────────────────────────────────────────────────────
+def initialize_plugin(d_list: list, main_q: Queue) -> None:
+    global _d_list, _main_q, _server_thread
+
+    _d_list = d_list
+    _main_q = main_q
+
+    if not _HAS_FASTAPI:
+        log(
+            "Remote Monitoring plugin requires 'fastapi' and 'uvicorn'.\n"
+            "  pip install fastapi uvicorn",
+            log_level=2, context="REMOTE-MON"
+        )
+        return
+
+    if _server_thread and _server_thread.is_alive():
+        log("Server already running.", context="REMOTE-MON")
+        return
+
+    _server_thread = threading.Thread(
+        target=_run_server,
+        daemon=True,
+        name="remote-mon-server"
+    )
+    _server_thread.start()
+    log(f"Remote Monitoring dashboard → http://localhost:{_PORT}",
+        context="REMOTE-MON")
+
+
+def teardown_plugin() -> None:
+    """Called by PluginManager.unload() – nothing to do for daemon threads."""
+    log("Remote Monitoring plugin teardown requested.", context="REMOTE-MON")
+
+
+# ── Data helpers ──────────────────────────────────────────────────────────────
+def _safe_float(val, default=0.0) -> float:
+    try:
+        return float(val or 0)
+    except (TypeError, ValueError):
+        return default
+
+
+def _build_stats() -> Dict[str, Any]:
+    """Snapshot _d_list into a JSON-serialisable dict."""
+    items = []
+    total_speed = 0.0
+
+    for d in _d_list:
+        try:
+            speed = _safe_float(getattr(d, "_speed", 0))
+            total_speed += speed
+            progress = _safe_float(getattr(d, "_progress", getattr(d, "progress", 0)))
+
+            items.append({
+                "id":         getattr(d, "id", 0),
+                "name":       str(getattr(d, "name", "Unknown")),
+                "status":     str(getattr(d, "status", "unknown")),
+                "progress":   round(progress, 1),
+                "speed":      speed,
+                "size":       _safe_float(getattr(d, "size", 0)),
+                "downloaded": _safe_float(getattr(d, "downloaded", 0)),
+                "engine":     str(getattr(d, "engine", "?")),
+                "folder":     str(getattr(d, "folder", "")),
+                "eta":        _safe_float(getattr(d, "remaining_time", 0)),
+            })
+        except Exception:
+            pass
+
+    active  = sum(1 for i in items if i["status"] == "downloading")
+    done    = sum(1 for i in items if i["status"] == "completed")
+    errored = sum(1 for i in items if i["status"] in ("error", "failed"))
+
+    return {
+        "timestamp":   datetime.utcnow().isoformat() + "Z",
+        "total":       len(items),
+        "active":      active,
+        "completed":   done,
+        "errored":     errored,
+        "total_speed": total_speed,
+        "items":       items,
+    }
+
+
+# ── FastAPI app ───────────────────────────────────────────────────────────────
+def _build_app() -> "FastAPI":
+    app = FastAPI(title="OmniPull Remote Monitor", version="1.0.0")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["GET"],
+        allow_headers=["*"],
+    )
+
+    @app.get("/", response_class=HTMLResponse)
+    async def dashboard():
+        return HTMLResponse(content=_DASHBOARD_HTML, status_code=200)
+
+    @app.get("/api/stats")
+    async def stats():
+        return JSONResponse(_build_stats())
+
+    @app.get("/api/stream")
+    async def sse_stream():
+        """Server-Sent Events endpoint — pushes updates every second."""
+        async def event_generator():
+            while True:
+                data = json.dumps(_build_stats())
+                yield f"data: {data}\n\n"
+                await asyncio.sleep(1)
+
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control":               "no-cache",
+                "X-Accel-Buffering":           "no",
+                "Access-Control-Allow-Origin": "*",
+            }
+        )
+
+    @app.get("/api/health")
+    async def health():
+        return {"status": "ok", "plugin": "remote_monitoring"}
+
+    return app
+
+
+def _run_server():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    app = _build_app()
+    config = uvicorn.Config(
+        app, host=_HOST, port=_PORT,
+        log_level="warning", loop="asyncio"
+    )
+    server = uvicorn.Server(config)
+    loop.run_until_complete(server.serve())
+
+
+# ── Dashboard HTML ─────────────────────────────────────────────────────────────
+# A complete, self-contained, responsive Tailwind CSS page.
+# Fetches data from /api/stream (SSE) and updates the DOM in real-time.
+_DASHBOARD_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmniPull Remote Monitor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #13161d;
+    --card:     #1a1e27;
+    --border:   #252a35;
+    --muted:    #4a5366;
+    --text:     #d4daf0;
+    --accent:   #3b82f6;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --amber:    #f59e0b;
+    --purple:   #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Animated background grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .z1 { position: relative; z-index: 1; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: #354060; }
+
+  /* ── Stat badge ── */
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .4px;
+  }
+
+  /* ── Progress bar ── */
+  .prog-track {
+    background: #1e2535;
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .prog-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .5s ease;
+  }
+
+  /* ── Status dot ── */
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-active  { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 1.4s infinite; }
+  .dot-done    { background: var(--green); }
+  .dot-error   { background: var(--red); }
+  .dot-pending { background: var(--amber); }
+  .dot-idle    { background: var(--muted); }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .4; }
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Speed sparkle animation ── */
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  .speed-text {
+    background: linear-gradient(90deg, var(--accent), #818cf8, var(--accent));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* ── Fade-in rows ── */
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .row-item { animation: fadeSlide .3s ease; }
+
+  /* ── Connection indicator ── */
+  #conn-ring {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    transition: background .4s, box-shadow .4s;
+  }
+  #conn-ring.lost {
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    animation: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<header class="z1 sticky top-0" style="background:rgba(13,15,20,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:50;">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span style="font-size:22px">📡</span>
+      <span class="font-semibold text-sm tracking-tight" style="color:var(--text)">OmniPull</span>
+      <span class="text-xs" style="color:var(--muted)">/ Remote Monitor</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Live indicator -->
+      <div class="flex items-center gap-2">
+        <div id="conn-ring"></div>
+        <span id="conn-txt" class="text-xs mono" style="color:var(--muted)">LIVE</span>
+      </div>
+      <!-- Clock -->
+      <span id="clock" class="mono text-xs" style="color:var(--muted)">--:--:--</span>
+    </div>
+  </div>
+</header>
+
+<main class="z1 max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- ── KPI Row ─────────────────────────────────────────────────────────── -->
+  <div id="kpi-row" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="card" id="kpi-total">
+      <p class="text-xs uppercase tracking-widest mb-1" style="color:var(--muted)">Total</p>
+      <p class="text-3xl font-bold mono" id="kpi-total-val">—</p>
+    </div>
+    <div class="card" id="kpi-active">
+      <p class="text-xs uppercase tracking-widest mb-1" style="color:var(--muted)">Downloading</p>
+      <p class="text-3xl font-bold mono" id="kpi-active-val" style="color:var(--accent)">—</p>
+    </div>
+    <div class="card">
+      <p class="text-xs uppercase tracking-widest mb-1" style="color:var(--muted)">Completed</p>
+      <p class="text-3xl font-bold mono" id="kpi-done-val" style="color:var(--green)">—</p>
+    </div>
+    <div class="card">
+      <p class="text-xs uppercase tracking-widest mb-1" style="color:var(--muted)">Total Speed</p>
+      <p class="text-2xl font-bold speed-text mono" id="kpi-speed-val">—</p>
+    </div>
+  </div>
+
+  <!-- ── Download list ────────────────────────────────────────────────────── -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="flex items-center justify-between px-5 py-3" style="border-bottom:1px solid var(--border);">
+      <h2 class="font-semibold text-sm" style="color:var(--text)">Downloads</h2>
+      <span id="list-count" class="text-xs mono" style="color:var(--muted)"></span>
+    </div>
+    <div id="dl-list" class="divide-y" style="border-color:var(--border);max-height:60vh;overflow-y:auto;">
+      <p class="px-5 py-6 text-sm text-center" style="color:var(--muted)">Connecting…</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="z1 text-center py-4 text-xs mono" style="color:var(--muted);">
+  OmniPull Remote Monitor · port 7432
+</footer>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtBytes(b) {
+  if (!b || b === 0) return '0 B';
+  const u = ['B','KB','MB','GB','TB'];
+  const i = Math.floor(Math.log(b) / Math.log(1024));
+  return (b / Math.pow(1024, i)).toFixed(1) + ' ' + u[i];
+}
+function fmtSpeed(bps) {
+  return fmtBytes(bps) + '/s';
+}
+function fmtETA(secs) {
+  if (!secs || secs <= 0) return '';
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = Math.floor(secs % 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function dotClass(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'downloading')   return 'dot dot-active';
+  if (s === 'completed')     return 'dot dot-done';
+  if (s === 'error' || s === 'failed') return 'dot dot-error';
+  if (s === 'queued' || s === 'pending') return 'dot dot-pending';
+  return 'dot dot-idle';
+}
+
+function barColor(status, pct) {
+  const s = (status || '').toLowerCase();
+  if (s === 'completed')               return '#22c55e';
+  if (s === 'error' || s === 'failed') return '#ef4444';
+  if (s === 'downloading')             return '#3b82f6';
+  if (s === 'merging_audio')           return '#f59e0b';
+  return '#4a5366';
+}
+
+function statusBadge(status) {
+  const s = (status || '').toLowerCase();
+  const cfg = {
+    downloading:   ['#1d3461','#3b82f6'],
+    completed:     ['#14301e','#22c55e'],
+    error:         ['#3a1515','#ef4444'],
+    failed:        ['#3a1515','#ef4444'],
+    cancelled:     ['#2a1a00','#f59e0b'],
+    queued:        ['#1e1532','#a855f7'],
+    pending:       ['#1e1532','#a855f7'],
+    merging_audio: ['#2a1f00','#f59e0b'],
+    stitching:     ['#2a1f00','#f59e0b'],
+  };
+  const [bg, col] = cfg[s] || ['#1e2535','#4a5366'];
+  return `<span class="stat-badge" style="background:${bg};color:${col};">${status}</span>`;
+}
+
+// ── Clock ─────────────────────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US', {hour12: false});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(data) {
+  // KPIs — update only if changed
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el && el.textContent !== String(val)) el.textContent = val;
+  }
+
+  setText('kpi-total-val',  data.total ?? 0);
+  setText('kpi-active-val', data.active ?? 0);
+  setText('kpi-done-val',   data.completed ?? 0);
+  setText('kpi-speed-val',  fmtSpeed(data.total_speed ?? 0));
+  setText('list-count',     (data.total ?? 0) + ' item(s)');
+
+  const items = data.items || [];
+  const list  = document.getElementById('dl-list');
+
+  if (!items.length) {
+    if (list.dataset.empty !== '1') {
+      list.innerHTML = '<p class="px-5 py-8 text-sm text-center" style="color:var(--muted)">No downloads yet.</p>';
+      list.dataset.empty = '1';
+    }
+    return;
+  }
+
+  list.dataset.empty = '0';
+
+  // Sort: downloading first, then progress desc
+  items.sort((a, b) =>
+    (b.status === 'downloading' ? 1 : 0) - (a.status === 'downloading' ? 1 : 0)
+    || (b.progress || 0) - (a.progress || 0)
+  );
+
+  // Map existing rows
+  const existingRows = {};
+  list.querySelectorAll('[data-id]').forEach(el => {
+    existingRows[el.dataset.id] = el;
+  });
+
+  const seenIds = new Set();
+
+  items.forEach(it => {
+    const id  = String(it.id ?? it.name); // ✅ SAFE fallback
+    seenIds.add(id);
+
+    const pct = Math.min(100, Math.max(0, it.progress || 0));
+    const eta = fmtETA(it.eta);
+
+    let row = existingRows[id];
+
+    if (!row) {
+      // Create new row
+      row = document.createElement('div');
+      row.className = 'row-item px-5 py-4';
+      row.dataset.id = id;
+      row.style.cssText = 'border-bottom:1px solid var(--border);transition:background .2s';
+
+      row.onmouseenter = () => row.style.background = '#1e2535';
+      row.onmouseleave = () => row.style.background = '';
+
+      row.innerHTML = _rowHTML(it, pct, eta);
+      list.appendChild(row);
+
+    } else {
+      // Patch existing row
+      const fillEl = row.querySelector('.prog-fill');
+      if (fillEl) {
+        fillEl.style.width = pct + '%';
+        fillEl.style.background = barColor(it.status, pct);
+      }
+
+      const pctEl = row.querySelector('[data-pct]');
+      if (pctEl && pctEl.textContent !== pct.toFixed(1) + '%') {
+        pctEl.textContent = pct.toFixed(1) + '%';
+      }
+
+      const bigEl = row.querySelector('[data-bigpct]');
+      if (bigEl && bigEl.firstChild && bigEl.firstChild.textContent !== pct.toFixed(0)) {
+        bigEl.firstChild.textContent = pct.toFixed(0);
+      }
+
+      const spdEl = row.querySelector('[data-speed]');
+      if (spdEl) {
+        const newSpd = it.status === 'downloading' ? fmtSpeed(it.speed) : '';
+        if (spdEl.textContent !== newSpd) spdEl.textContent = newSpd;
+      }
+
+      const etaEl = row.querySelector('[data-eta]');
+      if (etaEl) {
+        const newEta = eta ? 'ETA ' + eta : '';
+        if (etaEl.textContent !== newEta) etaEl.textContent = newEta;
+      }
+
+      // Status dot update
+      const dotEl  = row.querySelector('.dot');
+      const newCls = dotClass(it.status);
+      if (dotEl && dotEl.className !== newCls) dotEl.className = newCls;
+    }
+  });
+
+  // Remove stale rows
+  Object.keys(existingRows).forEach(id => {
+    if (!seenIds.has(id)) existingRows[id].remove();
+  });
+}
+
+
+// Helper: initial row HTML
+function _rowHTML(it, pct, eta) {
+  return `
+    <div class="flex items-start gap-3">
+      <div class="${dotClass(it.status)}" style="margin-top:5px"></div>
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <span class="text-sm font-medium truncate"
+                style="color:var(--text);max-width:320px"
+                title="${it.name}">
+            ${it.name}
+          </span>
+
+          ${statusBadge(it.status)}
+
+          <span class="text-xs mono" style="color:var(--muted)">
+            ${it.engine}
+          </span>
+        </div>
+
+        <div class="prog-track">
+          <div class="prog-fill"
+               style="width:${pct}%;background:${barColor(it.status, pct)}">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 mt-2 flex-wrap">
+          <span class="mono text-xs"
+                style="color:var(--accent)"
+                data-pct>
+            ${pct.toFixed(1)}%
+          </span>
+
+          <span class="mono text-xs" style="color:var(--muted)">
+            ${fmtBytes(it.downloaded)} / ${fmtBytes(it.size)}
+          </span>
+
+          <span class="mono text-xs"
+                style="color:var(--green)"
+                data-speed>
+            ${it.status === 'downloading' ? fmtSpeed(it.speed) : ''}
+          </span>
+
+          <span class="mono text-xs"
+                style="color:var(--amber)"
+                data-eta>
+            ${eta ? 'ETA ' + eta : ''}
+          </span>
+        </div>
+      </div>
+
+      <div class="hidden sm:block text-right" data-bigpct>
+        <span class="mono text-xl font-bold"
+              style="color:${barColor(it.status, pct)}">
+          ${pct.toFixed(0)}
+          <span style="font-size:12px;color:var(--muted)">%</span>
+        </span>
+      </div>
+    </div>`;
+}
+
+// ── SSE connection ─────────────────────────────────────────────────────────────
+let evtSource;
+
+function connect() {
+  evtSource = new EventSource('/api/stream');
+
+  evtSource.onmessage = e => {
+    try {
+      const data = JSON.parse(e.data);
+      render(data);
+      // Live indicator
+      const ring = document.getElementById('conn-ring');
+      const txt  = document.getElementById('conn-txt');
+      ring.classList.remove('lost');
+      ring.style.background = '';
+      txt.textContent = 'LIVE';
+    } catch(err) {}
+  };
+
+  evtSource.onerror = () => {
+    const ring = document.getElementById('conn-ring');
+    const txt  = document.getElementById('conn-txt');
+    ring.classList.add('lost');
+    txt.textContent = 'RECONNECTING…';
+    // Reconnect after 3s
+    evtSource.close();
+    setTimeout(connect, 3000);
+  };
+}
+
+connect();
+</script>
+</body>
+</html>
+"""

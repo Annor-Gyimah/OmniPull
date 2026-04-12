@@ -10,29 +10,5 @@
     "size": "~40 KB",
     "download_url": "http://localhost/lite/plugin_server/plugins/remote_monitoring.zip",
     "requires": ["fastapi", "uvicorn"]
-  },
-  {
-    "id": "auto_organiser",
-    "name": "Auto Organiser",
-    "version": "0.8.2",
-    "author": "Community",
-    "description": "Automatically moves completed downloads into subfolders categorised by file type, date, or custom rules. Keeps your Downloads directory tidy.",
-    "icon": "🗂️",
-    "tags": ["organisation", "files", "automation"],
-    "size": "~12 KB",
-    "download_url": "__coming_soon__",
-    "requires": []
-  },
-  {
-    "id": "speed_analytics",
-    "name": "Speed Analytics",
-    "version": "0.5.0",
-    "author": "Community",
-    "description": "Tracks per-download bandwidth history and renders beautiful inline sparklines. Export CSV reports or visualise weekly throughput trends.",
-    "icon": "📊",
-    "tags": ["analytics", "charts", "performance"],
-    "size": "~18 KB",
-    "download_url": "__coming_soon__",
-    "requires": []
   }
 ]
