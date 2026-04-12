@@ -74,30 +74,39 @@ Download the latest OmniPull from the [Releases](https://github.com/Annor-Gyimah
 
 **Recommended: Direct Download Links**
 | File | Description |
-|:---|:---
-| [OmniPull-Setup-x64.exe](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Setup-x64.exe) | Windows x64 Installer |
-| [OmniPull-Portable.zip](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Portable.zip) | Windows Portable Version |
+|:---|:---|
+| [OmniPull-Setup.exe](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Setup.exe) | ✅ Full installer (includes ffmpeg, aria2c, yt-dlp) (Recommended) |
+| [OmniPull-Setup-lite.exe](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Setup-lite.exe) | ⚡ Smaller installer (requires external dependencies) |
+| [OmniPull-Portable.exe](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Portable.exe) | 🧳 Portable version (no install, minimal setup) |
 
-After installation, launch OmniPull from the Start Menu or desktop shortcut. No additional configuration is needed. `aria2c` is included and ready to go.
+> 💡 The full installer is recommended for most users.  
+> It includes all required tools (`aria2c`, `ffmpeg`, `yt-dlp`) and works out of the box.  
+> After installation, launch OmniPull from the Start Menu or desktop shortcut.
+>
+> The lite and portable versions require you to install some of these dependencies manually through the app.
+
+
 
 ---
 
 ### Linux
 
 | File | Description |
-|:---|:---
-| [OmniPull-x.x.x.AppImage](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.AppImage) | AppImage (Recommended) |
-| [omnipull_x.x.x_amd64.deb](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/omnipull_x.x.x_amd64.deb) | DEB Package |
+|:---|:---|
+| [OmniPull.AppImage](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.AppImage) | ✅ Portable (recommended) |
+| [OmniPull.deb](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.deb) | 📦 Debian/Ubuntu package |
+
 
 ```bash
 # AppImage
-wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.AppImage
-chmod +x OmniPull-x.x.x.AppImage
-./OmniPull-x.x.x.AppImage
+wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.AppImage
+chmod +x OmniPull.AppImage
+./OmniPull.AppImage
 
-# DEB Package
-wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/omnipull_x.x.x_amd64.deb
-sudo dpkg -i omnipull_x.x.x_amd64.deb
+# DEB
+wget https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.deb
+sudo apt install ./OmniPull.deb or
+sudo dpkg -i OmniPull.deb
 sudo apt-get install -f  # Fix any missing dependencies
 ```
 
@@ -105,20 +114,26 @@ sudo apt-get install -f  # Fix any missing dependencies
 
 ### macOS
 
-| File | Description |
-|:---|:---
-| [OmniPull-x.x.x.dmg](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-x.x.x.dmg) | Intel Mac |
-| [OmniPull-arm64-x.x.x.dmg](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-arm64-x.x.x.dmg) | Apple Silicon Mac |
+> ⚠️ Pre-built macOS binaries are not yet available.
+> You can run OmniPull using Python or install via PyPI.
+
+---
+
+### 🛠️ Install via PyPI (Recommended)
 
 ```bash
-# Mount and drag to Applications
-hdiutil mount OmniPull-x.x.x.dmg
-cp -R /Volumes/OmniPull/OmniPull.app /Applications/
+pip install omnipull
+omnipull
+```
 
-# Or via terminal
-hdiutil attach OmniPull-x.x.x.dmg
-cp -R /Volumes/OmniPull/OmniPull.app /Applications/
-hdiutil detach /Volumes/OmniPull
+---
+
+> 💡 Requires: ffmpeg, yt-dlp, deno, aria2c
+<br>
+> Install with:
+<br>
+```bash
+brew install ffmpeg yt-dlp deno
 ```
 
 ---
@@ -502,4 +517,4 @@ If you find OmniPull useful, please consider:
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Annor-Gyimah/OmniPull&type=Date)](https://star-history.com/#Annor-Gyimah/OmniPull&Date)
 
-<p align="center">Made with ❤️ by Emmanuel Gyimah Annor</p>
+<p align="center">Made with ❤️</p>
