@@ -130,9 +130,9 @@ omnipull
 
 > 💡 Requires: ffmpeg, yt-dlp, deno, aria2c
 <br>
-> Install with:
+Install with:
 <br>
-```bash
+```
 brew install ffmpeg yt-dlp deno
 ```
 
