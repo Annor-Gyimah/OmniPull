@@ -10,6 +10,7 @@
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge)](LICENSE)
 [![Total Downloads](https://img.shields.io/github/downloads/Annor-Gyimah/OmniPull/total?color=orange&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/releases)
 [![Stars](https://img.shields.io/github/stars/Annor-Gyimah/OmniPull?color=yellow&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/stargazers)
+![GitHub code size](https://img.shields.io/github/languages/code-size/Annor-Gyimah/OmniPull?style=for-the-badge&color=purple)
 [![Last Commit](https://img.shields.io/github/last-commit/Annor-Gyimah/OmniPull?color=grey&style=for-the-badge)](https://github.com/Annor-Gyimah/OmniPull/commits)
 
 </div>
@@ -177,7 +178,6 @@ python main.py
 
 - **Chrome/Edge Extension**: Capture downloads directly from Chrome-based browsers
 - **Firefox Extension**: Native Firefox support
-- **Opera Integration**: Full Opera browser integration
 - **Clipboard Monitoring**: Auto-detect and add URLs copied to clipboard
 
 ## User Experience
@@ -186,7 +186,6 @@ python main.py
 - **System Tray**: Background operation with tray icon
 - **Progress Monitoring**: Real-time download statistics with speed graphs
 - **Download Windows**: Detailed progress for each active download
-- **Drag & Drop**: Drag URLs directly into the application
 - **Internationalization**: Ready for multiple language translations
 
 ## Advanced Features
@@ -198,6 +197,7 @@ python main.py
 - **Proxy Support**: HTTP, HTTPS, SOCKS4, and SOCKS5 proxy support
 - **User Agent**: Customizable user agents
 - **Speed Limiting**: Throttle download speeds
+- **Plugin System**: A marketplace to install plugins for advancing OmniPull's capabilities beyond being just a downloader. [See how to make OmniPull's Plugins](PLUGINS.md)
 
 ---
 
@@ -322,21 +322,134 @@ OmniPull supports multiple download engines:
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│              UI Layer (PySide6)             │
-├─────────────────────────────────────────────┤
-│           Business Logic (Python)          │
-├─────────────────────────────────────────────┤
-│   Download Engines │ Video │ Settings │ DB │
-├─────────────────────────────────────────────┤
-│            System Integration               │
-└─────────────────────────────────────────────┘
-```
+```mermaid
+flowchart TD
+    %% ─── INPUT SOURCES ───────────────────────────────────────────
+    subgraph INPUT["INPUT SOURCES"]
+        direction LR
+        A1["📋 Clipboard\nauto-detected URLs"]
+        A2["🌐 Browser extension\nChrome · Firefox · Edge"]
+        A3["✏️ Manual entry\nadd download dialog"]
+        A4["📄 Batch import\n.txt file / link list"]
+    end
 
+    %% ─── URL PROCESSING ──────────────────────────────────────────
+    subgraph URL_PROC["URL PROCESSING"]
+        direction TB
+        B["url_text_change()\nSanitize · validate · route"]
+        C["fast_process_url()\nomnipull_url_processor  (Rust)"]
+        D["YouTubeThread / yt-dlp extractor\nDeep metadata · playlists · formats"]
+    end
+
+    %% ─── POST-PROCESSING DECISION ────────────────────────────────
+    subgraph DECISION["POST-PROCESSING DECISION"]
+        E["on_download_button_clicked()\nRoute: direct · queue · playlist"]
+    end
+
+    %% ─── QUEUE & SCHEDULE ────────────────────────────────────────
+    subgraph QSCHED["QUEUE & SCHEDULE MANAGEMENT"]
+        direction LR
+        F1["Queue manager\nstatus = queued\nstart_queue_downloads()"]
+        F2["Scheduler\ncheck_scheduled_queues()\n60 s polling timer"]
+    end
+
+    %% ─── START DOWNLOAD ──────────────────────────────────────────
+    G["start_download()\nValidate · conflict check · concurrency limit"]
+
+    %% ─── BRAIN (ENGINE ROUTING) ──────────────────────────────────
+    subgraph BRAIN["ENGINE ROUTING — brain.py"]
+        H["brain(d, emitter)\nEngine selector · stream resolver"]
+    end
+
+    %% ─── DOWNLOAD ENGINES ────────────────────────────────────────
+    subgraph ENGINES["DOWNLOAD ENGINES"]
+        direction LR
+        I1["Aria2c engine\nrun_aria2c_download()\nTorrents · magnets\nDASH video+audio"]
+        I2["yt-dlp engine\nrun_ytdlp_download()\nPython API or .exe\nStreaming · playlists"]
+        I3["Curl / Sparse engine\nrun_curl_download()\nMulti-connection\nsparse pre-alloc"]
+    end
+
+    %% ─── WORKER LAYER ────────────────────────────────────────────
+    subgraph WORKERS["WORKER LAYER & NATIVE ENGINE"]
+        direction LR
+        J1["Aria2 RPC daemon\naria2c_manager · GID tracking"]
+        J2["yt-dlp progress hook\nFFmpeg merge on finish"]
+        J3["Worker / Worker_Sparse\npycurl segments\nnative_engine.nim write"]
+    end
+
+    %% ─── COMPLETION ──────────────────────────────────────────────
+    subgraph FINISH["COMPLETION & POST-PROCESSING"]
+        direction TB
+        K["Post-processing\nSubtitle fetch · metadata embed\nCallback · notify · UI table refresh"]
+        L["✅ Status: completed\nFile on disk · d_list updated"]
+    end
+
+    %% ─── EDGES: INPUT → URL PROCESSING ──────────────────────────
+    A1 --> B
+    A2 --> B
+    A3 --> B
+    A4 -->|"batch_importer.py\nresolves each URL"| C
+
+    %% ─── EDGES: URL PROCESSING ───────────────────────────────────
+    B --> C
+    C -->|"success: name · size · type resolved"| E
+    C -->|"fallback: HTML / unsupported / YouTube"| D
+    D --> E
+
+    %% ─── EDGES: DECISION → QUEUE / DIRECT / SCHEDULE ─────────────
+    E -->|"add to queue"| F1
+    E -->|"start now"| G
+    E -->|"schedule"| F2
+
+    F1 -->|"queue triggered\n(manual or scheduled)"| G
+    F2 -->|"time match"| G
+
+    %% ─── EDGES: start_download → brain ───────────────────────────
+    G --> H
+
+    %% ─── EDGES: brain → engines ──────────────────────────────────
+    H -->|"engine = aria2c\nor torrent/magnet"| I1
+    H -->|"engine = yt-dlp"| I2
+    H -->|"engine = curl\nor sparse"| I3
+
+    %% ─── EDGES: engines → workers ────────────────────────────────
+    I1 --> J1
+    I2 --> J2
+    I3 --> J3
+
+    %% ─── EDGES: workers → completion ─────────────────────────────
+    J1 --> K
+    J2 --> K
+    J3 --> K
+    K --> L
+
+    %% ─── ERROR / RETRY FEEDBACK ──────────────────────────────────
+    L -->|"error / cancelled\n→ re-queue or retry"| F1
+
+    %% ─── STYLES ──────────────────────────────────────────────────
+    classDef inputNode    fill:#f1efea,stroke:#8a8880,color:#2c2c2a
+    classDef procNode     fill:#e1f5ee,stroke:#0f6e56,color:#04342c
+    classDef routeNode    fill:#eeedfe,stroke:#534ab7,color:#26215c
+    classDef queueNode    fill:#faeeda,stroke:#854f0b,color:#412402
+    classDef engineNode   fill:#e6f1fb,stroke:#185fa5,color:#042c53
+    classDef workerNode   fill:#f1efea,stroke:#5f5e5a,color:#2c2c2a
+    classDef finishNode   fill:#eaf3de,stroke:#3b6d11,color:#173404
+    classDef brainNode    fill:#faece7,stroke:#993c1d,color:#4a1b0c
+
+    class A1,A2,A3,A4 inputNode
+    class B,C,D procNode
+    class E routeNode
+    class F1,F2 queueNode
+    class G routeNode
+    class H brainNode
+    class I1,I2,I3 engineNode
+    class J1,J2,J3 workerNode
+    class K,L finishNode
+```
 Downloads and settings are stored in SQLite database for reliability and cross-session persistence.
 
 ---
+
 
 # CONTRIBUTING
 
@@ -386,5 +499,7 @@ If you find OmniPull useful, please consider:
 - Starring the repository
 - Reporting bugs and feature requests
 - Contributing to the project
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Annor-Gyimah/OmniPull&type=Date)](https://star-history.com/#Annor-Gyimah/OmniPull&Date)
 
 <p align="center">Made with ❤️ by Emmanuel Gyimah Annor</p>
