@@ -327,68 +327,68 @@ flowchart TD
     %% ─── INPUT SOURCES ───────────────────────────────────────────
     subgraph INPUT["INPUT SOURCES"]
         direction LR
-        A1["📋 Clipboard\nauto-detected URLs"]
-        A2["🌐 Browser extension\nChrome · Firefox · Edge"]
-        A3["✏️ Manual entry\nadd download dialog"]
-        A4["📄 Batch import\n.txt file / link list"]
+        A1["📋 Clipboard<br>auto-detected URLs"]
+        A2["🌐 Browser extension<br>Chrome · Firefox · Edge"]
+        A3["✏️ Manual entry<br>add download dialog"]
+        A4["📄 Batch import<br>.txt file / link list"]
     end
 
     %% ─── URL PROCESSING ──────────────────────────────────────────
     subgraph URL_PROC["URL PROCESSING"]
         direction TB
-        B["url_text_change()\nSanitize · validate · route"]
-        C["fast_process_url()\nomnipull_url_processor  (Rust)"]
-        D["YouTubeThread / yt-dlp extractor\nDeep metadata · playlists · formats"]
+        B["url_text_change()<br>Sanitize · validate · route"]
+        C["fast_process_url()<br>omnipull_url_processor  (Rust)"]
+        D["YouTubeThread / yt-dlp extractor<br>Deep metadata · playlists · formats"]
     end
 
     %% ─── POST-PROCESSING DECISION ────────────────────────────────
     subgraph DECISION["POST-PROCESSING DECISION"]
-        E["on_download_button_clicked()\nRoute: direct · queue · playlist"]
+        E["on_download_button_clicked()<br>Route: direct · queue · playlist"]
     end
 
     %% ─── QUEUE & SCHEDULE ────────────────────────────────────────
     subgraph QSCHED["QUEUE & SCHEDULE MANAGEMENT"]
         direction LR
-        F1["Queue manager\nstatus = queued\nstart_queue_downloads()"]
-        F2["Scheduler\ncheck_scheduled_queues()\n60 s polling timer"]
+        F1["Queue manager<br>status = queued<br>start_queue_downloads()"]
+        F2["Scheduler<br>check_scheduled_queues()<br>60 s polling timer"]
     end
 
     %% ─── START DOWNLOAD ──────────────────────────────────────────
-    G["start_download()\nValidate · conflict check · concurrency limit"]
+    G["start_download()<br>Validate · conflict check · concurrency limit"]
 
     %% ─── BRAIN (ENGINE ROUTING) ──────────────────────────────────
-    subgraph BRAIN["ENGINE ROUTING — brain.py"]
-        H["brain(d, emitter)\nEngine selector · stream resolver"]
+    subgraph BRAIN["ENGINE ROUTING - brain.py"]
+        H["brain(d, emitter)<br>Engine selector · stream resolver"]
     end
 
     %% ─── DOWNLOAD ENGINES ────────────────────────────────────────
     subgraph ENGINES["DOWNLOAD ENGINES"]
         direction LR
-        I1["Aria2c engine\nrun_aria2c_download()\nTorrents · magnets\nDASH video+audio"]
-        I2["yt-dlp engine\nrun_ytdlp_download()\nPython API or .exe\nStreaming · playlists"]
-        I3["Curl / Sparse engine\nrun_curl_download()\nMulti-connection\nsparse pre-alloc"]
+        I1["Aria2c engine<br>run_aria2c_download()<br>Torrents · magnets\nDASH video+audio"]
+        I2["yt-dlp engine<br>run_ytdlp_download()<br>Python API or .exe\nStreaming · playlists"]
+        I3["Curl / Sparse engine\nrun_curl_download()<br>Multi-connection\nsparse pre-alloc"]
     end
 
     %% ─── WORKER LAYER ────────────────────────────────────────────
     subgraph WORKERS["WORKER LAYER & NATIVE ENGINE"]
         direction LR
-        J1["Aria2 RPC daemon\naria2c_manager · GID tracking"]
-        J2["yt-dlp progress hook\nFFmpeg merge on finish"]
-        J3["Worker / Worker_Sparse\npycurl segments\nnative_engine.nim write"]
+        J1["Aria2 RPC daemon<br>aria2c_manager · GID tracking"]
+        J2["yt-dlp progress hook<br>FFmpeg merge on finish"]
+        J3["Worker / Worker_Sparse<br>pycurl segments<br>native_engine.nim write"]
     end
 
     %% ─── COMPLETION ──────────────────────────────────────────────
     subgraph FINISH["COMPLETION & POST-PROCESSING"]
         direction TB
-        K["Post-processing\nSubtitle fetch · metadata embed\nCallback · notify · UI table refresh"]
-        L["✅ Status: completed\nFile on disk · d_list updated"]
+        K["Post-processing<br>Subtitle fetch · metadata embed\nCallback · notify · UI table refresh"]
+        L["✅ Status: completed<br>File on disk · d_list updated"]
     end
 
     %% ─── EDGES: INPUT → URL PROCESSING ──────────────────────────
     A1 --> B
     A2 --> B
     A3 --> B
-    A4 -->|"batch_importer.py\nresolves each URL"| C
+    A4 -->|"batch_importer.py<br>resolves each URL"| C
 
     %% ─── EDGES: URL PROCESSING ───────────────────────────────────
     B --> C
@@ -401,16 +401,16 @@ flowchart TD
     E -->|"start now"| G
     E -->|"schedule"| F2
 
-    F1 -->|"queue triggered\n(manual or scheduled)"| G
+    F1 -->|"queue triggered<br>(manual or scheduled)"| G
     F2 -->|"time match"| G
 
     %% ─── EDGES: start_download → brain ───────────────────────────
     G --> H
 
     %% ─── EDGES: brain → engines ──────────────────────────────────
-    H -->|"engine = aria2c\nor torrent/magnet"| I1
+    H -->|"engine = aria2c<br>or torrent/magnet"| I1
     H -->|"engine = yt-dlp"| I2
-    H -->|"engine = curl\nor sparse"| I3
+    H -->|"engine = curl<br>or sparse"| I3
 
     %% ─── EDGES: engines → workers ────────────────────────────────
     I1 --> J1
@@ -424,7 +424,7 @@ flowchart TD
     K --> L
 
     %% ─── ERROR / RETRY FEEDBACK ──────────────────────────────────
-    L -->|"error / cancelled\n→ re-queue or retry"| F1
+    L -->|"error / cancelled<br>→ re-queue or retry"| F1
 
     %% ─── STYLES ──────────────────────────────────────────────────
     classDef inputNode    fill:#f1efea,stroke:#8a8880,color:#2c2c2a
