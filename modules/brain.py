@@ -2356,7 +2356,7 @@ def file_manager(d, keep_segments=False, emitter=None):
     """
     try:
         import omnipull_url_processor
-        use_rust = False
+        use_rust = True
     except ImportError:
         use_rust = False    
     
