@@ -1,7 +1,108 @@
-2020.3.22:
-- Quick bug fix for unrecognized pillow module, github issue #60
+2.2.0
+- Updated bundled yt-dlp to nightly: 2026.4.10.235301.dev0
+- Updated deno version to 2.7.12
+- Updated bundled ffmpeg to version N-123918-gf7ca6f7481-20260411
+- Updated curl engine for m3u8_native support
+- Added native_engine.so for Linux native Nim writer
+- Updated gitignore and build configurations
+- Refactored macOS section of README.md
+- Updated translation workflow with dynamic paths
+- Added CONTRIBUTING.md and issue/PR templates
+- Added PLUGINS.md documentation for plugin development
+- Added Mermaid architecture diagram to README
+- General code cleanup and documentation improvements
+- Updated requirements.txt with latest dependency versions 
 
-2020.3.20:
+2.1.5
+- Updated bundled yt-dlp to nightly: 2026.2.9.233747.dev0
+- Updated bundled yt-dlp.exe: 2026.02.04
+- Updated deno version to 2.6.8
+
+
+2.1.1
+- Updated bundled yt-dlp to nightly: 2026.1.6.233142.dev0
+- Change download page to use a convenient simpler add download popup
+- Updated deno version to 2.6.4
+- Improved functionalities and logic
+
+
+2.0.8
+- Updated bundled yt-dlp to nightly: 2025.11.24.232953.dev0
+- Fixed startup crash caused by invalid/empty merge_output_format (now validated, defaults to mp4)
+- Hardened yt-dlp updater:
+    - Downloads to a temp file and safely replaces the exe
+    - Updater now returns clear status and messages to the UI
+- Settings UI improvements and validation:
+    - Debounced and threaded probing of executables to avoid blocking UI on open
+    - Inline warnings instead of repeated modal popups
+    - Correct handling of 'use custom yt-dlp' checkbox (falls back to bundled if unset)
+- Installer / bundled exe detection fixes:
+    - Config now re-resolves bundled/executable paths on startup/settings load
+- Misc fixes:
+    - Fix for slow settings dialog startup
+    - Minor stability and logging improvements
+- Testing notes:
+    - Confirm app starts when merge_output_format is blank or invalid
+    - Trigger "Check for yt-dlp update" — confirm download to temp and safe replacement or .exe.new scheduling
+    - Verify bundled yt-dlp is detected after install and settings dialog opens fast
+    - Validate settings dialog no longer spawns repeated modal popups during open
+
+2.0.7
+-Added support for Deno-based extractors
+-Improved error handling during downloads
+-Updated yt-dlp to version ['2025.11.01']
+-Enhanced multi-threaded downloading capabilities
+-UI/UX Tweaks
+-Bug Fixes & Improvements
+-Replaced Ffmpeg with custom Ffmpeg from YT-DLP
+
+2.0.3
+-Cookies enabled fully in both extraction and downloading
+-Hindi Translation added
+-Can now download and convert into multiple formats e.g. .avi, .mp4, .mkv
+-Enhanced tutorial overlay to prevent UI blocking
+-Updated yt-dlp version['2025.10.14']
+-Ability to use both yt-dlp executable and python api
+-Add a what's new feature to know literally know What's New
+
+2.0.0
+-Complete UI redesign
+-New download protocols support
+-Built-in file converter
+-Cloud storage integration
+-Completely rewritten from ground up
+-All previous bugs resolved
+-New architecture for better stability
+-Modern, intuitive interface
+-50% faster performance
+-Better resource management
+-Enhanced security features
+
+
+
+1.2.24
+- Fixed 'formats' error present when downloading youtube videos
+- Processing youtube video information now faster
+- Fixed issue with 'yt-dlp' unable to download youtube videos from some protocols such as https etc.
+- Fixed scheduler sets to cancelled after app is closed and reopened
+
+
+1.0.2
+- Change cancel button to pause button
+- Yt-dlp updated to latest version
+- Fixed GUI crashes for multiple URL processing
+- Made only one instance of the app run at a time
+- Table items are not editable
+
+2025.1.25
+- Support for multiple languages such as French, Spanish, Japanese, Chinese, Korean.
+- Fixed Download window not showing progress on resume.
+- Add autostart on startup.
+- DDM can now hide at the system's tray.
+- Wifi icon for indicating network connectivity.
+- Fixed stream combo selection.
+
+2024.12.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.
 - Ability to show download window offline per user option.
@@ -14,143 +115,4 @@
 - playlist/video info extracting process becomes faster 2 times.
 - Fixed problem of scheduled downloads
 
-TODO:
-- new design for downloads and settings Tab
-
-2020.3.13:
-- Added support for more hls video streams / websites.
-- Added support for http, https, socks4, and socks5 proxy
-- Fixed high memory usage bug and possible crash.
-- Speed up file manager performance
-- Fixed number of live workers for fragmented downloads.
-- Fixed file name extraction from headers.
-- Add option to Select Setting folder, default to local folder.
-- Natural sorting themes
-
-2020.3.3:
-- Critical Fix fpr application crash.
-- include ffmpeg with portable windows version
-- auto-save log events.
-
-2020.3.2:
-- Ability to use youtube-dl native downloader as an alternative option.
-- add support for more websites.
-- add log level option in log tab.
-- user can select ffmpeg download folder.
-- Fix about window.
-- Download window re-design.
-- Application restart on setting tab after selecting new theme.
-- Changed default theme to "Topanga".
-- some other bug fixes and tweaks.
-
-2020.2.22:
-- Add support for encrypted HLS streams.
-- Critical bug fix for download playlist.
-- add status for download window.
-
-2020.2.21:
-- Fixed resume issues.
-- Fixed speed limit.
-- Fixed hls stream resume.
-- Fixed update func. called when click on empty area under App. name.
-- Fixed progress bar and segment size for fragmented / live streams.
-- better handling for m3u8 files.
-- include user agent for download function
-
-2020.2.20:
-- fixed HLS streams doesn't work properly.
-- Add button to save log text to disk.
-
-2020.2.19:
-- Add support to more streaming websites "all links will be checked for possible video streams"
-- fix application crash because of proxy improperly set.
-- fix some bugs.
-
-2020.2.18:
-- Add support for hls/m3u8 video streams.
-- use indeterminate progress bar for unknown download sizes
-- Some bug fixes and performance tweaks
-
-2020.2.16:
-- Add support for proxy.
-- estimate fragmented video size.
-- fixed all setting parameters can be stored and reloaded properly.
-- Prevent application freeze momentarily during check for update.
-- Fix youtube-dl update
-
-2020.2.12:
-- Add support for fragmented video streams
-- Simultaneous download of video and audio streams
-- some bug fixes
-
-2020.1.30:
-- bug fix, update notification message appear even if application is up to date.
-- normalize version number to match pypi release
-- change symbol infront of stream names
-
-2020.01.27:
-- support for other video stream websites
-- check for app. updates.
-- check for youtube-dl updates.
-- ability to enable / disable  check for update on startup, "enabled by default".
-- change mouse cursor shape when busy.
-- source code splitted into small files.
-- change version number scheme to date based release "yyyy.mm.dd"
-- Support for windows 32bit and 64bit.
-- pypi release
-
-4.3:
-- Ability to schedule download from right click menu, also added a schedule All button for batch scheduling all non completed downloads,
-
-4.1:
-- fix repeated qualities in stream menu and playlist download window
-
-4.0:
-- New stream menu design. screenshot
-- some bug fixes and enhancements
-
-
-3.8:
-- Auto download ffmpeg.exe if missing "it will prompt user first".
-- fixed quality bar not completed when loading playlist.
-- fixed downloading unknown size file.
-- exe file size is now under 15 MB instead of 35 MB before
-- fix run command func problem since it causes the application to continue ask for downloading ffmpeg even if it actually exist
-
-3.7:
-- Ability to select which videos to include in playlist download, with individual video quality, also you can choose a general quality for all playlist videos at once.
-- bug fix for random quality selection in playlist download page, now "normal video" quality will be chosen by default, mostly will be 720p-mp4, however you can choose different higher qualities like 1080p or lower as per your needs.
-
-
-3.6:
-- New right click menu for download table, now you can view all info for any download item, copy url, open file location.
-- Ability to watch video files before it finish downloading.
-- open files by double click, Enter button, or context menu from downloads tab.
-- new animations for files status during download and merge.
-- Speed limit option now more better than before.
-
-3.4:
-- use json to store downloads list to avoid pickle problems in frozen builds, and avoid future problem of pickled downloads.cfg file incompatibility with new version of the app. issue #11
-- Feedback popups for download btn and pl.btn in case of not allowed ops.
-- bring application to front if url copied to clipboard or try to run another app. instance
-
-3.3:
-- the table header colors match the color theme "pySimpleGui addition"
-- sort themes names in setting tabs, 140+ themes
-- proper setting folder location for linux and mac
-- bug fixes for youtube audio track handling
-- handle exception for notify function
-- Change application name to pyIDM instead of old name Hanash.
-
-3.2:
-- Automatically install required python packages to run the application.
-- better log text newer entries are now at the bottom.
-- correct app. icon not appearing in windows
-
-
-3.1:
-- added functionality to download youtube DASH videos with audio merged using ffmpg.
-- bug fixes.
-- remove Pillow module from requirements
-- new themes added from PySimpleGUI module are available for use in user
-  setting (total of 105 themes) 
+tqqweddfggggggggggggggggg
