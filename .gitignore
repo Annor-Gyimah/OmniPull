@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+
 
 # Distribution / packaging
 .Python
@@ -167,6 +167,7 @@ cython_debug/
 
 Lin_Exec
 package/
+package_lite/
 
 omnipull*
 .pkgmeta/
