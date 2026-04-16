@@ -631,73 +631,146 @@ def brain(d=None, emitter=None):
     # =========================================================================
     # BRANCH 3: CURL / SPARSE ENGINE
     # =========================================================================
-    elif getattr(d, "engine", "") == "curl":
-        # Check for DASH compatibility
-        has_separate_audio = bool(d.audio_url and d.audio_url != d.url)
+    # elif getattr(d, "engine", "") == "curl":
+    #     # Check for DASH compatibility
+    #     has_separate_audio = bool(d.audio_url and d.audio_url != d.url)
         
-        if has_separate_audio:
-            log(f'[DASH] DASH detected: routing to aria2 video+audio handler', context=ctx)
+    #     if has_separate_audio:
+    #         log(f'[DASH] DASH detected: routing to aria2 video+audio handler', context=ctx)
+    #         executor.submit(run_curl_download, d, emitter)
+    #         return
+    #     else:
+    #         # Sparse pre-allocation sequence for multi-connection downloads
+    #         if d.size > 0 and int(config.max_connections) > 1:
+    #             d.status = Status.stitching
+    #             if emitter:
+    #                 try:
+    #                     from PySide6.QtCore import QMetaObject, Qt, Q_ARG
+    #                     # Safe UI updates via QueuedConnection to the main thread
+    #                     QMetaObject.invokeMethod(emitter, "progress_mode_changed",
+    #                                            Qt.QueuedConnection, Q_ARG(str, 'indeterminate'))
+    #                     QMetaObject.invokeMethod(emitter, "status_changed",
+    #                                            Qt.QueuedConnection, Q_ARG(str, 'stitching'))
+    #                 except Exception:
+    #                     emitter.progress_mode_changed.emit('indeterminate')
+    #                     emitter.status_changed.emit("stitching")
+
+    #             def _prep_and_download():
+    #                 """Background preparation thread for Sparse-mode initialization."""
+    #                 try:
+    #                     if not _init_sparse_file(d):
+    #                         d.status = Status.error
+    #                         if emitter: emitter.status_changed.emit('error')
+    #                         return
+                        
+    #                     tracker = _init_resume_tracker(d)
+    #                     if tracker is None:
+    #                         d.status = Status.error
+    #                         if emitter: emitter.status_changed.emit('error')
+    #                         return
+
+    #                     d.status = Status.downloading
+    #                     if emitter:
+    #                         try:
+    #                             emitter.progress_mode_changed.emit('determinate')
+    #                             emitter.status_changed.emit('downloading')
+    #                         except Exception: pass
+
+    #                     # Shared event: thread_manager sets it after all worker
+    #                     # file handles are closed; file_manager waits on it
+    #                     # before fsync/rename to avoid racing a still-open handle.
+    #                     _workers_done = threading.Event()
+
+    #                     # Launch dedicated Sparse manager threads
+    #                     fm = threading.Thread(target=_file_manager_sparse, 
+    #                                         kwargs=dict(d=d, keep_segments=False, emitter=emitter, workers_done_event=_workers_done),
+    #                                         daemon=True, name="sparse-file-mgr")
+    #                     tm = threading.Thread(target=_thread_manager_sparse,
+    #                                         args=(d, emitter, _workers_done), 
+    #                                         daemon=True, name="sparse-thread-mgr")
+    #                     fm.start()
+    #                     tm.start()
+
+    #                 except Exception as e:
+    #                     log(f"[SPARSE] Prep thread error: {e}", log_level=2, context="ENGINE-SPARSE")
+    #                     d.status = Status.error
+    #                     if emitter: emitter.status_changed.emit('error')
+
+    #             t = threading.Thread(target=_prep_and_download, daemon=True, name="sparse-prep")
+    #             t.start()
+
+    elif getattr(d, "engine", "") == "curl":
+        protocol = (getattr(d, "protocol", "") or "").lower()
+        has_separate_audio = bool(d.audio_url and d.audio_url != d.url)
+
+        # m3u8 / HLS streams cannot use sparse pre-allocation — route directly to run_curl_download
+        if 'm3u8' in protocol:
+            log(f'[cURL] HLS/m3u8 detected (protocol={protocol}): routing to run_curl_download', context=ctx)
             executor.submit(run_curl_download, d, emitter)
             return
-        else:
-            # Sparse pre-allocation sequence for multi-connection downloads
-            if d.size > 0 and int(config.max_connections) > 1:
-                d.status = Status.stitching
-                if emitter:
-                    try:
-                        from PySide6.QtCore import QMetaObject, Qt, Q_ARG
-                        # Safe UI updates via QueuedConnection to the main thread
-                        QMetaObject.invokeMethod(emitter, "progress_mode_changed",
-                                               Qt.QueuedConnection, Q_ARG(str, 'indeterminate'))
-                        QMetaObject.invokeMethod(emitter, "status_changed",
-                                               Qt.QueuedConnection, Q_ARG(str, 'stitching'))
-                    except Exception:
-                        emitter.progress_mode_changed.emit('indeterminate')
-                        emitter.status_changed.emit("stitching")
 
-                def _prep_and_download():
-                    """Background preparation thread for Sparse-mode initialization."""
-                    try:
-                        if not _init_sparse_file(d):
-                            d.status = Status.error
-                            if emitter: emitter.status_changed.emit('error')
-                            return
-                        
-                        tracker = _init_resume_tracker(d)
-                        if tracker is None:
-                            d.status = Status.error
-                            if emitter: emitter.status_changed.emit('error')
-                            return
+        if has_separate_audio:
+            log(f'[DASH] DASH detected: routing to run_curl_download', context=ctx)
+            executor.submit(run_curl_download, d, emitter)
+            return
 
-                        d.status = Status.downloading
-                        if emitter:
-                            try:
-                                emitter.progress_mode_changed.emit('determinate')
-                                emitter.status_changed.emit('downloading')
-                            except Exception: pass
+        # Sparse pre-allocation sequence for multi-connection static downloads
+        if d.size > 0 and int(config.max_connections) > 1:
+            d.status = Status.stitching
+            if emitter:
+                try:
+                    from PySide6.QtCore import QMetaObject, Qt, Q_ARG
+                    QMetaObject.invokeMethod(emitter, "progress_mode_changed",
+                                           Qt.QueuedConnection, Q_ARG(str, 'indeterminate'))
+                    QMetaObject.invokeMethod(emitter, "status_changed",
+                                           Qt.QueuedConnection, Q_ARG(str, 'stitching'))
+                except Exception:
+                    emitter.progress_mode_changed.emit('indeterminate')
+                    emitter.status_changed.emit("stitching")
 
-                        # Shared event: thread_manager sets it after all worker
-                        # file handles are closed; file_manager waits on it
-                        # before fsync/rename to avoid racing a still-open handle.
-                        _workers_done = threading.Event()
-
-                        # Launch dedicated Sparse manager threads
-                        fm = threading.Thread(target=_file_manager_sparse, 
-                                            kwargs=dict(d=d, keep_segments=False, emitter=emitter, workers_done_event=_workers_done),
-                                            daemon=True, name="sparse-file-mgr")
-                        tm = threading.Thread(target=_thread_manager_sparse,
-                                            args=(d, emitter, _workers_done), 
-                                            daemon=True, name="sparse-thread-mgr")
-                        fm.start()
-                        tm.start()
-
-                    except Exception as e:
-                        log(f"[SPARSE] Prep thread error: {e}", log_level=2, context="ENGINE-SPARSE")
+            def _prep_and_download():
+                """Background preparation thread for Sparse-mode initialization."""
+                try:
+                    if not _init_sparse_file(d):
                         d.status = Status.error
                         if emitter: emitter.status_changed.emit('error')
+                        return
+                    
+                    tracker = _init_resume_tracker(d)
+                    if tracker is None:
+                        d.status = Status.error
+                        if emitter: emitter.status_changed.emit('error')
+                        return
 
-                t = threading.Thread(target=_prep_and_download, daemon=True, name="sparse-prep")
-                t.start()
+                    d.status = Status.downloading
+                    if emitter:
+                        try:
+                            emitter.progress_mode_changed.emit('determinate')
+                            emitter.status_changed.emit('downloading')
+                        except Exception: pass
+
+                    _workers_done = threading.Event()
+
+                    fm = threading.Thread(target=_file_manager_sparse, 
+                                        kwargs=dict(d=d, keep_segments=False, emitter=emitter, workers_done_event=_workers_done),
+                                        daemon=True, name="sparse-file-mgr")
+                    tm = threading.Thread(target=_thread_manager_sparse,
+                                        args=(d, emitter, _workers_done), 
+                                        daemon=True, name="sparse-thread-mgr")
+                    fm.start()
+                    tm.start()
+
+                except Exception as e:
+                    log(f"[SPARSE] Prep thread error: {e}", log_level=2, context="ENGINE-SPARSE")
+                    d.status = Status.error
+                    if emitter: emitter.status_changed.emit('error')
+
+            t = threading.Thread(target=_prep_and_download, daemon=True, name="sparse-prep")
+            t.start()
+        else:
+            # Small file or single connection — go direct
+            log(f'[cURL] Static file: routing directly to run_curl_download', context=ctx)
+            executor.submit(run_curl_download, d, emitter)
    
 
 
