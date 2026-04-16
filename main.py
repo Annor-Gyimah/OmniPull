@@ -4008,13 +4008,59 @@ class DownloadManagerWindow(QMainWindow):
 
     # ── Token & Link Refresh Logic ───────────────────────────────────────────
 
+    # def refresh_link_btn(self):
+    #     """
+    #     Re-injects a task's URL into the extraction pipeline to refresh expired tokens.
+        
+    #     This is essentially a 're-add' of an existing item. It preserves the 
+    #     original destination folder while re-triggering the URL metadata 
+    #     extraction process (Rust or yt-dlp) to get fresh media stream links.
+    #     """
+    #     ctx = "URL-REFRESH"
+    #     selected_row = widgets.table.currentRow()
+        
+    #     if selected_row < 0 or selected_row >= widgets.table.rowCount():
+    #         show_warning(self, self.tr("Action Required"), self.tr("No download item selected"))
+    #         return
+
+    #     d_index = len(self.d_list) - 1 - selected_row
+    #     d = self.d_list[d_index]
+
+    #     # Use the original URL if using aria2c (to ensure we refresh the source, not a temporary stream link)
+    #     url = d.original_url if d.engine in ['aria2c', 'aria2'] else d.url
+    #     folder = d.folder
+    #     config.download_folder = folder
+
+    #     log(f"Initiating link refresh for '{d.name}' (Source: {d.engine})", 
+    #         log_level=1, context=ctx)
+
+    #     # 1. Prepare UI entry point
+    #     self.show_add_dialog()
+    #     widgets_add_download.url_edit.setText(url)
+    #     widgets_add_download.save_to_edit.setText(folder)
+
+    #     # 2. Trigger Extraction Spinner
+    #     widgets_add_download.url_progress.show()
+    #     widgets_add_download.url_progress.setRange(0, 0)
+
+    #     # 3. Fresh Item Generation
+    #     # We reset the window-level DownloadItem to avoid mutating the historical entry 
+    #     # until the new metadata is successfully extracted.
+    #     self.reset()
+
+    #     # 4. Execute Extraction Pipeline
+    #     # Re-setting the text triggers the extraction logic naturally
+    #     widgets_add_download.url_edit.setText(url)
+    #     widgets_add_download.save_to_edit.setText(folder)
+    #     self.url_text_change()
+
     def refresh_link_btn(self):
         """
-        Re-injects a task's URL into the extraction pipeline to refresh expired tokens.
-        
-        This is essentially a 're-add' of an existing item. It preserves the 
-        original destination folder while re-triggering the URL metadata 
-        extraction process (Rust or yt-dlp) to get fresh media stream links.
+            Re-injects a task's URL into the extraction pipeline to refresh expired tokens.
+            
+            This is essentially a 're-add' of an existing item. It preserves the 
+            original destination folder while re-triggering the URL metadata 
+            extraction process (Rust or yt-dlp) to get fresh media stream links.
         """
         ctx = "URL-REFRESH"
         selected_row = widgets.table.currentRow()
@@ -4026,7 +4072,6 @@ class DownloadManagerWindow(QMainWindow):
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
-        # Use the original URL if using aria2c (to ensure we refresh the source, not a temporary stream link)
         url = d.original_url if d.engine in ['aria2c', 'aria2'] else d.url
         folder = d.folder
         config.download_folder = folder
@@ -4034,25 +4079,26 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Initiating link refresh for '{d.name}' (Source: {d.engine})", 
             log_level=1, context=ctx)
 
-        # 1. Prepare UI entry point
+        # 1. Prepare UI entry point — show dialog first so it can paint
         self.show_add_dialog()
-        widgets_add_download.url_edit.setText(url)
         widgets_add_download.save_to_edit.setText(folder)
 
-        # 2. Trigger Extraction Spinner
-        widgets_add_download.url_progress.show()
-        widgets_add_download.url_progress.setRange(0, 0)
+        # Block url_edit signals so setText doesn't fire url_text_change prematurely
+        widgets_add_download.url_edit.blockSignals(True)
+        widgets_add_download.url_edit.setText(url)
+        widgets_add_download.url_edit.blockSignals(False)
 
-        # 3. Fresh Item Generation
-        # We reset the window-level DownloadItem to avoid mutating the historical entry 
-        # until the new metadata is successfully extracted.
+        # 2. Reset state
         self.reset()
 
-        # 4. Execute Extraction Pipeline
-        # Re-setting the text triggers the extraction logic naturally
-        widgets_add_download.url_edit.setText(url)
-        widgets_add_download.save_to_edit.setText(folder)
-        self.url_text_change()
+        # 3. Defer extraction so the window fully renders first (200ms grace period)
+        def _deferred_start():
+            widgets_add_download.url_progress.show()
+            widgets_add_download.url_progress.setRange(0, 0)
+            widgets_add_download.save_to_edit.setText(folder)
+            self.url_text_change()
+
+        QTimer.singleShot(200, _deferred_start)
     
 
     def resume_all_downloads(self):
