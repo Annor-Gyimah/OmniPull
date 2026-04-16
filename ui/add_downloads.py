@@ -196,8 +196,26 @@ class AddDownloadWindow(QWidget):
         # Queue + Resolution (same row)
         # ==============================
         self.lbl_queue = label_style(self.tr("Queue:"))
+        # self.queue_combo = QComboBox()
+        # # self.queue_combo.addItems(["Default", "Night", "Weekend"])
+        # self.queue_combo.setFixedWidth(190)
+
+        # self.lbl_resolution = label_style(self.tr("Resolution:"))
+        # self.resolution_combo = QComboBox()
+        # self.resolution_combo.setFixedWidth(190)
+
+        # queue_res_row = QHBoxLayout()
+        # queue_res_row.setSpacing(6)
+        # queue_res_row.addWidget(self.lbl_queue)
+        # queue_res_row.addWidget(self.queue_combo)
+        # queue_res_row.addSpacing(16)
+        # queue_res_row.addWidget(self.lbl_resolution)
+        # queue_res_row.addWidget(self.resolution_combo)
+        # queue_res_row.addStretch()
+
+        # grid.addLayout(queue_res_row, 4, 1, 1, 2)
+        self.lbl_queue = label_style(self.tr("Queue:"))
         self.queue_combo = QComboBox()
-        # self.queue_combo.addItems(["Default", "Night", "Weekend"])
         self.queue_combo.setFixedWidth(190)
 
         self.lbl_resolution = label_style(self.tr("Resolution:"))
@@ -214,6 +232,21 @@ class AddDownloadWindow(QWidget):
         queue_res_row.addStretch()
 
         grid.addLayout(queue_res_row, 4, 1, 1, 2)
+
+        # ── Engine selector row (non-intrusive, sits under queue/resolution) ──
+        self.lbl_engine = label_style(self.tr("Engine:"))
+        self.engine_combo = QComboBox()
+        self.engine_combo.setFixedWidth(120)
+        self.engine_combo.addItems(["yt-dlp", "aria2c", "curl"])
+        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
+
+        engine_row = QHBoxLayout()
+        engine_row.setSpacing(6)
+        engine_row.addWidget(self.lbl_engine)
+        engine_row.addWidget(self.engine_combo)
+        engine_row.addStretch()
+
+        grid.addLayout(engine_row, 5, 1, 1, 2)
 
         # ==============================
         # Right info panel (thumbnail + size)
@@ -433,6 +466,8 @@ class AddDownloadWindow(QWidget):
         self.lbl_cat.setText(self.tr("Category:"))
         self.lbl_queue.setText(self.tr("Queue:"))
         self.lbl_resolution.setText(self.tr("Resolution:"))
+        self.lbl_engine.setText(self.tr("Engine:"))
+        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
         self.change_folder_btn.setText(self.tr("Change Folder"))
         self.retry_btn.setText(self.tr("Retry"))
         self.download_btn.setText(self.tr("Start Download"))

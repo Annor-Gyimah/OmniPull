@@ -2847,14 +2847,42 @@ class DownloadManagerWindow(QMainWindow):
     
     # ── Download Engine Selection ───────────────────────────────────────────
 
+    # def decide_download_engine(self):
+    #     """
+    #     Determines the optimal backend engine based on user preference and availability.
+        
+    #     Logic priority:
+    #     1. If Aria2 is preferred and the binary exists, use aria2c.
+    #     2. Fallback to 'curl' if Aria2 is missing.
+    #     3. Use 'yt-dlp' natively for streaming media or if specifically requested.
+    #     """
+    #     preferred = getattr(config, "download_engine", "yt-dlp").lower()
+    #     ctx = "URL-ENGINE"
+
+    #     if preferred == "aria2":
+    #         if config.aria2c_path and os.path.exists(config.aria2c_path):
+    #             self.d.engine = "aria2c"
+    #             if not hasattr(self.d, "aria_gid"):
+    #                 self.d.aria_gid = None
+    #         else:
+    #             log("Aria2c binary not found; falling back to curl", 
+    #                 log_level=2, context=ctx)
+    #             self.d.engine = "curl"
+    #     else:
+    #         self.d.engine = preferred
+
+    #     log(f"Engine selection finalized: {self.d.engine} for {self.d.name}", 
+    #         log_level=1, context=ctx)
+    #     self.settings_manager.save_d_list(self.d_list)
+
     def decide_download_engine(self):
         """
-        Determines the optimal backend engine based on user preference and availability.
-        
-        Logic priority:
-        1. If Aria2 is preferred and the binary exists, use aria2c.
-        2. Fallback to 'curl' if Aria2 is missing.
-        3. Use 'yt-dlp' natively for streaming media or if specifically requested.
+            Determines the optimal backend engine based on user preference and availability.
+            
+            Logic priority:
+            1. If Aria2 is preferred and the binary exists, use aria2c.
+            2. Fallback to 'curl' if Aria2 is missing.
+            3. Use 'yt-dlp' natively for streaming media or if specifically requested.
         """
         preferred = getattr(config, "download_engine", "yt-dlp").lower()
         ctx = "URL-ENGINE"
@@ -2874,6 +2902,15 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Engine selection finalized: {self.d.engine} for {self.d.name}", 
             log_level=1, context=ctx)
         self.settings_manager.save_d_list(self.d_list)
+
+        try:
+            engine_display = self.d.engine.replace("aria2c", "aria2c")
+            combo = widgets_add_download.engine_combo
+            idx = combo.findText(engine_display)
+            if idx >= 0:
+                combo.setCurrentIndex(idx)
+        except Exception:
+            pass
 
     # ── Metadata Classification ──────────────────────────────────────────────
 
@@ -4721,9 +4758,26 @@ class DownloadManagerWindow(QMainWindow):
         d.original_url = self.d.url
 
 
+        # if selected_queue and selected_queue != "None":
+        #     self._add_to_selected_queue(d, selected_queue)
+        # else:
+        #     # Direct Download Path
+        #     d.queue = None
+        #     result = self.start_download(d, downloader=downloader)
+        #     if result not in ('error', 'cancelled', False):
+        #         self.ui_add_download.close()
+
         if selected_queue and selected_queue != "None":
+            # Apply engine choice before queuing
+            selected_engine = widgets_add_download.engine_combo.currentText()
+            if selected_engine:
+                d.engine = selected_engine
             self._add_to_selected_queue(d, selected_queue)
         else:
+            # Apply engine choice from the selector
+            selected_engine = widgets_add_download.engine_combo.currentText()
+            if selected_engine:
+                d.engine = selected_engine
             # Direct Download Path
             d.queue = None
             result = self.start_download(d, downloader=downloader)
