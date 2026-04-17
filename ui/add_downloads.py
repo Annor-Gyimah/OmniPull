@@ -161,12 +161,18 @@ class AddDownloadWindow(QWidget):
         self.filename_edit = QLineEdit()
         self.filename_edit.setPlaceholderText("Optional file name (leave empty to auto-detect)")
 
+        # Engine selector
+        self.lbl_engine = label_style(self.tr("Engine:"))
+        self.engine_combo = QComboBox()
+        self.engine_combo.setFixedWidth(100)
+        self.engine_combo.addItems(["yt-dlp", "aria2c", "curl"])
+        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
 
         grid.addWidget(self.lbl_save, 1, 0)
         grid.addWidget(self.save_to_edit, 1, 1, 1, 2)
 
         
-        # --- Category row with + button ---
+        # --- Category row with + button and engine combo ---
         cat_row = QHBoxLayout()
         cat_row.setSpacing(4)  # tighter spacing
 
@@ -183,6 +189,9 @@ class AddDownloadWindow(QWidget):
         """)
         
         cat_row.addWidget(self.btn_add_category)
+        cat_row.addSpacing(20)  # space before engine
+        cat_row.addWidget(self.lbl_engine)
+        cat_row.addWidget(self.engine_combo)
         cat_row.addStretch()
 
         grid.addWidget(self.lbl_cat, 2, 0)
@@ -195,25 +204,6 @@ class AddDownloadWindow(QWidget):
         # ==============================
         # Queue + Resolution (same row)
         # ==============================
-        self.lbl_queue = label_style(self.tr("Queue:"))
-        # self.queue_combo = QComboBox()
-        # # self.queue_combo.addItems(["Default", "Night", "Weekend"])
-        # self.queue_combo.setFixedWidth(190)
-
-        # self.lbl_resolution = label_style(self.tr("Resolution:"))
-        # self.resolution_combo = QComboBox()
-        # self.resolution_combo.setFixedWidth(190)
-
-        # queue_res_row = QHBoxLayout()
-        # queue_res_row.setSpacing(6)
-        # queue_res_row.addWidget(self.lbl_queue)
-        # queue_res_row.addWidget(self.queue_combo)
-        # queue_res_row.addSpacing(16)
-        # queue_res_row.addWidget(self.lbl_resolution)
-        # queue_res_row.addWidget(self.resolution_combo)
-        # queue_res_row.addStretch()
-
-        # grid.addLayout(queue_res_row, 4, 1, 1, 2)
         self.lbl_queue = label_style(self.tr("Queue:"))
         self.queue_combo = QComboBox()
         self.queue_combo.setFixedWidth(190)
@@ -232,21 +222,6 @@ class AddDownloadWindow(QWidget):
         queue_res_row.addStretch()
 
         grid.addLayout(queue_res_row, 4, 1, 1, 2)
-
-        # ── Engine selector row (non-intrusive, sits under queue/resolution) ──
-        self.lbl_engine = label_style(self.tr("Engine:"))
-        self.engine_combo = QComboBox()
-        self.engine_combo.setFixedWidth(120)
-        self.engine_combo.addItems(["yt-dlp", "aria2c", "curl"])
-        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
-
-        engine_row = QHBoxLayout()
-        engine_row.setSpacing(6)
-        engine_row.addWidget(self.lbl_engine)
-        engine_row.addWidget(self.engine_combo)
-        engine_row.addStretch()
-
-        grid.addLayout(engine_row, 5, 1, 1, 2)
 
         # ==============================
         # Right info panel (thumbnail + size)

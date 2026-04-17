@@ -88,7 +88,12 @@ def get_ytdl_options():
             # 'node': {},
             # 'quickjs': {},
             # 'bun': {},
-        },    
+        },
+        # Extract subtitle metadata (manual and auto-generated captions)
+        # This populates the 'subtitles' and 'automatic_captions' keys in the info dict
+        'writesubtitles': True,
+        'writeautomaticsub': True,
+        'skip_unavailable_fragments': True,
     }
 
     if config.proxy != "":

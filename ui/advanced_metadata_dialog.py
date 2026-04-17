@@ -521,7 +521,7 @@ class AdvancedMetadataDialog(QDialog):
             parts.append(f"{n_manual} manual")
         if n_auto:
             parts.append(f"{n_auto} auto-generated")
-        self.sub_hint_lbl.setText(f"{', '.join(parts)} track(s) found.")
+        self.sub_hint_lbl.setText(self.tr("%1 track(s) found.").replace("%1", ", ".join(parts)))
 
         # Populate combo
         for lang_code, is_auto in entries:
@@ -660,10 +660,21 @@ class AdvancedMetadataDialog(QDialog):
         # Restore selection
         self.conv_mode_combo.setCurrentIndex(current_conv_idx)
 
-        current_lang_combo = self.lang_combo.currentIndex()
-        self.lang_combo.clear()
-        self.lang_combo.addItem(self.tr("— None (skip subtitles) —"))
-        self.lang_combo.setCurrentIndex(current_lang_combo)
+        # Re-populate subtitles after clearing (important for localization)
+        # Store current selection before clearing
+        current_data = None
+        if self.lang_combo.currentIndex() >= 0:
+            current_data = self.lang_combo.itemData(self.lang_combo.currentIndex(), Qt.UserRole)
+        
+        # Repopulate the entire combo with fresh translations
+        self.populate_subtitles()
+        
+        # Try to restore the previous selection
+        if current_data:
+            for i in range(self.lang_combo.count()):
+                if self.lang_combo.itemData(i, Qt.UserRole) == current_data:
+                    self.lang_combo.setCurrentIndex(i)
+                    break
 
 
 
