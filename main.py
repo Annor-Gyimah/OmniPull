@@ -71,6 +71,7 @@ from ui.advanced_metadata_dialog import AdvancedMetadataDialog
 
 
 from ui.styles import get_stylesheet
+from ui.language_manager import LanguageManager
 
 
 
@@ -937,10 +938,16 @@ class DownloadManagerWindow(QMainWindow):
         self._connect_signals()
         
         # ── Final Initialization ─────────────────────────────────────────────
-        self.translator = QTranslator() 
+        # self.translator = QTranslator() 
         self.setup_context_menu_actions()
         self.current_language = config.lang
-        self.apply_language_to_all_windows(self.current_language)
+        self.lang_manager = LanguageManager()
+
+        # Apply language
+        self.lang_manager.apply_language_global(self.current_language)
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
+        
 
         self.set_theme(self.current_theme)
         self._apply_styles()
@@ -1166,10 +1173,10 @@ class DownloadManagerWindow(QMainWindow):
         """Launches the Category Editor and handles language re-translation if changed."""
         old_language = config.lang
         dlg = CategoryDialog(self)
-        dlg.apply_language(config.lang)
+        dlg.apply_language_add_cat(config.lang)
         if dlg.exec() == QDialog.Accepted and config.lang != old_language:
             log(f"System language changed to: {config.lang}", log_level=1, context=self.ctx)
-            self.apply_language(config.lang)
+            self.lang_manager.apply_language(config.lang)
             self.retrans()
 
     def show_whatsnew_dialog(self):
@@ -1183,7 +1190,7 @@ class DownloadManagerWindow(QMainWindow):
         dlg.set_creator(creator=config.APP_CREATOR)
         dlg.set_license(license_text="GPL v3 License")
         dlg.set_description(config.APP_DESCRIPTION)
-        dlg.apply_language(config.lang)
+        dlg.apply_language_about(config.lang)
         dlg.exec()
 
     def ask_for_sched_time(self, msg=''):
@@ -1215,7 +1222,7 @@ class DownloadManagerWindow(QMainWindow):
             parent=self,
             plugins_dir=str(config.DATA_ROOT / "plugins")
         )
-        dlg.apply_language(config.lang)
+        dlg.apply_language_market(config.lang)
         dlg.setStyleSheet(get_stylesheet(self.current_theme))
         dlg.exec()
     
@@ -2087,67 +2094,80 @@ class DownloadManagerWindow(QMainWindow):
 
     # ── Localization & Internationalization Engine ───────────────────────────
 
-    def apply_language_to_all_windows(self, lang):
-        """
-        Broadcasts a language change across the entire application suite.
-        
-        Updates the main window first, then iterates through all active 
-        sub-windows (Add Download, Queues, etc.) to ensure a consistent 
-        user experience.
-        """
-        self.apply_language(lang)
-        
-        # Propagation to child windows
-        windows_to_update = [
-            getattr(self, 'ui_add_download', None),
-            getattr(self, 'ui_queues', None)
-        ]
-        
-        for w in windows_to_update:
-            if w is not None:
-                w.apply_language(lang)
 
-    def resource_path2(self, relative_path):
+    def apply_language_global(self, language):
         """
-        Resolves absolute file paths for bundled application resources.
+        Apply language globally and refresh given windows.
         
-        Supports both standard development environments and PyInstaller 
-        one-file bundles by checking the sys._MEIPASS attribute.
+        windows: list of window instances
         """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
+        self.lang_manager.apply_language(language)
 
-    def apply_language(self, language):
-        """
-        Loads and installs a Qt Translation (.qm) binary for the specified language.
+        for widget in QCoreApplication.instance().allWidgets():
+            if hasattr(widget, "retrans"):
+                widget.retrans()
+
+    # def apply_language_to_all_windows(self, lang):
+    #     """
+    #     Broadcasts a language change across the entire application suite.
         
-        Removes any existing translator before mapping the language name 
-        to its corresponding file on disk. Triggers retrans() on success.
-        """
-        QCoreApplication.instance().removeTranslator(self.translator)
+    #     Updates the main window first, then iterates through all active 
+    #     sub-windows (Add Download, Queues, etc.) to ensure a consistent 
+    #     user experience.
+    #     """
+    #     self.apply_language(lang)
+        
+    #     # Propagation to child windows
+    #     windows_to_update = [
+    #         getattr(self, 'ui_add_download', None),
+    #         getattr(self, 'ui_queues', None)
+    #     ]
+        
+    #     for w in windows_to_update:
+    #         if w is not None:
+    #             w.apply_language(lang)
 
-        file_map = {
-            "English": "app_en.qm",
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "Hindi": "app_hi.qm"
-        }
+    # def resource_path2(self, relative_path):
+    #     """
+    #     Resolves absolute file paths for bundled application resources.
+        
+    #     Supports both standard development environments and PyInstaller 
+    #     one-file bundles by checking the sys._MEIPASS attribute.
+    #     """
+    #     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    #     return os.path.join(base_path, relative_path)
 
-        if language in file_map:
-            qm_path = self.resource_path2(f"modules/translations/{file_map[language]}")
+    # def apply_language(self, language):
+    #     """
+    #     Loads and installs a Qt Translation (.qm) binary for the specified language.
+        
+    #     Removes any existing translator before mapping the language name 
+    #     to its corresponding file on disk. Triggers retrans() on success.
+    #     """
+    #     QCoreApplication.instance().removeTranslator(self.translator)
+
+    #     file_map = {
+    #         "English": "app_en.qm",
+    #         "French": "app_fr.qm",
+    #         "Spanish": "app_es.qm",
+    #         "Chinese": "app_zh.qm",
+    #         "Korean": "app_ko.qm",
+    #         "Japanese": "app_ja.qm",
+    #         "Hindi": "app_hi.qm"
+    #     }
+
+    #     if language in file_map:
+    #         qm_path = self.resource_path2(f"modules/translations/{file_map[language]}")
             
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-                log(f"Interface language updated to: {language}", 
-                    log_level=1, context=self.ctx)
-            else:
-                log(f"Failed to locate translation binary: {qm_path}", 
-                    log_level=3, context=self.ctx)
+    #         if self.translator.load(qm_path):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #             log(f"Interface language updated to: {language}", 
+    #                 log_level=1, context=self.ctx)
+    #         else:
+    #             log(f"Failed to locate translation binary: {qm_path}", 
+    #                 log_level=3, context=self.ctx)
 
-        self.retrans()
+    #     self.retrans()
 
     def retrans(self):
         """
@@ -2217,7 +2237,7 @@ class DownloadManagerWindow(QMainWindow):
             self.tr("Done"),
             self.tr("Size"),
             self.tr("Status"),
-            self.tr("I"),                # Usually "Info" or "Icon"
+            self.tr("I"),                
             self.tr("Last Try Date")
         ]
 
@@ -3084,7 +3104,6 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Opening advanced metadata inspector for: {self.d.name}", 
             log_level=1, context="URL-EXTRACT-FINISH")
         dlg = AdvancedMetadataDialog(self.d, self)
-        dlg.apply_language(config.lang)
         dlg.exec()
 
 

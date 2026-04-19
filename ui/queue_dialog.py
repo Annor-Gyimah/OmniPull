@@ -26,6 +26,7 @@ from modules.setting import load_d_list, save_queues, save_d_list
 from modules.settings_manager import SettingsManager
 
 from ui.queue_runner import QueueRunner
+from ui.language_manager import LanguageManager
 from ui.download_window import DownloadProgressDialog
 
 
@@ -59,7 +60,7 @@ class QueueDialog(QDialog):
         self.setMinimumSize(650, 400)
 
         self.settings_manager = SettingsManager()
-        self.translator = QTranslator()
+        # self.translator = QTranslator()
         self.queues = self.settings_manager.load_queues()
         self.d_list = self.settings_manager.d_list
         self.current_queue_id = None
@@ -79,6 +80,8 @@ class QueueDialog(QDialog):
         left_layout = QVBoxLayout(left_widget)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(6)
+
+        
 
         self.left_title = QLabel(self.tr("Queues"))
         self.left_title.setObjectName("QueueListTitle")
@@ -264,6 +267,10 @@ class QueueDialog(QDialog):
 
         # initial scheduler state
         self._update_scheduler_controls(self.chk_enable_scheduler.isChecked())
+        self.current_language = config.lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
 
     # ========== QUEUE HANDLERS ==========
 
@@ -880,29 +887,29 @@ class QueueDialog(QDialog):
         return os.path.join(base_path, relative_path)
 
 
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
+    # def apply_language(self, language):
+    #     QCoreApplication.instance().removeTranslator(self.translator)
 
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-        }
+    #     file_map = {
+    #         "French": "app_fr.qm",
+    #         "Spanish": "app_es.qm",
+    #         "Chinese": "app_zh.qm",
+    #         "Korean": "app_ko.qm",
+    #         "Japanese": "app_ja.qm",
+    #         "English": "app_en.qm",
+    #     }
 
-        if language in file_map:
-            qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
+    #     if language in file_map:
+    #         qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
+    #         if self.translator.load(qm_path):
+    #             QCoreApplication.instance().installTranslator(self.translator)
                 
-            else:
-                log(f"[Language] Failed to load {qm_path}", log_level=1)
+    #         else:
+    #             log(f"[Language] Failed to load {qm_path}", log_level=1)
 
        
 
-        self.retrans()
+    #     self.retrans()
 
     def retrans(self):
         self.setWindowTitle(self.tr("Queues"))

@@ -1043,7 +1043,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "모든 다운로드",
         "Japanese": "すべてのダウンロード",
         "Chinese": "所有下载",
-        "Hindi": "सभी डाउनलोड"
+        "Hindi": "सभी डाउनलोड",
+        "Russian": "Все загрузки"
     },
     "Completed": {
         "French": "Terminés",
@@ -1051,7 +1052,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "완료됨",
         "Japanese": "完了",
         "Chinese": "已完成",
-        "Hindi": "पूर्ण"
+        "Hindi": "पूर्ण",
+        "Russian": "Завершенные"
     },
     "Cancelled": {
         "French": "Annulés",
@@ -1059,7 +1061,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "취소됨",
         "Japanese": "キャンセル済み",
         "Chinese": "已取消",
-        "Hindi": "रद्द किया गया"
+        "Hindi": "रद्द किया गया",
+        "Russian": "Отмененные"
     },
     "Downloading": {
         "French": "Téléchargement",
@@ -1067,7 +1070,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "다운로드 중",
         "Japanese": "ダウンロード中",
         "Chinese": "下载中",
-        "Hindi": "डाउनलोड हो रहा है"
+        "Hindi": "डाउनलोड हो रहा है",
+        "Russian": "Загрузка"
     },
     "Queued": {
         "French": "En file d’attente",
@@ -1075,7 +1079,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "대기 중",
         "Japanese": "キュー待ち",
         "Chinese": "排队中",
-        "Hindi": "कतारबद्ध"
+        "Hindi": "कतारबद्ध",
+        "Russian": "В очереди"
     },
     "Paused": {
         "French": "En pause",
@@ -1083,7 +1088,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "일시중지됨",
         "Japanese": "一時停止中",
         "Chinese": "已暂停",
-        "Hindi": "विराम दिया गया"
+        "Hindi": "विराम दिया गया",
+        "Russian": "Приостановленные"
     },
     "Error": {
         "French": "Erreur",
@@ -1091,7 +1097,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "오류",
         "Japanese": "エラー",
         "Chinese": "错误",
-        "Hindi": "त्रुटि"
+        "Hindi": "त्रुटि",
+        "Russian": "Ошибки"
     },
     "General": {
         "French": "Général",
@@ -1099,7 +1106,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "일반",
         "Japanese": "一般",
         "Chinese": "常规",
-        "Hindi": "सामान्य"
+        "Hindi": "सामान्य",
+        "Russian": "Общие"
     },
     "Compressed": {
         "French": "Compressé",
@@ -1107,7 +1115,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "압축됨",
         "Japanese": "圧縮済み",
         "Chinese": "压缩",
-        "Hindi": "संकुचित"
+        "Hindi": "संकुचित",
+        "Russian": "Сжатые"
     },
     "Documents": {
         "French": "Documents",
@@ -1115,7 +1124,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "문서",
         "Japanese": "ドキュメント",
         "Chinese": "文档",
-        "Hindi": "दस्तावेज़"
+        "Hindi": "दस्तावेज़",
+        "Russian": "Документы"
     },
     "Music": {
         "French": "Musique",
@@ -1123,7 +1133,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "음악",
         "Japanese": "音楽",
         "Chinese": "音乐",
-        "Hindi": "संगीत"
+        "Hindi": "संगीत",
+        "Russian": "Музыка"
     },
     "Video": {
         "French": "Vidéo",
@@ -1131,7 +1142,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "비디오",
         "Japanese": "ビデオ",
         "Chinese": "视频",
-        "Hindi": "वीडियो"
+        "Hindi": "वीडियो",
+        "Russian": "Видео"
     },
     "Programs": {
         "French": "Programmes",
@@ -1139,7 +1151,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "프로그램",
         "Japanese": "プログラム",
         "Chinese": "程序",
-        "Hindi": "कार्यक्रम"
+        "Hindi": "कार्यक्रम",
+        "Russian": "Программы"
     }
 }
 
@@ -1151,7 +1164,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "이름:",
         "Japanese": "名前:",
         "Chinese": "名称:",
-        "Hindi": "नाम:"
+        "Hindi": "नाम:",
+        "Russian": "Имя:"
     },
     "Folder:": {
         "English": "Folder :",
@@ -1160,7 +1174,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "폴더:",
         "Japanese": "フォルダー:",
         "Chinese": "文件夹:",
-        "Hindi": "फ़ोल्डर:"
+        "Hindi": "फ़ोल्डर:",
+        "Russian": "Папка:"
     },
     "Download engine:": {
         "English": "Download engine :",
@@ -1169,7 +1184,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "다운로드 엔진:",
         "Japanese": "ダウンロードエンジン:",
         "Chinese": "下载引擎:",
-        "Hindi": "डाउनलोड इंजन:"
+        "Hindi": "डाउनलोड इंजन:",
+        "Russian": "Движок загрузки:"
     },
     "Progress:": {
         "English": "Progress :",
@@ -1178,7 +1194,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "진행률:",
         "Japanese": "進行状況:",
         "Chinese": "进度:",
-        "Hindi": "प्रगति:"
+        "Hindi": "प्रगति:",
+        "Russian": "Прогресс:"
     },
     "Downloaded:": {
         "English": "Downloaded :",
@@ -1187,7 +1204,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "다운로드됨:",
         "Japanese": "ダウンロード済み:",
         "Chinese": "已下载:",
-        "Hindi": "डाउनलोड हुआ:"
+        "Hindi": "डाउनलोड हुआ:",
+        "Russian": "Загружено:"
     },
     "Total size:": {
         "English": "Total size:",
@@ -1196,7 +1214,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "전체 크기:",
         "Japanese": "合計サイズ:",
         "Chinese": "总大小:",
-        "Hindi": "कुल आकार:"
+        "Hindi": "कुल आकार:",
+        "Russian": "Общий размер:"  
     },
     "Status:": {
         "English": "Status:",
@@ -1205,7 +1224,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "상태:",
         "Japanese": "ステータス:",
         "Chinese": "状态:",
-        "Hindi": "स्थिति:"
+        "Hindi": "स्थिति:",
+        "Russian": "Статус:"
     },
     "Resumable:": {
         "English": "Resumable:",
@@ -1214,7 +1234,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "재개 가능:",
         "Japanese": "再開可能:",
         "Chinese": "可续传:",
-        "Hindi": "पुनः आरंभ योग्य:"
+        "Hindi": "पुनः आरंभ योग्य:",
+        "Russian": "Можно возобновить:"
     },
     "Type:": {
         "English": "Type:",
@@ -1223,7 +1244,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "종류:",
         "Japanese": "種類:",
         "Chinese": "类型:",
-        "Hindi": "प्रकार:"
+        "Hindi": "प्रकार:",
+        "Russian": "Тип:"
     },
     "Protocol:": {
         "English": "Protocol:",
@@ -1232,7 +1254,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "프로토콜:",
         "Japanese": "プロトコル:",
         "Chinese": "协议:",
-        "Hindi": "प्रोटोकॉल:"
+        "Hindi": "प्रोटोकॉल:",
+        "Russian": "Протокол:"
     },
     "Webpage URL:": {
         "English": "Webpage URL:",
@@ -1241,7 +1264,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "웹페이지 URL:",
         "Japanese": "ウェブページ URL:",
         "Chinese": "网页 URL:",
-        "Hindi": "वेबपृष्ठ URL:"
+        "Hindi": "वेबपृष्ठ URL:",
+        "Russian": "URL страницы:"
     },
     "Yes": {
         "English": "Yes",
@@ -1250,7 +1274,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "예",
         "Japanese": "はい",
         "Chinese": "是",
-        "Hindi": "हाँ"
+        "Hindi": "हाँ",
+        "Russian": "Да"
     },
     "No": {
         "English": "No",
@@ -1259,7 +1284,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "아니오",
         "Japanese": "いいえ",
         "Chinese": "否",
-        "Hindi": "नहीं"
+        "Hindi": "नहीं",
+        "Russian": "Нет"
     },
     "Close": {
         "English": "Close",
@@ -1268,7 +1294,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "닫기",
         "Japanese": "閉じる",
         "Chinese": "关闭",
-        "Hindi": "बंद करें"
+        "Hindi": "बंद करें",
+        "Russian": "Закрыть"
     }
 }
 

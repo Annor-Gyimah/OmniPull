@@ -24,7 +24,7 @@ from modules.utils import log, delete_file
 from modules.settings_manager import SettingsManager
 
 from PySide6.QtGui import QIntValidator
-from PySide6.QtCore import Qt, QTranslator, QCoreApplication
+from PySide6.QtCore import Qt
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox,
@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
     QGridLayout, QFileDialog, QMessageBox
 )
 
-
+from ui.language_manager import LanguageManager
 
 
 
@@ -44,7 +44,7 @@ class SettingsDialog(QDialog):
 
         self.settings_manager = SettingsManager()
 
-        self.translator = QTranslator()
+        # self.translator = QTranslator()
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
@@ -83,8 +83,11 @@ class SettingsDialog(QDialog):
 
         # Load saved language
         self.current_language = config.lang
+
+        self.lang_manager = LanguageManager()
         
-        self.apply_language(self.current_language)
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
 
 
 
@@ -110,7 +113,8 @@ class SettingsDialog(QDialog):
             "Hindi",
             "Korean",
             "Chinese",
-            "Japanese"
+            "Japanese",
+            "Russian"
         ])
 
         self.settings_profile_combo = QComboBox()
@@ -1015,7 +1019,9 @@ class SettingsDialog(QDialog):
             # Apply the theme that was just saved
             main_window.set_theme(config.current_theme)
             # Save the setting after applying theme
-            main_window.apply_language_to_all_windows(config.lang)
+            # main_window.apply_language_to_all_windows(config.lang)
+            # Apply language
+            self.lang_manager.apply_language_global(config.lang)
             self.retrans()
             setting.save_setting()
         
@@ -1045,28 +1051,28 @@ class SettingsDialog(QDialog):
         return os.path.join(base_path, relative_path)
 
 
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
+    # def apply_language(self, language):
+    #     QCoreApplication.instance().removeTranslator(self.translator)
 
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
+    #     file_map = {
+    #         "French": "app_fr.qm",
+    #         "Spanish": "app_es.qm",
+    #         "Chinese": "app_zh.qm",
+    #         "Korean": "app_ko.qm",
+    #         "Japanese": "app_ja.qm",
+    #         "English": "app_en.qm",
+    #         "Hindi": "app_hi.qm"
+    #     }
 
-        if language in file_map:
-            qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
+    #     if language in file_map:
+    #         qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
+    #         if self.translator.load(qm_path):
+    #             QCoreApplication.instance().installTranslator(self.translator)
                 
 
        
 
-        self.retrans()
+    #     self.retrans()
     
 
     def retrans(self):

@@ -57,6 +57,8 @@ except ImportError:
     def log(msg, log_level=1, context="MARKETPLACE"):
         print(f"[{context}] {msg}")
 
+from ui.language_manager import LanguageManager
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EMBEDDED PLUGIN SOURCES
@@ -410,9 +412,7 @@ class MarketplaceDialog(QDialog):
         self._apply_global_style()
         self._build_ui()
         self._fetch_manifest()
-        self.translator = QTranslator()
-        self.current_language = lang
-        self.apply_language(self.current_language)
+        self.apply_language_market(lang)
 
     # ── UI ────────────────────────────────────────────────────────────────────
     def _build_ui(self):
@@ -604,31 +604,10 @@ class MarketplaceDialog(QDialog):
             )
             card.setVisible(match)
 
-    
-    def resource_path2(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
-
-
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-    
+    def apply_language_market(self, lang):
+        self.current_language = lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
         self.retrans()
 
     def retrans(self):

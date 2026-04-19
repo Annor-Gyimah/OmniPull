@@ -18,7 +18,7 @@ BASE_PATH = os.getenv(
 
 os.makedirs(BASE_PATH, exist_ok=True)
 
-LANGUAGES = ['en', 'fr', 'es', 'ja', 'ko', 'zh', 'hi']
+LANGUAGES = ['en', 'fr', 'es', 'ja', 'ko', 'zh', 'hi', 'ru']
 
 # List all needed UI and logic files here
 UI_FILES = [
