@@ -1144,6 +1144,8 @@ class DownloadManagerWindow(QMainWindow):
         self.ui_add_download.setStyleSheet(get_stylesheet(self.current_theme))
         self.ui_add_download.show()
         self.ui_add_download.raise_()
+        if getattr(self, '_is_playlist_mode', False) and getattr(self, 'playlist', None):
+            widgets_add_download.download_btn.setText(self.tr("Start Playlist"))
 
     def show_add_dialog_only(self):
         """
