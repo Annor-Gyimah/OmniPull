@@ -1708,6 +1708,18 @@ def merge_video_audio(video, audio, output, d):
         video, audio = audio, video
 
     output = os.path.normpath(output)
+    
+    # ── CRITICAL: Ensure output directory exists ──
+    # output_dir = os.path.dirname(output)
+    # if output_dir and not os.path.exists(output_dir):
+    #     try:
+    #         os.makedirs(output_dir, exist_ok=True)
+    #         log(f"Created output directory: {output_dir}", log_level=2, context=ctx)
+    #     except Exception as e:
+    #         msg = f"Failed to create output directory {output_dir}: {e}"
+    #         log(msg, log_level=0, context=ctx)
+    #         return True, msg
+    
     ffmpeg = get_effective_ffmpeg()
     
     # ── Attempt 1: Fast Stream Copy (Lossless) ──

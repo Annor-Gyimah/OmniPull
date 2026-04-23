@@ -88,7 +88,7 @@ from modules.updater import update, update_yt_dlp, get_changelog
 from modules.startup import addStartUp, checkStartUp, removeStartUp
 from modules.video import (Video, check_ffmpeg, check_deno,check_dependency_installed, download_dependency, download_deno, download_ffmpeg, import_ytdl, get_ytdl_options, extract_info_blocking)
 from modules.utils import (size_format, validate_file_name, compare_versions, compare_versions_2, log, time_format,
-    notify, run_command, handle_exceptions, get_headers, delete_folder)
+    notify, run_command, handle_exceptions, get_headers, delete_folder, delete_file)
 from modules.helpers import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern, janitor, get_today_download_stats,
@@ -2554,6 +2554,9 @@ class DownloadManagerWindow(QMainWindow):
         When a browser download is captured, this method populates the 
         AddDownload dialog with 'trusted' metadata (filename, referrer, size) 
         provided by the browser, ensuring high accuracy for direct downloads.
+        
+        CRITICAL: URL processing is deferred to a background thread to prevent
+        GUI freezing when processing heavy URLs (e.g., YouTube links).
         """
         try:
             log(f"Intercepted browser download request: {url[:60]}...", 
@@ -2578,12 +2581,21 @@ class DownloadManagerWindow(QMainWindow):
                 self.ui_add_download.url_edit.setText(url)
                 self.ui_add_download.url_edit.blockSignals(False)
 
-                # Initiate processing with trusted browser metadata as priority
-                self.url_text_change(
-                    referrer=referrer, 
-                    trusted_size=browser_size, 
-                    trusted_name=browser_filename
-                )
+                # ── CRITICAL FIX: Defer URL processing to background thread ──
+                # This prevents the dialog from freezing when processing heavy URLs
+                def process_url_background():
+                    try:
+                        self.url_text_change(
+                            referrer=referrer, 
+                            trusted_size=browser_size, 
+                            trusted_name=browser_filename
+                        )
+                    except Exception as e:
+                        log(f"Background URL processing failed: {e}", log_level=2, context="BROWSER-EXT")
+
+                # Use QTimer to defer processing to main loop (allows UI to render first)
+                QTimer.singleShot(100, lambda: executor.submit(process_url_background))
+                
             else:
                 log("Critical UI Error: url_edit widget missing from AddDownloadWindow", 
                     log_level=3, context="BROWSER-EXT")
@@ -6376,12 +6388,19 @@ class DownloadManagerWindow(QMainWindow):
                 d.name = os.path.basename(output_path)
                 d.folder = os.path.dirname(output_path) or d.folder
 
-                # Post-success cleanup
+                # Post-success cleanup: Remove all associated temp files
                 try:
                     if os.path.exists(audio_path):
                         os.remove(audio_path)
-                except Exception:
-                    pass
+                    # # ── CRITICAL FIX: Clean up all temp files after successful remerge ──
+                    # janitor(d)
+                    # d.delete_temp_files()  # Ensure any temp files tracked by the DownloadItem are also removed
+                    # d.delete_folder()
+                    delete_folder(d.temp_folder)
+                    delete_file(d.temp_file)
+                    log(f"[CLEANUP] Removed temp files after successful remerge: {d.name}", log_level=2)
+                except Exception as e:
+                    log(f"[CLEANUP] Post-remerge cleanup failed: {e}", log_level=2)
 
                 self.settings_manager.save_d_list(self.d_list)
                 self.update_table_progress()
