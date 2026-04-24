@@ -4324,20 +4324,41 @@ class DownloadManagerWindow(QMainWindow):
 
             for i, od in enumerate(self.d_list):
                 # Existing checks (temp_file or name+folder)
-                match_by_file = getattr(od, 'temp_file', None) == getattr(d, 'temp_file', None)
-                match_by_path = (od.name == d.name and os.path.normpath(od.folder) == os.path.normpath(d.folder))
-                
-                # --- NEW YOUTUBE ID CHECK ---
+                same_folder = os.path.normpath(od.folder) == os.path.normpath(d.folder)
+
+                match_by_file = (
+                    same_folder and
+                    getattr(od, 'temp_file', None) == getattr(d, 'temp_file', None)
+                )
+
+                match_by_path = (
+                    same_folder and
+                    od.name == d.name
+                )
+
                 match_by_yt = False
-                if new_yt_id:
+                if new_yt_id and same_folder:
                     existing_yt_id = self.get_yt_id(getattr(od, 'original_url', od.url))
                     if existing_yt_id and existing_yt_id == new_yt_id:
                         match_by_yt = True
-                # ----------------------------
 
                 if match_by_file or match_by_path or match_by_yt:
                     found_index = i
                     break
+                # match_by_file = getattr(od, 'temp_file', None) == getattr(d, 'temp_file', None)
+                # match_by_path = (od.name == d.name and os.path.normpath(od.folder) == os.path.normpath(d.folder))
+                
+                # # --- NEW YOUTUBE ID CHECK ---
+                # match_by_yt = False
+                # if new_yt_id:
+                #     existing_yt_id = self.get_yt_id(getattr(od, 'original_url', od.url))
+                #     if existing_yt_id and existing_yt_id == new_yt_id:
+                #         match_by_yt = True
+                # # ----------------------------
+
+                # if match_by_file or match_by_path or match_by_yt:
+                #     found_index = i
+                #     break
 
         if found_index is not None:
             log(f"File conflict detected for: {d.name}", log_level=2, context="CONFLICT-RESOLVER")
