@@ -20,8 +20,9 @@ from modules.config import __version__
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QTextEdit
+    QLabel, QPushButton, QFrame, QTextEdit, QTextBrowser
 )
+
 
 class WhatsNewDialog(QDialog):
     """
@@ -100,7 +101,7 @@ class WhatsNewDialog(QDialog):
         details_title.setObjectName("WhatsNewDetailsTitle")
         card_layout.addWidget(details_title)
 
-        self.details_text = QTextEdit()
+        self.details_text = QTextBrowser()
         self.details_text.setObjectName("WhatsNewDetailsText")
         self.details_text.setReadOnly(True)
         self.details_text.setMinimumHeight(160)
@@ -126,10 +127,110 @@ class WhatsNewDialog(QDialog):
         self.btn_next.clicked.connect(self._go_next)
         self.btn_close.clicked.connect(self.accept)
 
-        # Example placeholder data (you can remove this and call set_releases yourself)
+        
         self.set_releases([
             {
                 "version": f'{__version__}',
+                "date": "2026-05-06",
+                "highlights": "🚀 OmniPull v2.2.3 with major bug fixes, improved download stability, and updated yt-dlp",
+                "details": (
+                    "<h3>🚀 OmniPull v2.2.3</h3>"
+
+                    "<p>This release focuses heavily on stability, fixing critical issues in playlists, download engines, UI responsiveness, "
+                    "and merging workflows.</p>"
+
+                    "<h4>⚡ Updates</h4>"
+                    "<ul>"
+                    "<li>Updated bundled yt-dlp to nightly: <b>2026.4.30.234007.dev0</b></li>"
+                    "</ul>"
+
+                    "<h4>🐞 Bug Fixes</h4>"
+                    "<ul>"
+                    "<li>Fixed Add Download window not retaining video objects for playlists "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/79'>#79</a></li>"
+
+                    "<li>Fixed directory change not triggering fresh downloads "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/78'>#78</a></li>"
+
+                    "<li>Fixed merging failures when using cURL engine "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/77'>#77</a></li>"
+
+                    "<li>Fixed download engine selection issues for playlists "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/75'>#75</a></li>"
+
+                    "<li>Fixed pause functionality not properly halting downloads "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/74'>#74</a></li>"
+
+                    "<li>Fixed FFmpeg errors affecting playlist and single downloads "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/73'>#73</a></li>"
+
+                    "<li>Fixed Add Download window freezing/unresponsive "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/71'>#71</a></li>"
+
+                    "<li>Fixed white/frozen Add Download window on refresh "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/66'>#66</a></li>"
+
+                    "<li>Fixed cURL failing on m3u8_native protocol downloads "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/67'>#67</a></li>"
+
+                    "<li>Fixed subtitles list returning empty "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/65'>#65</a></li>"
+
+                    "<li>Fixed inability to connect to OmniPull watcher "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/64'>#64</a></li>"
+                    "</ul>"
+
+                    "<h4>✨ Improvements</h4>"
+                    "<ul>"
+                    "<li>Remerge now properly deletes temporary files after completion "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/76'>#76</a></li>"
+
+                    "<li>Improved Add Download window behavior to avoid blocking other windows "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/72'>#72</a></li>"
+
+                    "<li>General UI responsiveness and download workflow stability improvements</li>"
+                    "</ul>"
+
+                    "<h4>📚 Documentation</h4>"
+                    "<ul>"
+                    "<li>Added missing Windows DLL documentation "
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/64'>#64</a></li>"
+                    "</ul>"
+                ),
+            },
+            {
+                "version": '2.2.0',
+                "date": "2026-04-13",
+                "highlights": "🚀 OmniPull v2.2.0 with enhanced download engine, expanded format support, and improved developer experience",
+                "details": (
+                    "🚀 OmniPull v2.2.0\n\n"
+                    "We're excited to announce OmniPull v2.2.0! This release brings major enhancements to the download engine, expanded media format support, and significant documentation and developer experience improvements.\n\n"
+
+                    "🆕 New Features\n"
+                    "- Added support for m3u8_native streaming with updated curl engine #60\n"
+                    "- Introduced native_engine.so for Linux native Nim writer #60\n"
+                    "- Added PLUGINS.md documentation for plugin development\n"
+                    "- Added Mermaid architecture diagram to README for better visual understanding\n"
+                    "- Introduced CONTRIBUTING.md with detailed contribution guidelines #48\n"
+                    "- Added issue and pull request templates for structured contributions\n"
+                    "- New translation workflow with dynamic paths for easier localization #49\n\n"
+
+                    "🐞 Bug Fixes\n"
+                    "- Fixed curl engine for m3u8_native streaming support #60\n"
+                    "- Resolved Linux build compatibility issues\n"
+                    "- Fixed gitignore and build configurations\n\n"
+
+                    "⚡ Improvements\n"
+                    "- Updated bundled yt-dlp to nightly: 2026.4.10.235301.dev0\n"
+                    "- Updated Deno runtime to version 2.7.12\n"
+                    "- Updated bundled ffmpeg to version N-123918-gf7ca6f7481-20260411\n"
+                    "- Updated requirements.txt with latest dependency versions\n"
+                    "- Refactored macOS section of README.md #57\n"
+                    "- General code cleanup and documentation improvements #46, #50"
+                ),
+            },
+            {
+                "version": '2.1.5',
                 'date': '2025-11-27',
                 "highlights": "🔧 Updated bundled yt-dlp to nightly, 🛡️ Fixed startup crash, and ⚙️ Minor stability and startup",
                 "details": (
@@ -190,7 +291,7 @@ class WhatsNewDialog(QDialog):
             self.version_label.setText("Version: -")
             self.date_label.setText("Date: -")
             self.highlights_label.setText("No release notes available.")
-            self.details_text.setPlainText("")
+            self.details_text.setHtml("")
             self.position_label.setText("No releases")
             self.btn_prev.setEnabled(False)
             self.btn_next.setEnabled(False)
@@ -208,7 +309,24 @@ class WhatsNewDialog(QDialog):
         self.version_label.setText(f"Version: {version}")
         self.date_label.setText(f"Date: {date}")
         self.highlights_label.setText(highlights)
-        self.details_text.setPlainText(details)
+
+       
+        self.details_text.setHtml(details)
+
+        
+        self.details_text.setAcceptRichText(True)
+        self.details_text.setOpenExternalLinks(True)
+        
+
+       
+        self.details_text.document().setDefaultStyleSheet("""
+            h3 { margin-bottom: 8px; }
+            h4 { margin-top: 12px; margin-bottom: 6px; }
+            ul { margin-left: 15px; }
+            li { margin-bottom: 4px; }
+            a { color: #4da3ff; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+        """)
 
         total = len(self._releases)
         if idx == 0:
