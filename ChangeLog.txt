@@ -1,5 +1,5 @@
 2.2.3
-- Updated bundled yt-dlp to nightly: 2026.4.30.234007.dev0
+- Updated bundled yt-dlp to nightly: 2026.5.3.233852.dev0
 
 Bug Fixes
 - Fixed Add Download window not retaining video objects for playlists (#79)

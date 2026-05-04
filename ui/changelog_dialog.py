@@ -80,7 +80,7 @@ class WhatsNewDialog(QDialog):
 
         row_top.addStretch()
 
-        self.date_label = QLabel(self.tr("Date: - %1").replace("%1", "2026-05-06"))
+        self.date_label = QLabel(self.tr("Date: - %1").replace("%1", "2026-05-04"))
         self.date_label.setObjectName("WhatsNewDateLabel")
         row_top.addWidget(self.date_label)
 
@@ -131,7 +131,7 @@ class WhatsNewDialog(QDialog):
         self.set_releases([
             {
                 "version": f'{__version__}',
-                "date": "2026-05-06",
+                "date": "2026-05-04",
                 "highlights": "🚀 OmniPull v2.2.3 with major bug fixes, improved download stability, and updated yt-dlp",
                 "details": (
                     "<h3>🚀 OmniPull v2.2.3</h3>"
@@ -141,7 +141,7 @@ class WhatsNewDialog(QDialog):
 
                     "<h4>⚡ Updates</h4>"
                     "<ul>"
-                    "<li>Updated bundled yt-dlp to nightly: <b>2026.4.30.234007.dev0</b></li>"
+                    "<li>Updated bundled yt-dlp to nightly: <b>2026.5.3.233852.dev0</b></li>"
                     "</ul>"
 
                     "<h4>🐞 Bug Fixes</h4>"
