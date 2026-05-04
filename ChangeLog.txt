@@ -1,7 +1,5 @@
 2.2.3
 - Updated bundled yt-dlp to nightly: 2026.5.3.233852.dev0
-
-Bug Fixes
 - Fixed Add Download window not retaining video objects for playlists (#79)
 - Fixed directory change not triggering fresh downloads (#78)
 - Fixed merging failures when using cURL as download engine (#77)
@@ -13,13 +11,9 @@ Bug Fixes
 - Fixed cURL failing on m3u8_native protocol downloads (#67)
 - Fixed subtitles list returning empty (#65)
 - Fixed inability to connect to OmniPull watcher (#64)
-
-Enhancements
 - Remerge now properly deletes temporary files after completion (#76)
 - Improved Add Download window behavior to avoid blocking other windows (#72)
 - Improved overall UI responsiveness and stability in download workflow
-
-Documentation
 - Added missing Windows DLL references in repository/docs (#64)
 
 
