@@ -31,7 +31,7 @@ from ui.download_window import DownloadProgressDialog
 
 
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Slot, QTime, Qt, QCoreApplication, QTranslator
+from PySide6.QtCore import Slot, QTime, Qt
 from PySide6.QtWidgets import (
     QDialog, QListWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QLineEdit, QCheckBox, QTimeEdit, QTabWidget, QWidget, QListWidgetItem, QTableWidgetItem, 
@@ -496,21 +496,7 @@ class QueueDialog(QDialog):
 
             self.update_queue_config(0)  # Reflect data in config tab
 
-    # def update_queue_config(self, index):
-    #     if index < 0 or index >= len(self.queues):
-    #         return
 
-    #     q = self.queues[index]
-    #     self.queue_name_edit.setText(q.get("name", ""))
-
-    #     sched = q.get("schedule")
-    #     if sched:
-    #         self.chk_enable_scheduler.setChecked(True)
-    #         h, m = sched
-    #         self.time_auto_start.setTime(QTime(h, m))
-    #     else:
-    #         self.chk_enable_scheduler.setChecked(False)
-    #         self.time_auto_start.setTime(QTime(0, 0))
     def update_queue_config(self, index):
         if index < 0 or index >= len(self.queues):
             return
@@ -681,23 +667,6 @@ class QueueDialog(QDialog):
             # Set the container as the cell widget instead of the button directly
             self.table_items.setCellWidget(row, 4, container)
 
-        # for row, d in enumerate(items):
-        #     self.table_items.setItem(row, 0, QTableWidgetItem(str(d.queue_position)))
-        #     self.table_items.setItem(row, 1, QTableWidgetItem(d.name))
-        #     self.table_items.setItem(row, 2, QTableWidgetItem(f"{d.size/1024/1024:.2f} MB"))
-        #     self.table_items.setItem(row, 3, QTableWidgetItem(str(d.status)))
-
-        #     btn = QPushButton()
-        #     btn.setIcon(QIcon.fromTheme("edit-delete"))
-        #     btn.setFixedSize(48, 28)
-        #     btn.setStyleSheet("background-color: transparent;")
-        #     btn.setToolTip("Delete this item")
-
-        #     if d.status == config.Status.downloading:
-        #         btn.setEnabled(False)
-
-        #     btn.clicked.connect(lambda _, item=d: self.delete_queue_item(item))
-        #     self.table_items.setCellWidget(row, 4, btn)
     
 
     def toggle_queue_download(self):
@@ -886,30 +855,6 @@ class QueueDialog(QDialog):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
 
-
-    # def apply_language(self, language):
-    #     QCoreApplication.instance().removeTranslator(self.translator)
-
-    #     file_map = {
-    #         "French": "app_fr.qm",
-    #         "Spanish": "app_es.qm",
-    #         "Chinese": "app_zh.qm",
-    #         "Korean": "app_ko.qm",
-    #         "Japanese": "app_ja.qm",
-    #         "English": "app_en.qm",
-    #     }
-
-    #     if language in file_map:
-    #         qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
-    #         if self.translator.load(qm_path):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-                
-    #         else:
-    #             log(f"[Language] Failed to load {qm_path}", log_level=1)
-
-       
-
-    #     self.retrans()
 
     def retrans(self):
         self.setWindowTitle(self.tr("Queues"))

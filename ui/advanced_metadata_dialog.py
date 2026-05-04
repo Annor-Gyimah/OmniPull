@@ -24,34 +24,13 @@ from ui.styles import get_stylesheet
 from ui.language_manager import LanguageManager
 from modules.config import accent_color, lang
 
-from PySide6.QtCore import Qt,  Signal, QThread, QCoreApplication, QTranslator
-from PySide6.QtGui  import QFont, QColor, QPalette, QIcon
+from PySide6.QtCore import Qt
+from PySide6.QtGui  import QColor 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QCheckBox, QPushButton, QFrame, QGraphicsDropShadowEffect,
-    QWidget, QSpacerItem, QSizePolicy, QScrollArea, QGridLayout, QStackedWidget
+    QWidget, QSizePolicy, QScrollArea, QGridLayout, QStackedWidget
 )
-
-
-
-
-# ── Colour palette (dark industrial / utilitarian theme) ─────────────────────
-_C = {
-    "bg":           "#f8f9fb",   # bright, clean canvas
-    "surface":      "#ffffff",   # white card surface
-    "border":       "#e2e8f0",   # light grey borders
-    # "accent":       "#2b6cb0",   # deep professional blue (darker for contrast)
-    "accent": accent_color,
-    "accent_dim":   "#ebf8ff",   # very light blue for badges/hover
-    "text_primary": "#1a202c",   # dark slate for high-readability
-    "text_muted":   "#718096",   # cool grey for hints
-    "text_label":   "#4a5568",   # slate for form labels
-    "success":      "#38a169",   # forest green
-    "warn":         "#dd6b20",   # burnt orange (better contrast on white)
-    "danger":       "#e53e3e",   # red
-    "input_bg":     "#f1f5f9",   # subtle grey for inputs
-    "separator":    "#edf2f7",
-}
 
 
 
@@ -242,11 +221,11 @@ class AdvancedMetadataDialog(QDialog):
         layout.setContentsMargins(24, 20, 24, 20)
 
         icon_lbl = QLabel("⚙")
-        icon_lbl.setStyleSheet(f"font-size:22px; color:{_C['accent']}; padding-right:8px;")
+        icon_lbl.setStyleSheet(f"font-size:22px; padding-right:8px;")
         
         self.title_lbl = QLabel(self.tr("Advanced Download Configuration"))
         self.title_lbl.setObjectName("title_header")
-        # title_lbl.setStyleSheet(f"font-size:15px; font-weight:700; color:{_C['text_primary']};")
+        
         
         layout.addWidget(icon_lbl)
         layout.addWidget(self.title_lbl, 1)

@@ -223,151 +223,151 @@
 <context>
     <name>AdvancedMetadataDialog</name>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="153" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="599" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="132" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="578" />
         <source>Advanced Download Configuration  ·  OmniPull</source>
         <translation>高度なダウンロード構成 · OmniPull</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="215" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="600" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="194" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="579" />
         <source>Media &amp; Subs</source>
         <translation>メディアとサブスク</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="224" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="601" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="203" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="580" />
         <source>Processing</source>
         <translation>処理</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="247" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="602" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="226" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="581" />
         <source>Advanced Download Configuration</source>
         <translation>高度なダウンロード構成</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="265" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="603" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="244" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="582" />
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="271" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="604" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="250" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="583" />
         <source>Apply &amp; Close</source>
         <translation>適用して閉じる</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="350" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="617" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="329" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="596" />
         <source>Post-Processing &amp; Conversion</source>
         <translation>後処理と変換</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="356" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="605" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="335" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="584" />
         <source>Action:</source>
         <translation>アクション：</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="360" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="631" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="339" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="610" />
         <source>None (Original)</source>
         <translation>なし（オリジナル）</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="360" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="632" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="339" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="611" />
         <source>Extract Audio</source>
         <translation>音声を抽出する</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="360" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="633" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="339" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="612" />
         <source>Remux Video</source>
         <translation>ビデオをリマックスする</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="360" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="634" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="339" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="613" />
         <source>Recode Video</source>
         <translation>ビデオを再コードする</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="367" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="606" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="346" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="585" />
         <source>Target Format:</source>
         <translation>ターゲットフォーマット:</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="379" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="358" />
         <source>Embed Metadata</source>
         <translation>メタデータの埋め込み</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="380" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="359" />
         <source>Embed Chapters</source>
         <translation>章を埋め込む</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="381" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="360" />
         <source>Embed Thumbnail</source>
         <translation>サムネイルを埋め込む</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="382" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="361" />
         <source>Keep Original Video</source>
         <translation>元のビデオを保持する</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="402" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="620" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="381" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="599" />
         <source>Subtitles</source>
         <translation>字幕</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="408" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="607" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="387" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="586" />
         <source>Language</source>
         <translation>言語</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="421" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="608" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="400" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="587" />
         <source>Format</source>
         <translation>形式</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="451" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="623" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="430" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="602" />
         <source>Comments</source>
         <translation>コメント</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="455" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="434" />
         <source>Download video comments  (YouTube only)</source>
         <translation>動画コメントのダウンロード (YouTube のみ)</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="459" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="610" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="438" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="589" />
         <source>Comments are saved inside the .info.json file next to the download.</source>
         <translation>コメントは、ダウンロードの隣にある .info.json ファイル内に保存されます。</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="486" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="465" />
         <source>— None (skip subtitles) —</source>
         <translation>— なし（字幕をスキップ） —</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="491" />
-        <location filename="../../ui/advanced_metadata_dialog.py" line="613" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="470" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="592" />
         <source>No video metadata available — subtitle list cannot be populated.</source>
         <translation>利用可能なビデオ メタデータがありません。字幕リストを入力できません。</translation>
     </message>
     <message>
-        <location filename="../../ui/advanced_metadata_dialog.py" line="526" />
+        <location filename="../../ui/advanced_metadata_dialog.py" line="505" />
         <source>%1 track(s) found.</source>
         <translation>%1 トラックが見つかりました。</translation>
     </message>
@@ -375,74 +375,74 @@
 <context>
     <name>CategoryDialog</name>
     <message>
-        <location filename="../../ui/category_dialog.py" line="54" />
-        <location filename="../../ui/category_dialog.py" line="195" />
+        <location filename="../../ui/category_dialog.py" line="53" />
+        <location filename="../../ui/category_dialog.py" line="194" />
         <source>Manage Categories</source>
         <translation>カテゴリを管理</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="61" />
-        <location filename="../../ui/category_dialog.py" line="196" />
+        <location filename="../../ui/category_dialog.py" line="60" />
+        <location filename="../../ui/category_dialog.py" line="195" />
         <source>Select a category to view details or remove it.</source>
         <translation>詳細を表示または削除するカテゴリを選択してください。</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="70" />
-        <location filename="../../ui/category_dialog.py" line="197" />
+        <location filename="../../ui/category_dialog.py" line="69" />
+        <location filename="../../ui/category_dialog.py" line="196" />
         <source>Name:</source>
         <translation>名前：</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="74" />
-        <location filename="../../ui/category_dialog.py" line="198" />
+        <location filename="../../ui/category_dialog.py" line="73" />
+        <location filename="../../ui/category_dialog.py" line="197" />
         <source>Types:</source>
         <translation>種類：</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="78" />
-        <location filename="../../ui/category_dialog.py" line="199" />
+        <location filename="../../ui/category_dialog.py" line="77" />
+        <location filename="../../ui/category_dialog.py" line="198" />
         <source>Path:</source>
         <translation>パス：</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="89" />
-        <location filename="../../ui/category_dialog.py" line="200" />
+        <location filename="../../ui/category_dialog.py" line="88" />
+        <location filename="../../ui/category_dialog.py" line="199" />
         <source>Remove</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="91" />
-        <location filename="../../ui/category_dialog.py" line="201" />
+        <location filename="../../ui/category_dialog.py" line="90" />
+        <location filename="../../ui/category_dialog.py" line="200" />
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="205" />
+        <location filename="../../ui/category_dialog.py" line="204" />
         <source>Remove category</source>
         <translation>カテゴリを削除</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="206" />
+        <location filename="../../ui/category_dialog.py" line="205" />
         <source>Remove category %s? This cannot be undone.</source>
         <translation>カテゴリ %s を削除しますか？この操作は元に戻せません。</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="207" />
+        <location filename="../../ui/category_dialog.py" line="206" />
         <source>Removed</source>
         <translation>削除済み</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="208" />
+        <location filename="../../ui/category_dialog.py" line="207" />
         <source>Category %s removed.</source>
         <translation>カテゴリ %s が削除されました。</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="209" />
+        <location filename="../../ui/category_dialog.py" line="208" />
         <source>Not removed</source>
         <translation>削除されませんでした</translation>
     </message>
     <message>
-        <location filename="../../ui/category_dialog.py" line="210" />
+        <location filename="../../ui/category_dialog.py" line="209" />
         <source>Category %s could not be removed.</source>
         <translation>カテゴリ %s を削除できませんでした。</translation>
     </message>
@@ -463,142 +463,142 @@
 <context>
     <name>DownloadManagerWindow</name>
     <message>
-        <location filename="../../main.py" line="1263" />
+        <location filename="../../main.py" line="1267" />
         <source>No completed downloads</source>
         <translation>完了したダウンロードはありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1970" />
+        <location filename="../../main.py" line="1974" />
         <source>Queue</source>
         <translation>キュー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1970" />
+        <location filename="../../main.py" line="1974" />
         <source>has started automatically</source>
         <translation>自動的に開始されました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1973" />
+        <location filename="../../main.py" line="1977" />
         <source>Queue Scheduler</source>
         <translation>キュー スケジューラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2730" />
+        <location filename="../../main.py" line="2746" />
         <source>"Deno" is required to solve JavaScript challenges for YouTube.
 Install from the official docs or add the deno executable to PATH.</source>
         <translation>YouTube の JavaScript チャレンジを解決するには "Deno" が必要です。
 公式ドキュメントからインストールするか、deno 実行ファイルを PATH に追加してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1748" />
-        <location filename="../../main.py" line="1799" />
-        <location filename="../../main.py" line="1911" />
-        <location filename="../../main.py" line="1913" />
-        <location filename="../../main.py" line="1927" />
-        <location filename="../../main.py" line="2836" />
-        <location filename="../../main.py" line="4734" />
+        <location filename="../../main.py" line="1752" />
+        <location filename="../../main.py" line="1803" />
+        <location filename="../../main.py" line="1915" />
+        <location filename="../../main.py" line="1917" />
+        <location filename="../../main.py" line="1931" />
+        <location filename="../../main.py" line="2852" />
+        <location filename="../../main.py" line="4771" />
         <source>Start Download</source>
         <translation>ダウンロード開始</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3395" />
+        <location filename="../../main.py" line="3411" />
         <source>Recommended:</source>
         <translation>推奨:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3396" />
+        <location filename="../../main.py" line="3412" />
         <source>Local folder:</source>
         <translation>ローカルフォルダ:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3412" />
-        <location filename="../../main.py" line="5185" />
+        <location filename="../../main.py" line="3428" />
+        <location filename="../../main.py" line="5222" />
         <source>Download</source>
         <translation>ダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2853" />
-        <location filename="../../main.py" line="3413" />
-        <location filename="../../main.py" line="3795" />
-        <location filename="../../main.py" line="4244" />
-        <location filename="../../main.py" line="4592" />
-        <location filename="../../main.py" line="5184" />
-        <location filename="../../main.py" line="6841" />
+        <location filename="../../main.py" line="2869" />
+        <location filename="../../main.py" line="3429" />
+        <location filename="../../main.py" line="3811" />
+        <location filename="../../main.py" line="4260" />
+        <location filename="../../main.py" line="4629" />
+        <location filename="../../main.py" line="5221" />
+        <location filename="../../main.py" line="6885" />
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3541" />
+        <location filename="../../main.py" line="3557" />
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3541" />
-        <location filename="../../main.py" line="3645" />
-        <location filename="../../main.py" line="4125" />
-        <location filename="../../main.py" line="5938" />
-        <location filename="../../main.py" line="5988" />
+        <location filename="../../main.py" line="3557" />
+        <location filename="../../main.py" line="3661" />
+        <location filename="../../main.py" line="4141" />
+        <location filename="../../main.py" line="5975" />
+        <location filename="../../main.py" line="6025" />
         <source>No download item selected</source>
         <translation>ダウンロード項目が選択されていません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2190" />
-        <location filename="../../main.py" line="2223" />
-        <location filename="../../main.py" line="3853" />
+        <location filename="../../main.py" line="2194" />
+        <location filename="../../main.py" line="2227" />
+        <location filename="../../main.py" line="3869" />
         <source>Stop All</source>
         <translation>すべて停止</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2183" />
+        <location filename="../../main.py" line="2187" />
         <source>Add new download</source>
         <translation>新しいダウンロードを追加</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2251" />
+        <location filename="../../main.py" line="2255" />
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2256" />
+        <location filename="../../main.py" line="2260" />
         <source>Today</source>
         <translation>今日</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2262" />
+        <location filename="../../main.py" line="2266" />
         <source>Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'.</source>
         <translation>ここにコマンドを入力してください… 「help」や「yt-dlp --help」のような便利なコマンドから始めることができます。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2264" />
+        <location filename="../../main.py" line="2268" />
         <source>Search downloads...</source>
         <translation>ダウンロードを検索…</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1515" />
-        <location filename="../../main.py" line="3739" />
-        <location filename="../../main.py" line="3873" />
+        <location filename="../../main.py" line="1519" />
+        <location filename="../../main.py" line="3755" />
+        <location filename="../../main.py" line="3889" />
         <source>Yes</source>
         <translation>はい</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1516" />
-        <location filename="../../main.py" line="3740" />
-        <location filename="../../main.py" line="3874" />
+        <location filename="../../main.py" line="1520" />
+        <location filename="../../main.py" line="3756" />
+        <location filename="../../main.py" line="3890" />
         <source>No</source>
         <translation>いいえ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3854" />
+        <location filename="../../main.py" line="3870" />
         <source>There are no active downloads to stop.</source>
         <translation>停止するアクティブなダウンロードはありません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3861" />
+        <location filename="../../main.py" line="3877" />
         <source>Stop All Downloads?</source>
         <translation>すべてのダウンロードを停止しますか？</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3865" />
+        <location filename="../../main.py" line="3881" />
         <source>Active tasks (Downloading, Pending, or Merging) were detected.
 
 Do you want to stop all active processes?</source>
@@ -607,295 +607,296 @@ Do you want to stop all active processes?</source>
 すべてのアクティブなプロセスを停止しますか?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3904" />
+        <location filename="../../main.py" line="3920" />
         <source>Stopped</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4044" />
+        <location filename="../../main.py" line="4060" />
         <source>No Downloads to Schedule</source>
         <translation>スケジュールするダウンロードはありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4063" />
+        <location filename="../../main.py" line="4079" />
         <source>Schedule Error</source>
         <translation>スケジュールエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4294" />
+        <location filename="../../main.py" line="4310" />
         <source>Folder Error</source>
         <translation>フォルダエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4299" />
-        <location filename="../../main.py" line="4743" />
+        <location filename="../../main.py" line="4315" />
+        <location filename="../../main.py" line="4780" />
         <source>Download Error</source>
         <translation>ダウンロードエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4239" />
+        <location filename="../../main.py" line="4255" />
         <source>File Already Exists</source>
         <translation>ファイルは既に存在します</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2221" />
-        <location filename="../../main.py" line="4242" />
+        <location filename="../../main.py" line="2225" />
+        <location filename="../../main.py" line="4258" />
         <source>Resume</source>
         <translation>再開</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2220" />
+        <location filename="../../main.py" line="2224" />
         <source>Add</source>
         <translation>追加</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2222" />
+        <location filename="../../main.py" line="2226" />
         <source>Pause</source>
         <translation>一時停止</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2226" />
+        <location filename="../../main.py" line="2230" />
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2259" />
+        <location filename="../../main.py" line="2263" />
         <source>   Search: </source>
         <translation>検索：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2273" />
+        <location filename="../../main.py" line="2277" />
         <source>Delete</source>
         <translation>消去</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2854" />
+        <location filename="../../main.py" line="2870" />
         <source>Cancel URL processing</source>
         <translation>URL処理のキャンセル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3045" />
+        <location filename="../../main.py" line="3061" />
         <source>Empty Playlist</source>
         <translation>空のプレイリスト</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3045" />
+        <location filename="../../main.py" line="3061" />
         <source>The playlist appears to be empty or restricted.</source>
         <translation>プレイリストが空か制限されているようです。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3052" />
+        <location filename="../../main.py" line="1148" />
+        <location filename="../../main.py" line="3068" />
         <source>Start Playlist</source>
         <translation>プレイリストの開始</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3089" />
+        <location filename="../../main.py" line="3105" />
         <source>Network Error: Connectivity lost or blocked by firewall.</source>
         <translation>ネットワーク エラー: 接続が失われたか、ファイアウォールによってブロックされました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3091" />
+        <location filename="../../main.py" line="3107" />
         <source>YouTube API Error: The server rejected the metadata request.</source>
         <translation>YouTube API エラー: サーバーはメタデータ リクエストを拒否しました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3093" />
+        <location filename="../../main.py" line="3109" />
         <source>Media Unavailable: Removed, private, or geo-blocked.</source>
         <translation>メディアが利用できません: 削除済み、プライベート、または地理的にブロックされています。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3095" />
+        <location filename="../../main.py" line="3111" />
         <source>An unexpected error occurred during URL processing.</source>
         <translation>URL 処理中に予期しないエラーが発生しました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3097" />
+        <location filename="../../main.py" line="3113" />
         <source>Extraction Failed</source>
         <translation>抽出に失敗しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3645" />
-        <location filename="../../main.py" line="4125" />
-        <location filename="../../main.py" line="5938" />
-        <location filename="../../main.py" line="5988" />
+        <location filename="../../main.py" line="3661" />
+        <location filename="../../main.py" line="4141" />
+        <location filename="../../main.py" line="5975" />
+        <location filename="../../main.py" line="6025" />
         <source>Action Required</source>
         <translation>必要なアクション</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3721" />
-        <location filename="../../main.py" line="3781" />
+        <location filename="../../main.py" line="3737" />
+        <location filename="../../main.py" line="3797" />
         <source>Active Tasks</source>
         <translation>アクティブなタスク</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3722" />
+        <location filename="../../main.py" line="3738" />
         <source>Cannot delete items while downloads are active. Please stop all tasks first.</source>
         <translation>ダウンロードがアクティブな間はアイテムを削除できません。まずすべてのタスクを停止してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3731" />
+        <location filename="../../main.py" line="3747" />
         <source>Are you sure you want to delete the selected items and their associated temporary files?</source>
         <translation>選択したアイテムとそれに関連付けられた一時ファイルを削除してもよろしいですか?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3730" />
+        <location filename="../../main.py" line="3746" />
         <source>Confirm Deletion</source>
         <translation>削除の確認</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3782" />
+        <location filename="../../main.py" line="3798" />
         <source>Global wipe blocked. Stop active downloads before proceeding.</source>
         <translation>グローバルワイプがブロックされました。続行する前に、アクティブなダウンロードを停止してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3789" />
+        <location filename="../../main.py" line="3805" />
         <source>This will delete ALL items and their progress files.
 Type 'delete' to confirm.</source>
         <translation>これにより、すべてのアイテムとその進行状況ファイルが削除されます。
 「削除」と入力して確認します。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3787" />
+        <location filename="../../main.py" line="3803" />
         <source>Global Wipe</source>
         <translation>グローバルワイプ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1446" />
+        <location filename="../../main.py" line="1450" />
         <source>Opening Browser</source>
         <translation>ブラウザを開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1447" />
+        <location filename="../../main.py" line="1451" />
         <source>Redirecting you to install %1 the extension.</source>
         <translation>拡張機能 %1 をインストールするようにリダイレクトします。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1448" />
+        <location filename="../../main.py" line="1452" />
         <source>Follow the instructions in the web store.</source>
         <translation>ウェブストアの指示に従ってください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1454" />
+        <location filename="../../main.py" line="1458" />
         <source>No URL available for %1.</source>
         <translation>%1 に使用できる URL がありません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1462" />
+        <location filename="../../main.py" line="1466" />
         <source>Community Feedback</source>
         <translation>コミュニティからのフィードバック</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1463" />
+        <location filename="../../main.py" line="1467" />
         <source>Redirecting to GitHub. We appreciate your bug reports and feature requests.</source>
         <translation>GitHub にリダイレクトします。バグレポートや機能リクエストをお待ちしております。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1464" />
+        <location filename="../../main.py" line="1468" />
         <source>Follow the instructions on the issues page.</source>
         <translation>問題ページの指示に従ってください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1505" />
+        <location filename="../../main.py" line="1509" />
         <source>System Busy</source>
         <translation>システムがビジー状態</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1507" />
+        <location filename="../../main.py" line="1511" />
         <source>Downloads are currently running. Pause them to proceed with terminal execution?</source>
         <translation>ダウンロードは現在実行中です。ターミナルの実行を続行するにはそれらを一時停止しますか?</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2232" />
+        <location filename="../../main.py" line="2236" />
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2233" />
+        <location filename="../../main.py" line="2237" />
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2234" />
+        <location filename="../../main.py" line="2238" />
         <source>Progress</source>
         <translation>進捗</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2235" />
+        <location filename="../../main.py" line="2239" />
         <source>Speed</source>
         <translation>スピード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2236" />
+        <location filename="../../main.py" line="2240" />
         <source>ETA</source>
         <translation>そして</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2237" />
+        <location filename="../../main.py" line="2241" />
         <source>Done</source>
         <translation>終わり</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2238" />
+        <location filename="../../main.py" line="2242" />
         <source>Size</source>
         <translation>サイズ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2239" />
+        <location filename="../../main.py" line="2243" />
         <source>Status</source>
         <translation>状態</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2240" />
+        <location filename="../../main.py" line="2244" />
         <source>I</source>
         <translation>私</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2241" />
+        <location filename="../../main.py" line="2245" />
         <source>Last Try Date</source>
         <translation>最終試行日</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3374" />
+        <location filename="../../main.py" line="3390" />
         <source>%1 is missing</source>
         <translation>%1 がありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3375" />
+        <location filename="../../main.py" line="3391" />
         <source>%1 is missing and needs to be downloaded:</source>
         <translation>%1 が見つからないため、ダウンロードする必要があります:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3794" />
+        <location filename="../../main.py" line="3810" />
         <source>OK</source>
         <translation>わかりました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="3905" />
+        <location filename="../../main.py" line="3921" />
         <source>All active downloads have been successfully cancelled.</source>
         <translation>アクティブなダウンロードはすべて正常にキャンセルされました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4019" />
+        <location filename="../../main.py" line="4035" />
         <source>Scheduled Retry</source>
         <translation>スケジュールされた再試行</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4020" />
+        <location filename="../../main.py" line="4036" />
         <source>Task '{d.name}' failed. Retrying at {d.sched[1]} [Attempt {d.schedule_retries}]</source>
         <translation>タスク「{d.name}」が失敗しました。 {d.sched[1]} で再試行しています [試行 {d.schedule_retries}]</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4045" />
+        <location filename="../../main.py" line="4061" />
         <source>There are no valid 'Pending' or 'Cancelled' tasks available for scheduling.</source>
         <translation>スケジュールに使用できる有効な「保留中」または「キャンセル」タスクはありません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4050" />
+        <location filename="../../main.py" line="4066" />
         <source>Bulk Schedule Configuration</source>
         <translation>一括スケジュール設定</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4230" />
+        <location filename="../../main.py" line="4246" />
         <source>File with the same name:
 %1
 already exists in download list.
@@ -914,158 +915,158 @@ Note: To keep both, rename the file or change the folder.</source>
 注: 両方を保持するには、ファイルの名前を変更するか、フォルダーを変更します。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4243" />
+        <location filename="../../main.py" line="4259" />
         <source>Overwrite</source>
         <translation>上書き</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4278" />
+        <location filename="../../main.py" line="4294" />
         <source>"ffmpeg" is required for stream merging.</source>
         <translation>ストリームの結合には「ffmpeg」が必要です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4299" />
+        <location filename="../../main.py" line="4315" />
         <source>Invalid filename.</source>
         <translation>無効なファイル名です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4434" />
+        <location filename="../../main.py" line="4471" />
         <source>Fetching Resolutions…</source>
         <translation>解像度を取得中…</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4438" />
+        <location filename="../../main.py" line="4475" />
         <source>Fetching format data for {len(yt_items)} YouTube item(s)…</source>
         <translation>{len(yt_items)} 個の YouTube アイテムの形式データを取得しています…</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4513" />
+        <location filename="../../main.py" line="4550" />
         <source>YouTube Resolution Selection</source>
         <translation>YouTube 解像度の選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4661" />
+        <location filename="../../main.py" line="4698" />
         <source>Nothing to Add</source>
         <translation>追加するものはありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4662" />
+        <location filename="../../main.py" line="4699" />
         <source>No links have been resolved yet. Please wait for processing to finish.</source>
         <translation>リンクはまだ解決されていません。処理が完了するまでお待ちください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4702" />
+        <location filename="../../main.py" line="4739" />
         <source>Batch Added</source>
         <translation>追加されたバッチ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4703" />
+        <location filename="../../main.py" line="4740" />
         <source>Successfully staged {added} item(s) into '{selected_queue}'.</source>
         <translation>{追加された} 項目を「{selected_queue}」に正常にステージングしました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4744" />
+        <location filename="../../main.py" line="4781" />
         <source>Nothing to download</source>
         <translation>ダウンロードするものはありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4744" />
+        <location filename="../../main.py" line="4781" />
         <source>Check your URL or click Retry.</source>
         <translation>URLを確認するか、「再試行」をクリックしてください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4817" />
-        <location filename="../../main.py" line="4823" />
-        <location filename="../../main.py" line="4839" />
-        <location filename="../../main.py" line="4851" />
-        <location filename="../../main.py" line="6075" />
+        <location filename="../../main.py" line="4854" />
+        <location filename="../../main.py" line="4860" />
+        <location filename="../../main.py" line="4876" />
+        <location filename="../../main.py" line="4888" />
+        <location filename="../../main.py" line="6112" />
         <source>Queue Error</source>
         <translation>キューエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4818" />
+        <location filename="../../main.py" line="4855" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.</source>
         <translation>キュー内の YouTube 動画には、aria2c または yt-dlp エンジンが必要です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4838" />
+        <location filename="../../main.py" line="4875" />
         <source>This file already exists in queue: {existing_queue}</source>
         <translation>このファイルはすでにキューに存在します: {existing_queue}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4842" />
+        <location filename="../../main.py" line="4879" />
         <source>Cannot add to queue; target file already exists: {target_path}</source>
         <translation>キューに追加できません。ターゲット ファイルはすでに存在します: {target_path}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4885" />
+        <location filename="../../main.py" line="4922" />
         <source>'{d.name}' has been added to {queue_name}.</source>
         <translation>「{d.name}」が {queue_name} に追加されました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4948" />
+        <location filename="../../main.py" line="4985" />
         <source>No preview</source>
         <translation>プレビューなし</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5178" />
+        <location filename="../../main.py" line="5215" />
         <source>Select videos and formats. Use the master option to apply settings globally.</source>
         <translation>ビデオとフォーマットを選択します。設定をグローバルに適用するには、マスター オプションを使用します。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5689" />
-        <location filename="../../main.py" line="5739" />
+        <location filename="../../main.py" line="5726" />
+        <location filename="../../main.py" line="5776" />
         <source>The selected file could not be found on disk.</source>
         <translation>選択したファイルがディスク上に見つかりませんでした。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5691" />
-        <location filename="../../main.py" line="5741" />
+        <location filename="../../main.py" line="5728" />
+        <location filename="../../main.py" line="5778" />
         <source>Download Incomplete</source>
         <translation>ダウンロードが不完全</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5692" />
-        <location filename="../../main.py" line="5742" />
+        <location filename="../../main.py" line="5729" />
+        <location filename="../../main.py" line="5779" />
         <source>Please wait for the download to finish before opening.</source>
         <translation>ダウンロードが完了するまで待ってから開いてください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5814" />
+        <location filename="../../main.py" line="5851" />
         <source>The yt-dlp download file is not yet available on disk.
 Please wait a few moments for the download to create the file.</source>
         <translation>yt-dlp ダウンロード ファイルはまだディスク上にありません。
 ダウンロードが完了してファイルが作成されるまで、しばらくお待ちください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5832" />
+        <location filename="../../main.py" line="5869" />
         <source>The temporary media file is not yet available on disk.</source>
         <translation>一時メディア ファイルはまだディスク上で使用できません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5841" />
+        <location filename="../../main.py" line="5878" />
         <source>File Too Small</source>
         <translation>ファイルが小さすぎます</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5842" />
+        <location filename="../../main.py" line="5879" />
         <source>Please wait for more data to download before watching.
 Current size: {size_format(file_size)}</source>
         <translation>視聴する前に、さらにデータがダウンロードされるまでお待ちください。
 現在のサイズ: {size_format(file_size)}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5850" />
+        <location filename="../../main.py" line="5887" />
         <source>Buffer Low</source>
         <translation>バッファロー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5851" />
+        <location filename="../../main.py" line="5888" />
         <source>Please wait for 30% progress to ensure a stable playback buffer.</source>
         <translation>再生バッファが安定するように、30% 進行するまでお待ちください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6076" />
+        <location filename="../../main.py" line="6113" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.
 
 cURL cannot refresh expired YouTube stream keys during queued execution.</source>
@@ -1074,622 +1075,622 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 cURL は、キューに入れられた実行中に期限切れの YouTube ストリーム キーを更新できません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6082" />
+        <location filename="../../main.py" line="6119" />
         <source>Please create a queue in the Queue Manager before adding items.</source>
         <translation>項目を追加する前に、キュー マネージャーでキューを作成してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6089" />
+        <location filename="../../main.py" line="6126" />
         <source>Choose a destination queue:</source>
         <translation>宛先キューを選択します。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6333" />
+        <location filename="../../main.py" line="6370" />
         <source>FFmpeg Missing</source>
         <translation>FFmpegが見つかりません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6334" />
+        <location filename="../../main.py" line="6371" />
         <source>FFmpeg is required for merging. Please configure it in Settings.</source>
         <translation>マージにはFFmpegが必要です。設定で設定してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6388" />
+        <location filename="../../main.py" line="6432" />
         <source>Streams merged successfully.</source>
         <translation>ストリームは正常にマージされました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6388" />
+        <location filename="../../main.py" line="6432" />
         <source>Merge Complete</source>
         <translation>マージが完了しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6395" />
+        <location filename="../../main.py" line="6439" />
         <source>Merge Failed</source>
         <translation>マージに失敗しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6420" />
+        <location filename="../../main.py" line="6464" />
         <source>Please select a task to re-merge.</source>
         <translation>再マージするタスクを選択してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6435" />
+        <location filename="../../main.py" line="6479" />
         <source>Could not find the associated audio file.</source>
         <translation>関連する音声ファイルが見つかりませんでした。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6441" />
+        <location filename="../../main.py" line="6485" />
         <source>Could not find the associated video file.</source>
         <translation>関連するビデオ ファイルが見つかりませんでした。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6466" />
+        <location filename="../../main.py" line="6510" />
         <source>Please select a completed download.</source>
         <translation>完了したダウンロードを選択してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6487" />
+        <location filename="../../main.py" line="6531" />
         <source>Failed to read the file for hashing.</source>
         <translation>ハッシュ化するファイルの読み取りに失敗しました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6491" />
+        <location filename="../../main.py" line="6535" />
         <source>SHA-256 Checksum</source>
         <translation>SHA-256 チェックサム</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6505" />
+        <location filename="../../main.py" line="6549" />
         <source>Copy Hash</source>
         <translation>ハッシュのコピー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4824" />
+        <location filename="../../main.py" line="4861" />
         <source>Cannot add completed download to queue.</source>
         <translation>完了したダウンロードをキューに追加できません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4843" />
+        <location filename="../../main.py" line="4880" />
         <source>File Exists</source>
         <translation>ファイルが存在します</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4850" />
+        <location filename="../../main.py" line="4887" />
         <source>Filename conflict in queue: {q_name}. Please rename or change folder.</source>
         <translation>キュー内のファイル名が競合しています: {q_name}。名前を変更するか、フォルダーを変更してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="4884" />
+        <location filename="../../main.py" line="4921" />
         <source>Added to Queue</source>
         <translation>キューに追加されました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5099" />
-        <location filename="../../main.py" line="5113" />
+        <location filename="../../main.py" line="5136" />
+        <location filename="../../main.py" line="5150" />
         <source>Playlist Download</source>
         <translation>プレイリストのダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5100" />
+        <location filename="../../main.py" line="5137" />
         <source>Please check the URL.</source>
         <translation>URLを確認してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5101" />
+        <location filename="../../main.py" line="5138" />
         <source>Playlist is empty, nothing to download.</source>
         <translation>プレイリストは空です。ダウンロードするものはありません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5120" />
+        <location filename="../../main.py" line="5157" />
         <source>Select all videos</source>
         <translation>すべての動画を選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5123" />
+        <location filename="../../main.py" line="5160" />
         <source>Apply format to all:</source>
         <translation>すべてにフォーマットを適用：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2267" />
+        <location filename="../../main.py" line="2271" />
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2180" />
+        <location filename="../../main.py" line="2184" />
         <source>&amp;File</source>
         <translation>&amp;ファイル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1318" />
-        <location filename="../../main.py" line="1357" />
-        <location filename="../../main.py" line="1396" />
+        <location filename="../../main.py" line="1322" />
+        <location filename="../../main.py" line="1361" />
+        <location filename="../../main.py" line="1400" />
         <source>Dependency Ready</source>
         <translation>依存関係の準備完了</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1319" />
+        <location filename="../../main.py" line="1323" />
         <source>ffmpeg is already installed and up to date.</source>
         <translation>ffmpeg はすでにインストールされており、最新の状態です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1337" />
-        <location filename="../../main.py" line="1375" />
-        <location filename="../../main.py" line="1415" />
+        <location filename="../../main.py" line="1341" />
+        <location filename="../../main.py" line="1379" />
+        <location filename="../../main.py" line="1419" />
         <source>Installation Started</source>
         <translation>インストールが開始されました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1338" />
+        <location filename="../../main.py" line="1342" />
         <source>Downloading the latest ffmpeg for your system...</source>
         <translation>システム用の最新の ffmpeg をダウンロードしています...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1342" />
-        <location filename="../../main.py" line="1380" />
-        <location filename="../../main.py" line="1420" />
+        <location filename="../../main.py" line="1346" />
+        <location filename="../../main.py" line="1384" />
+        <location filename="../../main.py" line="1424" />
         <source>Install Error</source>
         <translation>インストールエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1358" />
+        <location filename="../../main.py" line="1362" />
         <source>deno is already installed and up to date.</source>
         <translation>deno はすでにインストールされており、最新の状態です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1376" />
+        <location filename="../../main.py" line="1380" />
         <source>Downloading the latest Deno for your system...</source>
         <translation>お使いのシステムに最新の Deno をダウンロードしています...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1397" />
+        <location filename="../../main.py" line="1401" />
         <source>yt-dlp is already installed and up to date.</source>
         <translation>yt-dlp はすでにインストールされており、最新の状態です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1416" />
+        <location filename="../../main.py" line="1420" />
         <source>Downloading the latest yt-dlp for your system...</source>
         <translation>お使いのシステム用の最新の yt-dlp をダウンロードしています...</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1743" />
+        <location filename="../../main.py" line="1747" />
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1769" />
+        <location filename="../../main.py" line="1773" />
         <source>Select Links File</source>
         <translation>リンクファイルの選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1796" />
+        <location filename="../../main.py" line="1800" />
         <source>Calculating…</source>
         <translation>計算中…</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1828" />
-        <location filename="../../main.py" line="1897" />
+        <location filename="../../main.py" line="1832" />
+        <location filename="../../main.py" line="1901" />
         <source>Unknown size</source>
         <translation>不明なサイズ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1866" />
-        <location filename="../../main.py" line="1911" />
+        <location filename="../../main.py" line="1870" />
+        <location filename="../../main.py" line="1915" />
         <source>Add {count} to Queue</source>
         <translation>{count} をキューに追加</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1868" />
-        <location filename="../../main.py" line="1913" />
+        <location filename="../../main.py" line="1872" />
+        <location filename="../../main.py" line="1917" />
         <source>Start {count} Download{'s' if count != 1 else ''}</source>
         <translation>{count} 個のダウンロードを開始します。' if count != 1 else ''}</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1926" />
+        <location filename="../../main.py" line="1930" />
         <source>Import failed</source>
         <translation>インポートに失敗しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1929" />
+        <location filename="../../main.py" line="1933" />
         <source>Batch Import Error</source>
         <translation>バッチインポートエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2181" />
+        <location filename="../../main.py" line="2185" />
         <source>&amp;Exit</source>
         <translation>&amp;終了</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2182" />
+        <location filename="../../main.py" line="2186" />
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2185" />
+        <location filename="../../main.py" line="2189" />
         <source>&amp;Downloads</source>
         <translation>&amp;ダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2189" />
-        <location filename="../../main.py" line="2228" />
+        <location filename="../../main.py" line="2193" />
+        <location filename="../../main.py" line="2232" />
         <source>Resume All</source>
         <translation>すべて再開</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2191" />
-        <location filename="../../main.py" line="2224" />
+        <location filename="../../main.py" line="2195" />
+        <location filename="../../main.py" line="2228" />
         <source>Delete All</source>
         <translation>すべて削除</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2193" />
+        <location filename="../../main.py" line="2197" />
         <source>&amp;View</source>
         <translation>&amp;表示</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2194" />
+        <location filename="../../main.py" line="2198" />
         <source>Theme</source>
         <translation>テーマ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2195" />
+        <location filename="../../main.py" line="2199" />
         <source>Dark</source>
         <translation>ダーク</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2196" />
+        <location filename="../../main.py" line="2200" />
         <source>Light</source>
         <translation>ライト</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2198" />
+        <location filename="../../main.py" line="2202" />
         <source>&amp;Tools</source>
         <translation>&amp;ツール</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2199" />
-        <location filename="../../main.py" line="2225" />
+        <location filename="../../main.py" line="2203" />
+        <location filename="../../main.py" line="2229" />
         <source>Scheduler</source>
         <translation>スケジューラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2200" />
-        <location filename="../../main.py" line="2258" />
+        <location filename="../../main.py" line="2204" />
+        <location filename="../../main.py" line="2262" />
         <source>Categories</source>
         <translation>カテゴリー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2201" />
+        <location filename="../../main.py" line="2205" />
         <source>Queues</source>
         <translation>キュー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2202" />
-        <location filename="../../main.py" line="2229" />
+        <location filename="../../main.py" line="2206" />
+        <location filename="../../main.py" line="2233" />
         <source>Settings</source>
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2203" />
+        <location filename="../../main.py" line="2207" />
         <source>Install deno</source>
         <translation>デノをインストールする</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2204" />
+        <location filename="../../main.py" line="2208" />
         <source>Install ffmpeg</source>
         <translation>ffmpegをインストールする</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2205" />
+        <location filename="../../main.py" line="2209" />
         <source>Install yt-dlp</source>
         <translation>yt-dlpをインストールする</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2206" />
+        <location filename="../../main.py" line="2210" />
         <source>Marketplace</source>
         <translation>市場</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2208" />
+        <location filename="../../main.py" line="2212" />
         <source>Browser Extension</source>
         <translation>ブラウザ拡張機能</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2210" />
+        <location filename="../../main.py" line="2214" />
         <source>&amp;Help</source>
         <translation>&amp;ヘルプ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2213" />
+        <location filename="../../main.py" line="2217" />
         <source>About</source>
         <translation>このアプリについて</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2214" />
+        <location filename="../../main.py" line="2218" />
         <source>Help</source>
         <translation>ヘルプ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2215" />
+        <location filename="../../main.py" line="2219" />
         <source>Check for Updates</source>
         <translation>更新を確認</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2217" />
+        <location filename="../../main.py" line="2221" />
         <source>WhatsNew</source>
         <translation>新機能</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2216" />
+        <location filename="../../main.py" line="2220" />
         <source>Report Issues</source>
         <translation>問題を報告</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2248" />
+        <location filename="../../main.py" line="2252" />
         <source>Downloads</source>
         <translation>ダウンロード</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2249" />
+        <location filename="../../main.py" line="2253" />
         <source>Sort by:</source>
         <translation>並び替え：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2227" />
-        <location filename="../../main.py" line="2250" />
+        <location filename="../../main.py" line="2231" />
+        <location filename="../../main.py" line="2254" />
         <source>Terminal</source>
         <translation>ターミナル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2252" />
+        <location filename="../../main.py" line="2256" />
         <source>Log Level:</source>
         <translation>ログレベル：</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2254" />
+        <location filename="../../main.py" line="2258" />
         <source>Last HTTP response status</source>
         <translation>最後のHTTPレスポンスステータス</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2255" />
+        <location filename="../../main.py" line="2259" />
         <source>Current total download speed</source>
         <translation>現在の総ダウンロード速度</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2268" />
+        <location filename="../../main.py" line="2272" />
         <source>Open File With</source>
         <translation>このアプリで開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2269" />
+        <location filename="../../main.py" line="2273" />
         <source>Open File Location</source>
         <translation>ファイルの場所を開く</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2270" />
+        <location filename="../../main.py" line="2274" />
         <source>Watch while downloading</source>
         <translation>ダウンロード中に再生</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2271" />
+        <location filename="../../main.py" line="2275" />
         <source>Schedule download</source>
         <translation>ダウンロードをスケジュール</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2272" />
+        <location filename="../../main.py" line="2276" />
         <source>Cancel schedule!</source>
         <translation>スケジュールをキャンセル</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2274" />
+        <location filename="../../main.py" line="2278" />
         <source>Re-merge audio/video</source>
         <translation>音声/動画を再結合</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2275" />
+        <location filename="../../main.py" line="2279" />
         <source>File Properties</source>
         <translation>ファイルのプロパティ</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="1744" />
-        <location filename="../../main.py" line="2276" />
-        <location filename="../../main.py" line="4593" />
+        <location filename="../../main.py" line="1748" />
+        <location filename="../../main.py" line="2280" />
+        <location filename="../../main.py" line="4630" />
         <source>Add to Queue</source>
         <translation>キューに追加</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2277" />
+        <location filename="../../main.py" line="2281" />
         <source>Remove from Queue</source>
         <translation>キューから削除</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2278" />
+        <location filename="../../main.py" line="2282" />
         <source>File CheckSum!</source>
         <translation>ファイルチェックサム</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2279" />
+        <location filename="../../main.py" line="2283" />
         <source>Delete from Table</source>
         <translation>テーブルから削除</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5688" />
-        <location filename="../../main.py" line="5715" />
-        <location filename="../../main.py" line="5738" />
-        <location filename="../../main.py" line="5750" />
+        <location filename="../../main.py" line="5725" />
+        <location filename="../../main.py" line="5752" />
+        <location filename="../../main.py" line="5775" />
+        <location filename="../../main.py" line="5787" />
         <source>File Not Found</source>
         <translation>ファイルが見つかりません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5813" />
-        <location filename="../../main.py" line="5831" />
+        <location filename="../../main.py" line="5850" />
+        <location filename="../../main.py" line="5868" />
         <source>No Temp File</source>
         <translation>一時ファイルがありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6054" />
-        <location filename="../../main.py" line="6134" />
-        <location filename="../../main.py" line="6419" />
-        <location filename="../../main.py" line="6466" />
+        <location filename="../../main.py" line="6091" />
+        <location filename="../../main.py" line="6171" />
+        <location filename="../../main.py" line="6463" />
+        <location filename="../../main.py" line="6510" />
         <source>No Selection</source>
         <translation>選択されていません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6055" />
+        <location filename="../../main.py" line="6092" />
         <source>Please select a download to add to the queue.</source>
         <translation>キューに追加するダウンロードを選択してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6081" />
+        <location filename="../../main.py" line="6118" />
         <source>No Queues Available</source>
         <translation>利用可能なキューはありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6088" />
+        <location filename="../../main.py" line="6125" />
         <source>Select Queue</source>
         <translation>キューを選択</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6135" />
+        <location filename="../../main.py" line="6172" />
         <source>Please select a download to remove from the queue.</source>
         <translation>キューから削除するダウンロードを選択してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6434" />
+        <location filename="../../main.py" line="6478" />
         <source>Audio Missing</source>
         <translation>音声がありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6440" />
+        <location filename="../../main.py" line="6484" />
         <source>Video Missing</source>
         <translation>動画がありません</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6474" />
+        <location filename="../../main.py" line="6518" />
         <source>Checksum is only available for completed downloads.</source>
         <translation>チェックサムは完了したダウンロードでのみ使用できます。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6474" />
+        <location filename="../../main.py" line="6518" />
         <source>Invalid Status</source>
         <translation>無効なステータス</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6487" />
+        <location filename="../../main.py" line="6531" />
         <source>Checksum Error</source>
         <translation>チェックサムエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2858" />
-        <location filename="../../main.py" line="6506" />
+        <location filename="../../main.py" line="2874" />
+        <location filename="../../main.py" line="6550" />
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="2257" />
+        <location filename="../../main.py" line="2261" />
         <source>downloads
  completed</source>
         <translation>ダウンロード
  完了しました</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5752" />
+        <location filename="../../main.py" line="5789" />
         <source>The file '%1' could not be found or has been deleted.</source>
         <translation>ファイル '%1' が見つからないか、削除されました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5755" />
+        <location filename="../../main.py" line="5792" />
         <source>Permission Error</source>
         <translation>許可エラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5756" />
+        <location filename="../../main.py" line="5793" />
         <source>Access denied: %1</source>
         <translation>アクセスが拒否されました: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5759" />
+        <location filename="../../main.py" line="5796" />
         <source>OS Error</source>
         <translation>OSエラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="5760" />
+        <location filename="../../main.py" line="5797" />
         <source>An OS error occurred: %1</source>
         <translation>OS エラーが発生しました: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6754" />
-        <location filename="../../main.py" line="6780" />
+        <location filename="../../main.py" line="6798" />
+        <location filename="../../main.py" line="6824" />
         <source>yt-dlp Update</source>
         <translation>yt-dlp 更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6755" />
+        <location filename="../../main.py" line="6799" />
         <source>yt-dlp backend has been successfully updated.</source>
         <translation>yt-dlp バックエンドが正常に更新されました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6760" />
+        <location filename="../../main.py" line="6804" />
         <source>Update Error</source>
         <translation>更新エラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6781" />
+        <location filename="../../main.py" line="6825" />
         <source>yt-dlp has been updated to the latest version.</source>
         <translation>yt-dlp は最新バージョンに更新されました。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6783" />
+        <location filename="../../main.py" line="6827" />
         <source>yt-dlp version: %1</source>
         <translation>yt-dlp バージョン: %1</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6786" />
+        <location filename="../../main.py" line="6830" />
         <source>Update failed or binary is already up to date.</source>
         <translation>更新に失敗したか、バイナリがすでに最新です。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6787" />
+        <location filename="../../main.py" line="6831" />
         <source>yt-dlp Update Error</source>
         <translation>yt-dlp 更新エラー</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6808" />
-        <location filename="../../main.py" line="6812" />
+        <location filename="../../main.py" line="6852" />
+        <location filename="../../main.py" line="6856" />
         <source>App Update</source>
         <translation>アプリ更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6808" />
+        <location filename="../../main.py" line="6852" />
         <source>App is up-to-date</source>
         <translation>アプリは最新です</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6813" />
+        <location filename="../../main.py" line="6857" />
         <source>Couldn't check for update</source>
         <translation>アップデートを確認できませんでした</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6813" />
+        <location filename="../../main.py" line="6857" />
         <source>Please check your internet connection.</source>
         <translation>インターネット接続を確認してください。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6824" />
+        <location filename="../../main.py" line="6868" />
         <source>Update Application</source>
         <translation>アプリを更新</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6828" />
+        <location filename="../../main.py" line="6872" />
         <source>New version available:</source>
         <translation>新しいバージョンがあります:</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6833" />
+        <location filename="../../main.py" line="6877" />
         <source>No changelog available.</source>
         <translation>利用可能な変更ログはありません。</translation>
     </message>
     <message>
-        <location filename="../../main.py" line="6840" />
+        <location filename="../../main.py" line="6884" />
         <source>Update</source>
         <translation>更新</translation>
     </message>
@@ -1780,7 +1781,7 @@ cURL は、キューに入れられた実行中に期限切れの YouTube スト
 <context>
     <name>Main</name>
     <message>
-        <location filename="../../main.py" line="6945" />
+        <location filename="../../main.py" line="6989" />
         <source>Another instance of the application is already running.</source>
         <translation>アプリケーションの別のインスタンスがすでに実行されています。</translation>
     </message>
@@ -2681,6 +2682,105 @@ Do not close the app yet.</source>
         <location filename="../updater.py" line="694" />
         <source>Updated to version {tag}. Restart OmniPull to use the new version.</source>
         <translation>バージョン {tag} に更新されました。新しいバージョンを使用するには、OmniPull を再起動します。</translation>
+    </message>
+</context>
+<context>
+    <name>WhatsNewDialog</name>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="42" />
+        <location filename="../../ui/changelog_dialog.py" line="365" />
+        <source>What's new</source>
+        <translation>新着情報</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="56" />
+        <location filename="../../ui/changelog_dialog.py" line="366" />
+        <source>What’s new</source>
+        <translation>新着情報</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="368" />
+        <source>Version: -</source>
+        <translation>バージョン: -</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="369" />
+        <source>Date: -</source>
+        <translation>日付： -</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="89" />
+        <location filename="../../ui/changelog_dialog.py" line="375" />
+        <source>Highlights</source>
+        <translation>ハイライト</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="76" />
+        <source>Version: - %1</source>
+        <translation>バージョン: - %1</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="82" />
+        <source>Date: - %1</source>
+        <translation>日付: - %1</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="99" />
+        <source>Details</source>
+        <translation>詳細</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="113" />
+        <location filename="../../ui/changelog_dialog.py" line="372" />
+        <source>Previous</source>
+        <translation>前の</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="114" />
+        <location filename="../../ui/changelog_dialog.py" line="373" />
+        <source>Next</source>
+        <translation>次</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="119" />
+        <location filename="../../ui/changelog_dialog.py" line="374" />
+        <source>Close</source>
+        <translation>近い</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="370" />
+        <source>No release notes available.</source>
+        <translation>リリースノートはありません。</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="371" />
+        <source>No releases</source>
+        <translation>リリースはありません</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="312" />
+        <source>Version: %1</source>
+        <translation>バージョン: %1</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="313" />
+        <source>Date: %1</source>
+        <translation>日付: %1</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="314" />
+        <source>Highlights: %1</source>
+        <translation>ハイライト: %1</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="337" />
+        <source>Current release (1 of %1)</source>
+        <translation>現在のリリース (1/%1)</translation>
+    </message>
+    <message>
+        <location filename="../../ui/changelog_dialog.py" line="340" />
+        <source>Past release (%1 of %2)</source>
+        <translation>過去のリリース (%1/%2)</translation>
     </message>
 </context>
 <context>

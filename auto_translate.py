@@ -31,6 +31,7 @@ UI_FILES = [
     "ui/download_window.py",
     "ui/advanced_metadata_dialog.py",
     "ui/about_dialog.py",
+    "ui/changelog_dialog.py",
     "modules/video.py",
     "modules/updater.py",
 ]

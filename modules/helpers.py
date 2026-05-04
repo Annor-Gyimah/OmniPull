@@ -27,6 +27,7 @@ import shutil
 
 import platform
 import mimetypes
+from pathlib import Path
 from threading import Thread
 from datetime import datetime
 from typing import Tuple, Dict
@@ -81,81 +82,6 @@ if platform.system() == "Darwin":
     from AppKit import NSWorkspace # type: ignore
 
 
-# --- Cross-platform function ---
-# def get_file_icon(extension, size=256):
-#     system = platform.system()
-
-#     # --- Windows ---
-#     if system == "Windows":
-#         shfi = SHFILEINFO()
-#         res = shell32.SHGetFileInfoW(
-#             extension,
-#             FILE_ATTRIBUTE_NORMAL,
-#             byref(shfi),
-#             sizeof(shfi),
-#             SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES
-#         )
-#         if res == 0 or not shfi.hIcon:
-#             return QPixmap(size, size)
-
-#         hicon = shfi.hIcon
-
-#         #    Get icon info
-#         icon_info = win32gui.GetIconInfo(hicon)
-#         icon_w = icon_info[1]  # cx
-#         icon_h = icon_info[2]  # cy
-
-#         # Draw HICON to QPixmap
-#         hdc = win32gui.GetDC(0)
-#         dc = win32ui.CreateDCFromHandle(hdc)
-#         bmp = win32ui.CreateBitmap()
-#         bmp.CreateCompatibleBitmap(dc, size, size)
-#         memdc = dc.CreateCompatibleDC()
-#         memdc.SelectObject(bmp)
-
-#         # Calculate top-left to center icon
-#         x = (size - icon_w) // 2
-#         y = (size - icon_h) // 2
-
-#         memdc.DrawIcon((x, y), hicon)
-
-#         bmpinfo = bmp.GetInfo()
-#         bmpstr = bmp.GetBitmapBits(True)
-#         img = QImage(bmpstr, bmpinfo["bmWidth"], bmpinfo["bmHeight"], QImage.Format_ARGB32)
-
-#         win32gui.DestroyIcon(hicon)
-#         memdc.DeleteDC()
-#         dc.DeleteDC()
-#         win32gui.ReleaseDC(0, hdc)
-
-#         pixmap = QPixmap.fromImage(img)
-#         return pixmap.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-#     # --- Linux ---
-#     elif system == "Linux":
-#         mime_type, _ = mimetypes.guess_type("file" + extension)
-#         if not mime_type:
-#             mime_type = "application/octet-stream"
-#         icon_name = mime_type.replace("/", "-")
-#         icon = QIcon.fromTheme(icon_name)
-#         if icon.isNull():
-#             icon = QIcon.fromTheme("application-octet-stream")
-#         if icon.isNull():
-#             return QPixmap(size, size)
-#         return icon.pixmap(size, size)
-
-#     # --- macOS ---
-#     elif system == "Darwin":
-#         nsworkspace = NSWorkspace.sharedWorkspace()
-#         file_type_icon = nsworkspace.iconForFileType_(extension)
-#         file_type_icon.setSize_((size, size))
-#         data = file_type_icon.TIFFRepresentation()
-#         img = QImage.fromData(bytes(data.bytes()))
-#         pixmap = QPixmap.fromImage(img)
-#         return pixmap
-
-#     else:
-#         return QPixmap(size, size)  # fallback
 
 def get_file_icon(extension):
     # Create a dummy file info to trick the provider into giving us the icon for that type
@@ -1382,6 +1308,17 @@ def update_native_manifests():
                 log(f"Native manifest updated: {filename}")
         except Exception as e:
             log(f"Failed to update {filename}: {e}", log_level=3)
+
+
+def mark_install_healthy():
+    try:
+        current_dir = Path.home() / ".local/share/OmniPull/current"
+        healthy_file = current_dir / ".healthy"
+        healthy_file.touch(exist_ok=True)
+        log(f"Marked install healthy: {healthy_file}", context="APP-LIFECYCLE")
+    except Exception as e:
+        log(f"Failed to mark install healthy: {e}", log_level=2)
+
 
 
 def fix_browser_integration():

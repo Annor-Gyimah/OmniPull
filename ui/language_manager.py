@@ -38,26 +38,12 @@ class LanguageManager:
         qm_path = self.resource_path(
             f"../modules/translations/{self.file_map[language]}"
         )
-
+ 
         if self.translator.load(qm_path):
             app.installTranslator(self.translator)
             return True
 
         return False
-
-    # def apply_language_to_windows(self, language, windows):
-    #     """
-    #     Apply language globally and refresh given windows.
-        
-    #     windows: list of window instances
-    #     """
-    #     success = self.apply_language(language)
-
-    #     for w in windows:
-    #         if w is not None and hasattr(w, "retrans"):
-    #             w.retrans()
-
-    #     return success
 
     def apply_language_global(self, language):
         """

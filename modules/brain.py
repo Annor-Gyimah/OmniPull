@@ -631,73 +631,6 @@ def brain(d=None, emitter=None):
     # =========================================================================
     # BRANCH 3: CURL / SPARSE ENGINE
     # =========================================================================
-    # elif getattr(d, "engine", "") == "curl":
-    #     # Check for DASH compatibility
-    #     has_separate_audio = bool(d.audio_url and d.audio_url != d.url)
-        
-    #     if has_separate_audio:
-    #         log(f'[DASH] DASH detected: routing to aria2 video+audio handler', context=ctx)
-    #         executor.submit(run_curl_download, d, emitter)
-    #         return
-    #     else:
-    #         # Sparse pre-allocation sequence for multi-connection downloads
-    #         if d.size > 0 and int(config.max_connections) > 1:
-    #             d.status = Status.stitching
-    #             if emitter:
-    #                 try:
-    #                     from PySide6.QtCore import QMetaObject, Qt, Q_ARG
-    #                     # Safe UI updates via QueuedConnection to the main thread
-    #                     QMetaObject.invokeMethod(emitter, "progress_mode_changed",
-    #                                            Qt.QueuedConnection, Q_ARG(str, 'indeterminate'))
-    #                     QMetaObject.invokeMethod(emitter, "status_changed",
-    #                                            Qt.QueuedConnection, Q_ARG(str, 'stitching'))
-    #                 except Exception:
-    #                     emitter.progress_mode_changed.emit('indeterminate')
-    #                     emitter.status_changed.emit("stitching")
-
-    #             def _prep_and_download():
-    #                 """Background preparation thread for Sparse-mode initialization."""
-    #                 try:
-    #                     if not _init_sparse_file(d):
-    #                         d.status = Status.error
-    #                         if emitter: emitter.status_changed.emit('error')
-    #                         return
-                        
-    #                     tracker = _init_resume_tracker(d)
-    #                     if tracker is None:
-    #                         d.status = Status.error
-    #                         if emitter: emitter.status_changed.emit('error')
-    #                         return
-
-    #                     d.status = Status.downloading
-    #                     if emitter:
-    #                         try:
-    #                             emitter.progress_mode_changed.emit('determinate')
-    #                             emitter.status_changed.emit('downloading')
-    #                         except Exception: pass
-
-    #                     # Shared event: thread_manager sets it after all worker
-    #                     # file handles are closed; file_manager waits on it
-    #                     # before fsync/rename to avoid racing a still-open handle.
-    #                     _workers_done = threading.Event()
-
-    #                     # Launch dedicated Sparse manager threads
-    #                     fm = threading.Thread(target=_file_manager_sparse, 
-    #                                         kwargs=dict(d=d, keep_segments=False, emitter=emitter, workers_done_event=_workers_done),
-    #                                         daemon=True, name="sparse-file-mgr")
-    #                     tm = threading.Thread(target=_thread_manager_sparse,
-    #                                         args=(d, emitter, _workers_done), 
-    #                                         daemon=True, name="sparse-thread-mgr")
-    #                     fm.start()
-    #                     tm.start()
-
-    #                 except Exception as e:
-    #                     log(f"[SPARSE] Prep thread error: {e}", log_level=2, context="ENGINE-SPARSE")
-    #                     d.status = Status.error
-    #                     if emitter: emitter.status_changed.emit('error')
-
-    #             t = threading.Thread(target=_prep_and_download, daemon=True, name="sparse-prep")
-    #             t.start()
 
     elif getattr(d, "engine", "") == "curl":
         protocol = (getattr(d, "protocol", "") or "").lower()
@@ -2239,13 +2172,6 @@ def run_ytdlp_download(d, emitter=None):
     bare_title, original_ext = os.path.splitext(d.name)
 
     is_media_site = any(x in d.url for x in ["youtube.com", "youtu.be", "vimeo.com", "tiktok.com"])
-
-    # FIX: Always use %(ext)s. This ensures yt-dlp manages the .part files correctly.
-    # If we use a hardcoded name without %(ext)s, resuming often fails on direct links.
-    # if is_media_site and not getattr(d, 'vid_info', None):
-    #     output_template = os.path.join(d.folder, f"{bare_title}.%(ext)s")
-    # else:
-    #     output_template = os.path.join(d.folder, f"{bare_title}{d.ext}")
 
 
     if getattr(d, 'vid_info', None):

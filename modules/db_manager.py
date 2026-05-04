@@ -34,7 +34,7 @@ _COLUMNS, _JSON_COLUMNS = _get_schema()
 
 # ── Type coercion map ─────────────────────────────────────────────────────────
 # Columns that must come back as specific Python types after SQLite TEXT storage.
-# Add any new numeric fields here if get_persistent_properties() grows.
+# New numeric fields here if get_persistent_properties() grows.
 _INT_COLUMNS = {
     "id", "size", "_downloaded", "audio_size", "remaining_parts",
     "_segment_size", "last_known_size", "last_known_progress",
@@ -85,7 +85,7 @@ class DatabaseManager:
     def _init_db(self):
         with self._connect() as conn:
             conn.execute(self._create_sql)
-            # Add any columns that exist in the model but not yet in the DB
+            # New columns that exist in the model but not yet in the DB
             # (handles the case where DownloadItem grows new fields)
             existing = {
                 row[1]

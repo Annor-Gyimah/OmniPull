@@ -997,11 +997,6 @@ class SettingsDialog(QDialog):
         # Check for updates settings
         config.update_frequency = int(self.update_interval_combo.currentText())
         
-
-
-
-        # Save settings to disk
-        # setting.save_setting()
         self.settings_manager.save_settings()
 
         # Persist chosen colors if the user picked any
@@ -1034,13 +1029,11 @@ class SettingsDialog(QDialog):
     def on_call_update(self):
         # Call the update function from the main window
         config.main_window_q.put(("update call", ""))
-        # Close the settings window after calling the update function
         self.close()
 
     def on_call_ytdlp_update(self):
         # Call the yt-dlp update function from the main window
         config.main_window_q.put(("yt-dlp update call", ""))
-        # Close the settings window after calling the update function
         self.close()
 
 
@@ -1050,30 +1043,6 @@ class SettingsDialog(QDialog):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
 
-
-    # def apply_language(self, language):
-    #     QCoreApplication.instance().removeTranslator(self.translator)
-
-    #     file_map = {
-    #         "French": "app_fr.qm",
-    #         "Spanish": "app_es.qm",
-    #         "Chinese": "app_zh.qm",
-    #         "Korean": "app_ko.qm",
-    #         "Japanese": "app_ja.qm",
-    #         "English": "app_en.qm",
-    #         "Hindi": "app_hi.qm"
-    #     }
-
-    #     if language in file_map:
-    #         qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
-    #         if self.translator.load(qm_path):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-                
-
-       
-
-    #     self.retrans()
-    
 
     def retrans(self):
         self.setWindowTitle(self.tr("Settings"))

@@ -16,13 +16,13 @@
 #   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
-from modules.config import __version__
+from modules.config import __version__, lang
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QTextEdit, QTextBrowser
+    QLabel, QPushButton, QFrame, QTextBrowser
 )
-
+from ui.language_manager import LanguageManager
 
 class WhatsNewDialog(QDialog):
     """
@@ -40,7 +40,7 @@ class WhatsNewDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("What's new")
+        self.setWindowTitle(self.tr("What's new"))
         self.setObjectName("WhatsNewDialog")
         self.resize(520, 420)
         self.setMinimumSize(440, 360)
@@ -54,9 +54,9 @@ class WhatsNewDialog(QDialog):
 
         # Header row
         header_row = QHBoxLayout()
-        header_title = QLabel("What’s new")
-        header_title.setObjectName("WhatsNewTitleLabel")
-        header_row.addWidget(header_title)
+        self.header_title = QLabel(self.tr("What’s new"))
+        self.header_title.setObjectName("WhatsNewTitleLabel")
+        header_row.addWidget(self.header_title)
         header_row.addStretch()
 
         self.position_label = QLabel("")  # e.g. "Current release (1 of 3)"
@@ -74,22 +74,22 @@ class WhatsNewDialog(QDialog):
 
         # Version / date row
         row_top = QHBoxLayout()
-        self.version_label = QLabel("Version: -")
+        self.version_label = QLabel(self.tr("Version: - %1").replace("%1", __version__))
         self.version_label.setObjectName("WhatsNewVersionLabel")
         row_top.addWidget(self.version_label)
 
         row_top.addStretch()
 
-        self.date_label = QLabel("Date: -")
+        self.date_label = QLabel(self.tr("Date: - %1").replace("%1", "2026-05-06"))
         self.date_label.setObjectName("WhatsNewDateLabel")
         row_top.addWidget(self.date_label)
 
         card_layout.addLayout(row_top)
 
         # Highlights
-        highlights_title = QLabel("Highlights")
-        highlights_title.setObjectName("WhatsNewHighlightsTitle")
-        card_layout.addWidget(highlights_title)
+        self.highlights_title = QLabel(self.tr("Highlights"))
+        self.highlights_title.setObjectName("WhatsNewHighlightsTitle")
+        card_layout.addWidget(self.highlights_title)
 
         self.highlights_label = QLabel("-")
         self.highlights_label.setObjectName("WhatsNewHighlightsLabel")
@@ -97,9 +97,9 @@ class WhatsNewDialog(QDialog):
         card_layout.addWidget(self.highlights_label)
 
         # Details
-        details_title = QLabel("Details")
-        details_title.setObjectName("WhatsNewDetailsTitle")
-        card_layout.addWidget(details_title)
+        self.details_title = QLabel(self.tr("Details"))
+        self.details_title.setObjectName("WhatsNewDetailsTitle")
+        card_layout.addWidget(self.details_title)
 
         self.details_text = QTextBrowser()
         self.details_text.setObjectName("WhatsNewDetailsText")
@@ -111,13 +111,13 @@ class WhatsNewDialog(QDialog):
 
         # Carousel controls
         nav_row = QHBoxLayout()
-        self.btn_prev = QPushButton("Previous")
-        self.btn_next = QPushButton("Next")
+        self.btn_prev = QPushButton(self.tr("Previous"))
+        self.btn_next = QPushButton(self.tr("Next"))
         nav_row.addWidget(self.btn_prev)
         nav_row.addWidget(self.btn_next)
         nav_row.addStretch()
 
-        self.btn_close = QPushButton("Close")
+        self.btn_close = QPushButton(self.tr("Close"))
         nav_row.addWidget(self.btn_close)
 
         main_layout.addLayout(nav_row)
@@ -272,6 +272,8 @@ class WhatsNewDialog(QDialog):
             },
         ])
 
+
+        self.apply_language_whatsnew(lang)
     # ===== PUBLIC API =====
     def set_releases(self, releases: list[dict]):
         """
@@ -286,13 +288,15 @@ class WhatsNewDialog(QDialog):
         self._update_ui()
 
     # ===== INTERNAL HELPERS =====
+
+    
     def _update_ui(self):
         if not self._releases:
-            self.version_label.setText("Version: -")
-            self.date_label.setText("Date: -")
-            self.highlights_label.setText("No release notes available.")
-            self.details_text.setHtml("")
-            self.position_label.setText("No releases")
+            # self.version_label.setText(self.tr("Version: -"))
+            # self.date_label.setText(self.tr("Date: -"))
+            # self.highlights_label.setText(self.tr("No release notes available."))
+            # self.details_text.setHtml("")
+            # self.position_label.setText(self.tr("No releases"))
             self.btn_prev.setEnabled(False)
             self.btn_next.setEnabled(False)
             return
@@ -306,9 +310,9 @@ class WhatsNewDialog(QDialog):
         highlights = rel.get("highlights", "-")
         details = rel.get("details", "")
 
-        self.version_label.setText(f"Version: {version}")
-        self.date_label.setText(f"Date: {date}")
-        self.highlights_label.setText(highlights)
+        self.version_label.setText(self.tr(f"Version: %1").replace("%1", version))
+        self.date_label.setText(self.tr(f"Date: %1").replace("%1", date))
+        self.highlights_label.setText(self.tr(f"Highlights: %1").replace("%1", highlights))
 
        
         self.details_text.setHtml(details)
@@ -330,9 +334,10 @@ class WhatsNewDialog(QDialog):
 
         total = len(self._releases)
         if idx == 0:
-            pos_text = f"Current release (1 of {total})"
+            
+            pos_text = self.tr("Current release (1 of %1)").replace("%1", str(total))
         else:
-            pos_text = f"Past release ({idx + 1} of {total})"
+            pos_text = self.tr("Past release (%1 of %2)").replace("%1", str(idx + 1)).replace("%2", str(total))
         self.position_label.setText(pos_text)
 
         self.btn_prev.setEnabled(idx > 0)
@@ -347,3 +352,24 @@ class WhatsNewDialog(QDialog):
         if self._current_index < len(self._releases) - 1:
             self._current_index += 1
             self._update_ui()
+
+    
+    def apply_language_whatsnew(self, lang):
+        self.current_language = lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
+    
+
+    def retrans(self):
+        self.setWindowTitle(self.tr("What's new"))
+        self.header_title.setText(self.tr("What’s new"))
+        self.position_label.setText("")
+        self.version_label.setText(self.tr("Version: -"))
+        self.date_label.setText(self.tr("Date: -"))
+        self.highlights_label.setText(self.tr("No release notes available."))
+        self.position_label.setText(self.tr("No releases"))
+        self.btn_prev.setText(self.tr("Previous"))
+        self.btn_next.setText(self.tr("Next"))
+        self.btn_close.setText(self.tr("Close"))
+        self.highlights_title.setText(self.tr("Highlights"))

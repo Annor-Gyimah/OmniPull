@@ -17,8 +17,7 @@
 #####################################################################################
 
 
-import os
-import sys
+
 
 
 from modules.utils import log
@@ -26,7 +25,7 @@ from modules.utils import log
 from modules.config import lang
 from modules.settings_manager import SettingsManager
 
-from PySide6.QtCore import Qt, Slot, QCoreApplication, QTranslator
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
     QPushButton, QLabel, QMessageBox, QLineEdit, QFormLayout, QWidget, QStyle, QStyledItemDelegate

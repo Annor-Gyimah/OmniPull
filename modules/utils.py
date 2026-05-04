@@ -989,60 +989,6 @@ def process_thumbnail(url):
     except Exception as e:
         log(f'error: {e}', log_level=3, context=ctx)
 
-# def process_thumbnail(url):
-#     """
-#     Downloads a video thumbnail and centers it on a branded background baseplate.
-#     Returns the resulting composite image as a base64 encoded string.
-#     """
-#     ctx = "THUMBNAIL"
-
-#     # Verify Pillow (PIL) is installed before attempting image operations
-#     try:
-#         _ = Image.Image()
-#     except Exception:
-#         log('Pillow module missing. Install it to enable video thumbnails.', log_level=3, context=ctx)
-#         return None
-
-#     try:
-#         # Load the baseplate (background) from a base64 string
-#         # Note: base64.b64decode() requires the actual baseplate string argument here
-#         bg_data = io.BytesIO(base64.b64decode(config.THUMBNAIL_BG_BASE64))
-#         bg = Image.open(bg_data)
-
-#         # Download the raw thumbnail image from the web
-#         buffer = download(url) 
-#         if not buffer:
-#             return None
-
-#         # Process the downloaded foreground (fg) image
-#         fg = Image.open(buffer)
-
-#         # Scale the thumbnail to be slightly smaller than the background (10px margin)
-#         fg.thumbnail((bg.size[0] - 10, bg.size[1] - 10))
-
-#         # Coordinate calculation for centering the foreground on the background
-#         fg_center_x, fg_center_y = fg.size[0] // 2, fg.size[1] // 2
-#         bg_center_x, bg_center_y = bg.size[0] // 2, bg.size[1] // 2
-
-#         x = bg_center_x - fg_center_x
-#         y = bg_center_y - fg_center_y
-#         box = (x, y, x + fg.size[0], y + fg.size[1])
-
-#         # Composite the images
-#         bg.paste(fg, box)
-
-#         # Convert the final composite image back to a base64 string for the UI
-#         buffered = io.BytesIO()
-#         bg.save(buffered, format="PNG")
-#         img_str = base64.b64encode(buffered.getvalue())
-
-#         return img_str
-        
-#     except Exception as e:
-#         log(f'error: {e}', log_level=3, context=ctx)
-#         return None
-
-
 
 def get_machine_id_raw():
     """Return the raw OS-level machine identifier (platform-dependent)."""
