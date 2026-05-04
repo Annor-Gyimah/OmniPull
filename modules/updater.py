@@ -322,7 +322,10 @@ def windows_update():
             # Use os.getenv or Path.home() to get the correct AppData folder
             local_app_data = os.getenv('LOCALAPPDATA')
             app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
-            target_exe = app_dir / "main.exe"
+            program_files_x86 = os.getenv("ProgramFiles(x86)") or os.getenv("ProgramFiles")
+            program_files_x86_path = os.path.join(program_files_x86, "Annorion", "OmniPull", "omnipull-watcher.exe")
+            # target_exe = app_dir / "main.exe"
+            target_exe = os.path.join(program_files_x86, "Annorion", "OmniPull", "main.exe")
 
             # Save original hide_app setting to restore after update
             original_hide_app = config.hide_app
@@ -347,7 +350,7 @@ def windows_update():
             log(f"PID={current_pid}", log_level=1)
             log(f"TEMP_DIR={temp_dir}", log_level=1)
             log(f"ORIGINAL_HIDE_APP={original_hide_app}", log_level=1)
-            log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1)
+            log(f"RUST_UPDATER path set to: {program_files_x86_path / 'omnipull-updater.exe'}", log_level=1)
 
             if config.aria2_verified is True: 
                 aria2c_manager.cleanup_orphaned_paused_downloads()
