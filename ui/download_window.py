@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (QVBoxLayout, QLabel, QProgressBar, QPushButton,
 QHBoxLayout, QWidget, QFrame, QTableWidget, QTableWidgetItem, QStyledItemDelegate, QStyle, QDialog, QTabWidget, QFormLayout)
 
 from ui.styles import get_stylesheet
-
+from ui.language_manager import LanguageManager
 
 
 class NoFocusDelegate(QStyledItemDelegate):
@@ -45,7 +45,7 @@ class DownloadProgressDialog(QDialog):
         self.timeout = 10
         self.timer = 0
         self._progress_mode = 'determinate'
-        self.translator = QTranslator()
+        
 
         self.setObjectName("DownloadProgressDialog")
         self.resize(640, 420)
@@ -214,6 +214,10 @@ class DownloadProgressDialog(QDialog):
         self.current_theme = config.current_theme  # default theme 
         
         self._apply_styles()
+        self.current_language = config.lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
         
 
     # ========== INTERNAL HELPERS ==========
@@ -426,30 +430,6 @@ class DownloadProgressDialog(QDialog):
         self.set_status(status)
     
 
-    def resource_path(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
-
-
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-
-        self.retrans()
 
     def retrans(self):
         # Update window title and labels

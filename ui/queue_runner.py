@@ -1,29 +1,18 @@
-
-
-
 #####################################################################################
-#    OmniPull – queue_runner.py
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-#    Fixes applied in this revision
-#    ─────────────────────────────
-#    1. Queue chain stalls after first item completes (curl/sparse engine)
-#       Root cause: brain() for the curl/sparse path spawns daemon threads and
-#       returns immediately.  DownloadWorker.run() now polls until d.status reaches
-#       a terminal state before emitting finished/failed, so _on_item_finished fires
-#       only after the real download is done and start_next() works correctly.
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-#    2. Effective concurrency = min(queue max_concurrent, global max_concurrent_downloads)
-#       Previously only the queue-level cap was checked inside start_next(); the
-#       global setting was only enforced in the curl-specific branch and only against
-#       currently-downloading items inside this runner's own list.  Now the effective
-#       slot limit is computed once and respected everywhere.
-#
-#    3. Download window shown reliably for every queued item
-#       Root cause: _show_window was scheduled via QTimer.singleShot(0, …) AFTER
-#       thread.start().  On fast machines the worker could emit finished before the
-#       timer fired, causing _close_window to run first and then _show_window to
-#       open a ghost window for an already-finished item.
-#       Fix: _show_window is called synchronously, right before thread.start().
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
 
 import os

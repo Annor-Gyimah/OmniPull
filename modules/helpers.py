@@ -27,6 +27,7 @@ import shutil
 
 import platform
 import mimetypes
+from pathlib import Path
 from threading import Thread
 from datetime import datetime
 from typing import Tuple, Dict
@@ -81,81 +82,6 @@ if platform.system() == "Darwin":
     from AppKit import NSWorkspace # type: ignore
 
 
-# --- Cross-platform function ---
-# def get_file_icon(extension, size=256):
-#     system = platform.system()
-
-#     # --- Windows ---
-#     if system == "Windows":
-#         shfi = SHFILEINFO()
-#         res = shell32.SHGetFileInfoW(
-#             extension,
-#             FILE_ATTRIBUTE_NORMAL,
-#             byref(shfi),
-#             sizeof(shfi),
-#             SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES
-#         )
-#         if res == 0 or not shfi.hIcon:
-#             return QPixmap(size, size)
-
-#         hicon = shfi.hIcon
-
-#         #    Get icon info
-#         icon_info = win32gui.GetIconInfo(hicon)
-#         icon_w = icon_info[1]  # cx
-#         icon_h = icon_info[2]  # cy
-
-#         # Draw HICON to QPixmap
-#         hdc = win32gui.GetDC(0)
-#         dc = win32ui.CreateDCFromHandle(hdc)
-#         bmp = win32ui.CreateBitmap()
-#         bmp.CreateCompatibleBitmap(dc, size, size)
-#         memdc = dc.CreateCompatibleDC()
-#         memdc.SelectObject(bmp)
-
-#         # Calculate top-left to center icon
-#         x = (size - icon_w) // 2
-#         y = (size - icon_h) // 2
-
-#         memdc.DrawIcon((x, y), hicon)
-
-#         bmpinfo = bmp.GetInfo()
-#         bmpstr = bmp.GetBitmapBits(True)
-#         img = QImage(bmpstr, bmpinfo["bmWidth"], bmpinfo["bmHeight"], QImage.Format_ARGB32)
-
-#         win32gui.DestroyIcon(hicon)
-#         memdc.DeleteDC()
-#         dc.DeleteDC()
-#         win32gui.ReleaseDC(0, hdc)
-
-#         pixmap = QPixmap.fromImage(img)
-#         return pixmap.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-#     # --- Linux ---
-#     elif system == "Linux":
-#         mime_type, _ = mimetypes.guess_type("file" + extension)
-#         if not mime_type:
-#             mime_type = "application/octet-stream"
-#         icon_name = mime_type.replace("/", "-")
-#         icon = QIcon.fromTheme(icon_name)
-#         if icon.isNull():
-#             icon = QIcon.fromTheme("application-octet-stream")
-#         if icon.isNull():
-#             return QPixmap(size, size)
-#         return icon.pixmap(size, size)
-
-#     # --- macOS ---
-#     elif system == "Darwin":
-#         nsworkspace = NSWorkspace.sharedWorkspace()
-#         file_type_icon = nsworkspace.iconForFileType_(extension)
-#         file_type_icon.setSize_((size, size))
-#         data = file_type_icon.TIFFRepresentation()
-#         img = QImage.fromData(bytes(data.bytes()))
-#         pixmap = QPixmap.fromImage(img)
-#         return pixmap
-
-#     else:
-#         return QPixmap(size, size)  # fallback
 
 def get_file_icon(extension):
     # Create a dummy file info to trick the provider into giving us the icon for that type
@@ -1043,7 +969,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "모든 다운로드",
         "Japanese": "すべてのダウンロード",
         "Chinese": "所有下载",
-        "Hindi": "सभी डाउनलोड"
+        "Hindi": "सभी डाउनलोड",
+        "Russian": "Все загрузки"
     },
     "Completed": {
         "French": "Terminés",
@@ -1051,7 +978,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "완료됨",
         "Japanese": "完了",
         "Chinese": "已完成",
-        "Hindi": "पूर्ण"
+        "Hindi": "पूर्ण",
+        "Russian": "Завершенные"
     },
     "Cancelled": {
         "French": "Annulés",
@@ -1059,7 +987,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "취소됨",
         "Japanese": "キャンセル済み",
         "Chinese": "已取消",
-        "Hindi": "रद्द किया गया"
+        "Hindi": "रद्द किया गया",
+        "Russian": "Отмененные"
     },
     "Downloading": {
         "French": "Téléchargement",
@@ -1067,7 +996,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "다운로드 중",
         "Japanese": "ダウンロード中",
         "Chinese": "下载中",
-        "Hindi": "डाउनलोड हो रहा है"
+        "Hindi": "डाउनलोड हो रहा है",
+        "Russian": "Загрузка"
     },
     "Queued": {
         "French": "En file d’attente",
@@ -1075,7 +1005,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "대기 중",
         "Japanese": "キュー待ち",
         "Chinese": "排队中",
-        "Hindi": "कतारबद्ध"
+        "Hindi": "कतारबद्ध",
+        "Russian": "В очереди"
     },
     "Paused": {
         "French": "En pause",
@@ -1083,7 +1014,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "일시중지됨",
         "Japanese": "一時停止中",
         "Chinese": "已暂停",
-        "Hindi": "विराम दिया गया"
+        "Hindi": "विराम दिया गया",
+        "Russian": "Приостановленные"
     },
     "Error": {
         "French": "Erreur",
@@ -1091,7 +1023,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "오류",
         "Japanese": "エラー",
         "Chinese": "错误",
-        "Hindi": "त्रुटि"
+        "Hindi": "त्रुटि",
+        "Russian": "Ошибки"
     },
     "General": {
         "French": "Général",
@@ -1099,7 +1032,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "일반",
         "Japanese": "一般",
         "Chinese": "常规",
-        "Hindi": "सामान्य"
+        "Hindi": "सामान्य",
+        "Russian": "Общие"
     },
     "Compressed": {
         "French": "Compressé",
@@ -1107,7 +1041,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "압축됨",
         "Japanese": "圧縮済み",
         "Chinese": "压缩",
-        "Hindi": "संकुचित"
+        "Hindi": "संकुचित",
+        "Russian": "Сжатые"
     },
     "Documents": {
         "French": "Documents",
@@ -1115,7 +1050,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "문서",
         "Japanese": "ドキュメント",
         "Chinese": "文档",
-        "Hindi": "दस्तावेज़"
+        "Hindi": "दस्तावेज़",
+        "Russian": "Документы"
     },
     "Music": {
         "French": "Musique",
@@ -1123,7 +1059,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "음악",
         "Japanese": "音楽",
         "Chinese": "音乐",
-        "Hindi": "संगीत"
+        "Hindi": "संगीत",
+        "Russian": "Музыка"
     },
     "Video": {
         "French": "Vidéo",
@@ -1131,7 +1068,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "비디오",
         "Japanese": "ビデオ",
         "Chinese": "视频",
-        "Hindi": "वीडियो"
+        "Hindi": "वीडियो",
+        "Russian": "Видео"
     },
     "Programs": {
         "French": "Programmes",
@@ -1139,7 +1077,8 @@ CATEGORY_TRANSLATIONS = {
         "Korean": "프로그램",
         "Japanese": "プログラム",
         "Chinese": "程序",
-        "Hindi": "कार्यक्रम"
+        "Hindi": "कार्यक्रम",
+        "Russian": "Программы"
     }
 }
 
@@ -1151,7 +1090,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "이름:",
         "Japanese": "名前:",
         "Chinese": "名称:",
-        "Hindi": "नाम:"
+        "Hindi": "नाम:",
+        "Russian": "Имя:"
     },
     "Folder:": {
         "English": "Folder :",
@@ -1160,7 +1100,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "폴더:",
         "Japanese": "フォルダー:",
         "Chinese": "文件夹:",
-        "Hindi": "फ़ोल्डर:"
+        "Hindi": "फ़ोल्डर:",
+        "Russian": "Папка:"
     },
     "Download engine:": {
         "English": "Download engine :",
@@ -1169,7 +1110,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "다운로드 엔진:",
         "Japanese": "ダウンロードエンジン:",
         "Chinese": "下载引擎:",
-        "Hindi": "डाउनलोड इंजन:"
+        "Hindi": "डाउनलोड इंजन:",
+        "Russian": "Движок загрузки:"
     },
     "Progress:": {
         "English": "Progress :",
@@ -1178,7 +1120,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "진행률:",
         "Japanese": "進行状況:",
         "Chinese": "进度:",
-        "Hindi": "प्रगति:"
+        "Hindi": "प्रगति:",
+        "Russian": "Прогресс:"
     },
     "Downloaded:": {
         "English": "Downloaded :",
@@ -1187,7 +1130,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "다운로드됨:",
         "Japanese": "ダウンロード済み:",
         "Chinese": "已下载:",
-        "Hindi": "डाउनलोड हुआ:"
+        "Hindi": "डाउनलोड हुआ:",
+        "Russian": "Загружено:"
     },
     "Total size:": {
         "English": "Total size:",
@@ -1196,7 +1140,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "전체 크기:",
         "Japanese": "合計サイズ:",
         "Chinese": "总大小:",
-        "Hindi": "कुल आकार:"
+        "Hindi": "कुल आकार:",
+        "Russian": "Общий размер:"  
     },
     "Status:": {
         "English": "Status:",
@@ -1205,7 +1150,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "상태:",
         "Japanese": "ステータス:",
         "Chinese": "状态:",
-        "Hindi": "स्थिति:"
+        "Hindi": "स्थिति:",
+        "Russian": "Статус:"
     },
     "Resumable:": {
         "English": "Resumable:",
@@ -1214,7 +1160,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "재개 가능:",
         "Japanese": "再開可能:",
         "Chinese": "可续传:",
-        "Hindi": "पुनः आरंभ योग्य:"
+        "Hindi": "पुनः आरंभ योग्य:",
+        "Russian": "Можно возобновить:"
     },
     "Type:": {
         "English": "Type:",
@@ -1223,7 +1170,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "종류:",
         "Japanese": "種類:",
         "Chinese": "类型:",
-        "Hindi": "प्रकार:"
+        "Hindi": "प्रकार:",
+        "Russian": "Тип:"
     },
     "Protocol:": {
         "English": "Protocol:",
@@ -1232,7 +1180,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "프로토콜:",
         "Japanese": "プロトコル:",
         "Chinese": "协议:",
-        "Hindi": "प्रोटोकॉल:"
+        "Hindi": "प्रोटोकॉल:",
+        "Russian": "Протокол:"
     },
     "Webpage URL:": {
         "English": "Webpage URL:",
@@ -1241,7 +1190,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "웹페이지 URL:",
         "Japanese": "ウェブページ URL:",
         "Chinese": "网页 URL:",
-        "Hindi": "वेबपृष्ठ URL:"
+        "Hindi": "वेबपृष्ठ URL:",
+        "Russian": "URL страницы:"
     },
     "Yes": {
         "English": "Yes",
@@ -1250,7 +1200,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "예",
         "Japanese": "はい",
         "Chinese": "是",
-        "Hindi": "हाँ"
+        "Hindi": "हाँ",
+        "Russian": "Да"
     },
     "No": {
         "English": "No",
@@ -1259,7 +1210,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "아니오",
         "Japanese": "いいえ",
         "Chinese": "否",
-        "Hindi": "नहीं"
+        "Hindi": "नहीं",
+        "Russian": "Нет"
     },
     "Close": {
         "English": "Close",
@@ -1268,7 +1220,8 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Korean": "닫기",
         "Japanese": "閉じる",
         "Chinese": "关闭",
-        "Hindi": "बंद करें"
+        "Hindi": "बंद करें",
+        "Russian": "Закрыть"
     }
 }
 
@@ -1357,6 +1310,17 @@ def update_native_manifests():
             log(f"Failed to update {filename}: {e}", log_level=3)
 
 
+def mark_install_healthy():
+    try:
+        current_dir = Path.home() / ".local/share/OmniPull/current"
+        healthy_file = current_dir / ".healthy"
+        healthy_file.touch(exist_ok=True)
+        log(f"Marked install healthy: {healthy_file}", context="APP-LIFECYCLE")
+    except Exception as e:
+        log(f"Failed to mark install healthy: {e}", log_level=2)
+
+
+
 def fix_browser_integration():
     """
     Ensures JSON manifests and registry keys (Windows) or native messaging
@@ -1370,8 +1334,9 @@ def fix_browser_integration():
     # ── Resolve the watcher executable path ──────────────────────────────────
     if system == "Windows":
         local_app_data = os.getenv('LOCALAPPDATA', '')
-        app_folder  = os.path.join(local_app_data, "Annorion", "OmniPull")
-        watcher_path = os.path.join(app_folder, "omnipull-watcher.exe")
+        app_folder = os.path.join(local_app_data, "Annorion", "OmniPull")
+        program_files_x86 = os.getenv("ProgramFiles(x86)") or os.getenv("ProgramFiles")
+        watcher_path = os.path.join(program_files_x86, "Annorion", "OmniPull", "omnipull-watcher.exe")
 
     elif system == "Darwin":  # macOS
         app_folder  = os.path.expanduser("~/Library/Application Support/OmniPull")

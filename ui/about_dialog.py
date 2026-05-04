@@ -31,7 +31,9 @@ from PySide6.QtWidgets import (
     QLabel, QPushButton, QFrame, QTextEdit
 )
 
-from PySide6.QtCore import Qt,  Signal, QThread, QCoreApplication, QTranslator
+from PySide6.QtCore import Qt, QCoreApplication
+
+from ui.language_manager import LanguageManager
 
 
 
@@ -152,38 +154,17 @@ class AboutDialog(QDialog):
         main_layout.addLayout(btn_row)
 
         self.btn_close.clicked.connect(self.accept)
-
-        self.translator = QTranslator()
-        self.current_language = lang
-        self.apply_language(self.current_language)
-        
-        
-
-    def resource_path2(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
+        self.apply_language_about(lang)
 
 
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
     
+    def apply_language_about(self, lang):
+        self.current_language = lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
         self.retrans()
+
+
 
     def retrans(self):
 

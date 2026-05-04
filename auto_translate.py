@@ -18,7 +18,7 @@ BASE_PATH = os.getenv(
 
 os.makedirs(BASE_PATH, exist_ok=True)
 
-LANGUAGES = ['en', 'fr', 'es', 'ja', 'ko', 'zh', 'hi']
+LANGUAGES = ['en', 'fr', 'es', 'ja', 'ko', 'zh', 'hi', 'ru']
 
 # List all needed UI and logic files here
 UI_FILES = [
@@ -31,6 +31,7 @@ UI_FILES = [
     "ui/download_window.py",
     "ui/advanced_metadata_dialog.py",
     "ui/about_dialog.py",
+    "ui/changelog_dialog.py",
     "modules/video.py",
     "modules/updater.py",
 ]

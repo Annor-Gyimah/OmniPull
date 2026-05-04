@@ -22,12 +22,13 @@ import sys
 from modules.config import download_folder, current_theme, lang
 from modules.settings_manager import SettingsManager
 
-from PySide6.QtCore import Qt, QCoreApplication, QTranslator
+from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtWidgets import (QDialog, QLabel, QLineEdit, QComboBox, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QFrame,
     QProgressBar, QSizePolicy, QWidget, QSpacerItem, QFormLayout, QFileDialog, QMessageBox, QApplication,
 )
 
 from ui.styles import get_stylesheet
+from ui.language_manager import LanguageManager
 
 
 # default categories to show when no persisted categories exist
@@ -71,7 +72,7 @@ class AddDownloadWindow(QWidget):
 
 
         self.settings_manager = SettingsManager()
-        self.translator = QTranslator()
+            
         self.categories = self.settings_manager.load_categories()
 
         # ==============================
@@ -161,12 +162,18 @@ class AddDownloadWindow(QWidget):
         self.filename_edit = QLineEdit()
         self.filename_edit.setPlaceholderText("Optional file name (leave empty to auto-detect)")
 
+        # Engine selector
+        self.lbl_engine = label_style(self.tr("Engine:"))
+        self.engine_combo = QComboBox()
+        self.engine_combo.setFixedWidth(100)
+        self.engine_combo.addItems(["yt-dlp", "aria2c", "curl"])
+        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
 
         grid.addWidget(self.lbl_save, 1, 0)
         grid.addWidget(self.save_to_edit, 1, 1, 1, 2)
 
         
-        # --- Category row with + button ---
+        # --- Category row with + button and engine combo ---
         cat_row = QHBoxLayout()
         cat_row.setSpacing(4)  # tighter spacing
 
@@ -183,6 +190,9 @@ class AddDownloadWindow(QWidget):
         """)
         
         cat_row.addWidget(self.btn_add_category)
+        cat_row.addSpacing(20)  # space before engine
+        cat_row.addWidget(self.lbl_engine)
+        cat_row.addWidget(self.engine_combo)
         cat_row.addStretch()
 
         grid.addWidget(self.lbl_cat, 2, 0)
@@ -197,7 +207,6 @@ class AddDownloadWindow(QWidget):
         # ==============================
         self.lbl_queue = label_style(self.tr("Queue:"))
         self.queue_combo = QComboBox()
-        # self.queue_combo.addItems(["Default", "Night", "Weekend"])
         self.queue_combo.setFixedWidth(190)
 
         self.lbl_resolution = label_style(self.tr("Resolution:"))
@@ -303,7 +312,9 @@ class AddDownloadWindow(QWidget):
 
         self._apply_styles()
         self.current_language = lang
-        self.apply_language(self.current_language)
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
 
         
     
@@ -343,10 +354,10 @@ class AddDownloadWindow(QWidget):
         from modules.config import lang
         old_language = lang
         dlg = AddCategoryDialog(self)
-        dlg.apply_language(lang)   # ensure dialog is translated
+        dlg.apply_language_add_cat(lang)
         result = dlg.exec()
         if result == QDialog.Accepted and lang != old_language:
-            self.apply_language(lang)
+            self.lang_manager.apply_language(self.current_language)
             self.retrans()
 
         name = dlg.name_edit.text().strip()
@@ -395,35 +406,6 @@ class AddDownloadWindow(QWidget):
         event.ignore()
 
 
-    def resource_path2(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
-
-
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-                
-
-       
-
-        self.retrans()
-
     def retrans(self):
         self.setWindowTitle(self.tr("Add Download"))
         
@@ -433,6 +415,8 @@ class AddDownloadWindow(QWidget):
         self.lbl_cat.setText(self.tr("Category:"))
         self.lbl_queue.setText(self.tr("Queue:"))
         self.lbl_resolution.setText(self.tr("Resolution:"))
+        self.lbl_engine.setText(self.tr("Engine:"))
+        self.engine_combo.setToolTip(self.tr("Select download engine for this download"))
         self.change_folder_btn.setText(self.tr("Change Folder"))
         self.retry_btn.setText(self.tr("Retry"))
         self.download_btn.setText(self.tr("Start Download"))
@@ -449,7 +433,9 @@ class AddCategoryDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Add Category"))
         self.setFixedWidth(420)
-        self.translator = QTranslator()
+
+        
+
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
 
@@ -500,40 +486,22 @@ class AddCategoryDialog(QDialog):
         self.btn_ok.clicked.connect(self.accept)
         self.btn_browse.clicked.connect(self.browse_folder)
 
+        self.apply_language_add_cat(lang)
+
+
     def browse_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Category Folder")
         if folder:
             self.path_edit.setText(folder)
+
+    
+    def apply_language_add_cat(self, lang):
+        self.current_language = lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
     
 
-    def resource_path2(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
-
-
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-            
-
-       
-
-        self.retrans()
 
     def retrans(self):
         self.setWindowTitle(self.tr("Add Category"))

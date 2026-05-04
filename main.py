@@ -71,6 +71,7 @@ from ui.advanced_metadata_dialog import AdvancedMetadataDialog
 
 
 from ui.styles import get_stylesheet
+from ui.language_manager import LanguageManager
 
 
 
@@ -87,12 +88,12 @@ from modules.updater import update, update_yt_dlp, get_changelog
 from modules.startup import addStartUp, checkStartUp, removeStartUp
 from modules.video import (Video, check_ffmpeg, check_deno,check_dependency_installed, download_dependency, download_deno, download_ffmpeg, import_ytdl, get_ytdl_options, extract_info_blocking)
 from modules.utils import (size_format, validate_file_name, compare_versions, compare_versions_2, log, time_format,
-    notify, run_command, handle_exceptions, get_headers, delete_folder)
+    notify, run_command, handle_exceptions, get_headers, delete_folder, delete_file)
 from modules.helpers import (toolbar_buttons_state, get_msgbox_style, change_cursor, show_information,
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern, janitor, get_today_download_stats,
     calculate_total_speed, get_progress_bar_color, find_download_by_id, get_file_icon, 
-    CATEGORY_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration)
+    CATEGORY_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration, mark_install_healthy)
 
 
 
@@ -937,10 +938,16 @@ class DownloadManagerWindow(QMainWindow):
         self._connect_signals()
         
         # ── Final Initialization ─────────────────────────────────────────────
-        self.translator = QTranslator() 
+        # self.translator = QTranslator() 
         self.setup_context_menu_actions()
         self.current_language = config.lang
-        self.apply_language_to_all_windows(self.current_language)
+        self.lang_manager = LanguageManager()
+
+        # Apply language
+        self.lang_manager.apply_language_global(self.current_language)
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
+        
 
         self.set_theme(self.current_theme)
         self._apply_styles()
@@ -1137,6 +1144,8 @@ class DownloadManagerWindow(QMainWindow):
         self.ui_add_download.setStyleSheet(get_stylesheet(self.current_theme))
         self.ui_add_download.show()
         self.ui_add_download.raise_()
+        if getattr(self, '_is_playlist_mode', False) and getattr(self, 'playlist', None):
+            widgets_add_download.download_btn.setText(self.tr("Start Playlist"))
 
     def show_add_dialog_only(self):
         """
@@ -1166,15 +1175,17 @@ class DownloadManagerWindow(QMainWindow):
         """Launches the Category Editor and handles language re-translation if changed."""
         old_language = config.lang
         dlg = CategoryDialog(self)
-        dlg.apply_language(config.lang)
+        dlg.apply_language_add_cat(config.lang)
         if dlg.exec() == QDialog.Accepted and config.lang != old_language:
             log(f"System language changed to: {config.lang}", log_level=1, context=self.ctx)
-            self.apply_language(config.lang)
+            self.lang_manager.apply_language(config.lang)
             self.retrans()
 
     def show_whatsnew_dialog(self):
         """Displays the application changelog and release notes."""
-        WhatsNewDialog(self).exec()
+        dlg = WhatsNewDialog(self)
+        dlg.apply_language_whatsnew(config.lang)
+        dlg.exec()
     
     def show_about_dialog(self):
         """Displays application branding, versioning, and license information."""
@@ -1183,7 +1194,7 @@ class DownloadManagerWindow(QMainWindow):
         dlg.set_creator(creator=config.APP_CREATOR)
         dlg.set_license(license_text="GPL v3 License")
         dlg.set_description(config.APP_DESCRIPTION)
-        dlg.apply_language(config.lang)
+        dlg.apply_language_about(config.lang)
         dlg.exec()
 
     def ask_for_sched_time(self, msg=''):
@@ -1215,7 +1226,7 @@ class DownloadManagerWindow(QMainWindow):
             parent=self,
             plugins_dir=str(config.DATA_ROOT / "plugins")
         )
-        dlg.apply_language(config.lang)
+        dlg.apply_language_market(config.lang)
         dlg.setStyleSheet(get_stylesheet(self.current_theme))
         dlg.exec()
     
@@ -1735,27 +1746,16 @@ class DownloadManagerWindow(QMainWindow):
         
         if current_text != self.tr("None") and current_text != "None": 
             btn.setText(self.tr("Add to Queue"))
-            # Optional: Change button color slightly to indicate a different action
-            # btn.setProperty("isQueue", True) 
+            
         else:
             btn.setText(self.tr("Start Download"))
-            # btn.setProperty("isQueue", False)
-
-        # Refresh style to apply any CSS changes if you used setProperty
-        # btn.style().unpolish(btn)
-        # btn.style().polish(btn)
+            
 
     
     def on_import_file_clicked(self):
         """Triggered when the user selects a text file for batch import."""
         selected_queue = widgets_add_download.queue_combo.currentText()
-        # if selected_queue == "None":
-        #     show_warning(
-        #         self.ui_add_download,
-        #         self.tr("Queue Required"),
-        #         self.tr("Please select a target queue before importing multiple links."),
-        #     )
-        #     return
+
     
         file_path, _ = QFileDialog.getOpenFileName(
             self.ui_add_download,
@@ -1860,26 +1860,6 @@ class DownloadManagerWindow(QMainWindow):
         else:
             widgets_add_download.download_btn.setText(self.tr(f"Start {count} Download{'s' if count != 1 else ''}"))
     
-    # @Slot()
-    # def _on_batch_finished(self):
-    #     """Called on the main thread when the worker has processed every URL."""
-    #     count    = len(self._batch_items)
-    #     size_txt = (
-    #         size_format(self._batch_total_size)
-    #         if self._batch_total_size > 0
-    #         else self.tr("Unknown size")
-    #     )
-    #     widgets_add_download.lbl_size_value.setText(
-    #         f"{count} link{'s' if count != 1 else ''} — {size_txt}"
-    #     )
-    #     widgets_add_download.url_progress.setRange(0, 100)
-    #     widgets_add_download.url_progress.setValue(100)
-    #     QTimer.singleShot(1500, widgets_add_download.url_progress.hide)
-    
-    #     label = self.tr(f"Add {count} to Queue") if count else self.tr("Start Download")
-    #     widgets_add_download.download_btn.setText(label)
-    #     widgets_add_download.download_btn.setEnabled(True)
-    #     log(f"[BatchImport] UI finalised – {count} items ready", log_level=1)
 
     @Slot()
     def _on_batch_finished(self):
@@ -2087,67 +2067,18 @@ class DownloadManagerWindow(QMainWindow):
 
     # ── Localization & Internationalization Engine ───────────────────────────
 
-    def apply_language_to_all_windows(self, lang):
-        """
-        Broadcasts a language change across the entire application suite.
-        
-        Updates the main window first, then iterates through all active 
-        sub-windows (Add Download, Queues, etc.) to ensure a consistent 
-        user experience.
-        """
-        self.apply_language(lang)
-        
-        # Propagation to child windows
-        windows_to_update = [
-            getattr(self, 'ui_add_download', None),
-            getattr(self, 'ui_queues', None)
-        ]
-        
-        for w in windows_to_update:
-            if w is not None:
-                w.apply_language(lang)
 
-    def resource_path2(self, relative_path):
+    def apply_language_global(self, language):
         """
-        Resolves absolute file paths for bundled application resources.
+        Apply language globally and refresh given windows.
         
-        Supports both standard development environments and PyInstaller 
-        one-file bundles by checking the sys._MEIPASS attribute.
+        windows: list of window instances
         """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
+        self.lang_manager.apply_language(language)
 
-    def apply_language(self, language):
-        """
-        Loads and installs a Qt Translation (.qm) binary for the specified language.
-        
-        Removes any existing translator before mapping the language name 
-        to its corresponding file on disk. Triggers retrans() on success.
-        """
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "English": "app_en.qm",
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"modules/translations/{file_map[language]}")
-            
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-                log(f"Interface language updated to: {language}", 
-                    log_level=1, context=self.ctx)
-            else:
-                log(f"Failed to locate translation binary: {qm_path}", 
-                    log_level=3, context=self.ctx)
-
-        self.retrans()
+        for widget in QCoreApplication.instance().allWidgets():
+            if hasattr(widget, "retrans"):
+                widget.retrans()
 
     def retrans(self):
         """
@@ -2217,7 +2148,7 @@ class DownloadManagerWindow(QMainWindow):
             self.tr("Done"),
             self.tr("Size"),
             self.tr("Status"),
-            self.tr("I"),                # Usually "Info" or "Icon"
+            self.tr("I"),                
             self.tr("Last Try Date")
         ]
 
@@ -2465,15 +2396,6 @@ class DownloadManagerWindow(QMainWindow):
         # Open a folder selection dialog
         folder_path = QFileDialog.getExistingDirectory(self, "Select Download Folder")
 
-        # If a folder is selected, update the line edit with the absolute path
-        # if folder_path:
-        #     widgets_add_download.save_to_edit.setText(folder_path)
-        #     config.download_folder = os.path.abspath(folder_path)
-        # else:
-        #     # If no folder is selected, reset to the default folder (config.download_folder)
-        #     widgets_add_download.save_to_edit.setText(config.download_folder)
-        #     widgets_add_download.save_to_edit.setText(folder_path)
-
         if folder_path:
             widgets_add_download.save_to_edit.setText(folder_path)
             config.download_folder = os.path.abspath(folder_path)
@@ -2534,6 +2456,9 @@ class DownloadManagerWindow(QMainWindow):
         When a browser download is captured, this method populates the 
         AddDownload dialog with 'trusted' metadata (filename, referrer, size) 
         provided by the browser, ensuring high accuracy for direct downloads.
+        
+        CRITICAL: URL processing is deferred to a background thread to prevent
+        GUI freezing when processing heavy URLs (e.g., YouTube links).
         """
         try:
             log(f"Intercepted browser download request: {url[:60]}...", 
@@ -2558,12 +2483,21 @@ class DownloadManagerWindow(QMainWindow):
                 self.ui_add_download.url_edit.setText(url)
                 self.ui_add_download.url_edit.blockSignals(False)
 
-                # Initiate processing with trusted browser metadata as priority
-                self.url_text_change(
-                    referrer=referrer, 
-                    trusted_size=browser_size, 
-                    trusted_name=browser_filename
-                )
+                # ── CRITICAL FIX: Defer URL processing to background thread ──
+                # This prevents the dialog from freezing when processing heavy URLs
+                def process_url_background():
+                    try:
+                        self.url_text_change(
+                            referrer=referrer, 
+                            trusted_size=browser_size, 
+                            trusted_name=browser_filename
+                        )
+                    except Exception as e:
+                        log(f"Background URL processing failed: {e}", log_level=2, context="BROWSER-EXT")
+
+                # Use QTimer to defer processing to main loop (allows UI to render first)
+                QTimer.singleShot(100, lambda: executor.submit(process_url_background))
+                
             else:
                 log("Critical UI Error: url_edit widget missing from AddDownloadWindow", 
                     log_level=3, context="BROWSER-EXT")
@@ -2809,9 +2743,6 @@ class DownloadManagerWindow(QMainWindow):
         self.playlist = []
         self.video = None
         self._is_playlist_mode = False
-        # self._is_batch_mode = False
-        # self._batch_items = []
-        # self._batch_total_size = 0
         try:
             widgets_add_download.download_btn.setText(self.tr("Start Download"))
         except Exception:
@@ -2849,12 +2780,12 @@ class DownloadManagerWindow(QMainWindow):
 
     def decide_download_engine(self):
         """
-        Determines the optimal backend engine based on user preference and availability.
-        
-        Logic priority:
-        1. If Aria2 is preferred and the binary exists, use aria2c.
-        2. Fallback to 'curl' if Aria2 is missing.
-        3. Use 'yt-dlp' natively for streaming media or if specifically requested.
+            Determines the optimal backend engine based on user preference and availability.
+            
+            Logic priority:
+            1. If Aria2 is preferred and the binary exists, use aria2c.
+            2. Fallback to 'curl' if Aria2 is missing.
+            3. Use 'yt-dlp' natively for streaming media or if specifically requested.
         """
         preferred = getattr(config, "download_engine", "yt-dlp").lower()
         ctx = "URL-ENGINE"
@@ -2874,6 +2805,15 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Engine selection finalized: {self.d.engine} for {self.d.name}", 
             log_level=1, context=ctx)
         self.settings_manager.save_d_list(self.d_list)
+
+        try:
+            engine_display = self.d.engine.replace("aria2c", "aria2c")
+            combo = widgets_add_download.engine_combo
+            idx = combo.findText(engine_display)
+            if idx >= 0:
+                combo.setCurrentIndex(idx)
+        except Exception:
+            pass
 
     # ── Metadata Classification ──────────────────────────────────────────────
 
@@ -3047,7 +2987,6 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Opening advanced metadata inspector for: {self.d.name}", 
             log_level=1, context="URL-EXTRACT-FINISH")
         dlg = AdvancedMetadataDialog(self.d, self)
-        dlg.apply_language(config.lang)
         dlg.exec()
 
 
@@ -3317,13 +3256,7 @@ class DownloadManagerWindow(QMainWindow):
         # Defaults for text
         title = missing_title or self.tr("%1 is missing").replace("%1", name)
         label_text = missing_label or self.tr("%1 is missing and needs to be downloaded:").replace("%1", name)
-        # nonwin_text = non_windows_msg or self.tr(
-        #     "%1 is required for this action.\n"
-        #     "Please install %1 with your OS package manager or provide its path in the app settings."
-        # ).replace("%1", name)
-
         
-        # if getattr(config, 'operating_system', '').lower() == 'windows':
         dialog = QDialog(self)
         dialog.setWindowTitle(title)
 
@@ -3383,9 +3316,7 @@ class DownloadManagerWindow(QMainWindow):
         except Exception:
             return False
 
-        # Non-Windows: show guidance
-        # QMessageBox.critical(self, title, nonwin_text)
-        # return False
+        
     
 
     
@@ -3785,8 +3716,9 @@ class DownloadManagerWindow(QMainWindow):
         active_downloads = [
             d for d in self.d_list
             if d.status in (config.Status.downloading, 
-                            config.Status.pending, 
-                            config.Status.merging_audio)
+                config.Status.pending, 
+                config.Status.merging_audio
+            )
         ]
 
         if not active_downloads:
@@ -4008,13 +3940,14 @@ class DownloadManagerWindow(QMainWindow):
 
     # ── Token & Link Refresh Logic ───────────────────────────────────────────
 
+
     def refresh_link_btn(self):
         """
-        Re-injects a task's URL into the extraction pipeline to refresh expired tokens.
-        
-        This is essentially a 're-add' of an existing item. It preserves the 
-        original destination folder while re-triggering the URL metadata 
-        extraction process (Rust or yt-dlp) to get fresh media stream links.
+            Re-injects a task's URL into the extraction pipeline to refresh expired tokens.
+            
+            This is essentially a 're-add' of an existing item. It preserves the 
+            original destination folder while re-triggering the URL metadata 
+            extraction process (Rust or yt-dlp) to get fresh media stream links.
         """
         ctx = "URL-REFRESH"
         selected_row = widgets.table.currentRow()
@@ -4026,7 +3959,6 @@ class DownloadManagerWindow(QMainWindow):
         d_index = len(self.d_list) - 1 - selected_row
         d = self.d_list[d_index]
 
-        # Use the original URL if using aria2c (to ensure we refresh the source, not a temporary stream link)
         url = d.original_url if d.engine in ['aria2c', 'aria2'] else d.url
         folder = d.folder
         config.download_folder = folder
@@ -4034,25 +3966,26 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Initiating link refresh for '{d.name}' (Source: {d.engine})", 
             log_level=1, context=ctx)
 
-        # 1. Prepare UI entry point
+        # 1. Prepare UI entry point — show dialog first so it can paint
         self.show_add_dialog()
-        widgets_add_download.url_edit.setText(url)
         widgets_add_download.save_to_edit.setText(folder)
 
-        # 2. Trigger Extraction Spinner
-        widgets_add_download.url_progress.show()
-        widgets_add_download.url_progress.setRange(0, 0)
+        # Block url_edit signals so setText doesn't fire url_text_change prematurely
+        widgets_add_download.url_edit.blockSignals(True)
+        widgets_add_download.url_edit.setText(url)
+        widgets_add_download.url_edit.blockSignals(False)
 
-        # 3. Fresh Item Generation
-        # We reset the window-level DownloadItem to avoid mutating the historical entry 
-        # until the new metadata is successfully extracted.
+        # 2. Reset state
         self.reset()
 
-        # 4. Execute Extraction Pipeline
-        # Re-setting the text triggers the extraction logic naturally
-        widgets_add_download.url_edit.setText(url)
-        widgets_add_download.save_to_edit.setText(folder)
-        self.url_text_change()
+        # 3. Defer extraction so the window fully renders first (200ms grace period)
+        def _deferred_start():
+            widgets_add_download.url_progress.show()
+            widgets_add_download.url_progress.setRange(0, 0)
+            widgets_add_download.save_to_edit.setText(folder)
+            self.url_text_change()
+
+        QTimer.singleShot(200, _deferred_start)
     
 
     def resume_all_downloads(self):
@@ -4208,21 +4141,28 @@ class DownloadManagerWindow(QMainWindow):
 
             for i, od in enumerate(self.d_list):
                 # Existing checks (temp_file or name+folder)
-                match_by_file = getattr(od, 'temp_file', None) == getattr(d, 'temp_file', None)
-                match_by_path = (od.name == d.name and os.path.normpath(od.folder) == os.path.normpath(d.folder))
-                
-                # --- NEW YOUTUBE ID CHECK ---
+                same_folder = os.path.normpath(od.folder) == os.path.normpath(d.folder)
+
+                match_by_file = (
+                    same_folder and
+                    getattr(od, 'temp_file', None) == getattr(d, 'temp_file', None)
+                )
+
+                match_by_path = (
+                    same_folder and
+                    od.name == d.name
+                )
+
                 match_by_yt = False
-                if new_yt_id:
+                if new_yt_id and same_folder:
                     existing_yt_id = self.get_yt_id(getattr(od, 'original_url', od.url))
                     if existing_yt_id and existing_yt_id == new_yt_id:
                         match_by_yt = True
-                # ----------------------------
 
                 if match_by_file or match_by_path or match_by_yt:
                     found_index = i
                     break
-
+                
         if found_index is not None:
             log(f"File conflict detected for: {d.name}", log_level=2, context="CONFLICT-RESOLVER")
             d_from_list = self.d_list[found_index]
@@ -4618,11 +4558,7 @@ class DownloadManagerWindow(QMainWindow):
                     self.start_download(item, silent=True)
                     added += 1
 
-                # show_information(
-                #     self.ui_add_download,
-                #     self.tr("Batch Started"),
-                #     self.tr(f"Started {added} download(s)."),
-                # )
+            
 
             # ── Shared cleanup (both paths) ───────────────────────────────────────
             self._is_batch_mode    = False
@@ -4669,15 +4605,21 @@ class DownloadManagerWindow(QMainWindow):
         # 2. Handle Queue Logic or Immediate Download
         selected_queue = widgets_add_download.queue_combo.currentText()
         
-        
-        
         # Ensure the original URL is stored so we can compare YouTube IDs later
         d.original_url = self.d.url
 
 
         if selected_queue and selected_queue != "None":
+            # Apply engine choice before queuing
+            selected_engine = widgets_add_download.engine_combo.currentText()
+            if selected_engine:
+                d.engine = selected_engine
             self._add_to_selected_queue(d, selected_queue)
         else:
+            # Apply engine choice from the selector
+            selected_engine = widgets_add_download.engine_combo.currentText()
+            if selected_engine:
+                d.engine = selected_engine
             # Direct Download Path
             d.queue = None
             result = self.start_download(d, downloader=downloader)
@@ -4749,7 +4691,7 @@ class DownloadManagerWindow(QMainWindow):
 
         # Assign serialized position
         existing_positions = [item.queue_position for item in self.d_list 
-                              if item.in_queue and item.queue_name == queue_name]
+            if item.in_queue and item.queue_name == queue_name]
         d.queue_position = max(existing_positions, default=0) + 1
 
         # d.id = len(self.d_list)
@@ -4836,13 +4778,6 @@ class DownloadManagerWindow(QMainWindow):
         if pixmap.isNull():
             return False
         
-        # Windows handles native icon scaling differently than Unix/macOS
-        # if platform.system() == "Windows":
-        #     widgets_add_download.thumbnail_label.setPixmap(pixmap)
-        # else:
-        #     widgets_add_download.thumbnail_label.setPixmap(
-        #         pixmap.scaled(140, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        #     )
         widgets_add_download.thumbnail_label.setPixmap(
             pixmap.scaled(100, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
@@ -6257,12 +6192,15 @@ class DownloadManagerWindow(QMainWindow):
                 d.name = os.path.basename(output_path)
                 d.folder = os.path.dirname(output_path) or d.folder
 
-                # Post-success cleanup
+                # Post-success cleanup: Remove all associated temp files
                 try:
                     if os.path.exists(audio_path):
                         os.remove(audio_path)
-                except Exception:
-                    pass
+                    delete_folder(d.temp_folder)
+                    delete_file(d.temp_file)
+                    log(f"[CLEANUP] Removed temp files after successful remerge: {d.name}", log_level=2)
+                except Exception as e:
+                    log(f"[CLEANUP] Post-remerge cleanup failed: {e}", log_level=2)
 
                 self.settings_manager.save_d_list(self.d_list)
                 self.update_table_progress()
@@ -6768,7 +6706,8 @@ def load_initial_translator(app):
         "Korean": "app_ko.qm",
         "Japanese": "app_ja.qm",
         "English": "app_en.qm",
-        "Hindi": "app_hi.qm"
+        "Hindi": "app_hi.qm",
+        "Russian": "app_ru.qm"
     }
     
     translator = QTranslator(app)
@@ -6779,14 +6718,6 @@ def load_initial_translator(app):
     return translator # Keep reference to prevent garbage collection
 
 
-def mark_install_healthy():
-    try:
-        current_dir = Path.home() / ".local/share/OmniPull/current"
-        healthy_file = current_dir / ".healthy"
-        healthy_file.touch(exist_ok=True)
-        log(f"Marked install healthy: {healthy_file}", context="APP-LIFECYCLE")
-    except Exception as e:
-        log(f"Failed to mark install healthy: {e}", log_level=2)
 
 
 # ── Application Entry & Lifecycle  ────────────────────────────────────────
@@ -6806,15 +6737,9 @@ def main():
     
     # Brief pause to prevent socket collisions during rapid restarts/updates
     time.sleep(1.5) 
-
-    
-
     
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(":/icons/omnipull.ico"))
-
-    # LOAD TRANSLATOR HERE
-    # _t = load_initial_translator(app)
     
     # ── 1. Single Instance Enforcement ──
     app_id = "omnipull"

@@ -21,36 +21,16 @@ import sys
 
 from modules import config
 from ui.styles import get_stylesheet
+from ui.language_manager import LanguageManager
 from modules.config import accent_color, lang
 
-from PySide6.QtCore import Qt,  Signal, QThread, QCoreApplication, QTranslator
-from PySide6.QtGui  import QFont, QColor, QPalette, QIcon
+from PySide6.QtCore import Qt
+from PySide6.QtGui  import QColor 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QCheckBox, QPushButton, QFrame, QGraphicsDropShadowEffect,
-    QWidget, QSpacerItem, QSizePolicy, QScrollArea, QGridLayout, QStackedWidget
+    QWidget, QSizePolicy, QScrollArea, QGridLayout, QStackedWidget
 )
-
-
-
-
-# ── Colour palette (dark industrial / utilitarian theme) ─────────────────────
-_C = {
-    "bg":           "#f8f9fb",   # bright, clean canvas
-    "surface":      "#ffffff",   # white card surface
-    "border":       "#e2e8f0",   # light grey borders
-    # "accent":       "#2b6cb0",   # deep professional blue (darker for contrast)
-    "accent": accent_color,
-    "accent_dim":   "#ebf8ff",   # very light blue for badges/hover
-    "text_primary": "#1a202c",   # dark slate for high-readability
-    "text_muted":   "#718096",   # cool grey for hints
-    "text_label":   "#4a5568",   # slate for form labels
-    "success":      "#38a169",   # forest green
-    "warn":         "#dd6b20",   # burnt orange (better contrast on white)
-    "danger":       "#e53e3e",   # red
-    "input_bg":     "#f1f5f9",   # subtle grey for inputs
-    "separator":    "#edf2f7",
-}
 
 
 
@@ -136,9 +116,10 @@ class AdvancedMetadataDialog(QDialog):
         self.subtitle_header = None
         self.comments_header = None
 
-        self.translator = QTranslator()
         self.current_language = lang
-        self.apply_language(self.current_language)
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
         
         self._apply_styles()
         self._restore_existing_settings()
@@ -240,11 +221,11 @@ class AdvancedMetadataDialog(QDialog):
         layout.setContentsMargins(24, 20, 24, 20)
 
         icon_lbl = QLabel("⚙")
-        icon_lbl.setStyleSheet(f"font-size:22px; color:{_C['accent']}; padding-right:8px;")
+        icon_lbl.setStyleSheet(f"font-size:22px; padding-right:8px;")
         
         self.title_lbl = QLabel(self.tr("Advanced Download Configuration"))
         self.title_lbl.setObjectName("title_header")
-        # title_lbl.setStyleSheet(f"font-size:15px; font-weight:700; color:{_C['text_primary']};")
+        
         
         layout.addWidget(icon_lbl)
         layout.addWidget(self.title_lbl, 1)
@@ -521,7 +502,7 @@ class AdvancedMetadataDialog(QDialog):
             parts.append(f"{n_manual} manual")
         if n_auto:
             parts.append(f"{n_auto} auto-generated")
-        self.sub_hint_lbl.setText(f"{', '.join(parts)} track(s) found.")
+        self.sub_hint_lbl.setText(self.tr("%1 track(s) found.").replace("%1", ", ".join(parts)))
 
         # Populate combo
         for lang_code, is_auto in entries:
@@ -590,31 +571,6 @@ class AdvancedMetadataDialog(QDialog):
         qss = get_stylesheet(self.current_theme)
         self.setStyleSheet(qss)
 
-    def resource_path2(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
-
-
-    def apply_language(self, language):
-        QCoreApplication.instance().removeTranslator(self.translator)
-
-        file_map = {
-            "French": "app_fr.qm",
-            "Spanish": "app_es.qm",
-            "Chinese": "app_zh.qm",
-            "Korean": "app_ko.qm",
-            "Japanese": "app_ja.qm",
-            "English": "app_en.qm",
-            "Hindi": "app_hi.qm"
-        }
-
-        if language in file_map:
-            qm_path = self.resource_path2(f"../modules/translations/{file_map[language]}")
-            if self.translator.load(qm_path):
-                QCoreApplication.instance().installTranslator(self.translator)
-    
-        self.retrans()
 
     def retrans(self):
 
@@ -660,10 +616,21 @@ class AdvancedMetadataDialog(QDialog):
         # Restore selection
         self.conv_mode_combo.setCurrentIndex(current_conv_idx)
 
-        current_lang_combo = self.lang_combo.currentIndex()
-        self.lang_combo.clear()
-        self.lang_combo.addItem(self.tr("— None (skip subtitles) —"))
-        self.lang_combo.setCurrentIndex(current_lang_combo)
+        # Re-populate subtitles after clearing (important for localization)
+        # Store current selection before clearing
+        current_data = None
+        if self.lang_combo.currentIndex() >= 0:
+            current_data = self.lang_combo.itemData(self.lang_combo.currentIndex(), Qt.UserRole)
+        
+        # Repopulate the entire combo with fresh translations
+        self.populate_subtitles()
+        
+        # Try to restore the previous selection
+        if current_data:
+            for i in range(self.lang_combo.count()):
+                if self.lang_combo.itemData(i, Qt.UserRole) == current_data:
+                    self.lang_combo.setCurrentIndex(i)
+                    break
 
 
 

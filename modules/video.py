@@ -88,7 +88,12 @@ def get_ytdl_options():
             # 'node': {},
             # 'quickjs': {},
             # 'bun': {},
-        },    
+        },
+        # Extract subtitle metadata (manual and auto-generated captions)
+        # This populates the 'subtitles' and 'automatic_captions' keys in the info dict
+        'writesubtitles': True,
+        'writeautomaticsub': True,
+        'skip_unavailable_fragments': True,
     }
 
     if config.proxy != "":
@@ -1544,8 +1549,6 @@ def _find_audio_file_for(d) -> str | None:
         return audio
 
     # 2) Scan folder for any audio_for_*.* and choose the best title match
-    # pattern = os.path.join(folder, "audio_for_*.*")
-    # candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
     candidates = []
     try:
         for p in glob.glob(os.path.join(folder, '*')):
@@ -1609,8 +1612,6 @@ def _find_video_file_for(d, audio_path: str | None) -> str | None:
         return tgt
 
     # 3) Scan folder for any _temp_*.* and choose the best title match
-    # pattern = os.path.join(folder, "_temp_*.*")
-    # candidates = [p for p in glob.glob(pattern) if os.path.isfile(p)]
     candidates = []
     try:
         for p in glob.glob(os.path.join(folder, "*")):
@@ -1703,6 +1704,8 @@ def merge_video_audio(video, audio, output, d):
         video, audio = audio, video
 
     output = os.path.normpath(output)
+    
+    
     ffmpeg = get_effective_ffmpeg()
     
     # ── Attempt 1: Fast Stream Copy (Lossless) ──
@@ -2032,11 +2035,6 @@ def post_process_hls_custom(d, segment_paths, output_file):
     if not segment_paths:
         return True
     
-    # Ensure correct numerical order (0, 1, 2, 10, 11...)
-    # def get_num(path):
-    #     match = re.search(r'(\d+)', os.path.basename(path))
-    #     return int(match.group(1)) if match else 0
-
     def get_num(path):
         # This looks for digits specifically at the very end of the string
         match = re.search(r'(\d+)$', os.path.basename(path))
@@ -2065,5 +2063,3 @@ def post_process_hls_custom(d, segment_paths, output_file):
 
 
 
-
-#################################### ORIGIN ########################################
