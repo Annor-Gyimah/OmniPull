@@ -1334,10 +1334,9 @@ def fix_browser_integration():
     # ── Resolve the watcher executable path ──────────────────────────────────
     if system == "Windows":
         local_app_data = os.getenv('LOCALAPPDATA', '')
-        app_folder = os.path.join(local_app_data, "Annorion", "OmniPull")
-        program_files_x86 = os.getenv("ProgramFiles(x86)") or os.getenv("ProgramFiles")
-        watcher_path = os.path.join(program_files_x86, "Annorion", "OmniPull", "omnipull-watcher.exe")
-
+        app_folder  = os.path.join(local_app_data, "Annorion", "OmniPull")
+        watcher_path = os.path.join(app_folder, "omnipull-watcher.exe")
+        
     elif system == "Darwin":  # macOS
         app_folder  = os.path.expanduser("~/Library/Application Support/OmniPull")
         watcher_path = os.path.join(app_folder, "omnipull-watcher")

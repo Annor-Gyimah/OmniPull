@@ -48,6 +48,7 @@ from modules.utils import log, download, run_command, delete_folder, popup, _nor
 def get_changelog() -> Tuple[str | None, str | None]:
     """
     Returns (latest_version, contents) or (None, None) on failure.
+    Tries GitHub first, then falls back to local ChangeLog.txt.
     """
     try:
         r = httpx.get(
@@ -66,10 +67,11 @@ def get_changelog() -> Tuple[str | None, str | None]:
 
         # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
         assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
-        changelog_url = (
-            assets.get("ChangeLog.txt") or
-            "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
-        )
+        # changelog_url = (
+        #     assets.get("ChangeLog.txt") or
+        #     "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
+        # )
+        changelog_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
 
         # Fetch changelog text (best-effort)
         text = None
@@ -83,6 +85,16 @@ def get_changelog() -> Tuple[str | None, str | None]:
         except httpx.RequestError as e:
             log(f"Changelog fetch error: {e}", log_level=2)
 
+        # Fallback to local ChangeLog.txt if remote fetch failed
+        if not text:
+            try:
+                local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+                if local_changelog_path.exists():
+                    text = local_changelog_path.read_text(encoding="utf-8")
+                    log(f"Using local changelog from {local_changelog_path}", log_level=1)
+            except Exception as e:
+                log(f"Failed to read local changelog: {e}", log_level=2)
+
         if not latest:
             log("Unable to parse latest version from GitHub response.", log_level=2)
 
@@ -90,9 +102,27 @@ def get_changelog() -> Tuple[str | None, str | None]:
 
     except httpx.HTTPStatusError as e:
         log(f"GitHub API error: {e}", log_level=3)
+        # Try local changelog as fallback
+        try:
+            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+            if local_changelog_path.exists():
+                text = local_changelog_path.read_text(encoding="utf-8")
+                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+                return config.APP_VERSION, text
+        except Exception as local_e:
+            log(f"Failed to read local changelog: {local_e}", log_level=2)
         return config.APP_VERSION, None
     except httpx.RequestError as e:
         log(f"Network error while checking release: {e}", log_level=3)
+        # Try local changelog as fallback
+        try:
+            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+            if local_changelog_path.exists():
+                text = local_changelog_path.read_text(encoding="utf-8")
+                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+                return config.APP_VERSION, text
+        except Exception as local_e:
+            log(f"Failed to read local changelog: {local_e}", log_level=2)
         return config.APP_VERSION, None
     except Exception as e:
         log(f"Unexpected error in get_changelog: {e}", log_level=3)
@@ -272,7 +302,6 @@ def create_update_script(path: Path):
         f.write(content)
 
 
-
 def windows_update():
     """
     Perform Windows update in a background thread to prevent UI freezing.
@@ -287,6 +316,7 @@ def windows_update():
         
         main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
         
+        # main_zip_url = "http://localhost/lite/main.zip"
         temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
         download_zip = temp_dir / "main.zip"
         update_bat = Path.home() / "update.bat"
@@ -322,10 +352,7 @@ def windows_update():
             # Use os.getenv or Path.home() to get the correct AppData folder
             local_app_data = os.getenv('LOCALAPPDATA')
             app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
-            program_files_x86 = os.getenv("ProgramFiles(x86)") or os.getenv("ProgramFiles")
-            program_files_x86_path = os.path.join(program_files_x86, "Annorion", "OmniPull", "omnipull-watcher.exe")
-            # target_exe = app_dir / "main.exe"
-            target_exe = os.path.join(program_files_x86, "Annorion", "OmniPull", "main.exe")
+            target_exe = app_dir / "main.exe"
 
             # Save original hide_app setting to restore after update
             original_hide_app = config.hide_app
@@ -350,7 +377,7 @@ def windows_update():
             log(f"PID={current_pid}", log_level=1)
             log(f"TEMP_DIR={temp_dir}", log_level=1)
             log(f"ORIGINAL_HIDE_APP={original_hide_app}", log_level=1)
-            log(f"RUST_UPDATER path set to: {program_files_x86_path / 'omnipull-updater.exe'}", log_level=1)
+            log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1)
 
             if config.aria2_verified is True: 
                 aria2c_manager.cleanup_orphaned_paused_downloads()
