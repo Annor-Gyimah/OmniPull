@@ -40,6 +40,7 @@ from modules.config import Status, APP_NAME, get_effective_ffmpeg
 from modules.utils import (log, size_format, popup, notify, delete_folder, delete_file, rename_file, validate_file_name)
 from modules.video import (Stream, is_download_complete, get_ytdl_options, extract_info_blocking, pre_process_hls, post_process_hls, unzip_ffmpeg, 
     unzip_deno, remove_internal_item) 
+from modules.updater import _safe_extract_all
 from modules.resume_tracker import ResumeTracker 
 from modules.subtitles import get_advanced_opts, fetch_subtitle_with_retry
 

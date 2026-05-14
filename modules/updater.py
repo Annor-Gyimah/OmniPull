@@ -45,111 +45,111 @@ from PySide6.QtCore import QCoreApplication
 from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
-def get_changelog() -> Tuple[str | None, str | None]:
-    """
-    Returns (latest_version, contents) or (None, None) on failure.
-    Tries GitHub first, then falls back to local ChangeLog.txt.
-    """
-    try:
-        r = httpx.get(
-            "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
-            headers={
-                "Accept": "application/vnd.github+json",
-                "User-Agent": f"{config.APP_NAME}-Updater"
-            },
-            follow_redirects=True, timeout=30.0
-        )
-        r.raise_for_status()
-        data = r.json()
+# def get_changelog() -> Tuple[str | None, str | None]:
+#     """
+#     Returns (latest_version, contents) or (None, None) on failure.
+#     Tries GitHub first, then falls back to local ChangeLog.txt.
+#     """
+#     try:
+#         r = httpx.get(
+#             "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+#             headers={
+#                 "Accept": "application/vnd.github+json",
+#                 "User-Agent": f"{config.APP_NAME}-Updater"
+#             },
+#             follow_redirects=True, timeout=30.0
+#         )
+#         r.raise_for_status()
+#         data = r.json()
 
-        raw_tag = (data.get("tag_name") or "").strip()
-        latest = _normalize_version_str(raw_tag)  # reuse helper above
+#         raw_tag = (data.get("tag_name") or "").strip()
+#         latest = _normalize_version_str(raw_tag)  # reuse helper above
 
-        # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
-        assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
-        # changelog_url = (
-        #     assets.get("ChangeLog.txt") or
-        #     "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
-        # )
-        changelog_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
+#         # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
+#         assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
+#         # changelog_url = (
+#         #     assets.get("ChangeLog.txt") or
+#         #     "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
+#         # )
+#         changelog_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
 
-        # Fetch changelog text (best-effort)
-        text = None
-        try:
-            c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
-                follow_redirects=True, timeout=30.0)
-            if c.status_code == 200:
-                text = c.text
-            else:
-                log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
-        except httpx.RequestError as e:
-            log(f"Changelog fetch error: {e}", log_level=2)
+#         # Fetch changelog text (best-effort)
+#         text = None
+#         try:
+#             c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
+#                 follow_redirects=True, timeout=30.0)
+#             if c.status_code == 200:
+#                 text = c.text
+#             else:
+#                 log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
+#         except httpx.RequestError as e:
+#             log(f"Changelog fetch error: {e}", log_level=2)
 
-        # Fallback to local ChangeLog.txt if remote fetch failed
-        if not text:
-            try:
-                local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-                if local_changelog_path.exists():
-                    text = local_changelog_path.read_text(encoding="utf-8")
-                    log(f"Using local changelog from {local_changelog_path}", log_level=1)
-            except Exception as e:
-                log(f"Failed to read local changelog: {e}", log_level=2)
+#         # Fallback to local ChangeLog.txt if remote fetch failed
+#         if not text:
+#             try:
+#                 local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+#                 if local_changelog_path.exists():
+#                     text = local_changelog_path.read_text(encoding="utf-8")
+#                     log(f"Using local changelog from {local_changelog_path}", log_level=1)
+#             except Exception as e:
+#                 log(f"Failed to read local changelog: {e}", log_level=2)
 
-        if not latest:
-            log("Unable to parse latest version from GitHub response.", log_level=2)
+#         if not latest:
+#             log("Unable to parse latest version from GitHub response.", log_level=2)
 
-        return latest, text
+#         return latest, text
 
-    except httpx.HTTPStatusError as e:
-        log(f"GitHub API error: {e}", log_level=3)
-        # Try local changelog as fallback
-        try:
-            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-            if local_changelog_path.exists():
-                text = local_changelog_path.read_text(encoding="utf-8")
-                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
-                return config.APP_VERSION, text
-        except Exception as local_e:
-            log(f"Failed to read local changelog: {local_e}", log_level=2)
-        return config.APP_VERSION, None
-    except httpx.RequestError as e:
-        log(f"Network error while checking release: {e}", log_level=3)
-        # Try local changelog as fallback
-        try:
-            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-            if local_changelog_path.exists():
-                text = local_changelog_path.read_text(encoding="utf-8")
-                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
-                return config.APP_VERSION, text
-        except Exception as local_e:
-            log(f"Failed to read local changelog: {local_e}", log_level=2)
-        return config.APP_VERSION, None
-    except Exception as e:
-        log(f"Unexpected error in get_changelog: {e}", log_level=3)
-        return config.APP_VERSION, None
+#     except httpx.HTTPStatusError as e:
+#         log(f"GitHub API error: {e}", log_level=3)
+#         # Try local changelog as fallback
+#         try:
+#             local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+#             if local_changelog_path.exists():
+#                 text = local_changelog_path.read_text(encoding="utf-8")
+#                 log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+#                 return config.APP_VERSION, text
+#         except Exception as local_e:
+#             log(f"Failed to read local changelog: {local_e}", log_level=2)
+#         return config.APP_VERSION, None
+#     except httpx.RequestError as e:
+#         log(f"Network error while checking release: {e}", log_level=3)
+#         # Try local changelog as fallback
+#         try:
+#             local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+#             if local_changelog_path.exists():
+#                 text = local_changelog_path.read_text(encoding="utf-8")
+#                 log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+#                 return config.APP_VERSION, text
+#         except Exception as local_e:
+#             log(f"Failed to read local changelog: {local_e}", log_level=2)
+#         return config.APP_VERSION, None
+#     except Exception as e:
+#         log(f"Unexpected error in get_changelog: {e}", log_level=3)
+#         return config.APP_VERSION, None
 
 
 ############## For testing purposes ##########################################
-# def get_changelog():
+def get_changelog():
 
-#     source_code_url = "http://localhost/lite/ChangeLog.txt"
-#     new_release_url = "http://localhost/lite/ChangeLog.txt"
+    source_code_url = "http://localhost/lite/ChangeLog.txt"
+    new_release_url = "http://localhost/lite/ChangeLog.txt"
 
-#     url = new_release_url if config.FROZEN else source_code_url
+    url = new_release_url if config.FROZEN else source_code_url
 
-#     buffer = download(url)
+    buffer = download(url)
 
-#     if buffer:
-#         contents = buffer.getvalue().decode()
+    if buffer:
+        contents = buffer.getvalue().decode()
 
-#         latest_version = contents.splitlines()[0].replace(':', '').strip()
+        latest_version = contents.splitlines()[0].replace(':', '').strip()
 
-#         config.APP_LATEST_VERSION = latest_version
+        config.APP_LATEST_VERSION = latest_version
 
-#         return latest_version, contents
+        return latest_version, contents
 
-#     else:
-#         return None
+    else:
+        return None
 
 ################## For testing purposes ###############################################
 
@@ -248,7 +248,22 @@ def download_with_resume(url: str, dest: Path, progress_cb=None, type_update_fil
 
 
 
-def _safe_extract_all(zip_path: Path, dest_dir: Path):
+def _safe_extract_all(zip_path: Path, dest_dir: Path) -> Path:
+    """
+    Safely extracts a ZIP file and returns the path to the main executable.
+    
+    Args:
+        zip_path: Path to the ZIP file to extract
+        dest_dir: Destination directory for extraction
+        
+    Returns:
+        Path to the found main.exe file
+        
+    Raises:
+        FileNotFoundError: If main.exe is not found in the extracted contents
+        RuntimeError: If unsafe paths are detected in the ZIP
+    """
+    log("Extracting update package…", log_level=1)
     with zipfile.ZipFile(zip_path, 'r') as zf:
         for member in zf.infolist():
             target = dest_dir / member.filename
@@ -256,6 +271,14 @@ def _safe_extract_all(zip_path: Path, dest_dir: Path):
             if not str(target.resolve()).startswith(str(dest_dir.resolve())):
                 raise RuntimeError(f"Unsafe path in zip: {member.filename}")
         zf.extractall(dest_dir)
+    
+    # Find the executable BEFORE logging it
+    new_exe_path = find_exe(dest_dir, "main.exe")
+    log(f"Found new executable: {new_exe_path}", log_level=1)
+    
+    return new_exe_path
+
+    
 
 def find_exe(dest_dir: Path, exe_name="main.exe") -> Path:
     for p in dest_dir.rglob(exe_name):
@@ -275,6 +298,60 @@ def get_app_latest_release():
     )
     r.raise_for_status()
     return r.json()
+
+
+def download_updates(main_zip_url, destination_folder=None, callback=None, file_name=None):
+    """
+    Unified cross-platform download function.
+    
+    Args:
+        main_zip_url: URL of the file to download
+        destination_folder: Folder where file will be saved (auto-generated if None)
+        callback: Function to call after download completes (receives DownloadItem)
+        file_name: Override filename (auto-detected if None)
+    """
+    from modules.downloaditem import DownloadItem
+    
+    system = platform.system()
+    log("Downloading update files...", log_level=1)
+    
+    try:
+        # Auto-detect destination if not provided
+        if destination_folder is None:
+            destination_folder = str(Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))))
+        
+        # Auto-detect filename if not provided
+        if file_name is None:
+            if system == "Windows":
+                file_name = "main.zip"
+            else:
+                mode = detect_install_mode()
+                file_name = "main.tar.gz" if mode == "deb" else "OmniPull.AppImage"
+        
+        # Create and configure DownloadItem
+        d = DownloadItem(url=main_zip_url, folder=destination_folder)
+        d.update(main_zip_url)
+        d.is_internal = True
+        d.name = file_name
+        
+        # Attach callback if provided
+        if callback:
+            d.callback = callback
+        
+        # Queue the download
+        config.main_window_q.put(('download', (d, False)))
+        log(f"Queued download: {file_name} to {destination_folder}", log_level=1)
+        
+    except Exception as e:
+        log(f"Error queuing download: {e}", log_level=3)
+        error_msg = QCoreApplication.translate(
+            "Update",
+            "Failed to start update download\n\nDetails:\n%1"
+        ).replace("%1", str(e))
+        popup(msg=error_msg, title=config.APP_NAME, type_="critical")
+
+
+    
 
 
 # ====================================================================================
@@ -302,141 +379,302 @@ def create_update_script(path: Path):
         f.write(content)
 
 
+def _execute_windows_core_update(d):
+    """
+    Callback executed after OmniPull update package is downloaded.
+    Extracts the package, locates the new executable, and triggers the updater.
+    """
+    ctx = "CORE-UPDATE-EXEC"
+    temp_dir = Path(d.folder)
+    update_bat = Path.home() / "update.bat"
+    
+    try:
+        log("Executing core application update...", log_level=1, context=ctx)
+        log("Starting Windows update process...", log_level=1, context=ctx)
+        
+        # Generate update script first
+        log("Generating local update script...", log_level=1, context=ctx)
+        create_update_script(update_bat)
+        
+        # Extract the downloaded zip to the temp folder
+        # The file should be at d.target_file or temp_dir/d.name
+        zip_path = Path(d.target_file) if hasattr(d, 'target_file') and d.target_file else temp_dir / d.name
+        
+        log(f"Extracting update package from {zip_path}…", log_level=1, context=ctx)
+        if not zip_path.exists():
+            raise FileNotFoundError(f"Update package not found at {zip_path}")
+        
+        # Extract and get the new executable path
+        new_exe_path = _safe_extract_all(zip_path, temp_dir)
+        log(f"Located new executable: {new_exe_path}", log_level=1, context=ctx)
+        
+        # Get the current target executable path
+        local_app_data = os.getenv('LOCALAPPDATA')
+        app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
+        target_exe = app_dir / "main.exe"
+        
+        # Save original hide_app setting to restore after update
+        original_hide_app = config.hide_app
+        
+        # Temporarily disable hide_app to allow clean exit during update
+        config.hide_app = False
+        save_setting()
+        
+        # Prepare clean environment
+        clean_env = os.environ.copy()
+        clean_env.pop("_MEIPASS", None)
+        clean_env.pop("PYTHONPATH", None)
+        clean_env.pop("PYTHONHOME", None)
+        
+        # Log the update parameters for debugging
+        current_pid = os.getpid()
+        log("=== OmniPull Update Started ===", log_level=1, context=ctx)
+        log(f"NEW_EXE={new_exe_path}", log_level=1, context=ctx)
+        log(f"CURRENT_EXE={target_exe}", log_level=1, context=ctx)
+        log(f"PID={current_pid}", log_level=1, context=ctx)
+        log(f"TEMP_DIR={temp_dir}", log_level=1, context=ctx)
+        log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1, context=ctx)
+        
+        # Shutdown aria2 if running
+        if config.aria2_verified is True:
+            aria2c_manager.cleanup_orphaned_paused_downloads()
+            aria2c_manager.shutdown_freeze_and_save(purge=True)
+            aria2c_manager._terminate_existing_processes()
+        
+        # Launch the update batch script
+        log("Triggering update batch with clean environment...", log_level=1, context=ctx)
+        bat_path = Path.home() / "update.bat"
+        
+        # Remove ONLY the problematic variables
+        vars_to_scrub = ["_MEIPASS", "_MEIPASS2", "PYTHONPATH", "PYTHONHOME"]
+        for var in vars_to_scrub:
+            clean_env.pop(var, None)
+
+        # Ensure APPDATA and USERPROFILE are definitely there
+        if "APPDATA" not in clean_env:
+            clean_env["APPDATA"] = os.environ.get("APPDATA", "")
+        if "USERPROFILE" not in clean_env:
+            clean_env["USERPROFILE"] = os.environ.get("USERPROFILE", "")
+        
+        cmd_to_run = [
+            "cmd.exe", "/c",
+            str(bat_path),
+            str(new_exe_path),
+            str(target_exe),
+            str(current_pid),
+            str(temp_dir)
+        ]
+        
+        subprocess.Popen(
+            cmd_to_run,
+            env=clean_env,
+            creationflags=0x08000000 | 0x00000008,
+            close_fds=True
+        )
+        
+        log("Update batch triggered. Exiting application...", log_level=1, context=ctx)
+        os._exit(3)
+        
+    except Exception as e:
+        config.confirm_update = False
+        log(f"Core update execution failed: {e}", log_level=3, context=ctx)
+        
+        # Remove from internal list
+        try:
+            config.main_window_q.put(('remove_internal_download', d.id))
+        except:
+            pass
+        
+        error_msg = QCoreApplication.translate(
+            "Update",
+            "Update failed\n\nDetails:\n%1\n\nIf this keeps happening, check your network and antivirus exclusions."
+        ).replace("%1", str(e))
+        
+        popup(
+            msg=error_msg,
+            title=config.APP_NAME,
+            type_="critical"
+        )
+
+
 def windows_update():
     """
-    Perform Windows update in a background thread to prevent UI freezing.
-    Uses a batch file updater instead of Rust updater.
+    Initiates OmniPull core update using the download engine (Windows).
+    Downloads the update package and queues extraction/updater logic via callback.
     """
-    def _do_update():
+    main_zip_url = "http://localhost/lite/main.zip"
+    temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+
+    try:
+        popup(
+            title=config.APP_NAME,
+            msg=QCoreApplication.translate(
+                "Update", 
+                "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
+            ),
+            type_="info"
+        )
+
+        download_updates(
+            main_zip_url=main_zip_url,
+            destination_folder=str(temp_dir),
+            callback=_execute_windows_core_update,
+            file_name="main.zip"
+        )
+        
+    except Exception as e:
+        config.confirm_update = False
+        log(f"Network error during update: {e}", log_level=3)
+        
+        error_msg = QCoreApplication.translate(
+            "Update",
+            "Network error during update\n\nDetails:\n%1\n\nPlease check your connection and try again."
+        ).replace("%1", str(e))
+
+        popup(
+            msg=error_msg,
+            title=config.APP_NAME,
+            type_="critical"
+        )
+        
+
+
+
+# def windows_update():
+#     """
+#     Perform Windows update in a background thread to prevent UI freezing.
+#     Uses a batch file updater instead of Rust updater.
+#     """
+#     def _do_update():
        
 
-        rel = get_app_latest_release()
-        tag = rel["tag_name"].lstrip(".")
-        assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
+#         rel = get_app_latest_release()
+#         tag = rel["tag_name"].lstrip(".")
+#         assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
         
-        main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
+#         main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
         
-        # main_zip_url = "http://localhost/lite/main.zip"
-        temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-        download_zip = temp_dir / "main.zip"
-        update_bat = Path.home() / "update.bat"
+#         # main_zip_url = "http://localhost/lite/main.zip"
+#         temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+#         download_zip = temp_dir / "main.zip"
+#         update_bat = Path.home() / "update.bat"
 
-        try:
-            # Show user-friendly message about update duration
-            popup(
-                title=config.APP_NAME,
-                msg=QCoreApplication.translate(
-                    "Update", 
-                    "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
-                ),
-                type_="info"
-            )
+#         try:
+#             # Show user-friendly message about update duration
+#             popup(
+#                 title=config.APP_NAME,
+#                 msg=QCoreApplication.translate(
+#                     "Update", 
+#                     "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
+#                 ),
+#                 type_="info"
+#             )
 
-            log("Downloading update files...", log_level=1)
-            download_with_resume(main_zip_url, download_zip, type_update_file='main.zip')
+#             log("Downloading update files...", log_level=1)
+#             download_with_resume(main_zip_url, download_zip, type_update_file='main.zip')
 
            
-            log("Generating local update script...", log_level=1)
-            create_update_script(update_bat)
+#             log("Generating local update script...", log_level=1)
+#             create_update_script(update_bat)
 
 
-            log("Extracting update package…", log_level=1)
-            _safe_extract_all(download_zip, temp_dir)
+#             log("Extracting update package…", log_level=1)
+#             _safe_extract_all(download_zip, temp_dir)
 
-            new_exe_path = find_exe(temp_dir, "main.exe")
-            log(f"Found new executable: {new_exe_path}")
+#             new_exe_path = find_exe(temp_dir, "main.exe")
+#             log(f"Found new executable: {new_exe_path}")
 
-            # Path to the batch updater
-            # app_dir = Path(os.path.expanduser("~")) / "AppData" / "Local" / "Annorion" / "OmniPull"
-            # target_exe = app_dir / "main.exe"
-            # Use os.getenv or Path.home() to get the correct AppData folder
-            local_app_data = os.getenv('LOCALAPPDATA')
-            app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
-            target_exe = app_dir / "main.exe"
+#             # Path to the batch updater
+#             # app_dir = Path(os.path.expanduser("~")) / "AppData" / "Local" / "Annorion" / "OmniPull"
+#             # target_exe = app_dir / "main.exe"
+#             # Use os.getenv or Path.home() to get the correct AppData folder
+#             local_app_data = os.getenv('LOCALAPPDATA')
+#             app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
+#             target_exe = app_dir / "main.exe"
 
-            # Save original hide_app setting to restore after update
-            original_hide_app = config.hide_app
+#             # Save original hide_app setting to restore after update
+#             original_hide_app = config.hide_app
             
-            # Temporarily disable hide_app to allow clean exit during update
-            config.hide_app = False
-            save_setting()
+#             # Temporarily disable hide_app to allow clean exit during update
+#             config.hide_app = False
+#             save_setting()
 
-            clean_env = os.environ.copy()
-            clean_env.pop("_MEIPASS", None)
-            clean_env.pop("PYTHONPATH", None)
-            clean_env.pop("PYTHONHOME", None)
+#             clean_env = os.environ.copy()
+#             clean_env.pop("_MEIPASS", None)
+#             clean_env.pop("PYTHONPATH", None)
+#             clean_env.pop("PYTHONHOME", None)
 
-            # bat_path = Path(os.path.expanduser("~")) / "update.bat"
-            bat_path = Path.home() / "update.bat"
+#             # bat_path = Path(os.path.expanduser("~")) / "update.bat"
+#             bat_path = Path.home() / "update.bat"
 
-            # Log the update parameters for debugging
-            current_pid = os.getpid()
-            log("=== OmniPull Update Started ===", log_level=1)
-            log(f"NEW_EXE={new_exe_path}", log_level=1)
-            log(f"CURRENT_EXE={target_exe}", log_level=1)
-            log(f"PID={current_pid}", log_level=1)
-            log(f"TEMP_DIR={temp_dir}", log_level=1)
-            log(f"ORIGINAL_HIDE_APP={original_hide_app}", log_level=1)
-            log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1)
+#             # Log the update parameters for debugging
+#             current_pid = os.getpid()
+#             log("=== OmniPull Update Started ===", log_level=1)
+#             log(f"NEW_EXE={new_exe_path}", log_level=1)
+#             log(f"CURRENT_EXE={target_exe}", log_level=1)
+#             log(f"PID={current_pid}", log_level=1)
+#             log(f"TEMP_DIR={temp_dir}", log_level=1)
+#             log(f"ORIGINAL_HIDE_APP={original_hide_app}", log_level=1)
+#             log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1)
 
-            if config.aria2_verified is True: 
-                aria2c_manager.cleanup_orphaned_paused_downloads()
-                aria2c_manager.shutdown_freeze_and_save(purge=True)
-                aria2c_manager._terminate_existing_processes()
+#             if config.aria2_verified is True: 
+#                 aria2c_manager.cleanup_orphaned_paused_downloads()
+#                 aria2c_manager.shutdown_freeze_and_save(purge=True)
+#                 aria2c_manager._terminate_existing_processes()
             
 
-            log("Triggering update batch with clean environment...", log_level=1)
+#             log("Triggering update batch with clean environment...", log_level=1)
 
 
-            # Remove ONLY the problematic variables
-            vars_to_scrub = ["_MEIPASS", "_MEIPASS2", "PYTHONPATH", "PYTHONHOME"]
-            for var in vars_to_scrub:
-                clean_env.pop(var, None)
+#             # Remove ONLY the problematic variables
+#             vars_to_scrub = ["_MEIPASS", "_MEIPASS2", "PYTHONPATH", "PYTHONHOME"]
+#             for var in vars_to_scrub:
+#                 clean_env.pop(var, None)
 
-            # Ensure APPDATA and USERPROFILE are definitely there
-            # (They should be, but this is a safety check)
-            if "APPDATA" not in clean_env:
-                clean_env["APPDATA"] = os.environ.get("APPDATA", "")
-            if "USERPROFILE" not in clean_env:
-                clean_env["USERPROFILE"] = os.environ.get("USERPROFILE", "")
+#             # Ensure APPDATA and USERPROFILE are definitely there
+#             # (They should be, but this is a safety check)
+#             if "APPDATA" not in clean_env:
+#                 clean_env["APPDATA"] = os.environ.get("APPDATA", "")
+#             if "USERPROFILE" not in clean_env:
+#                 clean_env["USERPROFILE"] = os.environ.get("USERPROFILE", "")
 
-            cmd_to_run = [
-                "cmd.exe", "/c",
-                str(bat_path),
-                str(new_exe_path),
-                str(target_exe),
-                str(current_pid),
-                str(temp_dir)
-            ]
+#             cmd_to_run = [
+#                 "cmd.exe", "/c",
+#                 str(bat_path),
+#                 str(new_exe_path),
+#                 str(target_exe),
+#                 str(current_pid),
+#                 str(temp_dir)
+#             ]
 
-            subprocess.Popen(
-                cmd_to_run,
-                env=clean_env, # Pass the scrubbed copy
-                creationflags=0x08000000 | 0x00000008, 
-                close_fds=True # This releases file locks for the updater
-            )
+#             subprocess.Popen(
+#                 cmd_to_run,
+#                 env=clean_env, # Pass the scrubbed copy
+#                 creationflags=0x08000000 | 0x00000008, 
+#                 close_fds=True # This releases file locks for the updater
+#             )
 
-            os._exit(3)
+#             os._exit(3)
 
-        except Exception as e:
-            config.confirm_update = False
-            log(f"Update failed: {e}", log_level=3)
+#         except Exception as e:
+#             config.confirm_update = False
+#             log(f"Update failed: {e}", log_level=3)
             
-            # 2. Localized Critical Popup with Error Placeholder
-            error_msg = QCoreApplication.translate(
-                "Update",
-                "Update failed\n\nDetails:\n%1\n\nIf this keeps happening, check your network and antivirus exclusions."
-            ).replace("%1", str(e))
+#             # 2. Localized Critical Popup with Error Placeholder
+#             error_msg = QCoreApplication.translate(
+#                 "Update",
+#                 "Update failed\n\nDetails:\n%1\n\nIf this keeps happening, check your network and antivirus exclusions."
+#             ).replace("%1", str(e))
 
-            popup(
-                msg=error_msg,
-                title=config.APP_NAME,
-                type_="critical"
-            )
+#             popup(
+#                 msg=error_msg,
+#                 title=config.APP_NAME,
+#                 type_="critical"
+#             )
 
-    # Run update in a background thread
-    update_thread = threading.Thread(target=_do_update, daemon=False)
-    update_thread.start()
+#     # Run update in a background thread
+#     update_thread = threading.Thread(target=_do_update, daemon=False)
+#     update_thread.start()
 
 
 
@@ -543,54 +781,125 @@ def download_linux_with_progress(url: str, dest_path: Path, *, chunk_size: int =
         raise RuntimeError(f"Failed to download {url}: {e}")
 
 
+
+def _execute_appimage_core_update(d):
+    """
+    Callback executed after AppImage update package is downloaded.
+    Makes it executable and atomically replaces the current AppImage.
+    """
+    ctx = "CORE-UPDATE-EXEC"
+    
+    try:
+        log("Executing AppImage update...", log_level=1, context=ctx)
+        
+        # Get the downloaded file
+        appimage_file = Path(d.target_file) if hasattr(d, 'target_file') and d.target_file else Path(d.folder) / d.name
+        target_path = Path(_appimage_path())
+        
+        if not appimage_file.exists():
+            raise FileNotFoundError(f"AppImage not found at {appimage_file}")
+        
+        log(f"Making AppImage executable...", log_level=1, context=ctx)
+        st = os.stat(appimage_file)
+        os.chmod(appimage_file, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        
+        log(f"Replacing current AppImage...", log_level=1, context=ctx)
+        shutil.move(str(appimage_file), str(target_path))
+        
+        tag, contents = get_changelog()
+        popup(
+            title=QCoreApplication.translate("Update", "Update"),
+            msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
+            type_="info"
+        )
+        
+        # Remove from internal list
+        try:
+            config.main_window_q.put(('remove_internal_download', d.id))
+        except:
+            pass
+            
+    except Exception as e:
+        log(f"AppImage update failed: {e}", log_level=3, context=ctx)
+        
+        # Remove from internal list
+        try:
+            config.main_window_q.put(('remove_internal_download', d.id))
+        except:
+            pass
+        
+        popup(
+            title='Update Error',
+            msg=f'AppImage update failed: {e}',
+            type_='error'
+        )
+
+
 def deb_update():
     """
-    User-space update for .deb installs:
-    - Download app payload (tar.gz) to ~/.local/share/OmniPull/versions/<tag>/
-    - Atomically switch ~/.local/share/OmniPull/current -> that folder
+    Initiates OmniPull core update using the download engine (Linux deb mode).
     """
-    # 1) Discover latest tag
-    content = httpx.get(
-        url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
-        headers={"User-Agent": "Mozilla/5.0"},
-        follow_redirects=True
-    ).json()
-    tag = content["tag_name"].lstrip('.').lstrip('v')
-    main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
+    main_tar_url = "http://localhost/lite/main.tar.gz"
+    temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+    
+    try:
+        popup(
+            title=config.APP_NAME,
+            msg=QCoreApplication.translate(
+                "Update",
+                "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
+            ),
+            type_="info"
+        )
+        
+        download_updates(
+            main_zip_url=main_tar_url,
+            destination_folder=str(temp_dir),
+            callback=_execute_deb_core_update,
+            file_name="main.tar.gz"
+        )
+    except Exception as e:
+        log(f"Deb update init failed: {e}", log_level=3)
+        error_msg = QCoreApplication.translate(
+            "Update",
+            "Update failed\n\nDetails:\n%1"
+        ).replace("%1", str(e))
+        popup(msg=error_msg, title=config.APP_NAME, type_="critical")
 
-    ############ TESTING UPDATES #############################################################
 
-    # main_tar_url = "http://localhost/lite/main.tar.gz"  # 
-    # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-    # tag, contents = get_changelog()
+def _execute_deb_core_update(d):
+    """
+    Callback executed after OmniPull update package is downloaded (Linux deb mode).
+    Extracts the package, updates symlink, and prepares for restart.
+    """
+    ctx = "CORE-UPDATE-EXEC"
+    temp_dir = Path(d.folder)
+    
+    # Use the actual downloaded file path
+    tar_path = Path(d.target_file) if hasattr(d, 'target_file') and d.target_file else temp_dir / d.name
 
-    ############ TESTING UPDATES #############################################################
+    tag, contents = get_changelog()
 
-    # 2) Paths in user space
-    # base = Path.home() / ".local" / "share" / "OmniPull"
     base = config.DATA_ROOT
     versions = base / "versions"
     current = base / "current"
     versions.mkdir(parents=True, exist_ok=True)
 
-    tmpdir = Path(tempfile.mkdtemp(prefix=".omni_up_"))
-    tar_path = tmpdir / "main.tar.gz"
+    
+        
 
     try:
-        # Download
-        log(f'Downloading update from {main_tar_url}')
-        popup(
-            title=QCoreApplication.translate("Update", "Update Info"),
-            msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
-            type_='info'
-        )
-
-        download_linux_with_progress(main_tar_url, tar_path)
-
+        log("Executing core application update...", log_level=1, context=ctx)
+        log("Starting Linux deb update process...", log_level=1, context=ctx)
+        
+        # Verify tar file exists
+        if not tar_path.exists():
+            raise FileNotFoundError(f"Update package not found at {tar_path}")
+        
         # Unpack to a temporary folder first
         unpack = Path(tempfile.mkdtemp(prefix=".omni_unpack_"))
-        log(f'Unpacking to {unpack}')
-        with tarfile.open(tar_path, "r:gz") as tar:
+        log(f'Unpacking to {unpack}', log_level=1, context=ctx)
+        with tarfile.open(str(tar_path), "r:gz") as tar:
             tar.extractall(path=unpack)
 
         # Detect the runnable top
@@ -639,7 +948,7 @@ def deb_update():
         # Optional: prune old versions (keep 2)
         keep = 2
         kids = sorted([d for d in versions.iterdir() if d.is_dir()],
-                     key=lambda p: p.stat().st_mtime, reverse=True)
+                    key=lambda p: p.stat().st_mtime, reverse=True)
         for d in kids[keep:]:
             shutil.rmtree(d, ignore_errors=True)
 
@@ -649,13 +958,158 @@ def deb_update():
             msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
             type_="info"
         )
+        
+        # Remove from internal list
+        try:
+            config.main_window_q.put(('remove_internal_download', d.id))
+        except:
+            pass
 
+    except Exception as e:
+        log(f"Core update execution failed: {e}", log_level=3, context=ctx)
+        
+        # Remove from internal list
+        try:
+            config.main_window_q.put(('remove_internal_download', d.id))
+        except:
+            pass
+        
+        error_msg = QCoreApplication.translate(
+            "Update",
+            "Update failed\n\nDetails:\n%1\n\nPlease try again or update manually."
+        ).replace("%1", str(e))
+        
+        popup(
+            msg=error_msg,
+            title=config.APP_NAME,
+            type_="critical"
+        )
+    
     finally:
-        shutil.rmtree(tmpdir, ignore_errors=True)
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
         try:
             shutil.rmtree(unpack, ignore_errors=True)
-        except Exception:
+        except:
             pass
+            
+
+
+# def deb_update():
+#     """
+#     User-space update for .deb installs:
+#     - Download app payload (tar.gz) to ~/.local/share/OmniPull/versions/<tag>/
+#     - Atomically switch ~/.local/share/OmniPull/current -> that folder
+#     """
+#     # 1) Discover latest tag
+#     content = httpx.get(
+#         url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+#         headers={"User-Agent": "Mozilla/5.0"},
+#         follow_redirects=True
+#     ).json()
+#     tag = content["tag_name"].lstrip('.').lstrip('v')
+#     main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
+
+#     ############ TESTING UPDATES #############################################################
+
+#     # main_tar_url = "http://localhost/lite/main.tar.gz"  # 
+#     # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+#     # tag, contents = get_changelog()
+
+#     ############ TESTING UPDATES #############################################################
+
+#     # 2) Paths in user space
+#     # base = Path.home() / ".local" / "share" / "OmniPull"
+#     base = config.DATA_ROOT
+#     versions = base / "versions"
+#     current = base / "current"
+#     versions.mkdir(parents=True, exist_ok=True)
+
+#     tmpdir = Path(tempfile.mkdtemp(prefix=".omni_up_"))
+#     tar_path = tmpdir / "main.tar.gz"
+
+#     try:
+#         # Download
+#         log(f'Downloading update from {main_tar_url}')
+#         popup(
+#             title=QCoreApplication.translate("Update", "Update Info"),
+#             msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
+#             type_='info'
+#         )
+
+#         download_linux_with_progress(main_tar_url, tar_path)
+
+#         # Unpack to a temporary folder first
+#         unpack = Path(tempfile.mkdtemp(prefix=".omni_unpack_"))
+#         log(f'Unpacking to {unpack}')
+#         with tarfile.open(tar_path, "r:gz") as tar:
+#             tar.extractall(path=unpack)
+
+#         # Detect the runnable top
+#         entries = [p for p in unpack.iterdir() if not p.name.startswith(".")]
+#         if len(entries) == 1 and entries[0].is_dir():
+#             top = entries[0]
+#         else:
+#             top = unpack
+
+#         # Read version from VERSION if present, else use tag
+#         ver = None
+#         vfile = top / "VERSION"
+#         if vfile.exists():
+#             try:
+#                 ver = vfile.read_text().strip().split()[0]
+#             except Exception:
+#                 ver = None
+#         ver = ver or tag
+
+#         # Target dir for this version
+#         verdir = versions / ver
+#         if verdir.exists():
+#             shutil.rmtree(verdir, ignore_errors=True)
+
+#         # Move the actual runnable dir
+#         shutil.move(str(top), str(verdir))
+#         log(f'Moved to {verdir}')
+#         popup(
+#             title=QCoreApplication.translate("Update", "Update Info"),
+#             msg=QCoreApplication.translate("Update", "Download complete. Finalizing update..."),
+#             type_='info'
+#         )
+#         # Ensure executable bit on the app binary and helpers
+#         for name in ("omnipull", "ffmpeg", "aria2c", "omnipull-watcher"):
+#             p = verdir / name
+#             if p.exists():
+#                 p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+#         # Atomically flip current -> verdir
+#         tmp_link = base / ".current.new"
+#         if tmp_link.exists():
+#             tmp_link.unlink()
+#         os.symlink(verdir, tmp_link)
+#         os.replace(tmp_link, current)
+
+#         # Optional: prune old versions (keep 2)
+#         keep = 2
+#         kids = sorted([d for d in versions.iterdir() if d.is_dir()],
+#                      key=lambda p: p.stat().st_mtime, reverse=True)
+#         for d in kids[keep:]:
+#             shutil.rmtree(d, ignore_errors=True)
+
+#         # Success message
+#         popup(
+#             title=QCoreApplication.translate("Update", "Update"),
+#             msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
+#             type_="info"
+#         )
+
+#     finally:
+#         shutil.rmtree(tmpdir, ignore_errors=True)
+#         try:
+#             shutil.rmtree(unpack, ignore_errors=True)
+#         except Exception:
+#             pass
 
 
 def _appimage_path() -> str:
@@ -672,62 +1126,120 @@ def _tmp_download_path(target_path: str) -> str:
 
 def appimage_update():
     """
-    Update AppImage installation:
-    - Download latest AppImage from GitHub
-    - Replace current AppImage atomically
+    Initiates OmniPull core update using the download engine (Linux AppImage mode).
     """
     OWNER = "Annor-Gyimah"
     REPO = "OmniPull"
-    TARGET = _appimage_path()
     ARCH_TAG = "x86_64"
 
-    api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-    r = requests.get(api, headers={"Accept": "application/vnd.github+json"})
-    r.raise_for_status()
-    rel = r.json()
+    # Get download URL from GitHub
+    try:
+        api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
+        r = requests.get(api, headers={"Accept": "application/vnd.github+json"}, timeout=30)
+        r.raise_for_status()
+        rel = r.json()
 
-    # Pick the AppImage asset by name
-    assets = rel.get("assets", [])
-    asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
-    url = asset["browser_download_url"]
-    tag, contents = get_changelog()
+        # Pick the AppImage asset by name
+        assets = rel.get("assets", [])
+        asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
+        url = asset["browser_download_url"]
+    except Exception as e:
+        log(f"Failed to get AppImage download URL: {e}", log_level=3)
+        popup(
+            title='Update Error',
+            msg=f'Failed to check for updates: {e}',
+            type_='error'
+        )
+        return
 
-    ############ TESTING UPDATES #############################################################
-    
-    # url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage"  # 
-    # tag, contents = get_changelog()
-
-    ############ TESTING UPDATES #############################################################
+    # Prepare destination folder
+    target_path = Path(_appimage_path())
+    temp_folder = str(target_path.parent)
 
     try:
-        # Download to a temp file next to target
-        os.makedirs(os.path.dirname(TARGET), exist_ok=True)
-        tmp = _tmp_download_path(TARGET)
-
         popup(
-            title=QCoreApplication.translate("Update", "Update Info"),
-            msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
-            type_='info'
-        )
-        log(f"Downloading {url} to {tmp}")
-
-        download_linux_with_progress(url, Path(tmp))
-
-        # Make executable and swap atomically
-        st = os.stat(tmp)
-        os.chmod(tmp, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        shutil.move(tmp, TARGET)
-
-        # log(f"Updated {TARGET} to {asset['name']}")
-        popup(
-            title=QCoreApplication.translate("Update", "Update"),
-            msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
+            title=config.APP_NAME,
+            msg=QCoreApplication.translate(
+                "Update",
+                "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
+            ),
             type_="info"
         )
 
+        download_updates(
+            main_zip_url=url,
+            destination_folder=temp_folder,
+            callback=_execute_appimage_core_update,
+            file_name=target_path.name
+        )
+
     except Exception as e:
-        popup(title='Update Error', msg=f'Update failed. Please try again later.\n{e}', type_='error')
-        log(f"AppImage update failed: {e}", log_level=3)
+        log(f"AppImage update init failed: {e}", log_level=3)
+        popup(
+            title='Update Error',
+            msg=f'Update failed: {e}',
+            type_='error'
+        )
+
+
+# def appimage_update():
+#     """
+#     Update AppImage installation:
+#     - Download latest AppImage from GitHub
+#     - Replace current AppImage atomically
+#     """
+#     OWNER = "Annor-Gyimah"
+#     REPO = "OmniPull"
+#     TARGET = _appimage_path()
+#     ARCH_TAG = "x86_64"
+
+#     api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
+#     r = requests.get(api, headers={"Accept": "application/vnd.github+json"})
+#     r.raise_for_status()
+#     rel = r.json()
+
+#     # Pick the AppImage asset by name
+#     assets = rel.get("assets", [])
+#     asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
+#     url = asset["browser_download_url"]
+#     tag, contents = get_changelog()
+
+#     ############ TESTING UPDATES #############################################################
+    
+#     # url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage"  # 
+#     # tag, contents = get_changelog()
+
+#     ############ TESTING UPDATES #############################################################
+
+#     try:
+#         # Download to a temp file next to target
+#         os.makedirs(os.path.dirname(TARGET), exist_ok=True)
+#         tmp = _tmp_download_path(TARGET)
+
+#         popup(
+#             title=QCoreApplication.translate("Update", "Update Info"),
+#             msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
+#             type_='info'
+#         )
+#         log(f"Downloading {url} to {tmp}")
+
+#         download_linux_with_progress(url, Path(tmp))
+
+#         # Make executable and swap atomically
+#         st = os.stat(tmp)
+#         os.chmod(tmp, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+#         shutil.move(tmp, TARGET)
+
+#         # log(f"Updated {TARGET} to {asset['name']}")
+#         popup(
+#             title=QCoreApplication.translate("Update", "Update"),
+#             msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
+#             type_="info"
+#         )
+
+#     except Exception as e:
+#         popup(title='Update Error', msg=f'Update failed. Please try again later.\n{e}', type_='error')
+#         log(f"AppImage update failed: {e}", log_level=3)
 
 
 def linux_update(via: str | None = None):
