@@ -1134,15 +1134,17 @@ def appimage_update():
 
     # Get download URL from GitHub
     try:
-        api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-        r = requests.get(api, headers={"Accept": "application/vnd.github+json"}, timeout=30)
-        r.raise_for_status()
-        rel = r.json()
+        # api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
+        # r = requests.get(api, headers={"Accept": "application/vnd.github+json"}, timeout=30)
+        # r.raise_for_status()
+        # rel = r.json()
 
-        # Pick the AppImage asset by name
-        assets = rel.get("assets", [])
-        asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
-        url = asset["browser_download_url"]
+        # # Pick the AppImage asset by name
+        # assets = rel.get("assets", [])
+        # asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
+        # url = asset["browser_download_url"]
+        url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage" 
+    #     # tag, contents = get_changelog()
     except Exception as e:
         log(f"Failed to get AppImage download URL: {e}", log_level=3)
         popup(
