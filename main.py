@@ -93,7 +93,7 @@ from modules.helpers import (toolbar_buttons_state, get_msgbox_style, change_cur
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern, janitor, get_today_download_stats,
     calculate_total_speed, get_progress_bar_color, find_download_by_id, get_file_icon, 
-    CATEGORY_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration, mark_install_healthy)
+    CATEGORY_TRANSLATIONS, UPDATE_AVAILABLE_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration, mark_install_healthy)
 
 
 
@@ -1055,6 +1055,9 @@ class DownloadManagerWindow(QMainWindow):
         widgets.terminal_input.returnPressed.connect(self._terminal_exec)
 
         widgets.lbl_version.setText(f"App Version: {config.APP_VERSION}")
+
+        # self._show_update_banner()
+        self._show_update_banner()
         
         log("Signal-slot connections established.", log_level=2, context=self.ctx)
 
@@ -2168,7 +2171,14 @@ class DownloadManagerWindow(QMainWindow):
         widgets.lbl_summary.setText(self.tr("downloads\n completed"))
         widgets.dock.setWindowTitle(self.tr("Categories"))
         widgets.search_label.setText(self.tr("   Search: "))
-        
+        if self._grace_expired():
+            widgets.banner_message.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"aggressive"][config.lang]) 
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+        else:
+            widgets.banner_message.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"normal"][config.lang]) 
+
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            widgets.banner_later_btn.setText(self.tr('Later'))
         widgets.terminal_input.setPlaceholderText(self.tr(
             "Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'."
         ))
@@ -3110,6 +3120,30 @@ class DownloadManagerWindow(QMainWindow):
             self.queue_updates()
         except Exception as e:
             log(f"GUI batch update failed: {e}", log_level=3, context=self.ctx)
+
+        if self.one_time:
+            self.one_time = False
+            
+            try:
+                # Check availability of ffmpeg in the system or in the same folder as this script
+                t = time.localtime()
+                today = t.tm_yday  # Today number in the year range (1 to 366)
+            except (ValueError, TypeError) as e:
+                log(f"Error with date/time operation: {e}", log_level=3)
+                return
+            
+            try:
+                days_since_last_update = today - config.last_update_check
+                log('Days since last check for update:', days_since_last_update, 'day(s).', log_level=1)
+                
+                if days_since_last_update >= config.update_frequency:
+                    log('Checking for software updates...', log_level=1)
+                    Thread(target=self.update_available, daemon=True).start()
+                    config.last_update_check = today
+            except (TypeError, ValueError) as e:
+                log(f"Error in update check calculations: {e}", log_level=3)
+            except Exception as e:
+                log(f"Error in run loop: {e}", log_level=3)
 
     def check_for_gui_updates(self):
         """
@@ -6484,13 +6518,11 @@ class DownloadManagerWindow(QMainWindow):
     
     # ── Update Orchestration  ────────────────────────────────────────
 
+
     def update_available(self):
         """
         Polls the remote server for the latest changelog and version data.
-        
-        Compares the current APP_VERSION with the remote latest_version. 
-        If a mismatch is detected, it triggers the update handler to 
-        prompt the user.
+        Shows an inline banner instead of an immediate update dialog.
         """
         ctx = "UPDATE-ENGINE"
         change_cursor('busy')
@@ -6500,31 +6532,149 @@ class DownloadManagerWindow(QMainWindow):
 
         if info:
             latest_version, version_description = info
-            # Semantic version comparison (returns None if identical)
             newer_version = compare_versions(current_version, latest_version)
-    
+
             if not newer_version or newer_version == current_version:
                 self.new_version_available = False
-                log(f"Version check: App is up-to-date (Server: {latest_version})", 
+                log(f"Version check: App is up-to-date (Server: {latest_version})",
                     log_level=1, context=ctx)
             else:
-                log(f"Update detected: {current_version} -> {latest_version}", 
+                log(f"Update detected: {current_version} -> {latest_version}",
                     log_level=1, context=ctx)
                 self.new_version_available = True
-                self.handle_update()
-                
-            # Synchronize global version state
+                config.APP_LATEST_VERSION = latest_version
+                self.new_version_description = version_description
+                # Show banner instead of triggering update immediately
+                QTimer.singleShot(0, lambda: self._show_update_banner())
+
             config.APP_LATEST_VERSION = latest_version if latest_version else current_version
             self.new_version_description = version_description
-
         else:
-            log("Update check failed: Remote server unreachable or invalid response.", 
+            log("Update check failed: Remote server unreachable or invalid response.",
                 log_level=2, context=ctx)
             self.new_version_description = None
             self.new_version_available = False
 
         self.settings_manager.save_settings()
         change_cursor('normal')
+
+    def _grace_expired(self):
+        dismissed_ts = getattr(config, 'update_dismissed_timestamp', None)
+        grace_expired = False
+
+        if dismissed_ts:
+            try:
+                from datetime import datetime
+                dismissed_dt = datetime.fromisoformat(dismissed_ts)
+                days_elapsed = (datetime.now() - dismissed_dt).days
+                grace_expired = days_elapsed >= 1
+            except Exception:
+                grace_expired = False
+
+        return grace_expired
+
+
+    def _show_update_banner(self):
+        """
+        Displays the update notification banner above the downloads table.
+        Switches to aggressive messaging after the 7-day grace period expires.
+        """
+        
+
+        banner = widgets.update_banner
+        self.msg_label = widgets.banner_message
+        icon_label = widgets.banner_icon
+        self.language = config.lang
+
+        # Determine if we're past the grace period
+        grace_expired = self._grace_expired()
+        
+        if grace_expired:
+            icon_label.setText("⚠️")
+            
+            self.msg_label.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"aggressive"][self.language])
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            # widgets.banner_later_btn.setText(self.tr('Later'))
+            banner.setStyleSheet("""
+                QWidget#UpdateBanner {
+                    background-color: rgba(183, 28, 28, 0.18);
+                    border-bottom: 1px solid #b71c1c;
+                    border-radius: 6px;
+                }
+                QLabel#BannerMessage { color: #b71c1c; font-size: 15px; }
+                QPushButton#BannerUpdateBtn {
+                    background-color: #c62828; color: white;
+                    border-radius: 4px; font-weight: bold; font-size: 11px;
+                }
+                QPushButton#BannerLaterBtn {
+                    background: transparent; color: #ef9a9a;
+                    border: 1px solid #ef9a9a; border-radius: 4px; font-size: 11px;
+                }
+            """)
+            # Hide the Later button after grace period — nudge harder
+            widgets.banner_later_btn.setVisible(False)
+        else:
+            icon_label.setText("🔔")
+            
+            self.msg_label.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"normal"][self.language])
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            widgets.banner_later_btn.setText(self.tr('Later'))
+            banner.setStyleSheet("""
+                QWidget#UpdateBanner {
+                    background-color: rgba(33, 150, 243, 0.12);
+                    border-bottom: 1px solid #1565c0;
+                    border-radius: 6px;
+                }
+                QLabel#BannerMessage { color: #1565c0; font-size: 15px; }
+                QPushButton#BannerUpdateBtn {
+                    background-color: #1565c0; color: white;
+                    border-radius: 4px; font-weight: bold; font-size: 11px;
+                }
+                QPushButton#BannerLaterBtn {
+                    background: transparent; color: #90caf9;
+                    border: 1px solid #90caf9; border-radius: 4px; font-size: 11px;
+                }
+            """)
+            widgets.banner_later_btn.setVisible(True)
+
+        # Wire buttons (disconnect first to prevent duplicate connections)
+        try:
+            widgets.banner_update_btn.clicked.disconnect()
+            widgets.banner_later_btn.clicked.disconnect()
+        except RuntimeError:
+            pass
+
+        widgets.banner_update_btn.clicked.connect(self._on_banner_update_now)
+        widgets.banner_later_btn.clicked.connect(self._on_banner_later)
+
+        banner.setVisible(True)
+        log("Update banner displayed.", log_level=1, context="UPDATE-ENGINE")
+
+
+    def _on_banner_update_now(self):
+        """User clicked 'Update Now' on the banner."""
+        widgets.update_banner.setVisible(False)
+        # Clear grace period since user chose to update
+        config.update_dismissed_timestamp = None
+        self.settings_manager.save_settings()
+        self.handle_update()
+
+
+    def _on_banner_later(self):
+        """
+        User clicked 'Later'. Record the dismissal timestamp to start/continue
+        the grace period, then hide the banner for this session.
+        """
+        from datetime import datetime
+        # Only set the timestamp on first dismissal, not on subsequent ones
+        if not getattr(config, 'update_dismissed_timestamp', None):
+            config.update_dismissed_timestamp = datetime.now().isoformat()
+            self.settings_manager.save_settings()
+            log("Update deferred. Grace period started.", log_level=1, context="UPDATE-ENGINE")
+        else:
+            log("Update deferred again. Grace period continues.", log_level=1, context="UPDATE-ENGINE")
+
+        widgets.update_banner.setVisible(False)
     
 
     def start_update(self):

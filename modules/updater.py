@@ -505,6 +505,16 @@ def windows_update():
     main_zip_url = "http://localhost/lite/main.zip"
     temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
 
+    # rel = get_app_latest_release()
+    # tag = rel["tag_name"].lstrip(".")
+    # assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
+
+    # main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
+
+    # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+    # download_zip = temp_dir / "main.zip"
+    # update_bat = Path.home() / "update.bat"
+
     try:
         popup(
             title=config.APP_NAME,
@@ -537,144 +547,6 @@ def windows_update():
             type_="critical"
         )
         
-
-
-
-# def windows_update():
-#     """
-#     Perform Windows update in a background thread to prevent UI freezing.
-#     Uses a batch file updater instead of Rust updater.
-#     """
-#     def _do_update():
-       
-
-#         rel = get_app_latest_release()
-#         tag = rel["tag_name"].lstrip(".")
-#         assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
-        
-#         main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
-        
-#         # main_zip_url = "http://localhost/lite/main.zip"
-#         temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-#         download_zip = temp_dir / "main.zip"
-#         update_bat = Path.home() / "update.bat"
-
-#         try:
-#             # Show user-friendly message about update duration
-#             popup(
-#                 title=config.APP_NAME,
-#                 msg=QCoreApplication.translate(
-#                     "Update", 
-#                     "Updating your application...\n\nThis may take about 1 minute.\n\nPlease do not interrupt the process."
-#                 ),
-#                 type_="info"
-#             )
-
-#             log("Downloading update files...", log_level=1)
-#             download_with_resume(main_zip_url, download_zip, type_update_file='main.zip')
-
-           
-#             log("Generating local update script...", log_level=1)
-#             create_update_script(update_bat)
-
-
-#             log("Extracting update package…", log_level=1)
-#             _safe_extract_all(download_zip, temp_dir)
-
-#             new_exe_path = find_exe(temp_dir, "main.exe")
-#             log(f"Found new executable: {new_exe_path}")
-
-#             # Path to the batch updater
-#             # app_dir = Path(os.path.expanduser("~")) / "AppData" / "Local" / "Annorion" / "OmniPull"
-#             # target_exe = app_dir / "main.exe"
-#             # Use os.getenv or Path.home() to get the correct AppData folder
-#             local_app_data = os.getenv('LOCALAPPDATA')
-#             app_dir = Path(local_app_data) / "Annorion" / "OmniPull"
-#             target_exe = app_dir / "main.exe"
-
-#             # Save original hide_app setting to restore after update
-#             original_hide_app = config.hide_app
-            
-#             # Temporarily disable hide_app to allow clean exit during update
-#             config.hide_app = False
-#             save_setting()
-
-#             clean_env = os.environ.copy()
-#             clean_env.pop("_MEIPASS", None)
-#             clean_env.pop("PYTHONPATH", None)
-#             clean_env.pop("PYTHONHOME", None)
-
-#             # bat_path = Path(os.path.expanduser("~")) / "update.bat"
-#             bat_path = Path.home() / "update.bat"
-
-#             # Log the update parameters for debugging
-#             current_pid = os.getpid()
-#             log("=== OmniPull Update Started ===", log_level=1)
-#             log(f"NEW_EXE={new_exe_path}", log_level=1)
-#             log(f"CURRENT_EXE={target_exe}", log_level=1)
-#             log(f"PID={current_pid}", log_level=1)
-#             log(f"TEMP_DIR={temp_dir}", log_level=1)
-#             log(f"ORIGINAL_HIDE_APP={original_hide_app}", log_level=1)
-#             log(f"RUST_UPDATER path set to: {app_dir / 'omnipull-updater.exe'}", log_level=1)
-
-#             if config.aria2_verified is True: 
-#                 aria2c_manager.cleanup_orphaned_paused_downloads()
-#                 aria2c_manager.shutdown_freeze_and_save(purge=True)
-#                 aria2c_manager._terminate_existing_processes()
-            
-
-#             log("Triggering update batch with clean environment...", log_level=1)
-
-
-#             # Remove ONLY the problematic variables
-#             vars_to_scrub = ["_MEIPASS", "_MEIPASS2", "PYTHONPATH", "PYTHONHOME"]
-#             for var in vars_to_scrub:
-#                 clean_env.pop(var, None)
-
-#             # Ensure APPDATA and USERPROFILE are definitely there
-#             # (They should be, but this is a safety check)
-#             if "APPDATA" not in clean_env:
-#                 clean_env["APPDATA"] = os.environ.get("APPDATA", "")
-#             if "USERPROFILE" not in clean_env:
-#                 clean_env["USERPROFILE"] = os.environ.get("USERPROFILE", "")
-
-#             cmd_to_run = [
-#                 "cmd.exe", "/c",
-#                 str(bat_path),
-#                 str(new_exe_path),
-#                 str(target_exe),
-#                 str(current_pid),
-#                 str(temp_dir)
-#             ]
-
-#             subprocess.Popen(
-#                 cmd_to_run,
-#                 env=clean_env, # Pass the scrubbed copy
-#                 creationflags=0x08000000 | 0x00000008, 
-#                 close_fds=True # This releases file locks for the updater
-#             )
-
-#             os._exit(3)
-
-#         except Exception as e:
-#             config.confirm_update = False
-#             log(f"Update failed: {e}", log_level=3)
-            
-#             # 2. Localized Critical Popup with Error Placeholder
-#             error_msg = QCoreApplication.translate(
-#                 "Update",
-#                 "Update failed\n\nDetails:\n%1\n\nIf this keeps happening, check your network and antivirus exclusions."
-#             ).replace("%1", str(e))
-
-#             popup(
-#                 msg=error_msg,
-#                 title=config.APP_NAME,
-#                 type_="critical"
-#             )
-
-#     # Run update in a background thread
-#     update_thread = threading.Thread(target=_do_update, daemon=False)
-#     update_thread.start()
 
 
 
@@ -841,6 +713,23 @@ def deb_update():
     """
     main_tar_url = "http://localhost/lite/main.tar.gz"
     temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+
+    #     # 1) Discover latest tag
+    #     content = httpx.get(
+    #         url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+    #         headers={"User-Agent": "Mozilla/5.0"},
+    #         follow_redirects=True
+    #     ).json()
+    #     tag = content["tag_name"].lstrip('.').lstrip('v')
+    #     main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
+
+    #     ############ TESTING UPDATES #############################################################
+
+    #     # main_tar_url = "http://localhost/lite/main.tar.gz"  # 
+    #     # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+    #     # tag, contents = get_changelog()
+
+    #     ############ TESTING UPDATES #############################################################
     
     try:
         popup(
@@ -996,122 +885,6 @@ def _execute_deb_core_update(d):
             pass
             
 
-
-# def deb_update():
-#     """
-#     User-space update for .deb installs:
-#     - Download app payload (tar.gz) to ~/.local/share/OmniPull/versions/<tag>/
-#     - Atomically switch ~/.local/share/OmniPull/current -> that folder
-#     """
-#     # 1) Discover latest tag
-#     content = httpx.get(
-#         url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
-#         headers={"User-Agent": "Mozilla/5.0"},
-#         follow_redirects=True
-#     ).json()
-#     tag = content["tag_name"].lstrip('.').lstrip('v')
-#     main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
-
-#     ############ TESTING UPDATES #############################################################
-
-#     # main_tar_url = "http://localhost/lite/main.tar.gz"  # 
-#     # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-#     # tag, contents = get_changelog()
-
-#     ############ TESTING UPDATES #############################################################
-
-#     # 2) Paths in user space
-#     # base = Path.home() / ".local" / "share" / "OmniPull"
-#     base = config.DATA_ROOT
-#     versions = base / "versions"
-#     current = base / "current"
-#     versions.mkdir(parents=True, exist_ok=True)
-
-#     tmpdir = Path(tempfile.mkdtemp(prefix=".omni_up_"))
-#     tar_path = tmpdir / "main.tar.gz"
-
-#     try:
-#         # Download
-#         log(f'Downloading update from {main_tar_url}')
-#         popup(
-#             title=QCoreApplication.translate("Update", "Update Info"),
-#             msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
-#             type_='info'
-#         )
-
-#         download_linux_with_progress(main_tar_url, tar_path)
-
-#         # Unpack to a temporary folder first
-#         unpack = Path(tempfile.mkdtemp(prefix=".omni_unpack_"))
-#         log(f'Unpacking to {unpack}')
-#         with tarfile.open(tar_path, "r:gz") as tar:
-#             tar.extractall(path=unpack)
-
-#         # Detect the runnable top
-#         entries = [p for p in unpack.iterdir() if not p.name.startswith(".")]
-#         if len(entries) == 1 and entries[0].is_dir():
-#             top = entries[0]
-#         else:
-#             top = unpack
-
-#         # Read version from VERSION if present, else use tag
-#         ver = None
-#         vfile = top / "VERSION"
-#         if vfile.exists():
-#             try:
-#                 ver = vfile.read_text().strip().split()[0]
-#             except Exception:
-#                 ver = None
-#         ver = ver or tag
-
-#         # Target dir for this version
-#         verdir = versions / ver
-#         if verdir.exists():
-#             shutil.rmtree(verdir, ignore_errors=True)
-
-#         # Move the actual runnable dir
-#         shutil.move(str(top), str(verdir))
-#         log(f'Moved to {verdir}')
-#         popup(
-#             title=QCoreApplication.translate("Update", "Update Info"),
-#             msg=QCoreApplication.translate("Update", "Download complete. Finalizing update..."),
-#             type_='info'
-#         )
-#         # Ensure executable bit on the app binary and helpers
-#         for name in ("omnipull", "ffmpeg", "aria2c", "omnipull-watcher"):
-#             p = verdir / name
-#             if p.exists():
-#                 p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-#         # Atomically flip current -> verdir
-#         tmp_link = base / ".current.new"
-#         if tmp_link.exists():
-#             tmp_link.unlink()
-#         os.symlink(verdir, tmp_link)
-#         os.replace(tmp_link, current)
-
-#         # Optional: prune old versions (keep 2)
-#         keep = 2
-#         kids = sorted([d for d in versions.iterdir() if d.is_dir()],
-#                      key=lambda p: p.stat().st_mtime, reverse=True)
-#         for d in kids[keep:]:
-#             shutil.rmtree(d, ignore_errors=True)
-
-#         # Success message
-#         popup(
-#             title=QCoreApplication.translate("Update", "Update"),
-#             msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
-#             type_="info"
-#         )
-
-#     finally:
-#         shutil.rmtree(tmpdir, ignore_errors=True)
-#         try:
-#             shutil.rmtree(unpack, ignore_errors=True)
-#         except Exception:
-#             pass
-
-
 def _appimage_path() -> str:
     """Get the AppImage path from environment or default location."""
     return os.environ.get("APPIMAGE") or str(Path.home() / "Applications" / "OmniPull.AppImage")
@@ -1182,66 +955,6 @@ def appimage_update():
             msg=f'Update failed: {e}',
             type_='error'
         )
-
-
-# def appimage_update():
-#     """
-#     Update AppImage installation:
-#     - Download latest AppImage from GitHub
-#     - Replace current AppImage atomically
-#     """
-#     OWNER = "Annor-Gyimah"
-#     REPO = "OmniPull"
-#     TARGET = _appimage_path()
-#     ARCH_TAG = "x86_64"
-
-#     api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-#     r = requests.get(api, headers={"Accept": "application/vnd.github+json"})
-#     r.raise_for_status()
-#     rel = r.json()
-
-#     # Pick the AppImage asset by name
-#     assets = rel.get("assets", [])
-#     asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
-#     url = asset["browser_download_url"]
-#     tag, contents = get_changelog()
-
-#     ############ TESTING UPDATES #############################################################
-    
-#     # url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage"  # 
-#     # tag, contents = get_changelog()
-
-#     ############ TESTING UPDATES #############################################################
-
-#     try:
-#         # Download to a temp file next to target
-#         os.makedirs(os.path.dirname(TARGET), exist_ok=True)
-#         tmp = _tmp_download_path(TARGET)
-
-#         popup(
-#             title=QCoreApplication.translate("Update", "Update Info"),
-#             msg=QCoreApplication.translate("Update", "Downloading update, please wait...\nDo not close the app yet."),
-#             type_='info'
-#         )
-#         log(f"Downloading {url} to {tmp}")
-
-#         download_linux_with_progress(url, Path(tmp))
-
-#         # Make executable and swap atomically
-#         st = os.stat(tmp)
-#         os.chmod(tmp, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-#         shutil.move(tmp, TARGET)
-
-#         # log(f"Updated {TARGET} to {asset['name']}")
-#         popup(
-#             title=QCoreApplication.translate("Update", "Update"),
-#             msg=QCoreApplication.translate("Update", f"Updated to version {tag}. Restart OmniPull to use the new version."),
-#             type_="info"
-#         )
-
-#     except Exception as e:
-#         popup(title='Update Error', msg=f'Update failed. Please try again later.\n{e}', type_='error')
-#         log(f"AppImage update failed: {e}", log_level=3)
 
 
 def linux_update(via: str | None = None):
@@ -1348,6 +1061,55 @@ def update():
         macos_update()
     else:
         log(f"Unsupported platform for auto-update: {system}", log_level=3)
+
+
+def start_grace_period(version: str):
+    """
+    Start the grace period for a deferred update.
+    
+    Args:
+        version: The version the user deferred
+    """
+    config.update_dismissed_version = version
+    config.update_dismissed_timestamp = datetime.now().isoformat()
+    config.update_grace_period_days = 7
+    log(f"Grace period started for version {version}", log_level=1)
+
+
+def check_update_grace_period() -> Tuple[bool, int, str | None]:
+    """
+    Check if the update grace period has expired.
+    
+    Returns:
+        Tuple of (expired: bool, days_remaining: int, first_notified: str | None)
+        - expired: True if 7+ days have passed since dismissal
+        - days_remaining: Days until aggressive message appears (0 if expired)
+        - first_notified: ISO timestamp of when user first deferred (or None)
+    """
+    dismissed_timestamp = getattr(config, 'update_dismissed_timestamp', None)
+    grace_period_days = getattr(config, 'update_grace_period_days', 7)
+    
+    if not dismissed_timestamp:
+        return False, grace_period_days, None
+    
+    try:
+        dismissed_dt = datetime.fromisoformat(dismissed_timestamp)
+        now = datetime.now()
+        days_elapsed = (now - dismissed_dt).days
+        days_remaining = max(0, grace_period_days - days_elapsed)
+        
+        expired = days_elapsed >= grace_period_days
+        
+        log(
+            f"Grace period check: {days_elapsed}/{grace_period_days} days elapsed | Expired: {expired}",
+            log_level=2
+        )
+        
+        return expired, days_remaining, dismissed_timestamp
+    
+    except (ValueError, TypeError) as e:
+        log(f"Error parsing grace period timestamp: {e}", log_level=2)
+        return False, grace_period_days, None
         popup(
             title="Update Error",
             msg=f"Auto-update not supported on {system}.\nPlease update manually.",

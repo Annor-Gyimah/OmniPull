@@ -32,7 +32,7 @@ from threading import Thread
 from datetime import datetime
 from typing import Tuple, Dict
 
-
+from modules import config
 from modules.config import Status
 from modules.utils import log
 from modules.updater import detect_install_mode
@@ -1084,7 +1084,7 @@ CATEGORY_TRANSLATIONS = {
 
 FILE_PROPERTIES_TRANSLATIONS = {
     "Name:": {
-        "Englis": "Name :",
+        "English": "Name :",
         "French": "Nom :",
         "Spanish": "Nombre:",
         "Korean": "이름:",
@@ -1222,6 +1222,29 @@ FILE_PROPERTIES_TRANSLATIONS = {
         "Chinese": "关闭",
         "Hindi": "बंद करें",
         "Russian": "Закрыть"
+    }
+}
+
+UPDATE_AVAILABLE_TRANSLATIONS = {
+    f"normal": {
+        "English": f"Your version of OmniPull is outdated and may become unsupported. (Latest: {config.APP_LATEST_VERSION})",
+        "French": f"Votre version d'OmniPull est obsolète et peut devenir incompatible. (Dernière: {config.APP_LATEST_VERSION})",
+        "Spanish": f"Tu versión de OmniPull está desactualizada y puede volverse incompatible. (Última: {config.APP_LATEST_VERSION})",
+        "Korean": f"사용 중인 OmniPull 버전이 오래되어 지원되지 않을 수 있습니다. (최신 버전: {config.APP_LATEST_VERSION})",
+        "Japanese": f"お使いのOmniPullのバージョンは古く、サポートされなくなる可能性があります。 (最新: {config.APP_LATEST_VERSION})",
+        "Chinese": f"您使用的OmniPull版本过旧，可能会变得不受支持。 (最新: {config.APP_LATEST_VERSION})",
+        "Hindi": f"आपका OmniPull संस्करण पुराना है और अप्रयुक्त हो सकता है। (नवीनतम: {config.APP_LATEST_VERSION})",
+        "Russian": f"Ваша версия OmniPull устарела и может стать неподдерживаемой. (Последняя: {config.APP_LATEST_VERSION})"
+    },
+    f"aggressive": {
+        "English": f"A new OmniPull update is available.  (v{config.APP_LATEST_VERSION})",
+        "French": f"Une nouvelle mise à jour d'OmniPull est disponible. (v{config.APP_LATEST_VERSION})",
+        "Spanish": f"Una nueva actualización de OmniPull está disponible. (v{config.APP_LATEST_VERSION})",
+        "Korean": f"새로운 OmniPull 업데이트가 있습니다. (v{config.APP_LATEST_VERSION})",
+        "Japanese": f"OmniPullの新しいアップデートが利用可能です。 (v{config.APP_LATEST_VERSION})",
+        "Chinese": f"OmniPull有新更新可用。 (v{config.APP_LATEST_VERSION})",
+        "Hindi": f"एक नया OmniPull अपडेट उपलब्ध है। (v{config.APP_LATEST_VERSION})",
+        "Russian": f"Доступно новое обновление OmniPull. (v{config.APP_LATEST_VERSION})"
     }
 }
 

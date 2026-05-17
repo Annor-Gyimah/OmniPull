@@ -287,6 +287,37 @@ class Ui_MainWindow(object):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
+        # Update notification banner (hidden by default)
+        self.update_banner = QWidget()
+        self.update_banner.setObjectName("UpdateBanner")
+        self.update_banner.setFixedHeight(44)
+        self.update_banner.setVisible(False)
+
+        banner_layout = QHBoxLayout(self.update_banner)
+        banner_layout.setContentsMargins(12, 0, 12, 0)
+        banner_layout.setSpacing(10)
+
+        self.banner_icon = QLabel("🔔")
+        self.banner_icon.setFixedWidth(20)
+        self.banner_message = QLabel("A new OmniPull update is available.")
+        self.banner_message.setObjectName("BannerMessage")
+
+        self.banner_update_btn = QPushButton("Update Now")
+        self.banner_update_btn.setObjectName("BannerUpdateBtn")
+        self.banner_update_btn.setFixedSize(100, 28)
+
+        self.banner_later_btn = QPushButton("Later")
+        self.banner_later_btn.setObjectName("BannerLaterBtn")
+        self.banner_later_btn.setFixedSize(60, 28)
+
+        banner_layout.addWidget(self.banner_icon)
+        banner_layout.addWidget(self.banner_message, 1)
+        banner_layout.addWidget(self.banner_update_btn)
+        banner_layout.addWidget(self.banner_later_btn)
+
+        layout.addWidget(self.update_banner)  # Insert before table
+        # layout.addWidget(self.table)
+
 
         layout.addWidget(self.table)
         QTimer.singleShot(0, self._finalize_table_layout)

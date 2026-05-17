@@ -218,6 +218,7 @@ force_exit_for_update = True
 update_first_notified = None  # Timestamp when user was first notified of update (macOS)
 update_grace_period_days = 7  # Days before forcing update on macOS
 update_dismissed_version = None  # Track which version user dismissed
+update_dismissed_timestamp = None  # ISO timestamp when user deferred update (grace period start)
 
 preferred_audio_langs = ["en-US", "en", "eng", None]
 
@@ -320,7 +321,7 @@ settings_keys = [
     'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
     'segment_size', 'show_thumbnail', 'on_startup', 'show_all_logs', 'hide_app',
     'enable_speed_limit', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
-    'update_frequency', 'last_update_check','APP_LATEST_VERSION', 'confirm_update',
+    'update_frequency','update_dismissed_timestamp', 'last_update_check','APP_LATEST_VERSION', 'confirm_update',
     'update_first_notified', 'update_grace_period_days', 'update_dismissed_version',
     'proxy', 'proxy_type', 'raw_proxy', 'proxy_user', 'proxy_pass', 'enable_proxy',
     'log_level', 'download_folder', 'retry_scheduled_enabled', 'retry_scheduled_max_tries',
