@@ -385,6 +385,7 @@ class AdvancedMetadataDialog(QDialog):
         # ── Language row ──────────────────────────────────────────────────────
         lang_row = QHBoxLayout()
         self.lang_lbl = QLabel(self.tr("Language"))
+        self.lang_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
         self.lang_lbl.setFixedWidth(100)
         lang_row.addWidget(self.lang_lbl)
 
@@ -398,6 +399,7 @@ class AdvancedMetadataDialog(QDialog):
         # ── Format row ────────────────────────────────────────────────────────
         fmt_row = QHBoxLayout()
         self.fmt_lbl = QLabel(self.tr("Format"))
+        self.fmt_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
         self.fmt_lbl.setFixedWidth(100)
         fmt_row.addWidget(self.fmt_lbl)
 
@@ -407,6 +409,16 @@ class AdvancedMetadataDialog(QDialog):
         fmt_row.addWidget(self.format_combo, 1)
 
         layout.addLayout(fmt_row)
+
+        # ── Embed subtitle row ────────────────────────────────────────────────
+        embed_sub_row = QHBoxLayout()
+        self.embed_sub_chk = QCheckBox()
+        embed_sub_row.addWidget(self.embed_sub_chk)
+        self.embed_sub_lbl = QLabel(self.tr("Embed subtitles into video (if supported)"))
+        self.embed_sub_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
+        embed_sub_row.addWidget(self.embed_sub_lbl)
+        embed_sub_row.addStretch()
+        layout.addLayout(embed_sub_row)
 
         # ── Availability hint ─────────────────────────────────────────────────
         self.sub_hint_lbl = QLabel("")
@@ -528,7 +540,7 @@ class AdvancedMetadataDialog(QDialog):
 
         # ── Restore post-processing ─────────────────────────────────────────
 
-        
+        self.embed_sub_chk.setChecked(bool(getattr(self.video_obj, "embed_subtitles", False)))
         self.embed_metadata_chk.setChecked(bool(getattr(self.video_obj, "embed_metadata", True)))
         self.embed_chapters_chk.setChecked(bool(getattr(self.video_obj, "embed_chapters", True)))
     
@@ -554,6 +566,7 @@ class AdvancedMetadataDialog(QDialog):
                     break
 
         # ── Restore subtitle format ───────────────────────────────────────────
+        self.embed_sub_chk.setChecked(bool(getattr(self.video_obj, "embed_subtitles", False)))
         saved_fmt = getattr(self.video_obj, "subtitle_format", None)
         if saved_fmt:
             idx = self.format_combo.findText(saved_fmt)
@@ -632,7 +645,12 @@ class AdvancedMetadataDialog(QDialog):
                     self.lang_combo.setCurrentIndex(i)
                     break
 
-
+    
+    def apply_language_advancemetada(self, lang):
+        self.current_language = lang
+        self.lang_manager = LanguageManager()
+        self.lang_manager.apply_language(self.current_language)
+        self.retrans()
 
     
         
@@ -675,6 +693,7 @@ class AdvancedMetadataDialog(QDialog):
         self.video_obj.selected_subtitle = lang_code
         self.video_obj.subtitle_format   = self.format_combo.currentText()
         self.video_obj.is_auto_sub       = is_auto
+        self.video_obj.embed_subtitles   = self.embed_sub_chk.isChecked()
 
         # ── Comment attribute ─────────────────────────────────────────────────
         self.video_obj.download_comments = self.comments_chk.isChecked()

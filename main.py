@@ -42,9 +42,9 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region 3rd Parties import
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtWidgets
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
-QCoreApplication, Qt, QTime, QProcess, QEvent, QItemSelectionModel, QStringListModel, QDateTime)
+QCoreApplication, Qt, QTime, QProcess, QEvent, QStringListModel, QDateTime)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QKeySequence, QColor
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
@@ -1056,7 +1056,6 @@ class DownloadManagerWindow(QMainWindow):
 
         widgets.lbl_version.setText(f"App Version: {config.APP_VERSION}")
 
-        # self._show_update_banner()
         self._show_update_banner()
         
         log("Signal-slot connections established.", log_level=2, context=self.ctx)
@@ -2997,7 +2996,9 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Opening advanced metadata inspector for: {self.d.name}", 
             log_level=1, context="URL-EXTRACT-FINISH")
         dlg = AdvancedMetadataDialog(self.d, self)
+        dlg.apply_language_advancemetada(config.lang)
         dlg.exec()
+    
 
 
     
@@ -6225,13 +6226,13 @@ class DownloadManagerWindow(QMainWindow):
                 d.progress = 100
                 d.name = os.path.basename(output_path)
                 d.folder = os.path.dirname(output_path) or d.folder
-
+                
                 # Post-success cleanup: Remove all associated temp files
                 try:
                     if os.path.exists(audio_path):
                         os.remove(audio_path)
+                    d.delete_tempfiles()
                     delete_folder(d.temp_folder)
-                    delete_file(d.temp_file)
                     log(f"[CLEANUP] Removed temp files after successful remerge: {d.name}", log_level=2)
                 except Exception as e:
                     log(f"[CLEANUP] Post-remerge cleanup failed: {e}", log_level=2)
