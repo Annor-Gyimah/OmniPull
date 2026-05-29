@@ -498,12 +498,6 @@ class SettingsDialog(QDialog):
         self.ytdlp_concurrent_fragments_lbl = QLabel(self.tr("Concurrent fragments:"))
         ytdlp_row_conc.addWidget(self.ytdlp_concurrent_fragments_lbl)
         ytdlp_row_conc.addWidget(self.ytdlp_concurrent_fragments_combo)
-        ytdlp_row_conc.addSpacing(6)
-        self.ytdlp_sleep_interval_req_lbl = QLabel(self.tr("Sleep interval Request (s):"))
-        ytdlp_row_conc.addWidget(self.ytdlp_sleep_interval_req_lbl)
-        self.ytdlp_sleep_interval_req_combo = QComboBox()
-        self.ytdlp_sleep_interval_req_combo.addItems([str(i) for i in range(1, 61)])
-        ytdlp_row_conc.addWidget(self.ytdlp_sleep_interval_req_combo)
         self.ytdlp_max_sleep_interval_lbl = QLabel(self.tr("Max sleep interval (s):"))
         ytdlp_row_conc.addWidget(self.ytdlp_max_sleep_interval_lbl)
         self.ytdlp_max_sleep_interval_combo = QComboBox()
@@ -514,19 +508,12 @@ class SettingsDialog(QDialog):
         ytdlp_row_conc.addWidget(self.ytdlp_retries_combo)
         ytdlp_row_conc.addStretch()
 
-        # row 3: 
-        ytdlp_row_conc1 = QHBoxLayout()
-        ytdlp_sleep_subtitle_lbl = QLabel(self.tr("Sleep interval subtitle (s):"))
-        ytdlp_row_conc1.addWidget(ytdlp_sleep_subtitle_lbl)
-        self.ytdlp_sleep_subtitles_combo = QComboBox()
-        self.ytdlp_sleep_subtitles_combo.addItems([str(i) for i in range(1, 61)])
-        ytdlp_row_conc1.addWidget(self.ytdlp_sleep_subtitles_combo)
-        ytdlp_row_conc1.addStretch()
+        
         
 
         ytdlp_form.addRow(ytdlp_row_fmt)
         ytdlp_form.addRow(ytdlp_row_conc)
-        ytdlp_form.addRow(ytdlp_row_conc1)
+
 
 
         ytdlp_layout.addLayout(ytdlp_form)
@@ -847,11 +834,6 @@ class SettingsDialog(QDialog):
         self.ytdlp_write_metadata_chk.setChecked(config.ytdlp_config['writemetadata'])
         self.ytdlp_write_info_json_chk.setChecked(config.ytdlp_config['writeinfojson'])
         self.ytdlp_write_description_chk.setChecked(config.ytdlp_config['writedescription'])
-        # self.ytdlp_write_annotations_chk.setChecked(config.ytdlp_config['writeannotations'])
-        # self.ytdlp_sleep_interval_req_combo.setCurrentText(str(config.ytdlp_config['sleep_interval_requests']))
-        # self.ytdlp_max_sleep_interval_combo.setCurrentText(str(config.ytdlp_config['max_sleep_interval']))
-        self.ytdlp_sleep_subtitles_combo.setCurrentText(str(config.ytdlp_config.get('sleep_interval_subtitles', 60)))
-        self.ytdlp_sleep_interval_req_combo.setCurrentText(str(config.ytdlp_config.get('sleep_interval_requests', 10)))
         self.ytdlp_max_sleep_interval_combo.setCurrentText(str(config.ytdlp_config.get('max_sleep_interval', 10)))
         self.ytdlp_no_warnings_chk.setChecked(config.ytdlp_config['no_warnings'])
 
@@ -959,9 +941,8 @@ class SettingsDialog(QDialog):
         config.ytdlp_config['writedescription'] = self.ytdlp_write_description_chk.isChecked()
         config.ytdlp_config['writeannotations'] = self.ytdlp_write_annotations_chk.isChecked()
         config.ytdlp_config['no_warnings'] = self.ytdlp_no_warnings_chk.isChecked()
-        config.ytdlp_config['sleep_interval_requests'] = int(self.ytdlp_sleep_interval_req_combo.currentText())
         config.ytdlp_config['max_sleep_interval'] = int(self.ytdlp_max_sleep_interval_combo.currentText())
-        config.ytdlp_config['sleep_interval_subtitles'] = int(self.ytdlp_sleep_subtitles_combo.currentText())
+
 
         # Aria2c settings
         config.aria2c_config['max_connections'] = self.aria_max_conn_per_server_combo.currentText()
@@ -1145,7 +1126,6 @@ class SettingsDialog(QDialog):
         self.ytdlp_lbl.setText(self.tr("Template:"))
         self.format_lbl.setText(self.tr("Format:"))
         self.ytdlp_concurrent_fragments_lbl.setText(self.tr("Concurrent fragments:"))
-        self.ytdlp_sleep_interval_req_lbl.setText(self.tr("Sleep interval Request (s):"))
         self.ytdlp_max_sleep_interval_lbl.setText(self.tr("Max sleep interval (s):"))
         self.ytdlp_retries_lbl.setText(self.tr("Retries:"))
 

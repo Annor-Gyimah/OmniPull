@@ -262,7 +262,7 @@ ytdlp_config = {
     'quiet': True,
     'sleep_interval_requests': 10,
     'max_sleep_interval': 10,
-    'sleep_interval_subtitles': 60,
+    'sleep_interval_subtitles': 10,
     'writeinfojson': True,
     'writedescription': True,
     "writemetadata": True,

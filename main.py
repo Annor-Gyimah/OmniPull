@@ -2594,6 +2594,10 @@ class DownloadManagerWindow(QMainWindow):
         widgets_add_download.lbl_size_value.setText(
             size_format(self.d.size) if self.d.size else "Unknown"
         )
+        btn = widgets_add_download.advance_btn
+        btn.setStyleSheet("border: 1px solid #3a3d42; border-radius: 4px; padding: 6px 14px; font-size: 13px;")  
+        widgets_add_download.advance_btn.setEnabled(False)
+        self._show_close_button()
         
         self.category_checker(self.d)
         widgets_add_download.url_progress.setRange(0, 100)
@@ -2693,7 +2697,7 @@ class DownloadManagerWindow(QMainWindow):
         """Update the progress bar value in the Add Download dialog."""
         widgets_add_download.url_progress.setValue(value)
 
-        #  where url_status_label = ⏳
+        
     
 
     def update_progress_bar(self):
@@ -2944,6 +2948,19 @@ class DownloadManagerWindow(QMainWindow):
             widgets_add_download.download_btn.setText(self.tr("Start Playlist"))
             self._is_playlist_mode = True
             widgets_add_download.advance_btn.setEnabled(True)
+            # Highlight effect: add a glowing border
+            highlight_style = (
+                "QPushButton {"
+                "  border: 2px solid #00bfff;"
+                "}"
+            )
+            btn = widgets_add_download.advance_btn
+            old_style = btn.styleSheet()
+            btn.setStyleSheet(highlight_style)
+            # Remove highlight after 1 second
+            # def remove_highlight():
+            #     btn.setStyleSheet(old_style)
+            # QTimer.singleShot(5000, remove_highlight)
 
         # ── Handle Single Video Logic ──
         elif isinstance(result, Video):
@@ -2955,9 +2972,23 @@ class DownloadManagerWindow(QMainWindow):
             if not self.d.ext:
                 self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
             widgets_add_download.advance_btn.setEnabled(True)
+
+            highlight_style = (
+                "QPushButton {"
+                "  border: 2px solid #00bfff;"
+                "}"
+            )
+            btn = widgets_add_download.advance_btn
+            old_style = btn.styleSheet()
+            btn.setStyleSheet(highlight_style)
+            # Remove highlight after 1 second
+            # def remove_highlight():
+            #     btn.setStyleSheet(old_style)
+            # QTimer.singleShot(5000, remove_highlight)
         
         else:
-            log("Extraction failed to return valid media objects", log_level=3, context=ctx)
+            log("Extraction failed to return valid media objects", log_level=1, context=ctx)
+            widgets_add_download.advance_btn.setEnabled(False)
             self.update_http_status(0)
             return
 

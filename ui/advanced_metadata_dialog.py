@@ -23,6 +23,7 @@ from modules import config
 from ui.styles import get_stylesheet
 from ui.language_manager import LanguageManager
 from modules.config import accent_color, lang
+from modules.settings_manager import SettingsManager
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui  import QColor 
@@ -106,6 +107,7 @@ class AdvancedMetadataDialog(QDialog):
         self.video_obj = video_obj
         # vid_info may be None / missing; always default to empty dict
         self.vid_info: dict = getattr(video_obj, "vid_info", None) or {}
+        self.settings_manager = SettingsManager()
 
         self._setup_window()
         self._build_ui()
@@ -414,11 +416,32 @@ class AdvancedMetadataDialog(QDialog):
         embed_sub_row = QHBoxLayout()
         self.embed_sub_chk = QCheckBox()
         embed_sub_row.addWidget(self.embed_sub_chk)
-        self.embed_sub_lbl = QLabel(self.tr("Embed subtitles into video (if supported)"))
+        self.embed_sub_lbl = QLabel(self.tr("Embed subtitles into video"))
         self.embed_sub_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
         embed_sub_row.addWidget(self.embed_sub_lbl)
         embed_sub_row.addStretch()
         layout.addLayout(embed_sub_row)
+
+
+        # ── Sleep Subtitles row ──────────────────────────────────────────────────────
+        sleep_sub_row = QHBoxLayout()
+        self.sleep_sub_lbl = QLabel(self.tr("Sleep Subtitles"))
+        self.sleep_sub_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
+        self.sleep_sub_lbl.setFixedWidth(100)
+        sleep_sub_row.addWidget(self.sleep_sub_lbl)
+        self.sleep_sub_combo = QComboBox()
+        self.sleep_sub_combo.addItems([str(i) for i in range(1, 61)])
+        self.sleep_sub_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sleep_sub_row.addWidget(self.sleep_sub_combo, 1)
+        sleep_sub_row.addStretch()
+        self.sleep_interval_req_lbl = QLabel(self.tr("Sleep interval requests"))
+        self.sleep_interval_req_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: white;")
+        sleep_sub_row.addWidget(self.sleep_interval_req_lbl)
+        self.sleep_interval_req_combo = QComboBox()
+        self.sleep_interval_req_combo.addItems([str(i) for i in range(1, 61)])
+        sleep_sub_row.addWidget(self.sleep_interval_req_combo, 1)
+
+        layout.addLayout(sleep_sub_row)
 
         # ── Availability hint ─────────────────────────────────────────────────
         self.sub_hint_lbl = QLabel("")
@@ -476,6 +499,8 @@ class AdvancedMetadataDialog(QDialog):
         # Sentinel: "no subtitle" option always first
         self.lang_combo.addItem(self.tr("— None (skip subtitles) —"))
         self.lang_combo.setItemData(0, ("", False), Qt.UserRole)
+        self.sleep_sub_combo.setCurrentText(str(config.ytdlp_config.get('sleep_interval_subtitles', 10)))
+        self.sleep_interval_req_combo.setCurrentText(str(config.ytdlp_config.get('sleep_interval_requests', 10)))
 
         if not self.vid_info:
             self.sub_hint_lbl.setText(
@@ -547,7 +572,17 @@ class AdvancedMetadataDialog(QDialog):
         # Set Combos
         mode = getattr(self.video_obj, "conv_mode", "None (Original)")
         fmt  = getattr(self.video_obj, "target_format", "mp4")
-        
+        # Only use config default if not set on video_obj
+        if hasattr(self.video_obj, "sleep_interval_subtitles") and self.video_obj.sleep_interval_subtitles is not None:
+            sleep_sub = self.video_obj.sleep_interval_subtitles
+        else:
+            sleep_sub = config.ytdlp_config.get('sleep_interval_subtitles', 10)
+        if hasattr(self.video_obj, "sleep_interval_requests") and self.video_obj.sleep_interval_requests is not None:
+            sleep_req = self.video_obj.sleep_interval_requests
+        else:
+            sleep_req = config.ytdlp_config.get('sleep_interval_requests', 10)
+        self.sleep_sub_combo.setCurrentText(str(sleep_sub))
+        self.sleep_interval_req_combo.setCurrentText(str(sleep_req))
         self.conv_mode_combo.setCurrentText(mode)
         self.target_fmt_combo.setCurrentText(fmt)
         
@@ -694,9 +729,16 @@ class AdvancedMetadataDialog(QDialog):
         self.video_obj.subtitle_format   = self.format_combo.currentText()
         self.video_obj.is_auto_sub       = is_auto
         self.video_obj.embed_subtitles   = self.embed_sub_chk.isChecked()
+        self.video_obj.sleep_interval_requests = int(self.sleep_interval_req_combo.currentText())
+        self.video_obj.sleep_interval_subtitles = int(self.sleep_sub_combo.currentText())
 
         # ── Comment attribute ─────────────────────────────────────────────────
         self.video_obj.download_comments = self.comments_chk.isChecked()
+
+        config.ytdlp_config['sleep_interval_requests'] = int(self.video_obj.sleep_interval_requests)
+        config.ytdlp_config['sleep_interval_subtitles'] = int(self.video_obj.sleep_interval_subtitles)
+
+        self.settings_manager.save_settings()
 
         super().accept()
 

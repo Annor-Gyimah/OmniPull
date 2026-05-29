@@ -38,9 +38,9 @@ def get_advanced_opts(d) -> dict:
         # Keep warnings visible so subtitle 429s appear in the log
         opts["no_warnings"]       = config.ytdlp_config.get('no_warnings', True)
         opts["ignoreerrors"]      = config.ytdlp_config.get('ignore_errors', True)
-        opts["sleep_interval_requests"] = config.ytdlp_config.get('sleep_interval_requests', 10)
+        opts["sleep_interval_requests"] = getattr(d, "sleep_interval_requests", 10) 
         opts["max_sleep_interval"] = config.ytdlp_config.get('max_sleep_interval', 10)
-        opts["sleep_subtitles"] = config.ytdlp_config.get('sleep_interval_subtitles', 60)
+        opts["sleep_interval_subtitles"] = getattr(d, "sleep_interval_subtitles", 10)
 
         embed_subtitle = bool(getattr(d, 'embed_subtitles', False))
         if embed_subtitle:
@@ -103,6 +103,7 @@ def get_advanced_opts(d) -> dict:
 
 
 
+ 
 
 def _pick_subtitle_url(sub_entries: list, preferred_fmt: str) -> tuple:
     """
