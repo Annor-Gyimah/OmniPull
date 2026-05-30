@@ -8,7 +8,7 @@
     "icon": "📡",
     "tags": ["monitoring", "network", "dashboard"],
     "size": "~40 KB",
-    "download_url": "https://github.com/Annor-Gyimah/OmniPull/blob/master/plugin_server/plugins/remote_monitoring.zip",
+    "download_url": "https://raw.githubusercontent.com/Annor-Gyimah/OmniPull/dev/plugin_server/plugins/remote_monitoring.zip",
     "requires": ["fastapi", "uvicorn"]
   }
 ]
