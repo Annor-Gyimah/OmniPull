@@ -67,6 +67,7 @@ from ui.changelog_dialog import WhatsNewDialog
 from ui.populate_worker import PopulateTableWorker
 from ui.download_window import DownloadProgressDialog
 from ui.advanced_metadata_dialog import AdvancedMetadataDialog
+from ui.plugin_bar import PluginBar
 
 
 
@@ -833,6 +834,14 @@ class DownloadManagerWindow(QMainWindow):
         self.current_theme = config.current_theme
         self.ui.setupUi(self)
 
+        # ── Plugin Bar Manager ───────────────────────────────────────────────
+        # Initialize the plugin bar to display installed plugins
+        self.plugin_bar_manager = PluginBar(
+            container_layout=self.ui.plugins_container,
+            no_plugins_label=self.ui.no_plugins_label,
+            main_window=self
+        )
+
         # ── UI State & Sub-Windows ───────────────────────────────────────────
         # Instantiate secondary windows and initialize their default states.
         self.setAttribute(Qt.WA_DeleteOnClose, False)
@@ -930,7 +939,16 @@ class DownloadManagerWindow(QMainWindow):
             main_q=config.main_window_q,
             plugins_dir=str(config.DATA_ROOT / "plugins"),
         )
-        threading.Thread(target=self.plugin_mgr.load_all, daemon=True, name="plugin-loader").start()
+        
+        # Set callback to refresh UI when plugins change
+        self.plugin_mgr.on_plugins_changed = self._on_plugins_changed
+        
+        def _load_plugins_and_refresh():
+            self.plugin_mgr.load_all()
+            config.main_window_q.put(("_refresh_plugin_bar", None))
+
+        threading.Thread(target=_load_plugins_and_refresh, daemon=True, name="plugin-loader").start()
+        
         self.ui_queues.main_window = self
         self.tray_manager = TrayIconManager(self)
 
@@ -987,6 +1005,31 @@ class DownloadManagerWindow(QMainWindow):
         self.old_clipboard_data = ''
         log("Background services (Logging, Browser Monitoring, Clipboard Monitoring) active.", 
             log_level=1, context=self.ctx)
+
+    def _on_plugins_changed(self):
+        """
+        Callback invoked by PluginManager when plugins are loaded or modified.
+        Refreshes the plugin bar UI to reflect the current installed plugins.
+        Ensures UI updates happen on the main thread.
+        """
+        if hasattr(self, 'plugin_bar_manager'):
+            try:
+                # Defer to main thread if called from background thread
+                from PySide6.QtCore import QCoreApplication, QThread
+                app = QCoreApplication.instance()
+                log(f"_on_plugins_changed: current_thread={QThread.currentThread().objectName() if QThread.currentThread() else 'Unknown'}, main_thread={self.thread().objectName() if self.thread() else 'Unknown'}", 
+                    log_level=1, context=self.ctx)
+                if app and app.thread() == QThread.currentThread():
+                    log("_on_plugins_changed: calling refresh from main thread", log_level=1, context=self.ctx)
+                    self.plugin_bar_manager.refresh(self.plugin_mgr)
+                else:
+                    from PySide6.QtCore import QTimer
+                    log("_on_plugins_changed: deferring refresh to main thread", log_level=1, context=self.ctx)
+                    QTimer.singleShot(0, lambda: self.plugin_bar_manager.refresh(self.plugin_mgr))
+            except Exception as e:
+                log(f"Error refreshing plugin bar: {e}", log_level=2, context=self.ctx)
+                import traceback
+                log(traceback.format_exc(), log_level=3, context=self.ctx)
 
     def _connect_signals(self):
         """Maps UI signals to their respective handler functions."""
@@ -1076,33 +1119,12 @@ class DownloadManagerWindow(QMainWindow):
         fix_browser_integration()
         log("Embedded terminal environment ready.", log_level=1, context=self.ctx)
 
-
-
-
-
-
-
-        
-
-
-        
     # ── UI Updates & Status ──────────────────────────────────────────────────
 
     def update_datetime(self):
         """Refreshes the global status bar clock with the current system time."""
         current = QDateTime.currentDateTime()
         widgets.datetime_label.setText(current.toString("yyyy-MM-dd HH:mm:ss"))
-
-    def update_summary(self):
-        """
-        Recalculates daily statistics for the dashboard info card.
-        Aggregates total initiated and successfully finalized downloads for the current day.
-        """
-        try:
-            total_today, completed_today = get_today_download_stats(self.d_list)
-            widgets.lbl_summary.setText(f"{total_today} downloads\n{completed_today} completed")
-        except Exception as e:
-            log(f"Dashboard summary update failed: {e}", log_level=3, context=self.ctx)
 
     def on_sort_changed(self, text):
         """
@@ -1121,7 +1143,7 @@ class DownloadManagerWindow(QMainWindow):
                     except Exception:
                         try: return datetime.strptime(l, "%Y-%m-%d %H:%M:%S")
                         except Exception: return datetime.min
-                self.d_list.sort(key=k, reverse=True)
+                self.d_list.sort(key=k, reverse=False)
             elif key == 'name':
                 self.d_list.sort(key=lambda d: (d.name or '').lower())
             elif key == 'status':
@@ -2166,8 +2188,7 @@ class DownloadManagerWindow(QMainWindow):
         
         widgets.lbl_http_status.setToolTip(self.tr("Last HTTP response status"))
         widgets.lbl_speed.setToolTip(self.tr("Current total download speed"))
-        widgets.lbl_title.setText(self.tr("Today"))
-        widgets.lbl_summary.setText(self.tr("downloads\n completed"))
+        widgets.no_plugins_label.setText(self.tr("No plugins installed. Install via marketplace."))
         widgets.dock.setWindowTitle(self.tr("Categories"))
         widgets.search_label.setText(self.tr("   Search: "))
         if self._grace_expired():
@@ -2350,6 +2371,12 @@ class DownloadManagerWindow(QMainWindow):
                             th.wait(2000)
                     except Exception:
                         pass
+            
+            if hasattr(self, "plugin_mgr"):
+                try:
+                    self.plugin_mgr.shutdown_all()
+                except Exception as e:
+                    log(f"Plugin shutdown error: {e}", log_level=2, context=self.ctx)
 
             # 5. External Process Management (aria2c)
             if config.aria2_verified:
@@ -3126,14 +3153,12 @@ class DownloadManagerWindow(QMainWindow):
                 if item_to_remove:
                     delete_folder(self.d.temp_folder)
                     self.d_list.remove(item_to_remove)
-                    
-                    # # 2. Update the UI table
-                    # self.populate_table() 
-                    
-                    
-                    # 3. Save the clean list
+                    # 2. Save the clean list
                     self.settings_manager.save_d_list(self.d_list)
                     log(f"Cleaned up internal dependency task (ID: {item_id})")
+            elif k == "_refresh_plugin_bar":
+                if hasattr(self, "plugin_bar_manager") and hasattr(self, "plugin_mgr"):
+                    self.plugin_bar_manager.refresh(self.plugin_mgr)
 
     
     def run(self):
@@ -3552,7 +3577,6 @@ class DownloadManagerWindow(QMainWindow):
         try:
             d.last_try_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.settings_manager.save_d_list(self.d_list)
-            self.update_summary()
         except Exception:
             pass
 
@@ -4278,7 +4302,6 @@ class DownloadManagerWindow(QMainWindow):
 
         log(f"Spawning worker for task: {d.name}", log_level=1, context=ctx)
         self.settings_manager.save_d_list(self.d_list)
-        self.update_summary()
         Thread(target=brain, daemon=True, args=(d, downloader)).start()
 
     # ── Interaction & Event Handlers ─────────────────────────────────────────
@@ -5358,7 +5381,6 @@ class DownloadManagerWindow(QMainWindow):
             widgets.table.setItem(row_idx, 9, self._create_readonly_item(last_try))
 
         self.settings_manager.save_d_list(self.d_list)
-        self.update_summary()
 
     def _create_readonly_item(self, text: str) -> QTableWidgetItem:
         """Helper to generate a centered, non-editable table cell."""

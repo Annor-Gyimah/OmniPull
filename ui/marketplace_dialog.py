@@ -16,9 +16,6 @@
 #####################################################################################
 
 import io
-import os
-import sys
-import json
 import time
 import shutil
 import traceback
@@ -73,8 +70,8 @@ from ui.language_manager import LanguageManager
 
 
 # ── Manifest ──────────────────────────────────────────────────────────────────
-# MANIFEST_URL = "https://omnipull.pythonanywhere.com/plugins/manifest.json"
-MANIFEST_URL = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/plugin_server/manifest.json"
+MANIFEST_URL = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/dev/plugin_server/manifest.json"
+# MANIFEST_URL = "http://localhost/lite/plugin_server/manifest.json"
 
 
 
@@ -200,10 +197,21 @@ class PluginInstaller(QThread):
             return
 
         # Flush any previous version (stub or older install) from sys.modules
+        # AFTER
         if pid in mgr._plugins:
             log(f"Unloading previous '{pid}' module before hot-reload.", context="MARKETPLACE")
             mgr.unload(pid)
-            time.sleep(0.5)  # Wait for OS to release any locks on plugin files
+            # Poll for port release (up to 4s) before reimporting
+            import socket as _socket
+            for _ in range(20):
+                time.sleep(0.2)
+                try:
+                    s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+                    s.bind(("0.0.0.0", 7432))
+                    s.close()
+                    break
+                except OSError:
+                    pass
 
         entry = dest / "plugin.py"
         if entry.exists():
@@ -660,6 +668,15 @@ class MarketplaceDialog(QDialog):
             card.set_installed()
         self.status_lbl.setText(f"✓ '{pid}' installed and running.")
         worker = self._workers.pop(pid, None)
+        
+        # Refresh plugin manager to load the new plugin and trigger UI update
+        if PluginManager:
+            try:
+                mgr = PluginManager.instance()
+                mgr.refresh()
+            except Exception as e:
+                log(f"Error refreshing plugins: {e}", log_level=2, context="MARKETPLACE")
+        
         QMessageBox.information(
             self, "Plugin Installed",
             f"'{pid}' is now active.\n\n"
@@ -687,12 +704,22 @@ class MarketplaceDialog(QDialog):
         if reply != QMessageBox.Yes:
             return
 
+        # AFTER
         if PluginManager is not None:
             mgr = PluginManager.instance()
             if getattr(mgr, "_initialized", False):
                 mgr.unload(pid)
-                # Wait for socket to be released by OS
-                time.sleep(1.0)
+                # Wait for OS to release the socket; poll instead of flat sleep
+                import socket as _socket
+                for _ in range(20):          # up to 4 seconds
+                    time.sleep(0.2)
+                    try:
+                        s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+                        s.bind(("0.0.0.0", 7432))
+                        s.close()
+                        break                # port is free
+                    except OSError:
+                        pass                # still in TIME_WAIT, keep waiting
 
         plugin_dir = self.plugins_dir / pid
         if plugin_dir.exists():
@@ -706,6 +733,15 @@ class MarketplaceDialog(QDialog):
         if card:
             card._installed = False
             card._refresh_button_state()
+        
+        # Refresh plugin manager to remove the plugin from the bar
+        if PluginManager:
+            try:
+                mgr = PluginManager.instance()
+                mgr.refresh()
+            except Exception as e:
+                log(f"Error refreshing plugins: {e}", log_level=2, context="MARKETPLACE")
+        
         self.status_lbl.setText(f"'{pid}' uninstalled.")
 
     # ── Style ─────────────────────────────────────────────────────────────────

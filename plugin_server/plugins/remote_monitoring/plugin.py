@@ -1,34 +1,52 @@
-#####################################################################################
-#   Remote Monitoring Plugin for OmniPull
+#######################################################################################
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-#   Starts a FastAPI HTTP server in a background daemon thread and serves:
-#     GET /          → responsive Tailwind CSS dashboard (index.html)
-#     GET /api/stats → live JSON snapshot of d_list
-#     GET /api/ws    → Server-Sent Events stream for real-time push updates
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-#   Entry-point (called by PluginManager):
-#       initialize_plugin(d_list, main_q)
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#   © 2024 Emmanuel Gyimah Annor. All rights reserved.
 #####################################################################################
+
+
 
 __plugin_meta__ = {
     "name": "Remote Monitoring",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "author": "OmniPull Team",
     "description": (
         "FastAPI server that exposes real-time download progress over HTTP. "
         "View from any device on the same network via a polished dashboard."
     ),
+    "icon": "📡",
 }
 
 import asyncio
 import json
+import qrcode
+import socket
 import threading
-import time
-import os
+from io import BytesIO
 from datetime import datetime
 from pathlib import Path
 from queue import Queue
 from typing import List, Dict, Any
+
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QPixmap, QDesktopServices
+from PySide6.QtWidgets import (
+    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+    QFrame, QGridLayout
+)
+
+
 
 # ── Optional dependency guards ────────────────────────────────────────────────
 try:
@@ -50,7 +68,10 @@ except ImportError:
 # ── Module-level state (shared across threads) ────────────────────────────────
 _d_list: list = []
 _main_q: Queue = None
-_server_thread: threading.Thread = None
+_server_thread: threading.Thread = None  # the ONE server thread
+_server_ref = [None]                      # uvicorn.Server instance
+_loop_ref   = [None]                      # the ONE asyncio event loop
+
 _HOST = "0.0.0.0"
 _PORT = 7432
 
@@ -59,14 +80,14 @@ _PORT = 7432
 def initialize_plugin(d_list: list, main_q: Queue) -> None:
     global _d_list, _main_q, _server_thread
 
-    _d_list = d_list
-    _main_q = main_q
+    _d_list  = d_list
+    _main_q  = main_q
 
     if not _HAS_FASTAPI:
         log(
             "Remote Monitoring plugin requires 'fastapi' and 'uvicorn'.\n"
             "  pip install fastapi uvicorn",
-            log_level=2, context="REMOTE-MON"
+            log_level=2, context="REMOTE-MON",
         )
         return
 
@@ -76,17 +97,237 @@ def initialize_plugin(d_list: list, main_q: Queue) -> None:
 
     _server_thread = threading.Thread(
         target=_run_server,
-        daemon=True,
-        name="remote-mon-server"
+        daemon=True,          # daemon=True so it never blocks process exit
+        name="remote-mon-server",
     )
     _server_thread.start()
-    log(f"Remote Monitoring dashboard → http://localhost:{_PORT}",
-        context="REMOTE-MON")
+    log(f"Remote Monitoring dashboard → http://localhost:{_PORT}", context="REMOTE-MON")
 
 
 def teardown_plugin() -> None:
-    """Called by PluginManager.unload() – nothing to do for daemon threads."""
+    """Called by PluginManager.unload() – stop uvicorn then wait for thread."""
+    global _server_thread
+
     log("Remote Monitoring plugin teardown requested.", context="REMOTE-MON")
+
+    server = _server_ref[0]
+    loop   = _loop_ref[0]
+
+    # Step 1: tell uvicorn to exit via its own flag (thread-safe, no coroutine needed)
+    if server is not None:
+        server.should_exit = True
+
+    # Step 2: if the loop is still alive poke it so it wakes up and sees the flag
+    if loop is not None and not loop.is_closed():
+        try:
+            loop.call_soon_threadsafe(lambda: None)  # no-op wakeup
+        except Exception:
+            pass
+
+    # Step 3: wait for the server thread (it owns the loop)
+    if _server_thread and _server_thread.is_alive():
+        _server_thread.join(timeout=6)
+        if _server_thread.is_alive():
+            log("Server thread still alive after 6 s — continuing anyway.",
+                log_level=2, context="REMOTE-MON")
+
+    # Step 4: close the loop from THIS thread now that the server thread is done
+    if loop is not None and not loop.is_closed():
+        try:
+            # Cancel any lingering tasks
+            pending = asyncio.all_tasks(loop)
+            for t in pending:
+                t.cancel()
+            if pending:
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            loop.close()
+            log("Event loop closed.", context="REMOTE-MON")
+        except Exception as e:
+            log(f"Loop close error (non-fatal): {e}", log_level=1, context="REMOTE-MON")
+
+    _loop_ref[0]   = None
+    _server_ref[0] = None
+    log("Teardown complete.", context="REMOTE-MON")
+
+
+def get_local_ip():
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  try:
+      s.connect(("8.8.8.8", 80))
+      return s.getsockname()[0]
+  except Exception:
+      return "127.0.0.1"
+  finally:
+      s.close()
+
+def make_qr_pixmap(url):
+  qr = qrcode.QRCode(border=2)
+  qr.add_data(url)
+  qr.make(fit=True)
+
+  img = qr.make_image(fill_color="black", back_color="white")
+
+  if hasattr(img, "get_image"):
+      img = img.get_image()
+
+  buffer = BytesIO()
+  img.save(buffer, format="PNG")
+
+  pixmap = QPixmap()
+  pixmap.loadFromData(buffer.getvalue(), "PNG")
+  return pixmap
+
+def open_ui(parent=None) -> None:
+    """
+    Show the Remote Monitoring control dashboard (Qt window).
+    Called when the user clicks the plugin icon in the sidebar.
+    """
+    try:
+      server  = _server_ref[0]
+      running = _server_thread is not None and _server_thread.is_alive() and server is not None
+
+      local_ip = get_local_ip()
+      external_url = f"http://{local_ip}:{_PORT}"
+
+      dlg = QDialog(parent)
+      dlg.setWindowTitle("Remote Monitoring — Control Panel")
+      dlg.setMinimumWidth(480)
+      dlg.setModal(False)
+
+      root = QVBoxLayout(dlg)
+      root.setSpacing(16)
+      root.setContentsMargins(20, 20, 20, 20)
+
+      # ── Header ────────────────────────────────────────────────────────────
+      hdr = QHBoxLayout()
+      icon_lbl = QLabel("📡")
+      icon_lbl.setStyleSheet("font-size: 32px;")
+      title_col = QVBoxLayout()
+      title_col.setSpacing(2)
+      name_lbl = QLabel("Remote Monitoring")
+      name_lbl.setStyleSheet("font-size: 16px; font-weight: bold;")
+      sub_lbl  = QLabel("v1.0.2  ·  OmniPull Team")
+      sub_lbl.setStyleSheet("font-size: 11px; color: #888;")
+      title_col.addWidget(name_lbl)
+      title_col.addWidget(sub_lbl)
+      hdr.addWidget(icon_lbl)
+      hdr.addSpacing(10)
+      hdr.addLayout(title_col, 1)
+      root.addLayout(hdr)
+
+      # ── Divider ───────────────────────────────────────────────────────────
+      line = QFrame()
+      line.setFrameShape(QFrame.HLine)
+      line.setFrameShadow(QFrame.Sunken)
+      root.addWidget(line)
+
+      # ── Status card ───────────────────────────────────────────────────────
+      status_frame = QFrame()
+      status_frame.setFrameShape(QFrame.StyledPanel)
+      status_layout = QGridLayout(status_frame)
+      status_layout.setContentsMargins(14, 12, 14, 12)
+      status_layout.setHorizontalSpacing(16)
+      status_layout.setVerticalSpacing(8)
+
+      def _row(label, value_widget, row):
+          lbl = QLabel(label)
+          lbl.setStyleSheet("font-weight: bold; color: #aaa; font-size: 11px;")
+          status_layout.addWidget(lbl, row, 0)
+          status_layout.addWidget(value_widget, row, 1)
+
+      # Status indicator
+      dot_color = "#4CAF50" if running else "#f44336"
+      dot_text  = "● Running" if running else "● Stopped"
+      status_val = QLabel(dot_text)
+      status_val.setStyleSheet(f"color: {dot_color}; font-weight: bold;")
+      _row("STATUS", status_val, 0)
+
+      # Address
+      # url_val = QLabel(f"http://localhost:{_PORT}" if running else "—")
+      url_val = QLabel(external_url if running else "—")
+      url_val.setStyleSheet("font-family: monospace;")
+      _row("ADDRESS", url_val, 1)
+
+      # Active downloads
+      active_count = sum(
+          1 for d in _d_list
+          if str(getattr(d, "status", "")).lower() == "downloading"
+      )
+      active_val = QLabel(f"{active_count} active  /  {len(_d_list)} total")
+      _row("DOWNLOADS", active_val, 2)
+
+      # Description
+      desc_val = QLabel(
+          "Exposes real-time download progress over HTTP.\n"
+          "Access the dashboard from any device on the same network."
+      )
+      desc_val.setWordWrap(True)
+      desc_val.setStyleSheet("color: #aaa; font-size: 11px;")
+      _row("ABOUT", desc_val, 3)
+
+      root.addWidget(status_frame)
+
+      if running:
+        qr_container = QVBoxLayout()
+
+        qr_label = QLabel()
+        qr_label.setAlignment(Qt.AlignCenter)
+        qr_label.setPixmap(
+            make_qr_pixmap(external_url).scaled(
+                180, 180,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+        )
+
+        qr_text = QLabel("Scan with your phone")
+        qr_text.setAlignment(Qt.AlignCenter)
+        qr_text.setStyleSheet("color: #888; font-size: 11px;")
+
+        qr_container.addWidget(qr_label)
+        qr_container.addWidget(qr_text)
+
+        root.addLayout(qr_container)
+
+      # ── Actions ───────────────────────────────────────────────────────────
+      btn_row = QHBoxLayout()
+
+      open_btn = QPushButton("🌐  Open Dashboard")
+      open_btn.setEnabled(running)
+      open_btn.setToolTip(f"Open http://localhost:{_PORT} in your browser")
+      open_btn.clicked.connect(
+          lambda: QDesktopServices.openUrl(QUrl(f"http://localhost:{_PORT}"))
+      )
+
+      copy_btn = QPushButton("📋  Copy URL")
+      copy_btn.setEnabled(running)
+      copy_btn.setToolTip("Copy dashboard URL to clipboard")
+      def _copy():
+          from PySide6.QtWidgets import QApplication
+          QApplication.clipboard().setText(f"http://localhost:{_PORT}")
+      copy_btn.clicked.connect(_copy)
+
+      close_btn = QPushButton("Close")
+      close_btn.clicked.connect(dlg.accept)
+
+      btn_row.addWidget(open_btn)
+      btn_row.addWidget(copy_btn)
+      btn_row.addStretch()
+      btn_row.addWidget(close_btn)
+      root.addLayout(btn_row)
+
+      dlg.exec()
+
+    except ImportError as e:
+        log(f"Missing dependency for control panel: {e}", log_level=2, context="REMOTE-MON")
+        import webbrowser
+        webbrowser.open(f"http://localhost:{_PORT}")
+    except Exception as e:
+        log(f"Control panel error: {e}", log_level=2, context="REMOTE-MON")
+        import traceback
+        log(traceback.format_exc(), log_level=2, context="REMOTE-MON")
+        import webbrowser
+        webbrowser.open(f"http://localhost:{_PORT}")
 
 
 # ── Data helpers ──────────────────────────────────────────────────────────────
@@ -183,16 +424,39 @@ def _build_app() -> "FastAPI":
     return app
 
 
+# REPLACE the entire _run_server function (lines 271–298)
+
 def _run_server():
+    
+    """Runs in its own thread. Owns the asyncio event loop for its lifetime."""
+    global _server_ref, _loop_ref
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    app = _build_app()
-    config = uvicorn.Config(
-        app, host=_HOST, port=_PORT,
-        log_level="warning", loop="asyncio"
-    )
-    server = uvicorn.Server(config)
-    loop.run_until_complete(server.serve())
+    _loop_ref[0] = loop
+
+    try:
+        app    = _build_app()
+        config = uvicorn.Config(
+            app,
+            host=_HOST,
+            port=_PORT,
+            log_level="warning",
+            loop="none",     # we supply our own loop
+            lifespan="off",
+        )
+        server = uvicorn.Server(config)
+        _server_ref[0] = server
+        loop.run_until_complete(server.serve())
+    except asyncio.CancelledError:
+        pass   # normal shutdown path — not an error
+    except Exception as e:
+        log(f"Server error: {e}", log_level=2, context="REMOTE-MON")
+    finally:
+        _server_ref[0] = None
+        _loop_ref[0]   = None
+        if not loop.is_closed():
+            loop.close()
 
 
 # ── Dashboard HTML ─────────────────────────────────────────────────────────────
