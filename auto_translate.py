@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 BASE_PATH = os.getenv(
     "OMNIPULL_TRANSLATIONS_PATH",
-    os.path.join(BASE_DIR, "modules", "translations")
+    os.path.join(BASE_DIR, "translations")
 )
 
 os.makedirs(BASE_PATH, exist_ok=True)

@@ -45,111 +45,111 @@ from PySide6.QtCore import QCoreApplication
 from modules.utils import log, download, run_command, delete_folder, popup, _normalize_version_str
 
 
-# def get_changelog() -> Tuple[str | None, str | None]:
-#     """
-#     Returns (latest_version, contents) or (None, None) on failure.
-#     Tries GitHub first, then falls back to local ChangeLog.txt.
-#     """
-#     try:
-#         r = httpx.get(
-#             "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
-#             headers={
-#                 "Accept": "application/vnd.github+json",
-#                 "User-Agent": f"{config.APP_NAME}-Updater"
-#             },
-#             follow_redirects=True, timeout=30.0
-#         )
-#         r.raise_for_status()
-#         data = r.json()
+def get_changelog() -> Tuple[str | None, str | None]:
+    """
+    Returns (latest_version, contents) or (None, None) on failure.
+    Tries GitHub first, then falls back to local ChangeLog.txt.
+    """
+    try:
+        r = httpx.get(
+            "https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": f"{config.APP_NAME}-Updater"
+            },
+            follow_redirects=True, timeout=30.0
+        )
+        r.raise_for_status()
+        data = r.json()
 
-#         raw_tag = (data.get("tag_name") or "").strip()
-#         latest = _normalize_version_str(raw_tag)  # reuse helper above
+        raw_tag = (data.get("tag_name") or "").strip()
+        latest = _normalize_version_str(raw_tag)  # reuse helper above
 
-#         # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
-#         assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
-#         # changelog_url = (
-#         #     assets.get("ChangeLog.txt") or
-#         #     "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
-#         # )
-#         changelog_url = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
+        # Prefer a versioned ChangeLog from release assets if available; otherwise fallback
+        assets = {a.get("name"): a.get("browser_download_url") for a in data.get("assets", []) if a}
+        # changelog_url = (
+        #     assets.get("ChangeLog.txt") or
+        #     "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/Windows/ChangeLog.txt"
+        # )
+        changelog_url = "https://raw.githubusercontent.com/Annor-Gyimah/OmniPull/refs/heads/master/ChangeLog.txt"
 
-#         # Fetch changelog text (best-effort)
-#         text = None
-#         try:
-#             c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
-#                 follow_redirects=True, timeout=30.0)
-#             if c.status_code == 200:
-#                 text = c.text
-#             else:
-#                 log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
-#         except httpx.RequestError as e:
-#             log(f"Changelog fetch error: {e}", log_level=2)
+        # Fetch changelog text (best-effort)
+        text = None
+        try:
+            c = httpx.get(changelog_url, headers={"User-Agent": f"{config.APP_NAME}-Updater"},
+                follow_redirects=True, timeout=30.0)
+            if c.status_code == 200:
+                text = c.text
+            else:
+                log(f"Changelog HTTP {c.status_code} at {changelog_url}", log_level=2)
+        except httpx.RequestError as e:
+            log(f"Changelog fetch error: {e}", log_level=2)
 
-#         # Fallback to local ChangeLog.txt if remote fetch failed
-#         if not text:
-#             try:
-#                 local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-#                 if local_changelog_path.exists():
-#                     text = local_changelog_path.read_text(encoding="utf-8")
-#                     log(f"Using local changelog from {local_changelog_path}", log_level=1)
-#             except Exception as e:
-#                 log(f"Failed to read local changelog: {e}", log_level=2)
+        # Fallback to local ChangeLog.txt if remote fetch failed
+        if not text:
+            try:
+                local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+                if local_changelog_path.exists():
+                    text = local_changelog_path.read_text(encoding="utf-8")
+                    log(f"Using local changelog from {local_changelog_path}", log_level=1)
+            except Exception as e:
+                log(f"Failed to read local changelog: {e}", log_level=2)
 
-#         if not latest:
-#             log("Unable to parse latest version from GitHub response.", log_level=2)
+        if not latest:
+            log("Unable to parse latest version from GitHub response.", log_level=2)
 
-#         return latest, text
+        return latest, text
 
-#     except httpx.HTTPStatusError as e:
-#         log(f"GitHub API error: {e}", log_level=3)
-#         # Try local changelog as fallback
-#         try:
-#             local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-#             if local_changelog_path.exists():
-#                 text = local_changelog_path.read_text(encoding="utf-8")
-#                 log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
-#                 return config.APP_VERSION, text
-#         except Exception as local_e:
-#             log(f"Failed to read local changelog: {local_e}", log_level=2)
-#         return config.APP_VERSION, None
-#     except httpx.RequestError as e:
-#         log(f"Network error while checking release: {e}", log_level=3)
-#         # Try local changelog as fallback
-#         try:
-#             local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
-#             if local_changelog_path.exists():
-#                 text = local_changelog_path.read_text(encoding="utf-8")
-#                 log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
-#                 return config.APP_VERSION, text
-#         except Exception as local_e:
-#             log(f"Failed to read local changelog: {local_e}", log_level=2)
-#         return config.APP_VERSION, None
-#     except Exception as e:
-#         log(f"Unexpected error in get_changelog: {e}", log_level=3)
-#         return config.APP_VERSION, None
+    except httpx.HTTPStatusError as e:
+        log(f"GitHub API error: {e}", log_level=3)
+        # Try local changelog as fallback
+        try:
+            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+            if local_changelog_path.exists():
+                text = local_changelog_path.read_text(encoding="utf-8")
+                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+                return config.APP_VERSION, text
+        except Exception as local_e:
+            log(f"Failed to read local changelog: {local_e}", log_level=2)
+        return config.APP_VERSION, None
+    except httpx.RequestError as e:
+        log(f"Network error while checking release: {e}", log_level=3)
+        # Try local changelog as fallback
+        try:
+            local_changelog_path = Path(__file__).parent.parent / "ChangeLog.txt"
+            if local_changelog_path.exists():
+                text = local_changelog_path.read_text(encoding="utf-8")
+                log(f"Using local changelog as fallback from {local_changelog_path}", log_level=1)
+                return config.APP_VERSION, text
+        except Exception as local_e:
+            log(f"Failed to read local changelog: {local_e}", log_level=2)
+        return config.APP_VERSION, None
+    except Exception as e:
+        log(f"Unexpected error in get_changelog: {e}", log_level=3)
+        return config.APP_VERSION, None
 
 
 ############## For testing purposes ##########################################
-def get_changelog():
+# def get_changelog():
 
-    source_code_url = "http://localhost/lite/ChangeLog.txt"
-    new_release_url = "http://localhost/lite/ChangeLog.txt"
+#     source_code_url = "http://localhost/lite/ChangeLog.txt"
+#     new_release_url = "http://localhost/lite/ChangeLog.txt"
 
-    url = new_release_url if config.FROZEN else source_code_url
+#     url = new_release_url if config.FROZEN else source_code_url
 
-    buffer = download(url)
+#     buffer = download(url)
 
-    if buffer:
-        contents = buffer.getvalue().decode()
+#     if buffer:
+#         contents = buffer.getvalue().decode()
 
-        latest_version = contents.splitlines()[0].replace(':', '').strip()
+#         latest_version = contents.splitlines()[0].replace(':', '').strip()
 
-        config.APP_LATEST_VERSION = latest_version
+#         config.APP_LATEST_VERSION = latest_version
 
-        return latest_version, contents
+#         return latest_version, contents
 
-    else:
-        return None
+#     else:
+#         return None
 
 ################## For testing purposes ###############################################
 
@@ -502,18 +502,18 @@ def windows_update():
     Initiates OmniPull core update using the download engine (Windows).
     Downloads the update package and queues extraction/updater logic via callback.
     """
-    main_zip_url = "http://localhost/lite/main.zip"
-    temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-
-    # rel = get_app_latest_release()
-    # tag = rel["tag_name"].lstrip(".")
-    # assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
-
-    # main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
-
+    # main_zip_url = "http://localhost/lite/main.zip"
     # temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-    # download_zip = temp_dir / "main.zip"
-    # update_bat = Path.home() / "update.bat"
+
+    rel = get_app_latest_release()
+    tag = rel["tag_name"].lstrip(".")
+    assets = {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])}
+
+    main_zip_url = assets.get("main.zip") or f"https://github.com/Annor-Gyimah/OmniPull/releases/download/{tag}/main.zip"
+
+    temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
+    download_zip = temp_dir / "main.zip"
+    update_bat = Path.home() / "update.bat"
 
     try:
         popup(

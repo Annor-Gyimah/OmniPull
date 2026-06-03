@@ -39,13 +39,6 @@ from pathlib import Path
 from queue import Queue
 from typing import List, Dict, Any
 
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QPixmap, QDesktopServices
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QFrame, QGridLayout
-)
-
 
 
 # ── Optional dependency guards ────────────────────────────────────────────────
@@ -161,6 +154,8 @@ def get_local_ip():
       s.close()
 
 def make_qr_pixmap(url):
+  from PySide6.QtGui import QPixmap
+  
   qr = qrcode.QRCode(border=2)
   qr.add_data(url)
   qr.make(fit=True)
@@ -183,6 +178,13 @@ def open_ui(parent=None) -> None:
     Called when the user clicks the plugin icon in the sidebar.
     """
     try:
+      from PySide6.QtCore import Qt, QUrl
+      from PySide6.QtGui import QDesktopServices
+      from PySide6.QtWidgets import (
+          QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+          QFrame, QGridLayout, QApplication
+      )
+      
       server  = _server_ref[0]
       running = _server_thread is not None and _server_thread.is_alive() and server is not None
 
@@ -442,7 +444,8 @@ def _run_server():
             host=_HOST,
             port=_PORT,
             log_level="warning",
-            loop="none",     # we supply our own loop
+            log_config=None,  # Disable uvicorn's logging config (fixes frozen app issues)
+            loop="none",      # we supply our own loop
             lifespan="off",
         )
         server = uvicorn.Server(config)
