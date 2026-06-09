@@ -677,11 +677,28 @@ class MarketplaceDialog(QDialog):
             except Exception as e:
                 log(f"Error refreshing plugins: {e}", log_level=2, context="MARKETPLACE")
         
-        QMessageBox.information(
-            self, "Plugin Installed",
-            f"'{pid}' is now active.\n\n"
-            "Remote Monitoring: open  http://localhost:7432  in your browser.",
-        )
+        # Build plugin-specific success message
+        plugin_meta = next((p for p in self._manifest if p.get("id") == pid), None)
+        title = self.tr("Plugin Installed")
+        
+        if plugin_meta:
+            plugin_name = plugin_meta.get("name", pid)
+            plugin_url = plugin_meta.get("plugin_url")
+            description = plugin_meta.get("description", "")
+
+            msg = f"✓ {plugin_name} is now active and loaded.\n\n"
+            
+            if plugin_url:
+                msg += f"Access: {plugin_url}\n"
+            
+            msg += f"\n{description}"
+
+            msg += f"\n\nPlease Restart your OmniPull to ensure all features of the plugin are available."
+        else:
+            msg = f"✓ '{pid}' is now active and loaded. Please Restart your OmniPull to use the plugin."
+        
+        QMessageBox.information(self, title, msg)
+        
         if worker and worker.isRunning():
             worker.wait(500)  # Wait for thread to fully exit
             

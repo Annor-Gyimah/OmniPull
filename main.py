@@ -834,6 +834,8 @@ class DownloadManagerWindow(QMainWindow):
         self.current_theme = config.current_theme
         self.ui.setupUi(self)
 
+       
+
         # ── Plugin Bar Manager ───────────────────────────────────────────────
         # Initialize the plugin bar to display installed plugins
         self.plugin_bar_manager = PluginBar(
@@ -1099,7 +1101,17 @@ class DownloadManagerWindow(QMainWindow):
 
         widgets.lbl_version.setText(f"App Version: {config.APP_VERSION}")
 
-        self._show_update_banner()
+        
+        def _maybe_restore_banner():
+            dismissed_ts = getattr(config, 'update_dismissed_timestamp', None)
+            latest = getattr(config, 'APP_LATEST_VERSION', None)
+            current = config.APP_VERSION
+            if not dismissed_ts or not latest:
+                return
+            if compare_versions(current, latest) not in (None, current):
+                self._show_update_banner()
+
+        QTimer.singleShot(0, _maybe_restore_banner)
         
         log("Signal-slot connections established.", log_level=2, context=self.ctx)
 
@@ -6592,22 +6604,30 @@ class DownloadManagerWindow(QMainWindow):
                 self.new_version_available = False
                 log(f"Version check: App is up-to-date (Server: {latest_version})",
                     log_level=1, context=ctx)
+                # Clear dismissal state — user is on the latest version (they updated)
+                config.update_dismissed_timestamp = None
+                config.APP_LATEST_VERSION = latest_version
+                # Hide banner on the main thread
+                QTimer.singleShot(0, lambda: widgets.update_banner.setVisible(False))
             else:
                 log(f"Update detected: {current_version} -> {latest_version}",
                     log_level=1, context=ctx)
                 self.new_version_available = True
                 config.APP_LATEST_VERSION = latest_version
                 self.new_version_description = version_description
-                # Show banner instead of triggering update immediately
-                QTimer.singleShot(0, lambda: self._show_update_banner())
+                config.update_dismissed_timestamp = datetime.fromisoformat(datetime.now().isoformat()).isoformat() # Reset dismissal timestamp for new version
+                self.settings_manager.save_settings()
+                # Show banner on the main thread
+                QTimer.singleShot(0, self._show_update_banner)
 
-            config.APP_LATEST_VERSION = latest_version if latest_version else current_version
             self.new_version_description = version_description
         else:
             log("Update check failed: Remote server unreachable or invalid response.",
                 log_level=2, context=ctx)
             self.new_version_description = None
             self.new_version_available = False
+            # Do not touch the banner on failure — don't hide it if grace period is active
+            # and don't show it if there was no prior pending update.
 
         self.settings_manager.save_settings()
         change_cursor('normal')
@@ -6621,7 +6641,7 @@ class DownloadManagerWindow(QMainWindow):
                 from datetime import datetime
                 dismissed_dt = datetime.fromisoformat(dismissed_ts)
                 days_elapsed = (datetime.now() - dismissed_dt).days
-                grace_expired = days_elapsed >= 1
+                grace_expired = days_elapsed >= 7
             except Exception:
                 grace_expired = False
 
@@ -6633,8 +6653,6 @@ class DownloadManagerWindow(QMainWindow):
         Displays the update notification banner above the downloads table.
         Switches to aggressive messaging after the 7-day grace period expires.
         """
-        
-
         banner = widgets.update_banner
         self.msg_label = widgets.banner_message
         icon_label = widgets.banner_icon
@@ -6915,7 +6933,7 @@ def load_initial_translator(app):
     }
     
     translator = QTranslator(app)
-    path = os.path.join(os.path.dirname(__file__), "modules", "translations", file_map.get(lang, "app_en.qm"))
+    path = os.path.join(os.path.dirname(__file__), "translations", file_map.get(lang, "app_en.qm"))
     
     if translator.load(path):
         app.installTranslator(translator)
@@ -6997,4 +7015,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -478,779 +478,779 @@
 <context>
     <name>DownloadManagerWindow</name>
     <message>
-        <location filename="../main.py" line="1291" />
+        <location filename="../main.py" line="1303" />
         <source>No completed downloads</source>
         <translation>Sin descargas completadas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>Queue</source>
         <translation>Cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>has started automatically</source>
         <translation>ha comenzado automáticamente</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1970" />
+        <location filename="../main.py" line="1982" />
         <source>Queue Scheduler</source>
         <translation>Programador de Cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2155" />
+        <location filename="../main.py" line="2167" />
         <source>Add</source>
         <translation>Agregar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2157" />
+        <location filename="../main.py" line="2169" />
         <source>Pause</source>
         <translation>Pausar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2161" />
+        <location filename="../main.py" line="2173" />
         <source>Refresh</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2186" />
+        <location filename="../main.py" line="2198" />
         <source>Clear</source>
         <translation>Claro</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2193" />
+        <location filename="../main.py" line="2205" />
         <source>   Search: </source>
         <translation>Buscar:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2684" />
+        <location filename="../main.py" line="2696" />
         <source>"Deno" is required to solve JavaScript challenges for YouTube.
 Install from the official docs or add the deno executable to PATH.</source>
         <translation>"Deno" es obligatorio para resolver desafíos de JavaScript para YouTube.
 Instale desde los documentos oficiales o agregue el ejecutable deno a PATH.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1775" />
-        <location filename="../main.py" line="1816" />
-        <location filename="../main.py" line="1908" />
-        <location filename="../main.py" line="1910" />
-        <location filename="../main.py" line="1924" />
-        <location filename="../main.py" line="2787" />
-        <location filename="../main.py" line="4657" />
+        <location filename="../main.py" line="1787" />
+        <location filename="../main.py" line="1828" />
+        <location filename="../main.py" line="1920" />
+        <location filename="../main.py" line="1922" />
+        <location filename="../main.py" line="1936" />
+        <location filename="../main.py" line="2799" />
+        <location filename="../main.py" line="4669" />
         <source>Start Download</source>
         <translation>Comenzar Descarga</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3363" />
+        <location filename="../main.py" line="3375" />
         <source>Recommended:</source>
         <translation>Recomendado:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3364" />
+        <location filename="../main.py" line="3376" />
         <source>Local folder:</source>
         <translation>Carpeta local:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3380" />
-        <location filename="../main.py" line="5090" />
+        <location filename="../main.py" line="3392" />
+        <location filename="../main.py" line="5102" />
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2804" />
-        <location filename="../main.py" line="3381" />
-        <location filename="../main.py" line="3760" />
-        <location filename="../main.py" line="4165" />
-        <location filename="../main.py" line="4519" />
-        <location filename="../main.py" line="5089" />
-        <location filename="../main.py" line="6864" />
+        <location filename="../main.py" line="2816" />
+        <location filename="../main.py" line="3393" />
+        <location filename="../main.py" line="3772" />
+        <location filename="../main.py" line="4177" />
+        <location filename="../main.py" line="4531" />
+        <location filename="../main.py" line="5101" />
+        <location filename="../main.py" line="6882" />
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
+        <location filename="../main.py" line="3519" />
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3519" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>No download item selected</source>
         <translation>Ningún elemento de descarga seleccionado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2125" />
-        <location filename="../main.py" line="2158" />
-        <location filename="../main.py" line="3819" />
+        <location filename="../main.py" line="2137" />
+        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="3831" />
         <source>Stop All</source>
         <translation>Detener Todo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2118" />
+        <location filename="../main.py" line="2130" />
         <source>Add new download</source>
         <translation>Agregar nueva descarga</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3820" />
+        <location filename="../main.py" line="3832" />
         <source>There are no active downloads to stop.</source>
         <translation>No hay descargas activas para detener.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3827" />
+        <location filename="../main.py" line="3839" />
         <source>Stop All Downloads?</source>
         <translation>¿Detener todas las descargas?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3870" />
+        <location filename="../main.py" line="3882" />
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4010" />
+        <location filename="../main.py" line="4022" />
         <source>No Downloads to Schedule</source>
         <translation>Sin descargas para programar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4029" />
+        <location filename="../main.py" line="4041" />
         <source>Schedule Error</source>
         <translation>Error de programación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4215" />
+        <location filename="../main.py" line="4227" />
         <source>Folder Error</source>
         <translation>Error de carpeta</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
-        <location filename="../main.py" line="4666" />
+        <location filename="../main.py" line="4232" />
+        <location filename="../main.py" line="4678" />
         <source>Download Error</source>
         <translation>Error de descarga</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4160" />
+        <location filename="../main.py" line="4172" />
         <source>File Already Exists</source>
         <translation>El archivo ya existe</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2156" />
-        <location filename="../main.py" line="4163" />
+        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="4175" />
         <source>Resume</source>
         <translation>Reanudar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2805" />
+        <location filename="../main.py" line="2817" />
         <source>Cancel URL processing</source>
         <translation>Cancelar procesamiento de URL</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>Empty Playlist</source>
         <translation>Lista de reproducción vacía</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>The playlist appears to be empty or restricted.</source>
         <translation>La lista de reproducción parece estar vacía o restringida.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1172" />
-        <location filename="../main.py" line="2975" />
+        <location filename="../main.py" line="1184" />
+        <location filename="../main.py" line="2987" />
         <source>Start Playlist</source>
         <translation>Iniciar lista de reproducción</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3039" />
+        <location filename="../main.py" line="3051" />
         <source>Network Error: Connectivity lost or blocked by firewall.</source>
         <translation>Error de red: Conectividad perdida o bloqueada por el firewall.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3041" />
+        <location filename="../main.py" line="3053" />
         <source>YouTube API Error: The server rejected the metadata request.</source>
         <translation>Error de API de YouTube: el servidor rechazó la solicitud de metadatos.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3043" />
+        <location filename="../main.py" line="3055" />
         <source>Media Unavailable: Removed, private, or geo-blocked.</source>
         <translation>Medios no disponibles: eliminados, privados o bloqueados geográficamente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3045" />
+        <location filename="../main.py" line="3057" />
         <source>An unexpected error occurred during URL processing.</source>
         <translation>Se produjo un error inesperado durante el procesamiento de la URL.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3047" />
+        <location filename="../main.py" line="3059" />
         <source>Extraction Failed</source>
         <translation>Error de extracción</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>Action Required</source>
         <translation>Acción requerida</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3686" />
-        <location filename="../main.py" line="3746" />
+        <location filename="../main.py" line="3698" />
+        <location filename="../main.py" line="3758" />
         <source>Active Tasks</source>
         <translation>Tareas activas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3687" />
+        <location filename="../main.py" line="3699" />
         <source>Cannot delete items while downloads are active. Please stop all tasks first.</source>
         <translation>No se pueden eliminar elementos mientras las descargas están activas. Primero detenga todas las tareas.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3696" />
+        <location filename="../main.py" line="3708" />
         <source>Are you sure you want to delete the selected items and their associated temporary files?</source>
         <translation>¿Está seguro de que desea eliminar los elementos seleccionados y sus archivos temporales asociados?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3695" />
+        <location filename="../main.py" line="3707" />
         <source>Confirm Deletion</source>
         <translation>Confirmar eliminación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3747" />
+        <location filename="../main.py" line="3759" />
         <source>Global wipe blocked. Stop active downloads before proceeding.</source>
         <translation>Borrado global bloqueado. Detenga las descargas activas antes de continuar.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3754" />
+        <location filename="../main.py" line="3766" />
         <source>This will delete ALL items and their progress files.
 Type 'delete' to confirm.</source>
         <translation>Esto eliminará TODOS los elementos y sus archivos de progreso.
 Escriba "eliminar" para confirmar.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3752" />
+        <location filename="../main.py" line="3764" />
         <source>Global Wipe</source>
         <translation>Limpieza global</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3871" />
+        <location filename="../main.py" line="3883" />
         <source>All active downloads have been successfully cancelled.</source>
         <translation>Todas las descargas activas se han cancelado correctamente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3985" />
+        <location filename="../main.py" line="3997" />
         <source>Scheduled Retry</source>
         <translation>Reintento programado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3986" />
+        <location filename="../main.py" line="3998" />
         <source>Task '{d.name}' failed. Retrying at {d.sched[1]} [Attempt {d.schedule_retries}]</source>
         <translation>La tarea '{d.name}' falló. Reintentando en {d.sched[1]} [Intento {d.schedule_retries}]</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4011" />
+        <location filename="../main.py" line="4023" />
         <source>There are no valid 'Pending' or 'Cancelled' tasks available for scheduling.</source>
         <translation>No hay tareas válidas 'Pendientes' o 'Canceladas' disponibles para programar.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4016" />
+        <location filename="../main.py" line="4028" />
         <source>Bulk Schedule Configuration</source>
         <translation>Configuración de programación masiva</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4164" />
+        <location filename="../main.py" line="4176" />
         <source>Overwrite</source>
         <translation>Sobrescribir</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4199" />
+        <location filename="../main.py" line="4211" />
         <source>"ffmpeg" is required for stream merging.</source>
         <translation>Se requiere "ffmpeg" para fusionar transmisiones.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
+        <location filename="../main.py" line="4232" />
         <source>Invalid filename.</source>
         <translation>Nombre de archivo no válido.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4361" />
+        <location filename="../main.py" line="4373" />
         <source>Fetching Resolutions…</source>
         <translation>Obteniendo resoluciones...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4365" />
+        <location filename="../main.py" line="4377" />
         <source>Fetching format data for {len(yt_items)} YouTube item(s)…</source>
         <translation>Obteniendo datos de formato para {len(yt_items)} elementos de YouTube...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4440" />
+        <location filename="../main.py" line="4452" />
         <source>YouTube Resolution Selection</source>
         <translation>Selección de resolución de YouTube</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4588" />
+        <location filename="../main.py" line="4600" />
         <source>Nothing to Add</source>
         <translation>Nada que agregar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4589" />
+        <location filename="../main.py" line="4601" />
         <source>No links have been resolved yet. Please wait for processing to finish.</source>
         <translation>Aún no se han resuelto enlaces. Espere a que finalice el procesamiento.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4629" />
+        <location filename="../main.py" line="4641" />
         <source>Batch Added</source>
         <translation>Lote agregado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4630" />
+        <location filename="../main.py" line="4642" />
         <source>Successfully staged {added} item(s) into '{selected_queue}'.</source>
         <translation>Se han preparado correctamente {agregados} elementos en '{selected_queue}'.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Nothing to download</source>
         <translation>Nada para descargar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Check your URL or click Retry.</source>
         <translation>Compruebe su URL o haga clic en Reintentar.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4729" />
-        <location filename="../main.py" line="4735" />
-        <location filename="../main.py" line="4751" />
+        <location filename="../main.py" line="4741" />
+        <location filename="../main.py" line="4747" />
         <location filename="../main.py" line="4763" />
-        <location filename="../main.py" line="5979" />
+        <location filename="../main.py" line="4775" />
+        <location filename="../main.py" line="5991" />
         <source>Queue Error</source>
         <translation>Error de cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4736" />
+        <location filename="../main.py" line="4748" />
         <source>Cannot add completed download to queue.</source>
         <translation>No se puede agregar la descarga completada a la cola.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4755" />
+        <location filename="../main.py" line="4767" />
         <source>File Exists</source>
         <translation>El archivo existe</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4762" />
+        <location filename="../main.py" line="4774" />
         <source>Filename conflict in queue: {q_name}. Please rename or change folder.</source>
         <translation>Conflicto de nombre de archivo en la cola: {q_name}. Cambie el nombre o cambie la carpeta.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4796" />
+        <location filename="../main.py" line="4808" />
         <source>Added to Queue</source>
         <translation>Agregado a la cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5004" />
-        <location filename="../main.py" line="5018" />
+        <location filename="../main.py" line="5016" />
+        <location filename="../main.py" line="5030" />
         <source>Playlist Download</source>
         <translation>Descarga de lista de reproducción</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5005" />
+        <location filename="../main.py" line="5017" />
         <source>Please check the URL.</source>
         <translation>Verifique la URL.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5006" />
+        <location filename="../main.py" line="5018" />
         <source>Playlist is empty, nothing to download.</source>
         <translation>La lista de reproducción está vacía, nada para descargar.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5025" />
+        <location filename="../main.py" line="5037" />
         <source>Select all videos</source>
         <translation>Seleccionar todos los videos</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5028" />
+        <location filename="../main.py" line="5040" />
         <source>Apply format to all:</source>
         <translation>Aplicar formato a todos:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2220" />
         <source>Open File</source>
         <translation>Abrir archivo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2115" />
+        <location filename="../main.py" line="2127" />
         <source>&amp;File</source>
         <translation>&amp;Archivo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1346" />
-        <location filename="../main.py" line="1385" />
-        <location filename="../main.py" line="1424" />
+        <location filename="../main.py" line="1358" />
+        <location filename="../main.py" line="1397" />
+        <location filename="../main.py" line="1436" />
         <source>Dependency Ready</source>
         <translation>Listo para la dependencia</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1347" />
+        <location filename="../main.py" line="1359" />
         <source>ffmpeg is already installed and up to date.</source>
         <translation>ffmpeg ya está instalado y actualizado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1365" />
-        <location filename="../main.py" line="1403" />
-        <location filename="../main.py" line="1443" />
+        <location filename="../main.py" line="1377" />
+        <location filename="../main.py" line="1415" />
+        <location filename="../main.py" line="1455" />
         <source>Installation Started</source>
         <translation>Instalación iniciada</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1366" />
+        <location filename="../main.py" line="1378" />
         <source>Downloading the latest ffmpeg for your system...</source>
         <translation>Descargando el último ffmpeg para su sistema...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1370" />
-        <location filename="../main.py" line="1408" />
-        <location filename="../main.py" line="1448" />
+        <location filename="../main.py" line="1382" />
+        <location filename="../main.py" line="1420" />
+        <location filename="../main.py" line="1460" />
         <source>Install Error</source>
         <translation>Error de instalación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1386" />
+        <location filename="../main.py" line="1398" />
         <source>deno is already installed and up to date.</source>
         <translation>deno ya está instalado y actualizado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1404" />
+        <location filename="../main.py" line="1416" />
         <source>Downloading the latest Deno for your system...</source>
         <translation>Descargando el último Deno para su sistema...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1425" />
+        <location filename="../main.py" line="1437" />
         <source>yt-dlp is already installed and up to date.</source>
         <translation>yt-dlp ya está instalado y actualizado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1444" />
+        <location filename="../main.py" line="1456" />
         <source>Downloading the latest yt-dlp for your system...</source>
         <translation>Descargando la última versión de yt-dlp para su sistema...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1474" />
+        <location filename="../main.py" line="1486" />
         <source>Opening Browser</source>
         <translation>Abrir el navegador</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1475" />
+        <location filename="../main.py" line="1487" />
         <source>Redirecting you to install %1 the extension.</source>
         <translation>Redireccionándote para que instales %1 la extensión.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1476" />
+        <location filename="../main.py" line="1488" />
         <source>Follow the instructions in the web store.</source>
         <translation>Sigue las instrucciones en la tienda web.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1482" />
+        <location filename="../main.py" line="1494" />
         <source>No URL available for %1.</source>
         <translation>No hay URL disponible para %1.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1490" />
+        <location filename="../main.py" line="1502" />
         <source>Community Feedback</source>
         <translation>Comentarios de la comunidad</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1491" />
+        <location filename="../main.py" line="1503" />
         <source>Redirecting to GitHub. We appreciate your bug reports and feature requests.</source>
         <translation>Redirigiendo a GitHub. Apreciamos sus informes de errores y solicitudes de funciones.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1492" />
+        <location filename="../main.py" line="1504" />
         <source>Follow the instructions on the issues page.</source>
         <translation>Siga las instrucciones en la página de problemas.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1533" />
+        <location filename="../main.py" line="1545" />
         <source>System Busy</source>
         <translation>Sistema ocupado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1535" />
+        <location filename="../main.py" line="1547" />
         <source>Downloads are currently running. Pause them to proceed with terminal execution?</source>
         <translation>Las descargas se están ejecutando actualmente. ¿Pausarlos para continuar con la ejecución del terminal?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1771" />
+        <location filename="../main.py" line="1783" />
         <source>None</source>
         <translation>Ninguno</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1786" />
+        <location filename="../main.py" line="1798" />
         <source>Select Links File</source>
         <translation>Seleccionar archivo de enlaces</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1813" />
+        <location filename="../main.py" line="1825" />
         <source>Calculating…</source>
         <translation>Calculador…</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1845" />
-        <location filename="../main.py" line="1894" />
+        <location filename="../main.py" line="1857" />
+        <location filename="../main.py" line="1906" />
         <source>Unknown size</source>
         <translation>Tamaño desconocido</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1883" />
-        <location filename="../main.py" line="1908" />
+        <location filename="../main.py" line="1895" />
+        <location filename="../main.py" line="1920" />
         <source>Add {count} to Queue</source>
         <translation>Agregar {count} a la cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1885" />
-        <location filename="../main.py" line="1910" />
+        <location filename="../main.py" line="1897" />
+        <location filename="../main.py" line="1922" />
         <source>Start {count} Download{'s' if count != 1 else ''}</source>
         <translation>Iniciar {count} Descargar si cuenta! = 1 más ''}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1923" />
+        <location filename="../main.py" line="1935" />
         <source>Import failed</source>
         <translation>Importación fallida</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1926" />
+        <location filename="../main.py" line="1938" />
         <source>Batch Import Error</source>
         <translation>Error de importación por lotes</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2116" />
+        <location filename="../main.py" line="2128" />
         <source>&amp;Exit</source>
         <translation>&amp;Salir</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2117" />
+        <location filename="../main.py" line="2129" />
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2120" />
+        <location filename="../main.py" line="2132" />
         <source>&amp;Downloads</source>
         <translation>&amp;Descargas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2124" />
-        <location filename="../main.py" line="2163" />
+        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2175" />
         <source>Resume All</source>
         <translation>Reanudar todo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2126" />
-        <location filename="../main.py" line="2159" />
+        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2171" />
         <source>Delete All</source>
         <translation>Eliminar todo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2128" />
+        <location filename="../main.py" line="2140" />
         <source>&amp;View</source>
         <translation>&amp;Ver</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2129" />
+        <location filename="../main.py" line="2141" />
         <source>Theme</source>
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2130" />
+        <location filename="../main.py" line="2142" />
         <source>Dark</source>
         <translation>Oscuro</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2131" />
+        <location filename="../main.py" line="2143" />
         <source>Light</source>
         <translation>Claro</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2133" />
+        <location filename="../main.py" line="2145" />
         <source>&amp;Tools</source>
         <translation>&amp;Herramientas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2134" />
-        <location filename="../main.py" line="2160" />
+        <location filename="../main.py" line="2146" />
+        <location filename="../main.py" line="2172" />
         <source>Scheduler</source>
         <translation>Programador</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2135" />
-        <location filename="../main.py" line="2192" />
+        <location filename="../main.py" line="2147" />
+        <location filename="../main.py" line="2204" />
         <source>Categories</source>
         <translation>Categorías</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2148" />
         <source>Queues</source>
         <translation>Colas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2137" />
-        <location filename="../main.py" line="2164" />
+        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2176" />
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2150" />
         <source>Install deno</source>
         <translation>Instalar deno</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2139" />
+        <location filename="../main.py" line="2151" />
         <source>Install ffmpeg</source>
         <translation>Instalar ffmpeg</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2140" />
+        <location filename="../main.py" line="2152" />
         <source>Install yt-dlp</source>
         <translation>Instalar yt-dlp</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2141" />
+        <location filename="../main.py" line="2153" />
         <source>Marketplace</source>
         <translation>Mercado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2143" />
+        <location filename="../main.py" line="2155" />
         <source>Browser Extension</source>
         <translation>Extensión del navegador</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2145" />
+        <location filename="../main.py" line="2157" />
         <source>&amp;Help</source>
         <translation>&amp;Ayuda</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2148" />
+        <location filename="../main.py" line="2160" />
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2161" />
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2150" />
+        <location filename="../main.py" line="2162" />
         <source>Check for Updates</source>
         <translation>Buscar actualizaciones</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2152" />
+        <location filename="../main.py" line="2164" />
         <source>WhatsNew</source>
         <translation>Novedades</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2167" />
+        <location filename="../main.py" line="2179" />
         <source>ID</source>
         <translation>IDENTIFICACIÓN</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="2180" />
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2169" />
+        <location filename="../main.py" line="2181" />
         <source>Progress</source>
         <translation>Progreso</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="2182" />
         <source>Speed</source>
         <translation>Velocidad</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2171" />
+        <location filename="../main.py" line="2183" />
         <source>ETA</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2172" />
+        <location filename="../main.py" line="2184" />
         <source>Done</source>
         <translation>Hecho</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2173" />
+        <location filename="../main.py" line="2185" />
         <source>Size</source>
         <translation>Tamaño</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2186" />
         <source>Status</source>
         <translation>Estado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2175" />
+        <location filename="../main.py" line="2187" />
         <source>I</source>
         <translation>I</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2176" />
+        <location filename="../main.py" line="2188" />
         <source>Last Try Date</source>
         <translation>Fecha del último intento</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2191" />
+        <location filename="../main.py" line="2203" />
         <source>No plugins installed. Install via marketplace.</source>
         <translation>No hay complementos instalados. Instalar a través del mercado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2196" />
-        <location filename="../main.py" line="2200" />
-        <location filename="../main.py" line="6650" />
-        <location filename="../main.py" line="6674" />
+        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="6668" />
+        <location filename="../main.py" line="6692" />
         <source>Update Now</source>
         <translation>Actualizar ahora</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2201" />
-        <location filename="../main.py" line="6675" />
+        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="6693" />
         <source>Later</source>
         <translation>Más tarde</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2214" />
+        <location filename="../main.py" line="2226" />
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1543" />
-        <location filename="../main.py" line="3704" />
-        <location filename="../main.py" line="3839" />
+        <location filename="../main.py" line="1555" />
+        <location filename="../main.py" line="3716" />
+        <location filename="../main.py" line="3851" />
         <source>Yes</source>
         <translation>Sí</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1544" />
-        <location filename="../main.py" line="3705" />
-        <location filename="../main.py" line="3840" />
+        <location filename="../main.py" line="1556" />
+        <location filename="../main.py" line="3717" />
+        <location filename="../main.py" line="3852" />
         <source>No</source>
         <translation>No</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3348" />
+        <location filename="../main.py" line="3360" />
         <source>%1 is missing</source>
         <translation>Falta %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3349" />
+        <location filename="../main.py" line="3361" />
         <source>%1 is missing and needs to be downloaded:</source>
         <translation>Falta %1 y es necesario descargarlo:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3759" />
+        <location filename="../main.py" line="3771" />
         <source>OK</source>
         <translation>DE ACUERDO</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3831" />
+        <location filename="../main.py" line="3843" />
         <source>Active tasks (Downloading, Pending, or Merging) were detected.
 
 Do you want to stop all active processes?</source>
@@ -1259,7 +1259,7 @@ Do you want to stop all active processes?</source>
 ¿Quieres detener todos los procesos activos?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4151" />
+        <location filename="../main.py" line="4163" />
         <source>File with the same name:
 %1
 already exists in download list.
@@ -1278,89 +1278,89 @@ Sobrescribir: elimine los datos antiguos y comience de nuevo.
 Nota: Para conservar ambos, cambie el nombre del archivo o cambie la carpeta.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4730" />
+        <location filename="../main.py" line="4742" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.</source>
         <translation>Los vídeos de YouTube en cola requieren el motor aria2c o yt-dlp.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4750" />
+        <location filename="../main.py" line="4762" />
         <source>This file already exists in queue: {existing_queue}</source>
         <translation>Este archivo ya existe en la cola: {existing_queue}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4754" />
+        <location filename="../main.py" line="4766" />
         <source>Cannot add to queue; target file already exists: {target_path}</source>
         <translation>No se puede agregar a la cola; el archivo de destino ya existe: {target_path}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4797" />
+        <location filename="../main.py" line="4809" />
         <source>'{d.name}' has been added to {queue_name}.</source>
         <translation>'{d.name}' se ha agregado a {queue_name}.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4860" />
+        <location filename="../main.py" line="4872" />
         <source>No preview</source>
         <translation>Sin vista previa</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5083" />
+        <location filename="../main.py" line="5095" />
         <source>Select videos and formats. Use the master option to apply settings globally.</source>
         <translation>Selecciona vídeos y formatos. Utilice la opción maestra para aplicar la configuración globalmente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5593" />
-        <location filename="../main.py" line="5643" />
+        <location filename="../main.py" line="5605" />
+        <location filename="../main.py" line="5655" />
         <source>The selected file could not be found on disk.</source>
         <translation>El archivo seleccionado no se pudo encontrar en el disco.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5595" />
-        <location filename="../main.py" line="5645" />
+        <location filename="../main.py" line="5607" />
+        <location filename="../main.py" line="5657" />
         <source>Download Incomplete</source>
         <translation>Descargar incompleto</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5596" />
-        <location filename="../main.py" line="5646" />
+        <location filename="../main.py" line="5608" />
+        <location filename="../main.py" line="5658" />
         <source>Please wait for the download to finish before opening.</source>
         <translation>Espere a que finalice la descarga antes de abrirla.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5718" />
+        <location filename="../main.py" line="5730" />
         <source>The yt-dlp download file is not yet available on disk.
 Please wait a few moments for the download to create the file.</source>
         <translation>El archivo de descarga yt-dlp aún no está disponible en el disco.
 Espere unos momentos para que la descarga cree el archivo.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5736" />
+        <location filename="../main.py" line="5748" />
         <source>The temporary media file is not yet available on disk.</source>
         <translation>El archivo multimedia temporal aún no está disponible en el disco.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5745" />
+        <location filename="../main.py" line="5757" />
         <source>File Too Small</source>
         <translation>Archivo demasiado pequeño</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5746" />
+        <location filename="../main.py" line="5758" />
         <source>Please wait for more data to download before watching.
 Current size: {size_format(file_size)}</source>
         <translation>Espere a que se descarguen más datos antes de mirar.
 Tamaño actual: {size_format(file_size)}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5754" />
+        <location filename="../main.py" line="5766" />
         <source>Buffer Low</source>
         <translation>Búfer bajo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5755" />
+        <location filename="../main.py" line="5767" />
         <source>Please wait for 30% progress to ensure a stable playback buffer.</source>
         <translation>Espere un progreso del 30 % para garantizar un búfer de reproducción estable.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5980" />
+        <location filename="../main.py" line="5992" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.
 
 cURL cannot refresh expired YouTube stream keys during queued execution.</source>
@@ -1369,350 +1369,350 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 cURL no puede actualizar las claves de transmisión de YouTube caducadas durante la ejecución en cola.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5986" />
+        <location filename="../main.py" line="5998" />
         <source>Please create a queue in the Queue Manager before adding items.</source>
         <translation>Cree una cola en el Administrador de colas antes de agregar elementos.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5993" />
+        <location filename="../main.py" line="6005" />
         <source>Choose a destination queue:</source>
         <translation>Elija una cola de destino:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6237" />
+        <location filename="../main.py" line="6249" />
         <source>FFmpeg Missing</source>
         <translation>Falta FFmpeg</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6238" />
+        <location filename="../main.py" line="6250" />
         <source>FFmpeg is required for merging. Please configure it in Settings.</source>
         <translation>Se requiere FFmpeg para fusionar. Por favor configúrelo en Configuración.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Streams merged successfully.</source>
         <translation>Las transmisiones se fusionaron exitosamente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Merge Complete</source>
         <translation>Fusión completa</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6302" />
+        <location filename="../main.py" line="6314" />
         <source>Merge Failed</source>
         <translation>Fusión fallida</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6327" />
+        <location filename="../main.py" line="6339" />
         <source>Please select a task to re-merge.</source>
         <translation>Seleccione una tarea para volver a fusionarla.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6342" />
+        <location filename="../main.py" line="6354" />
         <source>Could not find the associated audio file.</source>
         <translation>No se pudo encontrar el archivo de audio asociado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6348" />
+        <location filename="../main.py" line="6360" />
         <source>Could not find the associated video file.</source>
         <translation>No se pudo encontrar el archivo de video asociado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="6385" />
         <source>Please select a completed download.</source>
         <translation>Seleccione una descarga completa.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Failed to read the file for hashing.</source>
         <translation>No se pudo leer el archivo para hash.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6398" />
+        <location filename="../main.py" line="6410" />
         <source>SHA-256 Checksum</source>
         <translation>Suma de comprobación SHA-256</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6412" />
+        <location filename="../main.py" line="6424" />
         <source>Copy Hash</source>
         <translation>Copiar hash</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2151" />
+        <location filename="../main.py" line="2163" />
         <source>Report Issues</source>
         <translation>Reportar problemas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2183" />
+        <location filename="../main.py" line="2195" />
         <source>Downloads</source>
         <translation>Descargas</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2184" />
+        <location filename="../main.py" line="2196" />
         <source>Sort by:</source>
         <translation>Ordenar por:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2162" />
-        <location filename="../main.py" line="2185" />
+        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2197" />
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2187" />
+        <location filename="../main.py" line="2199" />
         <source>Log Level:</source>
         <translation>Nivel de registro:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2189" />
+        <location filename="../main.py" line="2201" />
         <source>Last HTTP response status</source>
         <translation>Último estado de respuesta HTTP</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2190" />
+        <location filename="../main.py" line="2202" />
         <source>Current total download speed</source>
         <translation>Velocidad de descarga total actual</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2203" />
+        <location filename="../main.py" line="2215" />
         <source>Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'.</source>
         <translation>Introduce el comando aquí... Puedes empezar con comandos útiles como 'help' o 'yt-dlp --help'.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2205" />
+        <location filename="../main.py" line="2217" />
         <source>Search downloads...</source>
         <translation>Buscar descargas...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2209" />
+        <location filename="../main.py" line="2221" />
         <source>Open File With</source>
         <translation>Abrir archivo con</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2210" />
+        <location filename="../main.py" line="2222" />
         <source>Open File Location</source>
         <translation>Abrir ubicación del archivo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2211" />
+        <location filename="../main.py" line="2223" />
         <source>Watch while downloading</source>
         <translation>Ver mientras se descarga</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="2224" />
         <source>Schedule download</source>
         <translation>Programar descarga</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="2225" />
         <source>Cancel schedule!</source>
         <translation>¡Cancelar programación!</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2215" />
+        <location filename="../main.py" line="2227" />
         <source>Re-merge audio/video</source>
         <translation>Fusionar de nuevo audio/video</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2216" />
+        <location filename="../main.py" line="2228" />
         <source>File Properties</source>
         <translation>Propiedades del archivo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1772" />
-        <location filename="../main.py" line="2217" />
-        <location filename="../main.py" line="4520" />
+        <location filename="../main.py" line="1784" />
+        <location filename="../main.py" line="2229" />
+        <location filename="../main.py" line="4532" />
         <source>Add to Queue</source>
         <translation>Agregar a la cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2218" />
+        <location filename="../main.py" line="2230" />
         <source>Remove from Queue</source>
         <translation>Quitar de la cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2219" />
+        <location filename="../main.py" line="2231" />
         <source>File CheckSum!</source>
         <translation>¡Suma de comprobación del archivo!</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2220" />
+        <location filename="../main.py" line="2232" />
         <source>Delete from Table</source>
         <translation>Eliminar de la tabla</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5592" />
-        <location filename="../main.py" line="5619" />
-        <location filename="../main.py" line="5642" />
+        <location filename="../main.py" line="5604" />
+        <location filename="../main.py" line="5631" />
         <location filename="../main.py" line="5654" />
+        <location filename="../main.py" line="5666" />
         <source>File Not Found</source>
         <translation>Archivo no encontrado</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5717" />
-        <location filename="../main.py" line="5735" />
+        <location filename="../main.py" line="5729" />
+        <location filename="../main.py" line="5747" />
         <source>No Temp File</source>
         <translation>Sin archivo temporal</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5958" />
-        <location filename="../main.py" line="6038" />
-        <location filename="../main.py" line="6326" />
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="5970" />
+        <location filename="../main.py" line="6050" />
+        <location filename="../main.py" line="6338" />
+        <location filename="../main.py" line="6385" />
         <source>No Selection</source>
         <translation>Sin selección</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5959" />
+        <location filename="../main.py" line="5971" />
         <source>Please select a download to add to the queue.</source>
         <translation>Seleccione una descarga para agregar a la cola.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5985" />
+        <location filename="../main.py" line="5997" />
         <source>No Queues Available</source>
         <translation>Sin colas disponibles</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5992" />
+        <location filename="../main.py" line="6004" />
         <source>Select Queue</source>
         <translation>Seleccionar cola</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6039" />
+        <location filename="../main.py" line="6051" />
         <source>Please select a download to remove from the queue.</source>
         <translation>Seleccione una descarga para quitar de la cola.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6341" />
+        <location filename="../main.py" line="6353" />
         <source>Audio Missing</source>
         <translation>Audio faltante</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6347" />
+        <location filename="../main.py" line="6359" />
         <source>Video Missing</source>
         <translation>Video faltante</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Checksum is only available for completed downloads.</source>
         <translation>La suma de comprobación solo está disponible para descargas completadas.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Invalid Status</source>
         <translation>Estado no válido</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Checksum Error</source>
         <translation>Error de suma de comprobación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2809" />
-        <location filename="../main.py" line="6413" />
+        <location filename="../main.py" line="2821" />
+        <location filename="../main.py" line="6425" />
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5656" />
+        <location filename="../main.py" line="5668" />
         <source>The file '%1' could not be found or has been deleted.</source>
         <translation>El archivo '%1' no se pudo encontrar o se eliminó.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5659" />
+        <location filename="../main.py" line="5671" />
         <source>Permission Error</source>
         <translation>Error de permiso</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5660" />
+        <location filename="../main.py" line="5672" />
         <source>Access denied: %1</source>
         <translation>Acceso denegado: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5663" />
+        <location filename="../main.py" line="5675" />
         <source>OS Error</source>
         <translation>Error del sistema operativo</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5664" />
+        <location filename="../main.py" line="5676" />
         <source>An OS error occurred: %1</source>
         <translation>Se produjo un error del sistema operativo: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6777" />
-        <location filename="../main.py" line="6803" />
+        <location filename="../main.py" line="6795" />
+        <location filename="../main.py" line="6821" />
         <source>yt-dlp Update</source>
         <translation>Actualización de yt-dlp</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6778" />
+        <location filename="../main.py" line="6796" />
         <source>yt-dlp backend has been successfully updated.</source>
         <translation>El backend de yt-dlp se ha actualizado correctamente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6783" />
+        <location filename="../main.py" line="6801" />
         <source>Update Error</source>
         <translation>Error de actualización</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6804" />
+        <location filename="../main.py" line="6822" />
         <source>yt-dlp has been updated to the latest version.</source>
         <translation>yt-dlp se ha actualizado a la versión más reciente.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6806" />
+        <location filename="../main.py" line="6824" />
         <source>yt-dlp version: %1</source>
         <translation>versión de yt-dlp: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6809" />
+        <location filename="../main.py" line="6827" />
         <source>Update failed or binary is already up to date.</source>
         <translation>La actualización falló o el binario ya está actualizado.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6810" />
+        <location filename="../main.py" line="6828" />
         <source>yt-dlp Update Error</source>
         <translation>Error de actualización de yt-dlp</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
-        <location filename="../main.py" line="6835" />
+        <location filename="../main.py" line="6849" />
+        <location filename="../main.py" line="6853" />
         <source>App Update</source>
         <translation>Actualización de aplicación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
+        <location filename="../main.py" line="6849" />
         <source>App is up-to-date</source>
         <translation>La aplicación está actualizada</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Couldn't check for update</source>
         <translation>No se pudo buscar actualización</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Please check your internet connection.</source>
         <translation>Por favor verifique su conexión a Internet.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6847" />
+        <location filename="../main.py" line="6865" />
         <source>Update Application</source>
         <translation>Actualizar aplicación</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6851" />
+        <location filename="../main.py" line="6869" />
         <source>New version available:</source>
         <translation>Nueva versión disponible:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6856" />
+        <location filename="../main.py" line="6874" />
         <source>No changelog available.</source>
         <translation>No hay registro de cambios disponible.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6863" />
+        <location filename="../main.py" line="6881" />
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>
@@ -1803,7 +1803,7 @@ cURL no puede actualizar las claves de transmisión de YouTube caducadas durante
 <context>
     <name>Main</name>
     <message>
-        <location filename="../main.py" line="6955" />
+        <location filename="../main.py" line="6973" />
         <source>Another instance of the application is already running.</source>
         <translation>Ya se está ejecutando otra instancia de la aplicación.</translation>
     </message>
@@ -1863,6 +1863,11 @@ cURL no puede actualizar las claves de transmisión de YouTube caducadas durante
         <location filename="../ui/marketplace_dialog.py" line="632" />
         <source>%1 plugins</source>
         <translation>%1 complementos</translation>
+    </message>
+    <message>
+        <location filename="../ui/marketplace_dialog.py" line="682" />
+        <source>Plugin Installed</source>
+        <translation>Complemento instalado</translation>
     </message>
     <message>
         <location filename="../ui/marketplace_dialog.py" line="539" />
@@ -2760,29 +2765,29 @@ Inténtalo de nuevo o actualiza manualmente.</translation>
     <name>WhatsNewDialog</name>
     <message>
         <location filename="../ui/changelog_dialog.py" line="42" />
-        <location filename="../ui/changelog_dialog.py" line="364" />
+        <location filename="../ui/changelog_dialog.py" line="412" />
         <source>What's new</source>
         <translation>Qué hay de nuevo</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="56" />
-        <location filename="../ui/changelog_dialog.py" line="365" />
+        <location filename="../ui/changelog_dialog.py" line="413" />
         <source>What’s new</source>
         <translation>Qué hay de nuevo</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="367" />
+        <location filename="../ui/changelog_dialog.py" line="415" />
         <source>Version: -</source>
         <translation>Versión: -</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="368" />
+        <location filename="../ui/changelog_dialog.py" line="416" />
         <source>Date: -</source>
         <translation>Fecha: -</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="89" />
-        <location filename="../ui/changelog_dialog.py" line="374" />
+        <location filename="../ui/changelog_dialog.py" line="422" />
         <source>Highlights</source>
         <translation>Reflejos</translation>
     </message>
@@ -2803,54 +2808,54 @@ Inténtalo de nuevo o actualiza manualmente.</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="113" />
-        <location filename="../ui/changelog_dialog.py" line="371" />
+        <location filename="../ui/changelog_dialog.py" line="419" />
         <source>Previous</source>
         <translation>Anterior</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="114" />
-        <location filename="../ui/changelog_dialog.py" line="372" />
+        <location filename="../ui/changelog_dialog.py" line="420" />
         <source>Next</source>
         <translation>Próximo</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="119" />
-        <location filename="../ui/changelog_dialog.py" line="373" />
+        <location filename="../ui/changelog_dialog.py" line="421" />
         <source>Close</source>
         <translation>Cerca</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="369" />
+        <location filename="../ui/changelog_dialog.py" line="417" />
         <source>No release notes available.</source>
         <translation>No hay notas de versión disponibles.</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="370" />
+        <location filename="../ui/changelog_dialog.py" line="418" />
         <source>No releases</source>
         <translation>Sin lanzamientos</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="312" />
+        <location filename="../ui/changelog_dialog.py" line="360" />
         <source>Version: %1</source>
         <translation>Versión: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="313" />
+        <location filename="../ui/changelog_dialog.py" line="361" />
         <source>Date: %1</source>
         <translation>Fecha: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="314" />
+        <location filename="../ui/changelog_dialog.py" line="362" />
         <source>Highlights: %1</source>
         <translation>Aspectos destacados: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="337" />
+        <location filename="../ui/changelog_dialog.py" line="385" />
         <source>Current release (1 of %1)</source>
         <translation>Versión actual (1 de %1)</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="339" />
+        <location filename="../ui/changelog_dialog.py" line="387" />
         <source>Past release (%1 of %2)</source>
         <translation>Versión anterior (%1 de %2)</translation>
     </message>

@@ -478,137 +478,137 @@
 <context>
     <name>DownloadManagerWindow</name>
     <message>
-        <location filename="../main.py" line="1291" />
+        <location filename="../main.py" line="1303" />
         <source>No completed downloads</source>
         <translation>완료된 다운로드가 없습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>Queue</source>
         <translation>큐</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>has started automatically</source>
         <translation>자동으로 시작되었습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1970" />
+        <location filename="../main.py" line="1982" />
         <source>Queue Scheduler</source>
         <translation>큐 스케줄러</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2684" />
+        <location filename="../main.py" line="2696" />
         <source>"Deno" is required to solve JavaScript challenges for YouTube.
 Install from the official docs or add the deno executable to PATH.</source>
         <translation>YouTube의 JavaScript 문제를 해결하려면 "Deno"가 필요합니다.
 공식 문서를 참조하여 설치하거나 deno 실행 파일을 PATH에 추가하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1775" />
-        <location filename="../main.py" line="1816" />
-        <location filename="../main.py" line="1908" />
-        <location filename="../main.py" line="1910" />
-        <location filename="../main.py" line="1924" />
-        <location filename="../main.py" line="2787" />
-        <location filename="../main.py" line="4657" />
+        <location filename="../main.py" line="1787" />
+        <location filename="../main.py" line="1828" />
+        <location filename="../main.py" line="1920" />
+        <location filename="../main.py" line="1922" />
+        <location filename="../main.py" line="1936" />
+        <location filename="../main.py" line="2799" />
+        <location filename="../main.py" line="4669" />
         <source>Start Download</source>
         <translation>다운로드 시작</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3363" />
+        <location filename="../main.py" line="3375" />
         <source>Recommended:</source>
         <translation>권장:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3364" />
+        <location filename="../main.py" line="3376" />
         <source>Local folder:</source>
         <translation>로컬 폴더:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3380" />
-        <location filename="../main.py" line="5090" />
+        <location filename="../main.py" line="3392" />
+        <location filename="../main.py" line="5102" />
         <source>Download</source>
         <translation>다운로드</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2804" />
-        <location filename="../main.py" line="3381" />
-        <location filename="../main.py" line="3760" />
-        <location filename="../main.py" line="4165" />
-        <location filename="../main.py" line="4519" />
-        <location filename="../main.py" line="5089" />
-        <location filename="../main.py" line="6864" />
+        <location filename="../main.py" line="2816" />
+        <location filename="../main.py" line="3393" />
+        <location filename="../main.py" line="3772" />
+        <location filename="../main.py" line="4177" />
+        <location filename="../main.py" line="4531" />
+        <location filename="../main.py" line="5101" />
+        <location filename="../main.py" line="6882" />
         <source>Cancel</source>
         <translation>취소</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
+        <location filename="../main.py" line="3519" />
         <source>Error</source>
         <translation>오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3519" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>No download item selected</source>
         <translation>선택된 다운로드 항목이 없습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2125" />
-        <location filename="../main.py" line="2158" />
-        <location filename="../main.py" line="3819" />
+        <location filename="../main.py" line="2137" />
+        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="3831" />
         <source>Stop All</source>
         <translation>모두 중지</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2118" />
+        <location filename="../main.py" line="2130" />
         <source>Add new download</source>
         <translation>새 다운로드 추가</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2186" />
+        <location filename="../main.py" line="2198" />
         <source>Clear</source>
         <translation>지우기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2203" />
+        <location filename="../main.py" line="2215" />
         <source>Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'.</source>
         <translation>여기에 명령어를 입력하세요... 'help'나 'yt-dlp --help' 같은 유용한 명령어로 시작할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2205" />
+        <location filename="../main.py" line="2217" />
         <source>Search downloads...</source>
         <translation>다운로드 검색...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1543" />
-        <location filename="../main.py" line="3704" />
-        <location filename="../main.py" line="3839" />
+        <location filename="../main.py" line="1555" />
+        <location filename="../main.py" line="3716" />
+        <location filename="../main.py" line="3851" />
         <source>Yes</source>
         <translation>예</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1544" />
-        <location filename="../main.py" line="3705" />
-        <location filename="../main.py" line="3840" />
+        <location filename="../main.py" line="1556" />
+        <location filename="../main.py" line="3717" />
+        <location filename="../main.py" line="3852" />
         <source>No</source>
         <translation>아니요</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3820" />
+        <location filename="../main.py" line="3832" />
         <source>There are no active downloads to stop.</source>
         <translation>중지할 활성 다운로드가 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3827" />
+        <location filename="../main.py" line="3839" />
         <source>Stop All Downloads?</source>
         <translation>모든 다운로드를 중지하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3831" />
+        <location filename="../main.py" line="3843" />
         <source>Active tasks (Downloading, Pending, or Merging) were detected.
 
 Do you want to stop all active processes?</source>
@@ -617,315 +617,315 @@ Do you want to stop all active processes?</source>
 모든 활성 프로세스를 중지하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3870" />
+        <location filename="../main.py" line="3882" />
         <source>Stopped</source>
         <translation>중지됨</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4010" />
+        <location filename="../main.py" line="4022" />
         <source>No Downloads to Schedule</source>
         <translation>스케줄할 다운로드가 없습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4029" />
+        <location filename="../main.py" line="4041" />
         <source>Schedule Error</source>
         <translation>스케줄 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4215" />
+        <location filename="../main.py" line="4227" />
         <source>Folder Error</source>
         <translation>폴더 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
-        <location filename="../main.py" line="4666" />
+        <location filename="../main.py" line="4232" />
+        <location filename="../main.py" line="4678" />
         <source>Download Error</source>
         <translation>다운로드 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4160" />
+        <location filename="../main.py" line="4172" />
         <source>File Already Exists</source>
         <translation>파일이 이미 존재합니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2156" />
-        <location filename="../main.py" line="4163" />
+        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="4175" />
         <source>Resume</source>
         <translation>이어받기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2155" />
+        <location filename="../main.py" line="2167" />
         <source>Add</source>
         <translation>추가</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2157" />
+        <location filename="../main.py" line="2169" />
         <source>Pause</source>
         <translation>일시 중지</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2161" />
+        <location filename="../main.py" line="2173" />
         <source>Refresh</source>
         <translation>새로 고침</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2193" />
+        <location filename="../main.py" line="2205" />
         <source>   Search: </source>
         <translation>찾다:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2214" />
+        <location filename="../main.py" line="2226" />
         <source>Delete</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2805" />
+        <location filename="../main.py" line="2817" />
         <source>Cancel URL processing</source>
         <translation>URL 처리 취소</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>Empty Playlist</source>
         <translation>빈 재생목록</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>The playlist appears to be empty or restricted.</source>
         <translation>재생목록이 비어 있거나 제한된 것 같습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1172" />
-        <location filename="../main.py" line="2975" />
+        <location filename="../main.py" line="1184" />
+        <location filename="../main.py" line="2987" />
         <source>Start Playlist</source>
         <translation>재생목록 시작</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3039" />
+        <location filename="../main.py" line="3051" />
         <source>Network Error: Connectivity lost or blocked by firewall.</source>
         <translation>네트워크 오류: 연결이 끊겼거나 방화벽에 의해 차단되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3041" />
+        <location filename="../main.py" line="3053" />
         <source>YouTube API Error: The server rejected the metadata request.</source>
         <translation>YouTube API 오류: 서버가 메타데이터 요청을 거부했습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3043" />
+        <location filename="../main.py" line="3055" />
         <source>Media Unavailable: Removed, private, or geo-blocked.</source>
         <translation>미디어를 사용할 수 없음: 제거되었거나 비공개이거나 지역적으로 차단되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3045" />
+        <location filename="../main.py" line="3057" />
         <source>An unexpected error occurred during URL processing.</source>
         <translation>URL 처리 중에 예상치 못한 오류가 발생했습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3047" />
+        <location filename="../main.py" line="3059" />
         <source>Extraction Failed</source>
         <translation>추출 실패</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>Action Required</source>
         <translation>필요한 조치</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3686" />
-        <location filename="../main.py" line="3746" />
+        <location filename="../main.py" line="3698" />
+        <location filename="../main.py" line="3758" />
         <source>Active Tasks</source>
         <translation>활성 작업</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3687" />
+        <location filename="../main.py" line="3699" />
         <source>Cannot delete items while downloads are active. Please stop all tasks first.</source>
         <translation>다운로드가 활성화된 동안에는 항목을 삭제할 수 없습니다. 먼저 모든 작업을 중지하십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3696" />
+        <location filename="../main.py" line="3708" />
         <source>Are you sure you want to delete the selected items and their associated temporary files?</source>
         <translation>선택한 항목 및 관련 임시 파일을 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3695" />
+        <location filename="../main.py" line="3707" />
         <source>Confirm Deletion</source>
         <translation>삭제 확인</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3747" />
+        <location filename="../main.py" line="3759" />
         <source>Global wipe blocked. Stop active downloads before proceeding.</source>
         <translation>전역 초기화가 차단되었습니다. 계속하기 전에 활성 다운로드를 중지하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3754" />
+        <location filename="../main.py" line="3766" />
         <source>This will delete ALL items and their progress files.
 Type 'delete' to confirm.</source>
         <translation>그러면 모든 항목과 해당 진행 파일이 삭제됩니다.
 확인하려면 '삭제'를 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3752" />
+        <location filename="../main.py" line="3764" />
         <source>Global Wipe</source>
         <translation>전역 삭제</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1474" />
+        <location filename="../main.py" line="1486" />
         <source>Opening Browser</source>
         <translation>브라우저 열기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1475" />
+        <location filename="../main.py" line="1487" />
         <source>Redirecting you to install %1 the extension.</source>
         <translation>확장 프로그램 %1을(를) 설치하도록 리디렉션 중입니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1476" />
+        <location filename="../main.py" line="1488" />
         <source>Follow the instructions in the web store.</source>
         <translation>웹 스토어의 지침을 따르세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1482" />
+        <location filename="../main.py" line="1494" />
         <source>No URL available for %1.</source>
         <translation>%1에 사용할 수 있는 URL이 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1490" />
+        <location filename="../main.py" line="1502" />
         <source>Community Feedback</source>
         <translation>커뮤니티 피드백</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1491" />
+        <location filename="../main.py" line="1503" />
         <source>Redirecting to GitHub. We appreciate your bug reports and feature requests.</source>
         <translation>GitHub로 리디렉션 중입니다. 버그 보고서와 기능 요청에 감사드립니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1492" />
+        <location filename="../main.py" line="1504" />
         <source>Follow the instructions on the issues page.</source>
         <translation>문제 페이지의 지침을 따르세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1533" />
+        <location filename="../main.py" line="1545" />
         <source>System Busy</source>
         <translation>시스템 사용 중</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1535" />
+        <location filename="../main.py" line="1547" />
         <source>Downloads are currently running. Pause them to proceed with terminal execution?</source>
         <translation>현재 다운로드가 실행 중입니다. 터미널 실행을 계속하려면 일시중지하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2167" />
+        <location filename="../main.py" line="2179" />
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="2180" />
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2169" />
+        <location filename="../main.py" line="2181" />
         <source>Progress</source>
         <translation>진전</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="2182" />
         <source>Speed</source>
         <translation>속도</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2171" />
+        <location filename="../main.py" line="2183" />
         <source>ETA</source>
         <translation>그리고</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2172" />
+        <location filename="../main.py" line="2184" />
         <source>Done</source>
         <translation>완료</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2173" />
+        <location filename="../main.py" line="2185" />
         <source>Size</source>
         <translation>크기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2186" />
         <source>Status</source>
         <translation>상태</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2175" />
+        <location filename="../main.py" line="2187" />
         <source>I</source>
         <translation>나</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2176" />
+        <location filename="../main.py" line="2188" />
         <source>Last Try Date</source>
         <translation>마지막 시도 날짜</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2191" />
+        <location filename="../main.py" line="2203" />
         <source>No plugins installed. Install via marketplace.</source>
         <translation>설치된 플러그인이 없습니다. 마켓플레이스를 통해 설치하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2196" />
-        <location filename="../main.py" line="2200" />
-        <location filename="../main.py" line="6650" />
-        <location filename="../main.py" line="6674" />
+        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="6668" />
+        <location filename="../main.py" line="6692" />
         <source>Update Now</source>
         <translation>지금 업데이트</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2201" />
-        <location filename="../main.py" line="6675" />
+        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="6693" />
         <source>Later</source>
         <translation>나중에</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3348" />
+        <location filename="../main.py" line="3360" />
         <source>%1 is missing</source>
         <translation>%1이(가) 누락되었습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3349" />
+        <location filename="../main.py" line="3361" />
         <source>%1 is missing and needs to be downloaded:</source>
         <translation>%1이(가) 없어 다운로드해야 합니다:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3759" />
+        <location filename="../main.py" line="3771" />
         <source>OK</source>
         <translation>좋아요</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3871" />
+        <location filename="../main.py" line="3883" />
         <source>All active downloads have been successfully cancelled.</source>
         <translation>모든 활성 다운로드가 성공적으로 취소되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3985" />
+        <location filename="../main.py" line="3997" />
         <source>Scheduled Retry</source>
         <translation>예약된 재시도</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3986" />
+        <location filename="../main.py" line="3998" />
         <source>Task '{d.name}' failed. Retrying at {d.sched[1]} [Attempt {d.schedule_retries}]</source>
         <translation>'{d.name}' 작업이 실패했습니다. {d.sched[1]}에 재시도 중 [{d.schedule_retries} 시도]</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4011" />
+        <location filename="../main.py" line="4023" />
         <source>There are no valid 'Pending' or 'Cancelled' tasks available for scheduling.</source>
         <translation>예약할 수 있는 유효한 '보류 중' 또는 '취소됨' 작업이 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4016" />
+        <location filename="../main.py" line="4028" />
         <source>Bulk Schedule Configuration</source>
         <translation>대량 일정 구성</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4151" />
+        <location filename="../main.py" line="4163" />
         <source>File with the same name:
 %1
 already exists in download list.
@@ -944,158 +944,158 @@ Note: To keep both, rename the file or change the folder.</source>
 참고: 두 가지를 모두 유지하려면 파일 이름을 바꾸거나 폴더를 변경하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4164" />
+        <location filename="../main.py" line="4176" />
         <source>Overwrite</source>
         <translation>덮어쓰기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4199" />
+        <location filename="../main.py" line="4211" />
         <source>"ffmpeg" is required for stream merging.</source>
         <translation>스트림 병합에는 "ffmpeg"가 필요합니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
+        <location filename="../main.py" line="4232" />
         <source>Invalid filename.</source>
         <translation>파일 이름이 잘못되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4361" />
+        <location filename="../main.py" line="4373" />
         <source>Fetching Resolutions…</source>
         <translation>해결 방법을 가져오는 중…</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4365" />
+        <location filename="../main.py" line="4377" />
         <source>Fetching format data for {len(yt_items)} YouTube item(s)…</source>
         <translation>{len(yt_items)} YouTube 항목의 형식 데이터를 가져오는 중…</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4440" />
+        <location filename="../main.py" line="4452" />
         <source>YouTube Resolution Selection</source>
         <translation>YouTube 해상도 선택</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4588" />
+        <location filename="../main.py" line="4600" />
         <source>Nothing to Add</source>
         <translation>추가할 내용 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4589" />
+        <location filename="../main.py" line="4601" />
         <source>No links have been resolved yet. Please wait for processing to finish.</source>
         <translation>아직 해결된 링크가 없습니다. 처리가 완료될 때까지 기다려 주십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4629" />
+        <location filename="../main.py" line="4641" />
         <source>Batch Added</source>
         <translation>일괄 추가됨</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4630" />
+        <location filename="../main.py" line="4642" />
         <source>Successfully staged {added} item(s) into '{selected_queue}'.</source>
         <translation>{추가} 항목을 '{selected_queue}'에 성공적으로 준비했습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Nothing to download</source>
         <translation>다운로드할 항목이 없습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Check your URL or click Retry.</source>
         <translation>URL을 확인하거나 “재시도”를 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4729" />
-        <location filename="../main.py" line="4735" />
-        <location filename="../main.py" line="4751" />
+        <location filename="../main.py" line="4741" />
+        <location filename="../main.py" line="4747" />
         <location filename="../main.py" line="4763" />
-        <location filename="../main.py" line="5979" />
+        <location filename="../main.py" line="4775" />
+        <location filename="../main.py" line="5991" />
         <source>Queue Error</source>
         <translation>큐 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4730" />
+        <location filename="../main.py" line="4742" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.</source>
         <translation>대기열에 있는 YouTube 동영상에는 aria2c 또는 yt-dlp 엔진이 필요합니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4750" />
+        <location filename="../main.py" line="4762" />
         <source>This file already exists in queue: {existing_queue}</source>
         <translation>이 파일이 이미 대기열에 있습니다: {existing_queue}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4754" />
+        <location filename="../main.py" line="4766" />
         <source>Cannot add to queue; target file already exists: {target_path}</source>
         <translation>대기열에 추가할 수 없습니다. 대상 파일이 이미 존재합니다: {target_path}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4797" />
+        <location filename="../main.py" line="4809" />
         <source>'{d.name}' has been added to {queue_name}.</source>
         <translation>'{d.name}'이(가) {queue_name}에 추가되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4860" />
+        <location filename="../main.py" line="4872" />
         <source>No preview</source>
         <translation>미리보기 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5083" />
+        <location filename="../main.py" line="5095" />
         <source>Select videos and formats. Use the master option to apply settings globally.</source>
         <translation>비디오와 형식을 선택하세요. 설정을 전체적으로 적용하려면 마스터 옵션을 사용하십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5593" />
-        <location filename="../main.py" line="5643" />
+        <location filename="../main.py" line="5605" />
+        <location filename="../main.py" line="5655" />
         <source>The selected file could not be found on disk.</source>
         <translation>선택한 파일을 디스크에서 찾을 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5595" />
-        <location filename="../main.py" line="5645" />
+        <location filename="../main.py" line="5607" />
+        <location filename="../main.py" line="5657" />
         <source>Download Incomplete</source>
         <translation>다운로드가 완료되지 않았습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5596" />
-        <location filename="../main.py" line="5646" />
+        <location filename="../main.py" line="5608" />
+        <location filename="../main.py" line="5658" />
         <source>Please wait for the download to finish before opening.</source>
         <translation>열기 전에 다운로드가 완료될 때까지 기다리십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5718" />
+        <location filename="../main.py" line="5730" />
         <source>The yt-dlp download file is not yet available on disk.
 Please wait a few moments for the download to create the file.</source>
         <translation>yt-dlp 다운로드 파일은 아직 디스크에서 사용할 수 없습니다.
 다운로드가 파일을 생성할 때까지 잠시 기다려 주십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5736" />
+        <location filename="../main.py" line="5748" />
         <source>The temporary media file is not yet available on disk.</source>
         <translation>임시 미디어 파일은 아직 디스크에서 사용할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5745" />
+        <location filename="../main.py" line="5757" />
         <source>File Too Small</source>
         <translation>파일이 너무 작음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5746" />
+        <location filename="../main.py" line="5758" />
         <source>Please wait for more data to download before watching.
 Current size: {size_format(file_size)}</source>
         <translation>시청하기 전에 더 많은 데이터가 다운로드될 때까지 기다리십시오.
 현재 크기: {size_format(file_size)}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5754" />
+        <location filename="../main.py" line="5766" />
         <source>Buffer Low</source>
         <translation>버퍼 부족</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5755" />
+        <location filename="../main.py" line="5767" />
         <source>Please wait for 30% progress to ensure a stable playback buffer.</source>
         <translation>안정적인 재생 버퍼를 보장하기 위해 30% 정도 진행될 때까지 기다려 주십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5980" />
+        <location filename="../main.py" line="5992" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.
 
 cURL cannot refresh expired YouTube stream keys during queued execution.</source>
@@ -1104,615 +1104,615 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 cURL은 대기 중인 실행 중에 만료된 YouTube 스트림 키를 새로 고칠 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5986" />
+        <location filename="../main.py" line="5998" />
         <source>Please create a queue in the Queue Manager before adding items.</source>
         <translation>항목을 추가하기 전에 대기열 관리자에서 대기열을 생성하십시오.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5993" />
+        <location filename="../main.py" line="6005" />
         <source>Choose a destination queue:</source>
         <translation>대상 대기열을 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6237" />
+        <location filename="../main.py" line="6249" />
         <source>FFmpeg Missing</source>
         <translation>FFmpeg 누락</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6238" />
+        <location filename="../main.py" line="6250" />
         <source>FFmpeg is required for merging. Please configure it in Settings.</source>
         <translation>병합하려면 FFmpeg가 필요합니다. 설정에서 구성해 주세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Streams merged successfully.</source>
         <translation>스트림이 성공적으로 병합되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Merge Complete</source>
         <translation>병합 완료</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6302" />
+        <location filename="../main.py" line="6314" />
         <source>Merge Failed</source>
         <translation>병합 실패</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6327" />
+        <location filename="../main.py" line="6339" />
         <source>Please select a task to re-merge.</source>
         <translation>다시 병합할 작업을 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6342" />
+        <location filename="../main.py" line="6354" />
         <source>Could not find the associated audio file.</source>
         <translation>관련 오디오 파일을 찾을 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6348" />
+        <location filename="../main.py" line="6360" />
         <source>Could not find the associated video file.</source>
         <translation>관련 비디오 파일을 찾을 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="6385" />
         <source>Please select a completed download.</source>
         <translation>완료된 다운로드를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Failed to read the file for hashing.</source>
         <translation>해싱할 파일을 읽지 못했습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6398" />
+        <location filename="../main.py" line="6410" />
         <source>SHA-256 Checksum</source>
         <translation>SHA-256 체크섬</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6412" />
+        <location filename="../main.py" line="6424" />
         <source>Copy Hash</source>
         <translation>해시 복사</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4736" />
+        <location filename="../main.py" line="4748" />
         <source>Cannot add completed download to queue.</source>
         <translation>완료된 다운로드를 큐에 추가할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4755" />
+        <location filename="../main.py" line="4767" />
         <source>File Exists</source>
         <translation>파일 존재</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4762" />
+        <location filename="../main.py" line="4774" />
         <source>Filename conflict in queue: {q_name}. Please rename or change folder.</source>
         <translation>대기열의 파일 이름 충돌: {q_name}. 폴더 이름을 바꾸거나 폴더를 변경하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4796" />
+        <location filename="../main.py" line="4808" />
         <source>Added to Queue</source>
         <translation>큐에 추가됨</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5004" />
-        <location filename="../main.py" line="5018" />
+        <location filename="../main.py" line="5016" />
+        <location filename="../main.py" line="5030" />
         <source>Playlist Download</source>
         <translation>재생목록 다운로드</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5005" />
+        <location filename="../main.py" line="5017" />
         <source>Please check the URL.</source>
         <translation>URL을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5006" />
+        <location filename="../main.py" line="5018" />
         <source>Playlist is empty, nothing to download.</source>
         <translation>재생목록이 비어 있습니다. 다운로드할 항목이 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5025" />
+        <location filename="../main.py" line="5037" />
         <source>Select all videos</source>
         <translation>모든 동영상 선택</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5028" />
+        <location filename="../main.py" line="5040" />
         <source>Apply format to all:</source>
         <translation>모두에 형식 적용:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2220" />
         <source>Open File</source>
         <translation>파일 열기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2115" />
+        <location filename="../main.py" line="2127" />
         <source>&amp;File</source>
         <translation>&amp;파일</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1346" />
-        <location filename="../main.py" line="1385" />
-        <location filename="../main.py" line="1424" />
+        <location filename="../main.py" line="1358" />
+        <location filename="../main.py" line="1397" />
+        <location filename="../main.py" line="1436" />
         <source>Dependency Ready</source>
         <translation>의존성 준비</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1347" />
+        <location filename="../main.py" line="1359" />
         <source>ffmpeg is already installed and up to date.</source>
         <translation>ffmpeg가 이미 설치되어 있고 최신 상태입니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1365" />
-        <location filename="../main.py" line="1403" />
-        <location filename="../main.py" line="1443" />
+        <location filename="../main.py" line="1377" />
+        <location filename="../main.py" line="1415" />
+        <location filename="../main.py" line="1455" />
         <source>Installation Started</source>
         <translation>설치가 시작되었습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1366" />
+        <location filename="../main.py" line="1378" />
         <source>Downloading the latest ffmpeg for your system...</source>
         <translation>시스템에 맞는 최신 ffmpeg를 다운로드하는 중...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1370" />
-        <location filename="../main.py" line="1408" />
-        <location filename="../main.py" line="1448" />
+        <location filename="../main.py" line="1382" />
+        <location filename="../main.py" line="1420" />
+        <location filename="../main.py" line="1460" />
         <source>Install Error</source>
         <translation>설치 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1386" />
+        <location filename="../main.py" line="1398" />
         <source>deno is already installed and up to date.</source>
         <translation>deno가 이미 설치되어 있고 최신 상태입니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1404" />
+        <location filename="../main.py" line="1416" />
         <source>Downloading the latest Deno for your system...</source>
         <translation>시스템에 맞는 최신 Deno를 다운로드하는 중...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1425" />
+        <location filename="../main.py" line="1437" />
         <source>yt-dlp is already installed and up to date.</source>
         <translation>yt-dlp가 이미 설치되어 있으며 최신 상태입니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1444" />
+        <location filename="../main.py" line="1456" />
         <source>Downloading the latest yt-dlp for your system...</source>
         <translation>시스템에 맞는 최신 yt-dlp를 다운로드하는 중...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1771" />
+        <location filename="../main.py" line="1783" />
         <source>None</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1786" />
+        <location filename="../main.py" line="1798" />
         <source>Select Links File</source>
         <translation>링크 파일 선택</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1813" />
+        <location filename="../main.py" line="1825" />
         <source>Calculating…</source>
         <translation>계산 중…</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1845" />
-        <location filename="../main.py" line="1894" />
+        <location filename="../main.py" line="1857" />
+        <location filename="../main.py" line="1906" />
         <source>Unknown size</source>
         <translation>알 수 없는 크기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1883" />
-        <location filename="../main.py" line="1908" />
+        <location filename="../main.py" line="1895" />
+        <location filename="../main.py" line="1920" />
         <source>Add {count} to Queue</source>
         <translation>대기열에 {count}개 추가</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1885" />
-        <location filename="../main.py" line="1910" />
+        <location filename="../main.py" line="1897" />
+        <location filename="../main.py" line="1922" />
         <source>Start {count} Download{'s' if count != 1 else ''}</source>
         <translation>{count} 다운로드 시작' if count != 1 else ''}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1923" />
+        <location filename="../main.py" line="1935" />
         <source>Import failed</source>
         <translation>가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1926" />
+        <location filename="../main.py" line="1938" />
         <source>Batch Import Error</source>
         <translation>일괄 가져오기 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2116" />
+        <location filename="../main.py" line="2128" />
         <source>&amp;Exit</source>
         <translation>&amp;종료</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2117" />
+        <location filename="../main.py" line="2129" />
         <source>Open</source>
         <translation>열기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2120" />
+        <location filename="../main.py" line="2132" />
         <source>&amp;Downloads</source>
         <translation>&amp;다운로드</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2124" />
-        <location filename="../main.py" line="2163" />
+        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2175" />
         <source>Resume All</source>
         <translation>모두 재개</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2126" />
-        <location filename="../main.py" line="2159" />
+        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2171" />
         <source>Delete All</source>
         <translation>모두 삭제</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2128" />
+        <location filename="../main.py" line="2140" />
         <source>&amp;View</source>
         <translation>&amp;보기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2129" />
+        <location filename="../main.py" line="2141" />
         <source>Theme</source>
         <translation>테마</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2130" />
+        <location filename="../main.py" line="2142" />
         <source>Dark</source>
         <translation>다크</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2131" />
+        <location filename="../main.py" line="2143" />
         <source>Light</source>
         <translation>라이트</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2133" />
+        <location filename="../main.py" line="2145" />
         <source>&amp;Tools</source>
         <translation>&amp;도구</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2134" />
-        <location filename="../main.py" line="2160" />
+        <location filename="../main.py" line="2146" />
+        <location filename="../main.py" line="2172" />
         <source>Scheduler</source>
         <translation>스케줄러</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2135" />
-        <location filename="../main.py" line="2192" />
+        <location filename="../main.py" line="2147" />
+        <location filename="../main.py" line="2204" />
         <source>Categories</source>
         <translation>카테고리</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2148" />
         <source>Queues</source>
         <translation>큐</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2137" />
-        <location filename="../main.py" line="2164" />
+        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2176" />
         <source>Settings</source>
         <translation>설정</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2150" />
         <source>Install deno</source>
         <translation>데노 설치</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2139" />
+        <location filename="../main.py" line="2151" />
         <source>Install ffmpeg</source>
         <translation>ffmpeg 설치</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2140" />
+        <location filename="../main.py" line="2152" />
         <source>Install yt-dlp</source>
         <translation>yt-dlp 설치</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2141" />
+        <location filename="../main.py" line="2153" />
         <source>Marketplace</source>
         <translation>시장</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2143" />
+        <location filename="../main.py" line="2155" />
         <source>Browser Extension</source>
         <translation>브라우저 확장</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2145" />
+        <location filename="../main.py" line="2157" />
         <source>&amp;Help</source>
         <translation>&amp;도움말</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2148" />
+        <location filename="../main.py" line="2160" />
         <source>About</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2161" />
         <source>Help</source>
         <translation>도움말</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2150" />
+        <location filename="../main.py" line="2162" />
         <source>Check for Updates</source>
         <translation>업데이트 확인</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2152" />
+        <location filename="../main.py" line="2164" />
         <source>WhatsNew</source>
         <translation>새로운 기능</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2151" />
+        <location filename="../main.py" line="2163" />
         <source>Report Issues</source>
         <translation>문제 보고</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2183" />
+        <location filename="../main.py" line="2195" />
         <source>Downloads</source>
         <translation>다운로드</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2184" />
+        <location filename="../main.py" line="2196" />
         <source>Sort by:</source>
         <translation>정렬 기준:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2162" />
-        <location filename="../main.py" line="2185" />
+        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2197" />
         <source>Terminal</source>
         <translation>터미널</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2187" />
+        <location filename="../main.py" line="2199" />
         <source>Log Level:</source>
         <translation>로그 레벨:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2189" />
+        <location filename="../main.py" line="2201" />
         <source>Last HTTP response status</source>
         <translation>마지막 HTTP 응답 상태</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2190" />
+        <location filename="../main.py" line="2202" />
         <source>Current total download speed</source>
         <translation>현재 총 다운로드 속도</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2209" />
+        <location filename="../main.py" line="2221" />
         <source>Open File With</source>
         <translation>다음으로 열기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2210" />
+        <location filename="../main.py" line="2222" />
         <source>Open File Location</source>
         <translation>파일 위치 열기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2211" />
+        <location filename="../main.py" line="2223" />
         <source>Watch while downloading</source>
         <translation>다운로드 중에 보기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="2224" />
         <source>Schedule download</source>
         <translation>다운로드 예약</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="2225" />
         <source>Cancel schedule!</source>
         <translation>예약 취소!</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2215" />
+        <location filename="../main.py" line="2227" />
         <source>Re-merge audio/video</source>
         <translation>오디오/비디오 재병합</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2216" />
+        <location filename="../main.py" line="2228" />
         <source>File Properties</source>
         <translation>파일 속성</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1772" />
-        <location filename="../main.py" line="2217" />
-        <location filename="../main.py" line="4520" />
+        <location filename="../main.py" line="1784" />
+        <location filename="../main.py" line="2229" />
+        <location filename="../main.py" line="4532" />
         <source>Add to Queue</source>
         <translation>큐에 추가</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2218" />
+        <location filename="../main.py" line="2230" />
         <source>Remove from Queue</source>
         <translation>큐에서 제거</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2219" />
+        <location filename="../main.py" line="2231" />
         <source>File CheckSum!</source>
         <translation>파일 체크섬</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2220" />
+        <location filename="../main.py" line="2232" />
         <source>Delete from Table</source>
         <translation>테이블에서 삭제</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5592" />
-        <location filename="../main.py" line="5619" />
-        <location filename="../main.py" line="5642" />
+        <location filename="../main.py" line="5604" />
+        <location filename="../main.py" line="5631" />
         <location filename="../main.py" line="5654" />
+        <location filename="../main.py" line="5666" />
         <source>File Not Found</source>
         <translation>파일을 찾을 수 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5717" />
-        <location filename="../main.py" line="5735" />
+        <location filename="../main.py" line="5729" />
+        <location filename="../main.py" line="5747" />
         <source>No Temp File</source>
         <translation>임시 파일 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5958" />
-        <location filename="../main.py" line="6038" />
-        <location filename="../main.py" line="6326" />
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="5970" />
+        <location filename="../main.py" line="6050" />
+        <location filename="../main.py" line="6338" />
+        <location filename="../main.py" line="6385" />
         <source>No Selection</source>
         <translation>선택 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5959" />
+        <location filename="../main.py" line="5971" />
         <source>Please select a download to add to the queue.</source>
         <translation>큐에 추가할 다운로드를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5985" />
+        <location filename="../main.py" line="5997" />
         <source>No Queues Available</source>
         <translation>사용 가능한 큐가 없습니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5992" />
+        <location filename="../main.py" line="6004" />
         <source>Select Queue</source>
         <translation>큐 선택</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6039" />
+        <location filename="../main.py" line="6051" />
         <source>Please select a download to remove from the queue.</source>
         <translation>큐에서 제거할 다운로드를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6341" />
+        <location filename="../main.py" line="6353" />
         <source>Audio Missing</source>
         <translation>오디오 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6347" />
+        <location filename="../main.py" line="6359" />
         <source>Video Missing</source>
         <translation>비디오 없음</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Checksum is only available for completed downloads.</source>
         <translation>체크섬은 완료된 다운로드에서만 사용할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Invalid Status</source>
         <translation>잘못된 상태</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Checksum Error</source>
         <translation>체크섬 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2809" />
-        <location filename="../main.py" line="6413" />
+        <location filename="../main.py" line="2821" />
+        <location filename="../main.py" line="6425" />
         <source>Close</source>
         <translation>닫기</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5656" />
+        <location filename="../main.py" line="5668" />
         <source>The file '%1' could not be found or has been deleted.</source>
         <translation>'%1' 파일을 찾을 수 없거나 삭제되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5659" />
+        <location filename="../main.py" line="5671" />
         <source>Permission Error</source>
         <translation>권한 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5660" />
+        <location filename="../main.py" line="5672" />
         <source>Access denied: %1</source>
         <translation>액세스가 거부되었습니다: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5663" />
+        <location filename="../main.py" line="5675" />
         <source>OS Error</source>
         <translation>OS 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5664" />
+        <location filename="../main.py" line="5676" />
         <source>An OS error occurred: %1</source>
         <translation>OS 오류가 발생했습니다: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6777" />
-        <location filename="../main.py" line="6803" />
+        <location filename="../main.py" line="6795" />
+        <location filename="../main.py" line="6821" />
         <source>yt-dlp Update</source>
         <translation>yt-dlp 업데이트</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6778" />
+        <location filename="../main.py" line="6796" />
         <source>yt-dlp backend has been successfully updated.</source>
         <translation>yt-dlp 백엔드가 성공적으로 업데이트되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6783" />
+        <location filename="../main.py" line="6801" />
         <source>Update Error</source>
         <translation>업데이트 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6804" />
+        <location filename="../main.py" line="6822" />
         <source>yt-dlp has been updated to the latest version.</source>
         <translation>yt-dlp가 최신 버전으로 업데이트되었습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6806" />
+        <location filename="../main.py" line="6824" />
         <source>yt-dlp version: %1</source>
         <translation>yt-dlp 버전: %1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6809" />
+        <location filename="../main.py" line="6827" />
         <source>Update failed or binary is already up to date.</source>
         <translation>업데이트가 실패했거나 바이너리가 이미 최신 상태입니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6810" />
+        <location filename="../main.py" line="6828" />
         <source>yt-dlp Update Error</source>
         <translation>yt-dlp 업데이트 오류</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
-        <location filename="../main.py" line="6835" />
+        <location filename="../main.py" line="6849" />
+        <location filename="../main.py" line="6853" />
         <source>App Update</source>
         <translation>앱 업데이트</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
+        <location filename="../main.py" line="6849" />
         <source>App is up-to-date</source>
         <translation>앱이 최신 상태입니다</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Couldn't check for update</source>
         <translation>업데이트를 확인할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Please check your internet connection.</source>
         <translation>인터넷 연결을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6847" />
+        <location filename="../main.py" line="6865" />
         <source>Update Application</source>
         <translation>애플리케이션 업데이트</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6851" />
+        <location filename="../main.py" line="6869" />
         <source>New version available:</source>
         <translation>새 버전 사용 가능:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6856" />
+        <location filename="../main.py" line="6874" />
         <source>No changelog available.</source>
         <translation>사용 가능한 변경 내역이 없습니다.</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6863" />
+        <location filename="../main.py" line="6881" />
         <source>Update</source>
         <translation>업데이트</translation>
     </message>
@@ -1803,7 +1803,7 @@ cURL은 대기 중인 실행 중에 만료된 YouTube 스트림 키를 새로 �
 <context>
     <name>Main</name>
     <message>
-        <location filename="../main.py" line="6955" />
+        <location filename="../main.py" line="6973" />
         <source>Another instance of the application is already running.</source>
         <translation>애플리케이션의 다른 인스턴스가 이미 실행 중입니다.</translation>
     </message>
@@ -1863,6 +1863,11 @@ cURL은 대기 중인 실행 중에 만료된 YouTube 스트림 키를 새로 �
         <location filename="../ui/marketplace_dialog.py" line="632" />
         <source>%1 plugins</source>
         <translation>플러그인%1개</translation>
+    </message>
+    <message>
+        <location filename="../ui/marketplace_dialog.py" line="682" />
+        <source>Plugin Installed</source>
+        <translation>플러그인 설치됨</translation>
     </message>
     <message>
         <location filename="../ui/marketplace_dialog.py" line="539" />
@@ -2760,29 +2765,29 @@ Please try again or update manually.</source>
     <name>WhatsNewDialog</name>
     <message>
         <location filename="../ui/changelog_dialog.py" line="42" />
-        <location filename="../ui/changelog_dialog.py" line="364" />
+        <location filename="../ui/changelog_dialog.py" line="412" />
         <source>What's new</source>
         <translation>새로운 소식</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="56" />
-        <location filename="../ui/changelog_dialog.py" line="365" />
+        <location filename="../ui/changelog_dialog.py" line="413" />
         <source>What’s new</source>
         <translation>새로운 소식</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="367" />
+        <location filename="../ui/changelog_dialog.py" line="415" />
         <source>Version: -</source>
         <translation>버전: -</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="368" />
+        <location filename="../ui/changelog_dialog.py" line="416" />
         <source>Date: -</source>
         <translation>날짜: -</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="89" />
-        <location filename="../ui/changelog_dialog.py" line="374" />
+        <location filename="../ui/changelog_dialog.py" line="422" />
         <source>Highlights</source>
         <translation>하이라이트</translation>
     </message>
@@ -2803,54 +2808,54 @@ Please try again or update manually.</source>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="113" />
-        <location filename="../ui/changelog_dialog.py" line="371" />
+        <location filename="../ui/changelog_dialog.py" line="419" />
         <source>Previous</source>
         <translation>이전의</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="114" />
-        <location filename="../ui/changelog_dialog.py" line="372" />
+        <location filename="../ui/changelog_dialog.py" line="420" />
         <source>Next</source>
         <translation>다음</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="119" />
-        <location filename="../ui/changelog_dialog.py" line="373" />
+        <location filename="../ui/changelog_dialog.py" line="421" />
         <source>Close</source>
         <translation>닫다</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="369" />
+        <location filename="../ui/changelog_dialog.py" line="417" />
         <source>No release notes available.</source>
         <translation>사용 가능한 릴리스 노트가 없습니다.</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="370" />
+        <location filename="../ui/changelog_dialog.py" line="418" />
         <source>No releases</source>
         <translation>릴리스 없음</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="312" />
+        <location filename="../ui/changelog_dialog.py" line="360" />
         <source>Version: %1</source>
         <translation>버전: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="313" />
+        <location filename="../ui/changelog_dialog.py" line="361" />
         <source>Date: %1</source>
         <translation>날짜: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="314" />
+        <location filename="../ui/changelog_dialog.py" line="362" />
         <source>Highlights: %1</source>
         <translation>하이라이트: %1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="337" />
+        <location filename="../ui/changelog_dialog.py" line="385" />
         <source>Current release (1 of %1)</source>
         <translation>현재 릴리스(%1 중 1개)</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="339" />
+        <location filename="../ui/changelog_dialog.py" line="387" />
         <source>Past release (%1 of %2)</source>
         <translation>지난 릴리스(%2 중 %1)</translation>
     </message>

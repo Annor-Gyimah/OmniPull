@@ -478,137 +478,137 @@
 <context>
     <name>DownloadManagerWindow</name>
     <message>
-        <location filename="../main.py" line="1291" />
+        <location filename="../main.py" line="1303" />
         <source>No completed downloads</source>
         <translation>没有完成的下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>Queue</source>
         <translation>队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1967" />
+        <location filename="../main.py" line="1979" />
         <source>has started automatically</source>
         <translation>已自动开始</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1970" />
+        <location filename="../main.py" line="1982" />
         <source>Queue Scheduler</source>
         <translation>队列计划程序</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2684" />
+        <location filename="../main.py" line="2696" />
         <source>"Deno" is required to solve JavaScript challenges for YouTube.
 Install from the official docs or add the deno executable to PATH.</source>
         <translation>需要 "Deno" 来解决 YouTube 的 JavaScript 挑战。
 请从官方文档安装或将 deno 可执行文件添加到 PATH。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1775" />
-        <location filename="../main.py" line="1816" />
-        <location filename="../main.py" line="1908" />
-        <location filename="../main.py" line="1910" />
-        <location filename="../main.py" line="1924" />
-        <location filename="../main.py" line="2787" />
-        <location filename="../main.py" line="4657" />
+        <location filename="../main.py" line="1787" />
+        <location filename="../main.py" line="1828" />
+        <location filename="../main.py" line="1920" />
+        <location filename="../main.py" line="1922" />
+        <location filename="../main.py" line="1936" />
+        <location filename="../main.py" line="2799" />
+        <location filename="../main.py" line="4669" />
         <source>Start Download</source>
         <translation>开始下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3363" />
+        <location filename="../main.py" line="3375" />
         <source>Recommended:</source>
         <translation>推荐：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3364" />
+        <location filename="../main.py" line="3376" />
         <source>Local folder:</source>
         <translation>本地文件夹:</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3380" />
-        <location filename="../main.py" line="5090" />
+        <location filename="../main.py" line="3392" />
+        <location filename="../main.py" line="5102" />
         <source>Download</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2804" />
-        <location filename="../main.py" line="3381" />
-        <location filename="../main.py" line="3760" />
-        <location filename="../main.py" line="4165" />
-        <location filename="../main.py" line="4519" />
-        <location filename="../main.py" line="5089" />
-        <location filename="../main.py" line="6864" />
+        <location filename="../main.py" line="2816" />
+        <location filename="../main.py" line="3393" />
+        <location filename="../main.py" line="3772" />
+        <location filename="../main.py" line="4177" />
+        <location filename="../main.py" line="4531" />
+        <location filename="../main.py" line="5101" />
+        <location filename="../main.py" line="6882" />
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
+        <location filename="../main.py" line="3519" />
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3507" />
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3519" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>No download item selected</source>
         <translation>未选择下载项</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2125" />
-        <location filename="../main.py" line="2158" />
-        <location filename="../main.py" line="3819" />
+        <location filename="../main.py" line="2137" />
+        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="3831" />
         <source>Stop All</source>
         <translation>全部停止</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2118" />
+        <location filename="../main.py" line="2130" />
         <source>Add new download</source>
         <translation>添加新下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2186" />
+        <location filename="../main.py" line="2198" />
         <source>Clear</source>
         <translation>清除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2203" />
+        <location filename="../main.py" line="2215" />
         <source>Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'.</source>
         <translation>在此输入命令... 你可以从一些有用的命令开始，例如 'help' 或 'yt-dlp --help'。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2205" />
+        <location filename="../main.py" line="2217" />
         <source>Search downloads...</source>
         <translation>搜索下载内容...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1543" />
-        <location filename="../main.py" line="3704" />
-        <location filename="../main.py" line="3839" />
+        <location filename="../main.py" line="1555" />
+        <location filename="../main.py" line="3716" />
+        <location filename="../main.py" line="3851" />
         <source>Yes</source>
         <translation>是的</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1544" />
-        <location filename="../main.py" line="3705" />
-        <location filename="../main.py" line="3840" />
+        <location filename="../main.py" line="1556" />
+        <location filename="../main.py" line="3717" />
+        <location filename="../main.py" line="3852" />
         <source>No</source>
         <translation>不</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3820" />
+        <location filename="../main.py" line="3832" />
         <source>There are no active downloads to stop.</source>
         <translation>没有要停止的活动下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3827" />
+        <location filename="../main.py" line="3839" />
         <source>Stop All Downloads?</source>
         <translation>要停止所有下载吗？</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3831" />
+        <location filename="../main.py" line="3843" />
         <source>Active tasks (Downloading, Pending, or Merging) were detected.
 
 Do you want to stop all active processes?</source>
@@ -617,315 +617,315 @@ Do you want to stop all active processes?</source>
 您想停止所有活动进程吗？</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3870" />
+        <location filename="../main.py" line="3882" />
         <source>Stopped</source>
         <translation>已停止</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4010" />
+        <location filename="../main.py" line="4022" />
         <source>No Downloads to Schedule</source>
         <translation>没有可安排的下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4029" />
+        <location filename="../main.py" line="4041" />
         <source>Schedule Error</source>
         <translation>调度错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4215" />
+        <location filename="../main.py" line="4227" />
         <source>Folder Error</source>
         <translation>文件夹错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
-        <location filename="../main.py" line="4666" />
+        <location filename="../main.py" line="4232" />
+        <location filename="../main.py" line="4678" />
         <source>Download Error</source>
         <translation>下载错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4160" />
+        <location filename="../main.py" line="4172" />
         <source>File Already Exists</source>
         <translation>文件已存在</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2156" />
-        <location filename="../main.py" line="4163" />
+        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="4175" />
         <source>Resume</source>
         <translation>继续下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2155" />
+        <location filename="../main.py" line="2167" />
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2157" />
+        <location filename="../main.py" line="2169" />
         <source>Pause</source>
         <translation>暂停</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2161" />
+        <location filename="../main.py" line="2173" />
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2193" />
+        <location filename="../main.py" line="2205" />
         <source>   Search: </source>
         <translation>搜索：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2214" />
+        <location filename="../main.py" line="2226" />
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2805" />
+        <location filename="../main.py" line="2817" />
         <source>Cancel URL processing</source>
         <translation>取消 URL 处理</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>Empty Playlist</source>
         <translation>空播放列表</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2968" />
+        <location filename="../main.py" line="2980" />
         <source>The playlist appears to be empty or restricted.</source>
         <translation>播放列表似乎为空或受限制。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1172" />
-        <location filename="../main.py" line="2975" />
+        <location filename="../main.py" line="1184" />
+        <location filename="../main.py" line="2987" />
         <source>Start Playlist</source>
         <translation>开始播放列表</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3039" />
+        <location filename="../main.py" line="3051" />
         <source>Network Error: Connectivity lost or blocked by firewall.</source>
         <translation>网络错误：连接丢失或被防火墙阻止。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3041" />
+        <location filename="../main.py" line="3053" />
         <source>YouTube API Error: The server rejected the metadata request.</source>
         <translation>YouTube API 错误：服务器拒绝元数据请求。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3043" />
+        <location filename="../main.py" line="3055" />
         <source>Media Unavailable: Removed, private, or geo-blocked.</source>
         <translation>媒体不可用：已删除、私有或地理封锁。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3045" />
+        <location filename="../main.py" line="3057" />
         <source>An unexpected error occurred during URL processing.</source>
         <translation>URL 处理期间发生意外错误。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3047" />
+        <location filename="../main.py" line="3059" />
         <source>Extraction Failed</source>
         <translation>提取失败</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3610" />
-        <location filename="../main.py" line="4046" />
-        <location filename="../main.py" line="5842" />
-        <location filename="../main.py" line="5892" />
+        <location filename="../main.py" line="3622" />
+        <location filename="../main.py" line="4058" />
+        <location filename="../main.py" line="5854" />
+        <location filename="../main.py" line="5904" />
         <source>Action Required</source>
         <translation>需要采取的行动</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3686" />
-        <location filename="../main.py" line="3746" />
+        <location filename="../main.py" line="3698" />
+        <location filename="../main.py" line="3758" />
         <source>Active Tasks</source>
         <translation>活动任务</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3687" />
+        <location filename="../main.py" line="3699" />
         <source>Cannot delete items while downloads are active. Please stop all tasks first.</source>
         <translation>下载处于活动状态时无法删除项目。请先停止所有任务。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3696" />
+        <location filename="../main.py" line="3708" />
         <source>Are you sure you want to delete the selected items and their associated temporary files?</source>
         <translation>您确定要删除所选项目及其关联的临时文件吗？</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3695" />
+        <location filename="../main.py" line="3707" />
         <source>Confirm Deletion</source>
         <translation>确认删除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3747" />
+        <location filename="../main.py" line="3759" />
         <source>Global wipe blocked. Stop active downloads before proceeding.</source>
         <translation>全局擦除被阻止。在继续之前停止活动下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3754" />
+        <location filename="../main.py" line="3766" />
         <source>This will delete ALL items and their progress files.
 Type 'delete' to confirm.</source>
         <translation>这将删除所有项目及其进度文件。
 输入“删除”进行确认。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3752" />
+        <location filename="../main.py" line="3764" />
         <source>Global Wipe</source>
         <translation>全局擦除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1474" />
+        <location filename="../main.py" line="1486" />
         <source>Opening Browser</source>
         <translation>打开浏览器</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1475" />
+        <location filename="../main.py" line="1487" />
         <source>Redirecting you to install %1 the extension.</source>
         <translation>正在重定向您安装 %1 该扩展。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1476" />
+        <location filename="../main.py" line="1488" />
         <source>Follow the instructions in the web store.</source>
         <translation>按照网上商店中的说明进行操作。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1482" />
+        <location filename="../main.py" line="1494" />
         <source>No URL available for %1.</source>
         <translation>%1 没有可用的 URL。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1490" />
+        <location filename="../main.py" line="1502" />
         <source>Community Feedback</source>
         <translation>社区反馈</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1491" />
+        <location filename="../main.py" line="1503" />
         <source>Redirecting to GitHub. We appreciate your bug reports and feature requests.</source>
         <translation>重定向到 GitHub。我们感谢您的错误报告和功能请求。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1492" />
+        <location filename="../main.py" line="1504" />
         <source>Follow the instructions on the issues page.</source>
         <translation>按照问题页面上的说明进行操作。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1533" />
+        <location filename="../main.py" line="1545" />
         <source>System Busy</source>
         <translation>系统忙</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1535" />
+        <location filename="../main.py" line="1547" />
         <source>Downloads are currently running. Pause them to proceed with terminal execution?</source>
         <translation>目前正在运行下载。暂停它们以继续终端执行？</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2167" />
+        <location filename="../main.py" line="2179" />
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2168" />
+        <location filename="../main.py" line="2180" />
         <source>Name</source>
         <translation>姓名</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2169" />
+        <location filename="../main.py" line="2181" />
         <source>Progress</source>
         <translation>进步</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2170" />
+        <location filename="../main.py" line="2182" />
         <source>Speed</source>
         <translation>速度</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2171" />
+        <location filename="../main.py" line="2183" />
         <source>ETA</source>
         <translation>和</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2172" />
+        <location filename="../main.py" line="2184" />
         <source>Done</source>
         <translation>完毕</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2173" />
+        <location filename="../main.py" line="2185" />
         <source>Size</source>
         <translation>尺寸</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2186" />
         <source>Status</source>
         <translation>地位</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2175" />
+        <location filename="../main.py" line="2187" />
         <source>I</source>
         <translation>我</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2176" />
+        <location filename="../main.py" line="2188" />
         <source>Last Try Date</source>
         <translation>最后尝试日期</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2191" />
+        <location filename="../main.py" line="2203" />
         <source>No plugins installed. Install via marketplace.</source>
         <translation>没有安装插件。通过市场安装。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2196" />
-        <location filename="../main.py" line="2200" />
-        <location filename="../main.py" line="6650" />
-        <location filename="../main.py" line="6674" />
+        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="6668" />
+        <location filename="../main.py" line="6692" />
         <source>Update Now</source>
         <translation>立即更新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2201" />
-        <location filename="../main.py" line="6675" />
+        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="6693" />
         <source>Later</source>
         <translation>之后</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3348" />
+        <location filename="../main.py" line="3360" />
         <source>%1 is missing</source>
         <translation>%1 丢失</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3349" />
+        <location filename="../main.py" line="3361" />
         <source>%1 is missing and needs to be downloaded:</source>
         <translation>%1 丢失，需要下载：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3759" />
+        <location filename="../main.py" line="3771" />
         <source>OK</source>
         <translation>好的</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3871" />
+        <location filename="../main.py" line="3883" />
         <source>All active downloads have been successfully cancelled.</source>
         <translation>所有活动下载均已成功取消。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3985" />
+        <location filename="../main.py" line="3997" />
         <source>Scheduled Retry</source>
         <translation>预定重试</translation>
     </message>
     <message>
-        <location filename="../main.py" line="3986" />
+        <location filename="../main.py" line="3998" />
         <source>Task '{d.name}' failed. Retrying at {d.sched[1]} [Attempt {d.schedule_retries}]</source>
         <translation>任务“{d.name}”失败。在 {d.sched[1]} 重试 [尝试 {d.schedule_retries}]</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4011" />
+        <location filename="../main.py" line="4023" />
         <source>There are no valid 'Pending' or 'Cancelled' tasks available for scheduling.</source>
         <translation>没有可用于安排的有效“待处理”或“已取消”任务。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4016" />
+        <location filename="../main.py" line="4028" />
         <source>Bulk Schedule Configuration</source>
         <translation>批量计划配置</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4151" />
+        <location filename="../main.py" line="4163" />
         <source>File with the same name:
 %1
 already exists in download list.
@@ -944,158 +944,158 @@ Note: To keep both, rename the file or change the folder.</source>
 注意：要保留两者，请重命名文件或更改文件夹。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4164" />
+        <location filename="../main.py" line="4176" />
         <source>Overwrite</source>
         <translation>覆盖</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4199" />
+        <location filename="../main.py" line="4211" />
         <source>"ffmpeg" is required for stream merging.</source>
         <translation>流合并需要“ffmpeg”。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4220" />
+        <location filename="../main.py" line="4232" />
         <source>Invalid filename.</source>
         <translation>文件名无效。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4361" />
+        <location filename="../main.py" line="4373" />
         <source>Fetching Resolutions…</source>
         <translation>正在获取分辨率...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4365" />
+        <location filename="../main.py" line="4377" />
         <source>Fetching format data for {len(yt_items)} YouTube item(s)…</source>
         <translation>正在获取 {len(yt_items)} YouTube 项目的格式数据...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4440" />
+        <location filename="../main.py" line="4452" />
         <source>YouTube Resolution Selection</source>
         <translation>YouTube 分辨率选择</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4588" />
+        <location filename="../main.py" line="4600" />
         <source>Nothing to Add</source>
         <translation>没有什么可添加的</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4589" />
+        <location filename="../main.py" line="4601" />
         <source>No links have been resolved yet. Please wait for processing to finish.</source>
         <translation>尚未解决任何链接。请等待处理完成。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4629" />
+        <location filename="../main.py" line="4641" />
         <source>Batch Added</source>
         <translation>批量添加</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4630" />
+        <location filename="../main.py" line="4642" />
         <source>Successfully staged {added} item(s) into '{selected_queue}'.</source>
         <translation>已成功将 {add} 个项目暂存到“{selected_queue}”中。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Nothing to download</source>
         <translation>没有可下载的内容</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4667" />
+        <location filename="../main.py" line="4679" />
         <source>Check your URL or click Retry.</source>
         <translation>请检查您的 URL 或点击重试。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4729" />
-        <location filename="../main.py" line="4735" />
-        <location filename="../main.py" line="4751" />
+        <location filename="../main.py" line="4741" />
+        <location filename="../main.py" line="4747" />
         <location filename="../main.py" line="4763" />
-        <location filename="../main.py" line="5979" />
+        <location filename="../main.py" line="4775" />
+        <location filename="../main.py" line="5991" />
         <source>Queue Error</source>
         <translation>队列错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4730" />
+        <location filename="../main.py" line="4742" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.</source>
         <translation>队列中的 YouTube 视频需要 aria2c 或 yt-dlp 引擎。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4750" />
+        <location filename="../main.py" line="4762" />
         <source>This file already exists in queue: {existing_queue}</source>
         <translation>该文件已存在于队列中：{existing_queue}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4754" />
+        <location filename="../main.py" line="4766" />
         <source>Cannot add to queue; target file already exists: {target_path}</source>
         <translation>无法添加到队列；目标文件已存在：{target_path}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4797" />
+        <location filename="../main.py" line="4809" />
         <source>'{d.name}' has been added to {queue_name}.</source>
         <translation>“{d.name}”已添加到 {queue_name}。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4860" />
+        <location filename="../main.py" line="4872" />
         <source>No preview</source>
         <translation>无预览</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5083" />
+        <location filename="../main.py" line="5095" />
         <source>Select videos and formats. Use the master option to apply settings globally.</source>
         <translation>选择视频和格式。使用主选项全局应用设置。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5593" />
-        <location filename="../main.py" line="5643" />
+        <location filename="../main.py" line="5605" />
+        <location filename="../main.py" line="5655" />
         <source>The selected file could not be found on disk.</source>
         <translation>在磁盘上找不到所选文件。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5595" />
-        <location filename="../main.py" line="5645" />
+        <location filename="../main.py" line="5607" />
+        <location filename="../main.py" line="5657" />
         <source>Download Incomplete</source>
         <translation>下载不完整</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5596" />
-        <location filename="../main.py" line="5646" />
+        <location filename="../main.py" line="5608" />
+        <location filename="../main.py" line="5658" />
         <source>Please wait for the download to finish before opening.</source>
         <translation>请等待下载完成后再打开。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5718" />
+        <location filename="../main.py" line="5730" />
         <source>The yt-dlp download file is not yet available on disk.
 Please wait a few moments for the download to create the file.</source>
         <translation>磁盘上尚未提供 yt-dlp 下载文件。
 请稍等片刻，以便下载以创建文件。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5736" />
+        <location filename="../main.py" line="5748" />
         <source>The temporary media file is not yet available on disk.</source>
         <translation>临时媒体文件在磁盘上尚不可用。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5745" />
+        <location filename="../main.py" line="5757" />
         <source>File Too Small</source>
         <translation>文件太小</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5746" />
+        <location filename="../main.py" line="5758" />
         <source>Please wait for more data to download before watching.
 Current size: {size_format(file_size)}</source>
         <translation>请等待更多数据下载后再观看。
 当前大小：{size_format(file_size)}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5754" />
+        <location filename="../main.py" line="5766" />
         <source>Buffer Low</source>
         <translation>缓冲低</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5755" />
+        <location filename="../main.py" line="5767" />
         <source>Please wait for 30% progress to ensure a stable playback buffer.</source>
         <translation>请等待 30% 进度以确保稳定的播放缓冲。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5980" />
+        <location filename="../main.py" line="5992" />
         <source>YouTube videos in queues require aria2c or yt-dlp engine.
 
 cURL cannot refresh expired YouTube stream keys during queued execution.</source>
@@ -1104,615 +1104,615 @@ cURL cannot refresh expired YouTube stream keys during queued execution.</source
 cURL 在排队执行期间无法刷新过期的 YouTube 流密钥。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5986" />
+        <location filename="../main.py" line="5998" />
         <source>Please create a queue in the Queue Manager before adding items.</source>
         <translation>添加项目之前，请在队列管理器中创建队列。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5993" />
+        <location filename="../main.py" line="6005" />
         <source>Choose a destination queue:</source>
         <translation>选择目标队列：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6237" />
+        <location filename="../main.py" line="6249" />
         <source>FFmpeg Missing</source>
         <translation>FFmpeg 缺失</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6238" />
+        <location filename="../main.py" line="6250" />
         <source>FFmpeg is required for merging. Please configure it in Settings.</source>
         <translation>合并需要 FFmpeg。请在“设置”中进行配置。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Streams merged successfully.</source>
         <translation>流合并成功。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6295" />
+        <location filename="../main.py" line="6307" />
         <source>Merge Complete</source>
         <translation>合并完成</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6302" />
+        <location filename="../main.py" line="6314" />
         <source>Merge Failed</source>
         <translation>合并失败</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6327" />
+        <location filename="../main.py" line="6339" />
         <source>Please select a task to re-merge.</source>
         <translation>请选择要重新合并的任务。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6342" />
+        <location filename="../main.py" line="6354" />
         <source>Could not find the associated audio file.</source>
         <translation>找不到关联的音频文件。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6348" />
+        <location filename="../main.py" line="6360" />
         <source>Could not find the associated video file.</source>
         <translation>找不到关联的视频文件。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="6385" />
         <source>Please select a completed download.</source>
         <translation>请选择已完成的下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Failed to read the file for hashing.</source>
         <translation>无法读取文件进行哈希处理。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6398" />
+        <location filename="../main.py" line="6410" />
         <source>SHA-256 Checksum</source>
         <translation>SHA-256 校验和</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6412" />
+        <location filename="../main.py" line="6424" />
         <source>Copy Hash</source>
         <translation>复制哈希值</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4736" />
+        <location filename="../main.py" line="4748" />
         <source>Cannot add completed download to queue.</source>
         <translation>无法将已完成的下载添加到队列。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4755" />
+        <location filename="../main.py" line="4767" />
         <source>File Exists</source>
         <translation>文件已存在</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4762" />
+        <location filename="../main.py" line="4774" />
         <source>Filename conflict in queue: {q_name}. Please rename or change folder.</source>
         <translation>队列中的文件名冲突：{q_name}。请重命名或更改文件夹。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="4796" />
+        <location filename="../main.py" line="4808" />
         <source>Added to Queue</source>
         <translation>已添加到队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5004" />
-        <location filename="../main.py" line="5018" />
+        <location filename="../main.py" line="5016" />
+        <location filename="../main.py" line="5030" />
         <source>Playlist Download</source>
         <translation>播放列表下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5005" />
+        <location filename="../main.py" line="5017" />
         <source>Please check the URL.</source>
         <translation>请检查 URL。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5006" />
+        <location filename="../main.py" line="5018" />
         <source>Playlist is empty, nothing to download.</source>
         <translation>播放列表为空，没有可下载内容。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5025" />
+        <location filename="../main.py" line="5037" />
         <source>Select all videos</source>
         <translation>选择所有视频</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5028" />
+        <location filename="../main.py" line="5040" />
         <source>Apply format to all:</source>
         <translation>应用格式到所有：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2208" />
+        <location filename="../main.py" line="2220" />
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2115" />
+        <location filename="../main.py" line="2127" />
         <source>&amp;File</source>
         <translation>&amp;文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1346" />
-        <location filename="../main.py" line="1385" />
-        <location filename="../main.py" line="1424" />
+        <location filename="../main.py" line="1358" />
+        <location filename="../main.py" line="1397" />
+        <location filename="../main.py" line="1436" />
         <source>Dependency Ready</source>
         <translation>依赖就绪</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1347" />
+        <location filename="../main.py" line="1359" />
         <source>ffmpeg is already installed and up to date.</source>
         <translation>ffmpeg 已安装且是最新的。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1365" />
-        <location filename="../main.py" line="1403" />
-        <location filename="../main.py" line="1443" />
+        <location filename="../main.py" line="1377" />
+        <location filename="../main.py" line="1415" />
+        <location filename="../main.py" line="1455" />
         <source>Installation Started</source>
         <translation>安装开始</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1366" />
+        <location filename="../main.py" line="1378" />
         <source>Downloading the latest ffmpeg for your system...</source>
         <translation>正在为您的系统下载最新的 ffmpeg...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1370" />
-        <location filename="../main.py" line="1408" />
-        <location filename="../main.py" line="1448" />
+        <location filename="../main.py" line="1382" />
+        <location filename="../main.py" line="1420" />
+        <location filename="../main.py" line="1460" />
         <source>Install Error</source>
         <translation>安装错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1386" />
+        <location filename="../main.py" line="1398" />
         <source>deno is already installed and up to date.</source>
         <translation>deno 已经安装并且是最新的。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1404" />
+        <location filename="../main.py" line="1416" />
         <source>Downloading the latest Deno for your system...</source>
         <translation>正在为您的系统下载最新的 Deno...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1425" />
+        <location filename="../main.py" line="1437" />
         <source>yt-dlp is already installed and up to date.</source>
         <translation>yt-dlp 已安装并且是最新的。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1444" />
+        <location filename="../main.py" line="1456" />
         <source>Downloading the latest yt-dlp for your system...</source>
         <translation>正在为您的系统下载最新的 yt-dlp...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1771" />
+        <location filename="../main.py" line="1783" />
         <source>None</source>
         <translation>没有任何</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1786" />
+        <location filename="../main.py" line="1798" />
         <source>Select Links File</source>
         <translation>选择链接文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1813" />
+        <location filename="../main.py" line="1825" />
         <source>Calculating…</source>
         <translation>正在计算...</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1845" />
-        <location filename="../main.py" line="1894" />
+        <location filename="../main.py" line="1857" />
+        <location filename="../main.py" line="1906" />
         <source>Unknown size</source>
         <translation>尺寸未知</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1883" />
-        <location filename="../main.py" line="1908" />
+        <location filename="../main.py" line="1895" />
+        <location filename="../main.py" line="1920" />
         <source>Add {count} to Queue</source>
         <translation>将 {count} 添加到队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1885" />
-        <location filename="../main.py" line="1910" />
+        <location filename="../main.py" line="1897" />
+        <location filename="../main.py" line="1922" />
         <source>Start {count} Download{'s' if count != 1 else ''}</source>
         <translation>开始 {count} 个下载{'s' if count != 1 else ''}</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1923" />
+        <location filename="../main.py" line="1935" />
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1926" />
+        <location filename="../main.py" line="1938" />
         <source>Batch Import Error</source>
         <translation>批量导入错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2116" />
+        <location filename="../main.py" line="2128" />
         <source>&amp;Exit</source>
         <translation>&amp;退出</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2117" />
+        <location filename="../main.py" line="2129" />
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2120" />
+        <location filename="../main.py" line="2132" />
         <source>&amp;Downloads</source>
         <translation>&amp;下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2124" />
-        <location filename="../main.py" line="2163" />
+        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2175" />
         <source>Resume All</source>
         <translation>全部继续</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2126" />
-        <location filename="../main.py" line="2159" />
+        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2171" />
         <source>Delete All</source>
         <translation>全部删除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2128" />
+        <location filename="../main.py" line="2140" />
         <source>&amp;View</source>
         <translation>&amp;查看</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2129" />
+        <location filename="../main.py" line="2141" />
         <source>Theme</source>
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2130" />
+        <location filename="../main.py" line="2142" />
         <source>Dark</source>
         <translation>深色</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2131" />
+        <location filename="../main.py" line="2143" />
         <source>Light</source>
         <translation>浅色</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2133" />
+        <location filename="../main.py" line="2145" />
         <source>&amp;Tools</source>
         <translation>&amp;工具</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2134" />
-        <location filename="../main.py" line="2160" />
+        <location filename="../main.py" line="2146" />
+        <location filename="../main.py" line="2172" />
         <source>Scheduler</source>
         <translation>调度器</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2135" />
-        <location filename="../main.py" line="2192" />
+        <location filename="../main.py" line="2147" />
+        <location filename="../main.py" line="2204" />
         <source>Categories</source>
         <translation>类别</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2136" />
+        <location filename="../main.py" line="2148" />
         <source>Queues</source>
         <translation>队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2137" />
-        <location filename="../main.py" line="2164" />
+        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2176" />
         <source>Settings</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2138" />
+        <location filename="../main.py" line="2150" />
         <source>Install deno</source>
         <translation>安装 deno</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2139" />
+        <location filename="../main.py" line="2151" />
         <source>Install ffmpeg</source>
         <translation>安装 ffmpeg</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2140" />
+        <location filename="../main.py" line="2152" />
         <source>Install yt-dlp</source>
         <translation>安装 yt-dlp</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2141" />
+        <location filename="../main.py" line="2153" />
         <source>Marketplace</source>
         <translation>市场</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2143" />
+        <location filename="../main.py" line="2155" />
         <source>Browser Extension</source>
         <translation>浏览器扩展</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2145" />
+        <location filename="../main.py" line="2157" />
         <source>&amp;Help</source>
         <translation>&amp;帮助</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2148" />
+        <location filename="../main.py" line="2160" />
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2149" />
+        <location filename="../main.py" line="2161" />
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2150" />
+        <location filename="../main.py" line="2162" />
         <source>Check for Updates</source>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2152" />
+        <location filename="../main.py" line="2164" />
         <source>WhatsNew</source>
         <translation>新功能</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2151" />
+        <location filename="../main.py" line="2163" />
         <source>Report Issues</source>
         <translation>报告问题</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2183" />
+        <location filename="../main.py" line="2195" />
         <source>Downloads</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2184" />
+        <location filename="../main.py" line="2196" />
         <source>Sort by:</source>
         <translation>排序方式：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2162" />
-        <location filename="../main.py" line="2185" />
+        <location filename="../main.py" line="2174" />
+        <location filename="../main.py" line="2197" />
         <source>Terminal</source>
         <translation>终端</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2187" />
+        <location filename="../main.py" line="2199" />
         <source>Log Level:</source>
         <translation>日志等级：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2189" />
+        <location filename="../main.py" line="2201" />
         <source>Last HTTP response status</source>
         <translation>最后的HTTP响应状态</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2190" />
+        <location filename="../main.py" line="2202" />
         <source>Current total download speed</source>
         <translation>当前总下载速度</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2209" />
+        <location filename="../main.py" line="2221" />
         <source>Open File With</source>
         <translation>使用程序打开文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2210" />
+        <location filename="../main.py" line="2222" />
         <source>Open File Location</source>
         <translation>打开文件位置</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2211" />
+        <location filename="../main.py" line="2223" />
         <source>Watch while downloading</source>
         <translation>下载时观看</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2212" />
+        <location filename="../main.py" line="2224" />
         <source>Schedule download</source>
         <translation>安排下载</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2213" />
+        <location filename="../main.py" line="2225" />
         <source>Cancel schedule!</source>
         <translation>取消计划!</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2215" />
+        <location filename="../main.py" line="2227" />
         <source>Re-merge audio/video</source>
         <translation>重新合并音频/视频</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2216" />
+        <location filename="../main.py" line="2228" />
         <source>File Properties</source>
         <translation>文件属性</translation>
     </message>
     <message>
-        <location filename="../main.py" line="1772" />
-        <location filename="../main.py" line="2217" />
-        <location filename="../main.py" line="4520" />
+        <location filename="../main.py" line="1784" />
+        <location filename="../main.py" line="2229" />
+        <location filename="../main.py" line="4532" />
         <source>Add to Queue</source>
         <translation>添加到队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2218" />
+        <location filename="../main.py" line="2230" />
         <source>Remove from Queue</source>
         <translation>从队列移除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2219" />
+        <location filename="../main.py" line="2231" />
         <source>File CheckSum!</source>
         <translation>文件校验和</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2220" />
+        <location filename="../main.py" line="2232" />
         <source>Delete from Table</source>
         <translation>从表格删除</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5592" />
-        <location filename="../main.py" line="5619" />
-        <location filename="../main.py" line="5642" />
+        <location filename="../main.py" line="5604" />
+        <location filename="../main.py" line="5631" />
         <location filename="../main.py" line="5654" />
+        <location filename="../main.py" line="5666" />
         <source>File Not Found</source>
         <translation>未找到文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5717" />
-        <location filename="../main.py" line="5735" />
+        <location filename="../main.py" line="5729" />
+        <location filename="../main.py" line="5747" />
         <source>No Temp File</source>
         <translation>没有临时文件</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5958" />
-        <location filename="../main.py" line="6038" />
-        <location filename="../main.py" line="6326" />
-        <location filename="../main.py" line="6373" />
+        <location filename="../main.py" line="5970" />
+        <location filename="../main.py" line="6050" />
+        <location filename="../main.py" line="6338" />
+        <location filename="../main.py" line="6385" />
         <source>No Selection</source>
         <translation>未选择</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5959" />
+        <location filename="../main.py" line="5971" />
         <source>Please select a download to add to the queue.</source>
         <translation>请选择要添加到队列的下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5985" />
+        <location filename="../main.py" line="5997" />
         <source>No Queues Available</source>
         <translation>没有可用的队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5992" />
+        <location filename="../main.py" line="6004" />
         <source>Select Queue</source>
         <translation>选择队列</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6039" />
+        <location filename="../main.py" line="6051" />
         <source>Please select a download to remove from the queue.</source>
         <translation>请选择要从队列中移除的下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6341" />
+        <location filename="../main.py" line="6353" />
         <source>Audio Missing</source>
         <translation>缺少音频</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6347" />
+        <location filename="../main.py" line="6359" />
         <source>Video Missing</source>
         <translation>缺少视频</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Checksum is only available for completed downloads.</source>
         <translation>校验和仅适用于已完成的下载。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6381" />
+        <location filename="../main.py" line="6393" />
         <source>Invalid Status</source>
         <translation>无效状态</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6394" />
+        <location filename="../main.py" line="6406" />
         <source>Checksum Error</source>
         <translation>校验和错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="2809" />
-        <location filename="../main.py" line="6413" />
+        <location filename="../main.py" line="2821" />
+        <location filename="../main.py" line="6425" />
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5656" />
+        <location filename="../main.py" line="5668" />
         <source>The file '%1' could not be found or has been deleted.</source>
         <translation>找不到文件“%1”或已被删除。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5659" />
+        <location filename="../main.py" line="5671" />
         <source>Permission Error</source>
         <translation>权限错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5660" />
+        <location filename="../main.py" line="5672" />
         <source>Access denied: %1</source>
         <translation>访问被拒绝：%1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5663" />
+        <location filename="../main.py" line="5675" />
         <source>OS Error</source>
         <translation>操作系统错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="5664" />
+        <location filename="../main.py" line="5676" />
         <source>An OS error occurred: %1</source>
         <translation>发生操作系统错误：%1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6777" />
-        <location filename="../main.py" line="6803" />
+        <location filename="../main.py" line="6795" />
+        <location filename="../main.py" line="6821" />
         <source>yt-dlp Update</source>
         <translation>yt-dlp 更新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6778" />
+        <location filename="../main.py" line="6796" />
         <source>yt-dlp backend has been successfully updated.</source>
         <translation>yt-dlp 后端已成功更新。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6783" />
+        <location filename="../main.py" line="6801" />
         <source>Update Error</source>
         <translation>更新错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6804" />
+        <location filename="../main.py" line="6822" />
         <source>yt-dlp has been updated to the latest version.</source>
         <translation>yt-dlp 已更新到最新版本。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6806" />
+        <location filename="../main.py" line="6824" />
         <source>yt-dlp version: %1</source>
         <translation>yt-dlp 版本：%1</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6809" />
+        <location filename="../main.py" line="6827" />
         <source>Update failed or binary is already up to date.</source>
         <translation>更新失败或二进制文件已是最新的。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6810" />
+        <location filename="../main.py" line="6828" />
         <source>yt-dlp Update Error</source>
         <translation>yt-dlp 更新错误</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
-        <location filename="../main.py" line="6835" />
+        <location filename="../main.py" line="6849" />
+        <location filename="../main.py" line="6853" />
         <source>App Update</source>
         <translation>应用更新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6831" />
+        <location filename="../main.py" line="6849" />
         <source>App is up-to-date</source>
         <translation>应用已是最新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Couldn't check for update</source>
         <translation>无法检查更新</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6836" />
+        <location filename="../main.py" line="6854" />
         <source>Please check your internet connection.</source>
         <translation>请检查您的互联网连接。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6847" />
+        <location filename="../main.py" line="6865" />
         <source>Update Application</source>
         <translation>更新应用</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6851" />
+        <location filename="../main.py" line="6869" />
         <source>New version available:</source>
         <translation>有新版本可用：</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6856" />
+        <location filename="../main.py" line="6874" />
         <source>No changelog available.</source>
         <translation>没有可用的变更日志。</translation>
     </message>
     <message>
-        <location filename="../main.py" line="6863" />
+        <location filename="../main.py" line="6881" />
         <source>Update</source>
         <translation>更新</translation>
     </message>
@@ -1803,7 +1803,7 @@ cURL 在排队执行期间无法刷新过期的 YouTube 流密钥。</translatio
 <context>
     <name>Main</name>
     <message>
-        <location filename="../main.py" line="6955" />
+        <location filename="../main.py" line="6973" />
         <source>Another instance of the application is already running.</source>
         <translation>该应用程序的另一个实例已在运行。</translation>
     </message>
@@ -1863,6 +1863,11 @@ cURL 在排队执行期间无法刷新过期的 YouTube 流密钥。</translatio
         <location filename="../ui/marketplace_dialog.py" line="632" />
         <source>%1 plugins</source>
         <translation>%1 个插件</translation>
+    </message>
+    <message>
+        <location filename="../ui/marketplace_dialog.py" line="682" />
+        <source>Plugin Installed</source>
+        <translation>插件已安装</translation>
     </message>
     <message>
         <location filename="../ui/marketplace_dialog.py" line="539" />
@@ -2760,29 +2765,29 @@ Please try again or update manually.</source>
     <name>WhatsNewDialog</name>
     <message>
         <location filename="../ui/changelog_dialog.py" line="42" />
-        <location filename="../ui/changelog_dialog.py" line="364" />
+        <location filename="../ui/changelog_dialog.py" line="412" />
         <source>What's new</source>
         <translation>什么是新的</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="56" />
-        <location filename="../ui/changelog_dialog.py" line="365" />
+        <location filename="../ui/changelog_dialog.py" line="413" />
         <source>What’s new</source>
         <translation>什么是新的</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="367" />
+        <location filename="../ui/changelog_dialog.py" line="415" />
         <source>Version: -</source>
         <translation>版本： -</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="368" />
+        <location filename="../ui/changelog_dialog.py" line="416" />
         <source>Date: -</source>
         <translation>日期： -</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="89" />
-        <location filename="../ui/changelog_dialog.py" line="374" />
+        <location filename="../ui/changelog_dialog.py" line="422" />
         <source>Highlights</source>
         <translation>亮点</translation>
     </message>
@@ -2803,54 +2808,54 @@ Please try again or update manually.</source>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="113" />
-        <location filename="../ui/changelog_dialog.py" line="371" />
+        <location filename="../ui/changelog_dialog.py" line="419" />
         <source>Previous</source>
         <translation>以前的</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="114" />
-        <location filename="../ui/changelog_dialog.py" line="372" />
+        <location filename="../ui/changelog_dialog.py" line="420" />
         <source>Next</source>
         <translation>下一个</translation>
     </message>
     <message>
         <location filename="../ui/changelog_dialog.py" line="119" />
-        <location filename="../ui/changelog_dialog.py" line="373" />
+        <location filename="../ui/changelog_dialog.py" line="421" />
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="369" />
+        <location filename="../ui/changelog_dialog.py" line="417" />
         <source>No release notes available.</source>
         <translation>没有可用的发行说明。</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="370" />
+        <location filename="../ui/changelog_dialog.py" line="418" />
         <source>No releases</source>
         <translation>没有发布</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="312" />
+        <location filename="../ui/changelog_dialog.py" line="360" />
         <source>Version: %1</source>
         <translation>版本：%1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="313" />
+        <location filename="../ui/changelog_dialog.py" line="361" />
         <source>Date: %1</source>
         <translation>日期：%1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="314" />
+        <location filename="../ui/changelog_dialog.py" line="362" />
         <source>Highlights: %1</source>
         <translation>亮点：%1</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="337" />
+        <location filename="../ui/changelog_dialog.py" line="385" />
         <source>Current release (1 of %1)</source>
         <translation>当前版本（%1 中的 1 个）</translation>
     </message>
     <message>
-        <location filename="../ui/changelog_dialog.py" line="339" />
+        <location filename="../ui/changelog_dialog.py" line="387" />
         <source>Past release (%1 of %2)</source>
         <translation>过去的版本（%1，共 %2）</translation>
     </message>
