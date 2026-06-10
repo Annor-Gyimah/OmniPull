@@ -711,17 +711,15 @@ def deb_update():
     """
     Initiates OmniPull core update using the download engine (Linux deb mode).
     """
-    main_tar_url = "http://localhost/lite/main.tar.gz"
+   
+    content = httpx.get(
+        url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
+        headers={"User-Agent": "Mozilla/5.0"},
+        follow_redirects=True
+    ).json()
+    tag = content["tag_name"].lstrip('.').lstrip('v')
+    main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
     temp_dir = Path(tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~")))
-
-    #     # 1) Discover latest tag
-    #     content = httpx.get(
-    #         url="https://api.github.com/repos/Annor-Gyimah/OmniPull/releases/latest",
-    #         headers={"User-Agent": "Mozilla/5.0"},
-    #         follow_redirects=True
-    #     ).json()
-    #     tag = content["tag_name"].lstrip('.').lstrip('v')
-    #     main_tar_url = f"https://github.com/Annor-Gyimah/OmniPull/releases/download/v{tag}/main.tar.gz"
 
     #     ############ TESTING UPDATES #############################################################
 
@@ -907,17 +905,17 @@ def appimage_update():
 
     # Get download URL from GitHub
     try:
-        # api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-        # r = requests.get(api, headers={"Accept": "application/vnd.github+json"}, timeout=30)
-        # r.raise_for_status()
-        # rel = r.json()
+        api = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
+        r = requests.get(api, headers={"Accept": "application/vnd.github+json"}, timeout=30)
+        r.raise_for_status()
+        rel = r.json()
 
-        # # Pick the AppImage asset by name
-        # assets = rel.get("assets", [])
-        # asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
-        # url = asset["browser_download_url"]
-        url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage" 
-    #     # tag, contents = get_changelog()
+        # Pick the AppImage asset by name
+        assets = rel.get("assets", [])
+        asset = next(a for a in assets if a["name"].endswith(f"{ARCH_TAG}.AppImage"))
+        url = asset["browser_download_url"]
+        # url = f"http://localhost/lite/OmniPull-portable-{config.APP_LATEST_VERSION}-x86_64.AppImage" 
+        # tag, contents = get_changelog()
     except Exception as e:
         log(f"Failed to get AppImage download URL: {e}", log_level=3)
         popup(

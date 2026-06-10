@@ -1,6 +1,6 @@
 2.2.6
 
-- Updated bundled yt-dlp to nightly: 2026.5.25.234532.dev0
+- Updated bundled yt-dlp to nightly: 2026.6.9.230517.dev0
 - Updated Deno runtime to version 2.8.2
 - Fixed Re-merge failing to delete temporary folders and files after successful merge operations (#76)
 - Fixed OmniPull Updater failing when OmniPull is installed under Program Files (x86) instead of the user's LocalAppData directory (#83)

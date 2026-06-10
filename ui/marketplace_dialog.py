@@ -70,7 +70,7 @@ from ui.language_manager import LanguageManager
 
 
 # ── Manifest ──────────────────────────────────────────────────────────────────
-MANIFEST_URL = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/dev/plugin_server/manifest.json"
+MANIFEST_URL = "https://github.com/Annor-Gyimah/OmniPull/raw/refs/heads/master/plugin_server/manifest.json"
 # MANIFEST_URL = "http://localhost/lite/plugin_server/manifest.json"
 
 
