@@ -42,9 +42,9 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse, unquote, parse_qs, urlencode, urlunparse
 
 # region 3rd Parties import
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtWidgets
 from PySide6.QtCore import (QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, 
-QCoreApplication, Qt, QTime, QProcess, QEvent, QItemSelectionModel, QStringListModel, QDateTime)
+QCoreApplication, Qt, QTime, QProcess, QEvent, QStringListModel, QDateTime)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QDesktopServices, QKeySequence, QColor
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QLineEdit,
@@ -67,6 +67,7 @@ from ui.changelog_dialog import WhatsNewDialog
 from ui.populate_worker import PopulateTableWorker
 from ui.download_window import DownloadProgressDialog
 from ui.advanced_metadata_dialog import AdvancedMetadataDialog
+from ui.plugin_bar import PluginBar
 
 
 
@@ -93,7 +94,7 @@ from modules.helpers import (toolbar_buttons_state, get_msgbox_style, change_cur
     show_critical, show_warning, open_with_dialog_windows, safe_filename, get_ext_from_format, _best_existing, 
     _norm_title, _pick_container_from_video, _expected_paths, _extract_title_from_pattern, janitor, get_today_download_stats,
     calculate_total_speed, get_progress_bar_color, find_download_by_id, get_file_icon, 
-    CATEGORY_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration, mark_install_healthy)
+    CATEGORY_TRANSLATIONS, UPDATE_AVAILABLE_TRANSLATIONS, nuclear_scrub, update_native_manifests, fix_browser_integration, mark_install_healthy)
 
 
 
@@ -833,6 +834,16 @@ class DownloadManagerWindow(QMainWindow):
         self.current_theme = config.current_theme
         self.ui.setupUi(self)
 
+       
+
+        # ── Plugin Bar Manager ───────────────────────────────────────────────
+        # Initialize the plugin bar to display installed plugins
+        self.plugin_bar_manager = PluginBar(
+            container_layout=self.ui.plugins_container,
+            no_plugins_label=self.ui.no_plugins_label,
+            main_window=self
+        )
+
         # ── UI State & Sub-Windows ───────────────────────────────────────────
         # Instantiate secondary windows and initialize their default states.
         self.setAttribute(Qt.WA_DeleteOnClose, False)
@@ -930,7 +941,16 @@ class DownloadManagerWindow(QMainWindow):
             main_q=config.main_window_q,
             plugins_dir=str(config.DATA_ROOT / "plugins"),
         )
-        threading.Thread(target=self.plugin_mgr.load_all, daemon=True, name="plugin-loader").start()
+        
+        # Set callback to refresh UI when plugins change
+        self.plugin_mgr.on_plugins_changed = self._on_plugins_changed
+        
+        def _load_plugins_and_refresh():
+            self.plugin_mgr.load_all()
+            config.main_window_q.put(("_refresh_plugin_bar", None))
+
+        threading.Thread(target=_load_plugins_and_refresh, daemon=True, name="plugin-loader").start()
+        
         self.ui_queues.main_window = self
         self.tray_manager = TrayIconManager(self)
 
@@ -987,6 +1007,31 @@ class DownloadManagerWindow(QMainWindow):
         self.old_clipboard_data = ''
         log("Background services (Logging, Browser Monitoring, Clipboard Monitoring) active.", 
             log_level=1, context=self.ctx)
+
+    def _on_plugins_changed(self):
+        """
+        Callback invoked by PluginManager when plugins are loaded or modified.
+        Refreshes the plugin bar UI to reflect the current installed plugins.
+        Ensures UI updates happen on the main thread.
+        """
+        if hasattr(self, 'plugin_bar_manager'):
+            try:
+                # Defer to main thread if called from background thread
+                from PySide6.QtCore import QCoreApplication, QThread
+                app = QCoreApplication.instance()
+                log(f"_on_plugins_changed: current_thread={QThread.currentThread().objectName() if QThread.currentThread() else 'Unknown'}, main_thread={self.thread().objectName() if self.thread() else 'Unknown'}", 
+                    log_level=1, context=self.ctx)
+                if app and app.thread() == QThread.currentThread():
+                    log("_on_plugins_changed: calling refresh from main thread", log_level=1, context=self.ctx)
+                    self.plugin_bar_manager.refresh(self.plugin_mgr)
+                else:
+                    from PySide6.QtCore import QTimer
+                    log("_on_plugins_changed: deferring refresh to main thread", log_level=1, context=self.ctx)
+                    QTimer.singleShot(0, lambda: self.plugin_bar_manager.refresh(self.plugin_mgr))
+            except Exception as e:
+                log(f"Error refreshing plugin bar: {e}", log_level=2, context=self.ctx)
+                import traceback
+                log(traceback.format_exc(), log_level=3, context=self.ctx)
 
     def _connect_signals(self):
         """Maps UI signals to their respective handler functions."""
@@ -1055,6 +1100,18 @@ class DownloadManagerWindow(QMainWindow):
         widgets.terminal_input.returnPressed.connect(self._terminal_exec)
 
         widgets.lbl_version.setText(f"App Version: {config.APP_VERSION}")
+
+        
+        def _maybe_restore_banner():
+            dismissed_ts = getattr(config, 'update_dismissed_timestamp', None)
+            latest = getattr(config, 'APP_LATEST_VERSION', None)
+            current = config.APP_VERSION
+            if not dismissed_ts or not latest:
+                return
+            if compare_versions(current, latest) not in (None, current):
+                self._show_update_banner()
+
+        QTimer.singleShot(0, _maybe_restore_banner)
         
         log("Signal-slot connections established.", log_level=2, context=self.ctx)
 
@@ -1074,33 +1131,12 @@ class DownloadManagerWindow(QMainWindow):
         fix_browser_integration()
         log("Embedded terminal environment ready.", log_level=1, context=self.ctx)
 
-
-
-
-
-
-
-        
-
-
-        
     # ── UI Updates & Status ──────────────────────────────────────────────────
 
     def update_datetime(self):
         """Refreshes the global status bar clock with the current system time."""
         current = QDateTime.currentDateTime()
         widgets.datetime_label.setText(current.toString("yyyy-MM-dd HH:mm:ss"))
-
-    def update_summary(self):
-        """
-        Recalculates daily statistics for the dashboard info card.
-        Aggregates total initiated and successfully finalized downloads for the current day.
-        """
-        try:
-            total_today, completed_today = get_today_download_stats(self.d_list)
-            widgets.lbl_summary.setText(f"{total_today} downloads\n{completed_today} completed")
-        except Exception as e:
-            log(f"Dashboard summary update failed: {e}", log_level=3, context=self.ctx)
 
     def on_sort_changed(self, text):
         """
@@ -1119,7 +1155,7 @@ class DownloadManagerWindow(QMainWindow):
                     except Exception:
                         try: return datetime.strptime(l, "%Y-%m-%d %H:%M:%S")
                         except Exception: return datetime.min
-                self.d_list.sort(key=k, reverse=True)
+                self.d_list.sort(key=k, reverse=False)
             elif key == 'name':
                 self.d_list.sort(key=lambda d: (d.name or '').lower())
             elif key == 'status':
@@ -2164,11 +2200,17 @@ class DownloadManagerWindow(QMainWindow):
         
         widgets.lbl_http_status.setToolTip(self.tr("Last HTTP response status"))
         widgets.lbl_speed.setToolTip(self.tr("Current total download speed"))
-        widgets.lbl_title.setText(self.tr("Today"))
-        widgets.lbl_summary.setText(self.tr("downloads\n completed"))
+        widgets.no_plugins_label.setText(self.tr("No plugins installed. Install via marketplace."))
         widgets.dock.setWindowTitle(self.tr("Categories"))
         widgets.search_label.setText(self.tr("   Search: "))
-        
+        if self._grace_expired():
+            widgets.banner_message.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"aggressive"][config.lang]) 
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+        else:
+            widgets.banner_message.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"normal"][config.lang]) 
+
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            widgets.banner_later_btn.setText(self.tr('Later'))
         widgets.terminal_input.setPlaceholderText(self.tr(
             "Enter command here... You can start with helpful commands like 'help' or 'yt-dlp --help'."
         ))
@@ -2341,6 +2383,12 @@ class DownloadManagerWindow(QMainWindow):
                             th.wait(2000)
                     except Exception:
                         pass
+            
+            if hasattr(self, "plugin_mgr"):
+                try:
+                    self.plugin_mgr.shutdown_all()
+                except Exception as e:
+                    log(f"Plugin shutdown error: {e}", log_level=2, context=self.ctx)
 
             # 5. External Process Management (aria2c)
             if config.aria2_verified:
@@ -2585,6 +2633,10 @@ class DownloadManagerWindow(QMainWindow):
         widgets_add_download.lbl_size_value.setText(
             size_format(self.d.size) if self.d.size else "Unknown"
         )
+        btn = widgets_add_download.advance_btn
+        btn.setStyleSheet("border: 1px solid #3a3d42; border-radius: 4px; padding: 6px 14px; font-size: 13px;")  
+        widgets_add_download.advance_btn.setEnabled(False)
+        self._show_close_button()
         
         self.category_checker(self.d)
         widgets_add_download.url_progress.setRange(0, 100)
@@ -2684,7 +2736,7 @@ class DownloadManagerWindow(QMainWindow):
         """Update the progress bar value in the Add Download dialog."""
         widgets_add_download.url_progress.setValue(value)
 
-        #  where url_status_label = ⏳
+        
     
 
     def update_progress_bar(self):
@@ -2935,6 +2987,19 @@ class DownloadManagerWindow(QMainWindow):
             widgets_add_download.download_btn.setText(self.tr("Start Playlist"))
             self._is_playlist_mode = True
             widgets_add_download.advance_btn.setEnabled(True)
+            # Highlight effect: add a glowing border
+            highlight_style = (
+                "QPushButton {"
+                "  border: 2px solid #00bfff;"
+                "}"
+            )
+            btn = widgets_add_download.advance_btn
+            old_style = btn.styleSheet()
+            btn.setStyleSheet(highlight_style)
+            # Remove highlight after 1 second
+            # def remove_highlight():
+            #     btn.setStyleSheet(old_style)
+            # QTimer.singleShot(5000, remove_highlight)
 
         # ── Handle Single Video Logic ──
         elif isinstance(result, Video):
@@ -2946,9 +3011,23 @@ class DownloadManagerWindow(QMainWindow):
             if not self.d.ext:
                 self.d.ext = self.extract_ext_from_url(self.d.url, self.d)
             widgets_add_download.advance_btn.setEnabled(True)
+
+            highlight_style = (
+                "QPushButton {"
+                "  border: 2px solid #00bfff;"
+                "}"
+            )
+            btn = widgets_add_download.advance_btn
+            old_style = btn.styleSheet()
+            btn.setStyleSheet(highlight_style)
+            # Remove highlight after 1 second
+            # def remove_highlight():
+            #     btn.setStyleSheet(old_style)
+            # QTimer.singleShot(5000, remove_highlight)
         
         else:
-            log("Extraction failed to return valid media objects", log_level=3, context=ctx)
+            log("Extraction failed to return valid media objects", log_level=1, context=ctx)
+            widgets_add_download.advance_btn.setEnabled(False)
             self.update_http_status(0)
             return
 
@@ -2987,7 +3066,9 @@ class DownloadManagerWindow(QMainWindow):
         log(f"Opening advanced metadata inspector for: {self.d.name}", 
             log_level=1, context="URL-EXTRACT-FINISH")
         dlg = AdvancedMetadataDialog(self.d, self)
+        dlg.apply_language_advancemetada(config.lang)
         dlg.exec()
+    
 
 
     
@@ -3084,14 +3165,12 @@ class DownloadManagerWindow(QMainWindow):
                 if item_to_remove:
                     delete_folder(self.d.temp_folder)
                     self.d_list.remove(item_to_remove)
-                    
-                    # # 2. Update the UI table
-                    # self.populate_table() 
-                    
-                    
-                    # 3. Save the clean list
+                    # 2. Save the clean list
                     self.settings_manager.save_d_list(self.d_list)
                     log(f"Cleaned up internal dependency task (ID: {item_id})")
+            elif k == "_refresh_plugin_bar":
+                if hasattr(self, "plugin_bar_manager") and hasattr(self, "plugin_mgr"):
+                    self.plugin_bar_manager.refresh(self.plugin_mgr)
 
     
     def run(self):
@@ -3110,6 +3189,30 @@ class DownloadManagerWindow(QMainWindow):
             self.queue_updates()
         except Exception as e:
             log(f"GUI batch update failed: {e}", log_level=3, context=self.ctx)
+
+        if self.one_time:
+            self.one_time = False
+            
+            try:
+                # Check availability of ffmpeg in the system or in the same folder as this script
+                t = time.localtime()
+                today = t.tm_yday  # Today number in the year range (1 to 366)
+            except (ValueError, TypeError) as e:
+                log(f"Error with date/time operation: {e}", log_level=3)
+                return
+            
+            try:
+                days_since_last_update = today - config.last_update_check
+                log('Days since last check for update:', days_since_last_update, 'day(s).', log_level=1)
+                
+                if days_since_last_update >= config.update_frequency:
+                    log('Checking for software updates...', log_level=1)
+                    Thread(target=self.update_available, daemon=True).start()
+                    config.last_update_check = today
+            except (TypeError, ValueError) as e:
+                log(f"Error in update check calculations: {e}", log_level=3)
+            except Exception as e:
+                log(f"Error in run loop: {e}", log_level=3)
 
     def check_for_gui_updates(self):
         """
@@ -3486,7 +3589,6 @@ class DownloadManagerWindow(QMainWindow):
         try:
             d.last_try_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.settings_manager.save_d_list(self.d_list)
-            self.update_summary()
         except Exception:
             pass
 
@@ -4212,7 +4314,6 @@ class DownloadManagerWindow(QMainWindow):
 
         log(f"Spawning worker for task: {d.name}", log_level=1, context=ctx)
         self.settings_manager.save_d_list(self.d_list)
-        self.update_summary()
         Thread(target=brain, daemon=True, args=(d, downloader)).start()
 
     # ── Interaction & Event Handlers ─────────────────────────────────────────
@@ -5292,7 +5393,6 @@ class DownloadManagerWindow(QMainWindow):
             widgets.table.setItem(row_idx, 9, self._create_readonly_item(last_try))
 
         self.settings_manager.save_d_list(self.d_list)
-        self.update_summary()
 
     def _create_readonly_item(self, text: str) -> QTableWidgetItem:
         """Helper to generate a centered, non-editable table cell."""
@@ -6191,13 +6291,13 @@ class DownloadManagerWindow(QMainWindow):
                 d.progress = 100
                 d.name = os.path.basename(output_path)
                 d.folder = os.path.dirname(output_path) or d.folder
-
+                
                 # Post-success cleanup: Remove all associated temp files
                 try:
                     if os.path.exists(audio_path):
                         os.remove(audio_path)
+                    d.delete_tempfiles()
                     delete_folder(d.temp_folder)
-                    delete_file(d.temp_file)
                     log(f"[CLEANUP] Removed temp files after successful remerge: {d.name}", log_level=2)
                 except Exception as e:
                     log(f"[CLEANUP] Post-remerge cleanup failed: {e}", log_level=2)
@@ -6484,13 +6584,11 @@ class DownloadManagerWindow(QMainWindow):
     
     # ── Update Orchestration  ────────────────────────────────────────
 
+
     def update_available(self):
         """
         Polls the remote server for the latest changelog and version data.
-        
-        Compares the current APP_VERSION with the remote latest_version. 
-        If a mismatch is detected, it triggers the update handler to 
-        prompt the user.
+        Shows an inline banner instead of an immediate update dialog.
         """
         ctx = "UPDATE-ENGINE"
         change_cursor('busy')
@@ -6500,31 +6598,155 @@ class DownloadManagerWindow(QMainWindow):
 
         if info:
             latest_version, version_description = info
-            # Semantic version comparison (returns None if identical)
             newer_version = compare_versions(current_version, latest_version)
-    
+
             if not newer_version or newer_version == current_version:
                 self.new_version_available = False
-                log(f"Version check: App is up-to-date (Server: {latest_version})", 
+                log(f"Version check: App is up-to-date (Server: {latest_version})",
                     log_level=1, context=ctx)
+                # Clear dismissal state — user is on the latest version (they updated)
+                config.update_dismissed_timestamp = None
+                config.APP_LATEST_VERSION = latest_version
+                # Hide banner on the main thread
+                QTimer.singleShot(0, lambda: widgets.update_banner.setVisible(False))
             else:
-                log(f"Update detected: {current_version} -> {latest_version}", 
+                log(f"Update detected: {current_version} -> {latest_version}",
                     log_level=1, context=ctx)
                 self.new_version_available = True
-                self.handle_update()
-                
-            # Synchronize global version state
-            config.APP_LATEST_VERSION = latest_version if latest_version else current_version
-            self.new_version_description = version_description
+                config.APP_LATEST_VERSION = latest_version
+                self.new_version_description = version_description
+                config.update_dismissed_timestamp = datetime.fromisoformat(datetime.now().isoformat()).isoformat() # Reset dismissal timestamp for new version
+                self.settings_manager.save_settings()
+                # Show banner on the main thread
+                QTimer.singleShot(0, self._show_update_banner)
 
+            self.new_version_description = version_description
         else:
-            log("Update check failed: Remote server unreachable or invalid response.", 
+            log("Update check failed: Remote server unreachable or invalid response.",
                 log_level=2, context=ctx)
             self.new_version_description = None
             self.new_version_available = False
+            # Do not touch the banner on failure — don't hide it if grace period is active
+            # and don't show it if there was no prior pending update.
 
         self.settings_manager.save_settings()
         change_cursor('normal')
+
+    def _grace_expired(self):
+        dismissed_ts = getattr(config, 'update_dismissed_timestamp', None)
+        grace_expired = False
+
+        if dismissed_ts:
+            try:
+                from datetime import datetime
+                dismissed_dt = datetime.fromisoformat(dismissed_ts)
+                days_elapsed = (datetime.now() - dismissed_dt).days
+                grace_expired = days_elapsed >= 7
+            except Exception:
+                grace_expired = False
+
+        return grace_expired
+
+
+    def _show_update_banner(self):
+        """
+        Displays the update notification banner above the downloads table.
+        Switches to aggressive messaging after the 7-day grace period expires.
+        """
+        banner = widgets.update_banner
+        self.msg_label = widgets.banner_message
+        icon_label = widgets.banner_icon
+        self.language = config.lang
+
+        # Determine if we're past the grace period
+        grace_expired = self._grace_expired()
+        
+        if grace_expired:
+            icon_label.setText("⚠️")
+            
+            self.msg_label.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"aggressive"][self.language])
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            # widgets.banner_later_btn.setText(self.tr('Later'))
+            banner.setStyleSheet("""
+                QWidget#UpdateBanner {
+                    background-color: rgba(183, 28, 28, 0.18);
+                    border-bottom: 1px solid #b71c1c;
+                    border-radius: 6px;
+                }
+                QLabel#BannerMessage { color: #b71c1c; font-size: 15px; }
+                QPushButton#BannerUpdateBtn {
+                    background-color: #c62828; color: white;
+                    border-radius: 4px; font-weight: bold; font-size: 11px;
+                }
+                QPushButton#BannerLaterBtn {
+                    background: transparent; color: #ef9a9a;
+                    border: 1px solid #ef9a9a; border-radius: 4px; font-size: 11px;
+                }
+            """)
+            # Hide the Later button after grace period — nudge harder
+            widgets.banner_later_btn.setVisible(False)
+        else:
+            icon_label.setText("🔔")
+            
+            self.msg_label.setText(UPDATE_AVAILABLE_TRANSLATIONS[f"normal"][self.language])
+            widgets.banner_update_btn.setText(self.tr('Update Now'))
+            widgets.banner_later_btn.setText(self.tr('Later'))
+            banner.setStyleSheet("""
+                QWidget#UpdateBanner {
+                    background-color: rgba(33, 150, 243, 0.12);
+                    border-bottom: 1px solid #1565c0;
+                    border-radius: 6px;
+                }
+                QLabel#BannerMessage { color: #1565c0; font-size: 15px; }
+                QPushButton#BannerUpdateBtn {
+                    background-color: #1565c0; color: white;
+                    border-radius: 4px; font-weight: bold; font-size: 11px;
+                }
+                QPushButton#BannerLaterBtn {
+                    background: transparent; color: #90caf9;
+                    border: 1px solid #90caf9; border-radius: 4px; font-size: 11px;
+                }
+            """)
+            widgets.banner_later_btn.setVisible(True)
+
+        # Wire buttons (disconnect first to prevent duplicate connections)
+        try:
+            widgets.banner_update_btn.clicked.disconnect()
+            widgets.banner_later_btn.clicked.disconnect()
+        except RuntimeError:
+            pass
+
+        widgets.banner_update_btn.clicked.connect(self._on_banner_update_now)
+        widgets.banner_later_btn.clicked.connect(self._on_banner_later)
+
+        banner.setVisible(True)
+        log("Update banner displayed.", log_level=1, context="UPDATE-ENGINE")
+
+
+    def _on_banner_update_now(self):
+        """User clicked 'Update Now' on the banner."""
+        widgets.update_banner.setVisible(False)
+        # Clear grace period since user chose to update
+        config.update_dismissed_timestamp = None
+        self.settings_manager.save_settings()
+        self.handle_update()
+
+
+    def _on_banner_later(self):
+        """
+        User clicked 'Later'. Record the dismissal timestamp to start/continue
+        the grace period, then hide the banner for this session.
+        """
+        from datetime import datetime
+        # Only set the timestamp on first dismissal, not on subsequent ones
+        if not getattr(config, 'update_dismissed_timestamp', None):
+            config.update_dismissed_timestamp = datetime.now().isoformat()
+            self.settings_manager.save_settings()
+            log("Update deferred. Grace period started.", log_level=1, context="UPDATE-ENGINE")
+        else:
+            log("Update deferred again. Grace period continues.", log_level=1, context="UPDATE-ENGINE")
+
+        widgets.update_banner.setVisible(False)
     
 
     def start_update(self):
@@ -6711,7 +6933,7 @@ def load_initial_translator(app):
     }
     
     translator = QTranslator(app)
-    path = os.path.join(os.path.dirname(__file__), "modules", "translations", file_map.get(lang, "app_en.qm"))
+    path = os.path.join(os.path.dirname(__file__), "translations", file_map.get(lang, "app_en.qm"))
     
     if translator.load(path):
         app.installTranslator(translator)
@@ -6793,4 +7015,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

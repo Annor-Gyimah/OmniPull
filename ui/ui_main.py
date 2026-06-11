@@ -223,25 +223,37 @@ class Ui_MainWindow(object):
         self.category_list.setCurrentRow(0)
         self.category_list.setItemDelegate(NoFocusDelegate())
         
+        # Add category list with stretch factor to share space equally
+        vlayout.addWidget(self.category_list, 1)
 
-
+        # Plugin bar at bottom (shows installed plugins)
+        self.plugin_bar = QWidget()
+        self.plugin_bar.setObjectName("PluginBar")
+        plugin_bar_layout = QVBoxLayout(self.plugin_bar)
+        plugin_bar_layout.setContentsMargins(8, 8, 8, 8)
+        plugin_bar_layout.setSpacing(6)
         
-        vlayout.addWidget(self.category_list)
-
-        # Small info card at bottom
-        info_card = QWidget()
-        info_layout = QVBoxLayout(info_card)
-        info_layout.setContentsMargins(10, 10, 10, 10)
-        info_layout.setSpacing(6)
-        self.lbl_title = QLabel("Today")
-        self.lbl_title.setObjectName("InfoTitle")
-        self.lbl_summary = QLabel("downloads\n completed")
-        self.lbl_summary.setObjectName("InfoBody")
-        info_layout.addWidget(self.lbl_title)
-        info_layout.addWidget(self.lbl_summary)
-        info_layout.addStretch()
-
-        vlayout.addWidget(info_card)
+        # Horizontal layout for plugin icons (left-aligned)
+        plugins_row = QHBoxLayout()
+        plugins_row.setSpacing(6)
+        plugins_row.setContentsMargins(0, 0, 0, 0)
+        
+        self.plugins_container = plugins_row
+        self.plugins_container.addStretch()  # Push plugins to the left
+        
+        self.no_plugins_label = QLabel("No plugins installed. Install via marketplace.")
+        self.no_plugins_label.setObjectName("NoPluginsLabel")
+        self.no_plugins_label.setStyleSheet("color: #fff; font-size: 11px;")
+        
+        # Container widget to hold the plugins row
+        plugins_wrapper = QWidget()
+        plugins_wrapper.setLayout(plugins_row)
+        
+        plugin_bar_layout.addWidget(self.no_plugins_label)
+        plugin_bar_layout.addWidget(plugins_wrapper, 1)
+        
+        # Add plugin bar with stretch factor to share space equally
+        vlayout.addWidget(self.plugin_bar, 1)
 
         self.dock.setWidget(side_widget)
         MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
@@ -286,6 +298,37 @@ class Ui_MainWindow(object):
         
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        # Update notification banner (hidden by default)
+        self.update_banner = QWidget()
+        self.update_banner.setObjectName("UpdateBanner")
+        self.update_banner.setFixedHeight(44)
+        self.update_banner.setVisible(False)
+
+        banner_layout = QHBoxLayout(self.update_banner)
+        banner_layout.setContentsMargins(12, 0, 12, 0)
+        banner_layout.setSpacing(10)
+
+        self.banner_icon = QLabel("🔔")
+        self.banner_icon.setFixedWidth(20)
+        self.banner_message = QLabel("A new OmniPull update is available.")
+        self.banner_message.setObjectName("BannerMessage")
+
+        self.banner_update_btn = QPushButton("Update Now")
+        self.banner_update_btn.setObjectName("BannerUpdateBtn")
+        self.banner_update_btn.setFixedSize(100, 28)
+
+        self.banner_later_btn = QPushButton("Later")
+        self.banner_later_btn.setObjectName("BannerLaterBtn")
+        self.banner_later_btn.setFixedSize(60, 28)
+
+        banner_layout.addWidget(self.banner_icon)
+        banner_layout.addWidget(self.banner_message, 1)
+        banner_layout.addWidget(self.banner_update_btn)
+        banner_layout.addWidget(self.banner_later_btn)
+
+        layout.addWidget(self.update_banner)  # Insert before table
+        # layout.addWidget(self.table)
 
 
         layout.addWidget(self.table)
@@ -387,12 +430,9 @@ class Ui_MainWindow(object):
         status_layout.addWidget(speed_widget)
         status_layout.addStretch()
         status_layout.addWidget(self.lbl_version)
-
         status.addWidget(status_container, 1)
-
-    
         self.table.setRowCount(0)
-        self.lbl_summary.setText("0 downloads\n0 completed")
+       
 
     
     def _finalize_table_layout(self):

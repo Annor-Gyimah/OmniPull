@@ -131,6 +131,54 @@ class WhatsNewDialog(QDialog):
         self.set_releases([
             {
                 "version": f'{__version__}',
+                "date": "2026-06-11",
+                "highlights": "🚀 OmniPull v2.2.6 with updater fixes, localization improvements, plugin installation fixes, subtitle download fixes, and updated core dependencies",
+                "details": (
+                    "<h3>🚀 OmniPull v2.2.6</h3>"
+
+                    "<p>This release focuses on improving updates, localization, subtitle handling, plugin installation, " "and overall application reliability. We've also updated core dependencies to ensure compatibility " "with the latest video platforms and tooling.</p>"
+
+                    "<h4>⚡ Updates</h4>" 
+                    "<ul>" 
+                    "<li>Updated bundled yt-dlp to nightly: <b>2026.5.25.234532.dev0</b></li>" 
+                    "<li>Updated Deno runtime to <b>2.8.2</b></li>" 
+                    "<li>Improved compatibility with recent YouTube and streaming platform changes</li>" 
+                    "</ul>"
+
+                    "<h4>🐞 Bug Fixes</h4>" 
+                    "<ul>" 
+                    "<li>Fixed Re-merge failing to delete temporary folders and files after successful merge operations " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/76'>#76</a></li>" 
+                    "<li>Fixed OmniPull Updater failing when OmniPull is installed under Program Files (x86) instead of the user's LocalAppData directory " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/83'>#83</a></li>" 
+                    "<li>Fixed language changes not being reflected across application texts, dialogs, menus, and controls " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/84'>#84</a></li>" 
+                    "<li>Fixed subtitle downloads failing when using yt-dlp as the download engine " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/86'>#86</a></li>" 
+                    "<li>Fixed plugin installation failures caused by localhost-based manifest URLs, preventing remote users from installing plugins " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/88'>#88</a></li>" 
+                    "</ul>"
+
+                    "<h4>✨ Improvements</h4>" 
+                    "<ul>" 
+                    "<li>Update downloads now utilize OmniPull's download infrastructure, enabling progress tracking, status monitoring, and improved reliability " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/85'>#85</a></li>" 
+                    "<li>Improved Advanced Metadata dialog visibility by highlighting the button after URL processing " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/87'>#87</a></li>" 
+                    "<li>Improved download dialog usability by clearly differentiating the Hide and Cancel actions " 
+                    "<a href='https://github.com/Annor-Gyimah/OmniPull/issues/87'>#87</a></li>" 
+                    "<li>Improved update workflow logging and feedback during extraction and replacement stages</li>" 
+                    "<li>Improved temporary file cleanup handling and download artifact management</li>" "</ul>" 
+                    
+                    "<h4>🔧 Stability &amp; Maintenance</h4>" "<ul>" 
+                    "<li>Improved update reliability across different Windows installation locations</li>" 
+                    "<li>Improved plugin ecosystem stability for local and remote users</li>" 
+                    "<li>General code cleanup and internal refactoring</li>" 
+                    "</ul>"
+                ),
+            },
+            {
+                "version": '2.2.3',
                 "date": "2026-05-04",
                 "highlights": "🚀 OmniPull v2.2.3 with major bug fixes, improved download stability, and updated yt-dlp",
                 "details": (

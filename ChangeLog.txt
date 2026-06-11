@@ -1,3 +1,23 @@
+2.2.6
+
+- Updated bundled yt-dlp to nightly: 2026.6.9.230517.dev0
+- Updated Deno runtime to version 2.8.2
+- Fixed Re-merge failing to delete temporary folders and files after successful merge operations (#76)
+- Fixed OmniPull Updater failing when OmniPull is installed under Program Files (x86) instead of the user's LocalAppData directory (#83)
+- Fixed language changes not being reflected across application texts, dialogs, menus, and controls (#84)
+- Fixed subtitle downloads failing when using yt-dlp as the download engine (#86)
+- Fixed plugin installation failures caused by localhost-based manifest URLs (#88)
+- Update downloads now utilize OmniPull's download infrastructure, enabling progress tracking and status monitoring (#85)
+- Improved Advanced Metadata dialog visibility by highlighting the button after URL processing (#87)
+- Improved download dialog usability by clearly differentiating the Hide and Cancel actions (#87)
+- Improved update workflow logging and feedback during extraction and replacement stages
+- Improved compatibility with recent YouTube and streaming platform changes
+- Improved temporary file cleanup handling and download artifact management
+- Improved update reliability across different Windows installation locations
+- Improved plugin ecosystem stability for local and remote users
+- General code cleanup and internal refactoring
+
+
 2.2.3
 - Updated bundled yt-dlp to nightly: 2026.5.3.233852.dev0
 - Fixed Add Download window not retaining video objects for playlists (#79)

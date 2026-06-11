@@ -35,6 +35,19 @@ def get_advanced_opts(d) -> dict:
         opts["subtitleslangs"]    = [selected_subtitle]
         opts["subtitlesformat"]   = getattr(d, "subtitle_format", "best")
         opts["writeautomaticsub"] = bool(getattr(d, "is_auto_sub", False))
+        # Keep warnings visible so subtitle 429s appear in the log
+        opts["no_warnings"]       = config.ytdlp_config.get('no_warnings', True)
+        opts["ignoreerrors"]      = config.ytdlp_config.get('ignore_errors', True)
+        opts["sleep_interval_requests"] = getattr(d, "sleep_interval_requests", 10) 
+        opts["max_sleep_interval"] = config.ytdlp_config.get('max_sleep_interval', 10)
+        opts["sleep_interval_subtitles"] = getattr(d, "sleep_interval_subtitles", 10)
+
+        embed_subtitle = bool(getattr(d, 'embed_subtitles', False))
+        if embed_subtitle:
+            opts['postprocessors'] = [{
+                'key': 'FFmpegEmbedSubtitle',
+            }]
+            opts["embedsubtitles"] = True
 
     opts["postprocessors"] = []
 
@@ -90,6 +103,7 @@ def get_advanced_opts(d) -> dict:
 
 
 
+ 
 
 def _pick_subtitle_url(sub_entries: list, preferred_fmt: str) -> tuple:
     """

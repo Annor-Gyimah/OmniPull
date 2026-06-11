@@ -163,12 +163,14 @@ class DownloadProgressDialog(QDialog):
 
         self.btn_toggle_details = QPushButton(self.tr("<< Hide details"))
         self.btn_pause = QPushButton(self.tr("Pause"))
-        self.btn_cancel = QPushButton(self.tr("Cancel"))
+        self.btn_hide = QPushButton(self.tr("Hide Window"))
+        # self.btn_cancel = QPushButton(self.tr("Cancel"))
 
         btn_row.addWidget(self.btn_toggle_details)
         btn_row.addStretch()
         btn_row.addWidget(self.btn_pause)
-        btn_row.addWidget(self.btn_cancel)
+        btn_row.addWidget(self.btn_hide)
+        # btn_row.addWidget(self.btn_cancel)
 
         main_layout.addLayout(btn_row)
 
@@ -202,7 +204,8 @@ class DownloadProgressDialog(QDialog):
 
         # button wiring
         self.btn_toggle_details.clicked.connect(self._toggle_details)
-        self.btn_cancel.clicked.connect(self.reject)
+        self.btn_hide.clicked.connect(self.reject)
+        # self.btn_cancel.clicked.connect(self.reject)
         self.btn_pause.clicked.connect(self.pause)
         
 
@@ -389,7 +392,10 @@ class DownloadProgressDialog(QDialog):
 
 
     def pause(self):
-        config.main_window_q.put(('pause_btn', ''))
+        # config.main_window_q.put(('pause_btn', ''))
+        # self.close()
+        if self.d.status not in (config.Status.error, config.Status.completed):
+            self.d.status = config.Status.cancelled
         self.close()
     
     def cancel(self):
@@ -444,7 +450,8 @@ class DownloadProgressDialog(QDialog):
         self.btn_toggle_details.setText(self.tr("<< Hide details"))
         self.btn_toggle_details.setText(self.tr("Show details >>"))
         self.btn_pause.setText(self.tr("Pause"))
-        self.btn_cancel.setText(self.tr("Cancel"))
+        self.btn_hide.setText(self.tr("Hide Window"))
+        # self.btn_cancel.setText(self.tr("Cancel"))
 
 
         

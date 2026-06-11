@@ -114,6 +114,7 @@ class SettingsManager:
             # Update ffmpeg_selected_path and ytdlp_config ffmpeg_location with resolved path
             config.ffmpeg_selected_path = config.ffmpeg_actual_path
             config.ytdlp_config['ffmpeg_location'] = config.ffmpeg_actual_path
+            config.ytdlp_config['max_sleep_interval'] = config.ytdlp_config.get('max_sleep_interval', 10)
             
             config.yt_dlp_actual_path = config._find_tool(
                 "yt-dlp",

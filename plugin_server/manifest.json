@@ -2,13 +2,49 @@
   {
     "id": "remote_monitoring",
     "name": "Remote Monitoring",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "author": "OmniPull Team",
     "description": "A lightweight FastAPI server that exposes your download list over HTTP. View real-time progress from any device on your network via a polished Tailwind CSS dashboard — no extra software required.",
     "icon": "📡",
     "tags": ["monitoring", "network", "dashboard"],
-    "size": "~40 KB",
-    "download_url": "http://localhost/lite/plugin_server/plugins/remote_monitoring.zip",
+    "size": "~33 KB",
+    "download_url": "https://raw.githubusercontent.com/Annor-Gyimah/OmniPull/dev/plugin_server/plugins/remote_monitoring.zip",
+    "plugin_url": "http://localhost:7432",
     "requires": ["fastapi", "uvicorn"]
+  },
+  {
+    "id": "auto_organiser",
+    "name": "Auto Organiser",
+    "version": "Unknown",
+    "author": "OmniPull Team",
+    "description": "Automatically moves completed downloads into subfolders categorised by file type, date, or custom rules. Keeps your Downloads directory tidy.",
+    "icon": "🗂️",
+    "tags": ["organisation", "files", "automation"],
+    "size": "~Unknown",
+    "download_url": "__coming_soon__",
+    "requires": []
+  },
+  {
+    "id": "smart_library",
+    "name": "Smart Library",
+    "version": "Unknown",
+    "author": "OmniPull Team",
+    "description": "Turn downloaded content into a browsable library with metadata, thumbnails, and search functionality. Perfect for managing ebooks, videos, or music collections. Almost like a mini media manager.",
+    "icon": "📚",
+    "tags": ["library", "metadata", "search"],
+    "size": "~Unknown",
+    "download_url": "__coming_soon__",
+    "requires": []
+  },
+  {
+    "id": "ytdlp_power_user",
+    "name": "YT-DLP Power User",
+    "version": "Unknown",
+    "author":"OmniPull Team",
+    "description": "Extend OmniPull with the full features of ytdlp - advanced format selection, custom post-processing, and support for obscure sites. Unleash the true power of ytdlp within OmniPull's interface.",
+    "icon": "📚",
+    "tags": ["advanced", "ytdlp", "power_user", "format_selection", "post_processing"],
+    "download_url":"__coming_soon__",
+    "requires": []
   }
 ]

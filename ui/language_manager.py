@@ -36,7 +36,7 @@ class LanguageManager:
             return False
 
         qm_path = self.resource_path(
-            f"../modules/translations/{self.file_map[language]}"
+            f"translations/{self.file_map[language]}"
         )
  
         if self.translator.load(qm_path):
