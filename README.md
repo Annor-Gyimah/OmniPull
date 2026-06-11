@@ -93,7 +93,7 @@ Download the latest OmniPull from the [Releases](https://github.com/Annor-Gyimah
 
 | File | Description |
 |:---|:---|
-| [OmniPull.AppImage](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.AppImage) | ✅ Portable (recommended) |
+| [OmniPull-Portable-x86_64.AppImage](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull-Portable-x86_64.AppImage) | ✅ Portable (recommended) |
 | [OmniPull.deb](https://github.com/Annor-Gyimah/OmniPull/releases/latest/download/OmniPull.deb) | 📦 Debian/Ubuntu package |
 
 
