@@ -226,7 +226,7 @@ class Worker:
             except Exception:
                 pass
 
-    def progress(self, *args):
+    def progress(self, *_):
         """it receives progress from curl and can be used as a kill switch
         Returning a non-zero value from this callback will cause curl to abort the transfer
         """
@@ -235,6 +235,12 @@ class Worker:
         if self.d.status != Status.downloading:
             return -1  # abort
 
+
+    def __del__(self):
+        try:
+            self.c.close()
+        except Exception:
+            pass
 
     def reuse(self, seg=None, speed_limit=0):
         self.seg = seg

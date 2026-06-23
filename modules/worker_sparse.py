@@ -21,11 +21,9 @@ import pycurl
 import time
 import os
 import traceback
-from threading import Lock
-
 from modules import config
 from modules import native_engine
-from modules.utils import log, size_format
+from modules.utils import log
 from modules.config import Status, USER_AGENT
 
 
@@ -67,6 +65,12 @@ class Worker_Sparse:
         # Stats throttling
         self.last_stats_update = 0
         self.stats_update_interval = 0.1
+
+    def __del__(self):
+        try:
+            self.c.close()
+        except Exception:
+            pass
 
     def calculate_speed(self):
         """Calculates instantaneous speed (Bytes/sec)."""
@@ -318,7 +322,7 @@ class Worker_Sparse:
             log(f"[Worker {self.tag}] Unexpected write error: {e}", log_level=2)
             return 0
 
-    def progress(self, *args):
+    def progress(self, *_):
         """pycurl progress callback — used as a kill switch."""
         if self.d.status != Status.downloading:
             return -1  # Abort transfer

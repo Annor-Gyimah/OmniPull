@@ -1,5 +1,16 @@
-2.2.6
+2.2.7
+- Fixed NameError crash in yt-dlp executable error handler where 'e' was referenced instead of 'exc', silently swallowing the original exception and producing incorrect error classification
+- Fixed socket resource leak in has_internet_connection where the TCP socket was never closed after a successful connection check
+- Fixed pycurl handle leak in Worker: curl handles were created at construction but never explicitly closed, accumulating across many downloads
+- Fixed pycurl handle leak in Worker_Sparse: same pattern as Worker, now cleaned up via __del__
+- Fixed unused imports in worker_sparse (Lock, size_format) carried over from an earlier refactor
+- Improved _thread_manager_sparse: replaced 20 Hz busy-poll (sleep(0.05) + t.is_alive() scan) with a queue.Queue completion notification, eliminating ~20 wasted CPU wake-ups per second per active sparse download
+- Improved _file_manager_sparse: reduced polling interval from 0.05s to 0.1s, halving CPU overhead during file completion monitoring
+- Improved run_ytdlp_download (Python API): added 0.18s throttle to progress hook UI signal emissions, preventing Qt main thread saturation on fast connections where yt-dlp fires the hook dozens of times per second
 
+
+
+2.2.6
 - Updated bundled yt-dlp to nightly: 2026.6.9.230517.dev0
 - Updated Deno runtime to version 2.8.2
 - Fixed Re-merge failing to delete temporary folders and files after successful merge operations (#76)

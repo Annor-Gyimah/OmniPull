@@ -53,11 +53,16 @@ lock = Lock()
 def has_internet_connection(host="8.8.8.8", port=53, timeout=3):
     try:
         socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-        return True
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect((host, port))
+            return True
+        finally:
+            sock.close()
     except socket.error as ex:
         log("No internet connection:", ex)
         return False
+    finally: socket.close()
     
 # Signal emitter for status updates
 signal_emitter = None
@@ -312,12 +317,14 @@ def _init_resume_tracker(d):
 def _thread_manager_sparse(d, emitter=None, workers_done_event=None):
     """
     Manages the lifecycle of worker threads for sparse-mode downloads.
-    
+
     Design principles:
     - Worker Isolation: Each worker runs on a dedicated daemon thread to avoid pool contention.
-    - Fault Tolerance: Implements a re-queueing system for segments that fail due to 
+    - Fault Tolerance: Implements a re-queueing system for segments that fail due to
       network or server hiccups.
     - Loop Guard: Uses MAX_SEG_RETRIES to prune unrecoverable segments.
+    - Event-driven: Workers signal completion via a Queue instead of a 0.05s busy-poll,
+      eliminating ~20 wasted wake-ups per second per active download.
     """
     ctx = "SPARSE-ENGINE"
     from modules.worker_sparse import Worker_Sparse
@@ -329,76 +336,76 @@ def _thread_manager_sparse(d, emitter=None, workers_done_event=None):
     # Track how many times each segment has been attempted: {seg_num: count}
     retry_counts: dict = {}
 
-    # Initialize a fixed pool of reusable workers
+    # Fixed pool of reusable workers
     workers = [Worker_Sparse(tag=i, d=d)
                for i in range(min(max_conn, len(d.segments)))]
 
-    # Active map: {Worker_Sparse instance: its running Thread}
-    active: dict = {}
+    idle_workers = list(workers)
+    active: dict = {}  # {Worker_Sparse: Thread}
+
+    # Workers put themselves here when their thread exits, replacing the old
+    # t.is_alive() poll that required a 0.05s sleep between checks.
+    done_q = queue.Queue()
+
+    def _run_and_notify(worker):
+        try:
+            worker.run()
+        finally:
+            done_q.put(worker)
 
     while (segment_queue or active) and d.status == Status.downloading:
 
         # --- Phase 1: Assign segments to idle workers ---
-        idle = [w for w in workers if w not in active]
-        for worker in idle:
-            if not segment_queue:
-                break
-            
+        while idle_workers and segment_queue:
+            worker = idle_workers.pop(0)
             seg = segment_queue.pop(0)
             worker.reuse(seg=seg, speed_limit=0)
-            
-            t = Thread(
-                target=worker.run,
-                daemon=True,
-                name=f"sparse-worker-{worker.tag}"
-            )
+
+            t = Thread(target=_run_and_notify, args=(worker,),
+                       daemon=True, name=f"sparse-worker-{worker.tag}")
             active[worker] = t
             t.start()
-            
+
             log(f"[SPARSE] Worker {worker.tag} → segment {seg.num} "
-                f"(attempt {retry_counts.get(seg.num, 0) + 1})", 
+                f"(attempt {retry_counts.get(seg.num, 0) + 1})",
                 log_level=3, context=ctx)
 
-        # --- Phase 2: Retire finished workers and handle re-queuing ---
-        for worker in list(active):
-            t = active[worker]
-            if not t.is_alive():
-                t.join()
-                del active[worker]
+        # --- Phase 2: Block until a worker signals completion (or status changes) ---
+        try:
+            done_worker = done_q.get(timeout=0.1)
+        except queue.Empty:
+            # No worker finished yet; loop to re-check d.status and assign new work
+            continue
 
-                seg = worker.seg
-                if seg is None:
-                    continue
+        t = active.pop(done_worker, None)
+        if t:
+            t.join(timeout=5)
+        idle_workers.append(done_worker)
 
-                if seg.downloaded:
-                    # Successful download
-                    log(f"[SPARSE] Segment {seg.num} finished OK", 
-                        log_level=3, context=ctx)
-                else:
-                    # Handle segment failure (Network/Server errors)
-                    attempts = retry_counts.get(seg.num, 0) + 1
-                    retry_counts[seg.num] = attempts
+        seg = done_worker.seg
+        if seg is None:
+            continue
 
-                    if attempts < MAX_SEG_RETRIES:
-                        log(f"[SPARSE] Segment {seg.num} failed (attempt {attempts}/"
-                            f"{MAX_SEG_RETRIES}). Re-queuing...", 
-                            log_level=2, context=ctx)
-                        
-                        # Reset in_progress flag so the segment is eligible for pick-up
-                        seg.in_progress = False
-                        segment_queue.append(seg)
-                    else:
-                        log(f"[SPARSE] Segment {seg.num} reached MAX_RETRIES. Aborting.", 
-                            log_level=2, context=ctx)
-                        
-                        # Terminal error for this task
-                        d.status = Status.error
-                        if emitter:
-                            try: emitter.status_changed.emit('error')
-                            except Exception: pass
-                        break  # Stop the manager loop
+        if seg.downloaded:
+            log(f"[SPARSE] Segment {seg.num} finished OK", log_level=3, context=ctx)
+        else:
+            attempts = retry_counts.get(seg.num, 0) + 1
+            retry_counts[seg.num] = attempts
 
-        time.sleep(0.05)
+            if attempts < MAX_SEG_RETRIES:
+                log(f"[SPARSE] Segment {seg.num} failed (attempt {attempts}/"
+                    f"{MAX_SEG_RETRIES}). Re-queuing...",
+                    log_level=2, context=ctx)
+                seg.in_progress = False
+                segment_queue.append(seg)
+            else:
+                log(f"[SPARSE] Segment {seg.num} reached MAX_RETRIES. Aborting.",
+                    log_level=2, context=ctx)
+                d.status = Status.error
+                if emitter:
+                    try: emitter.status_changed.emit('error')
+                    except Exception: pass
+                break
 
     # Wait for any lingering worker threads to exit cleanly
     for worker, t in list(active.items()):
@@ -426,19 +433,19 @@ def _file_manager_sparse(d, keep_segments=False, emitter=None, workers_done_even
     while d.status == Status.downloading:
         # Check if the sidecar tracker confirms all segments are complete
         if hasattr(d, 'resume_tracker') and d.resume_tracker.is_complete():
-            log(f"[SPARSE] Resume tracker: all segments complete", 
+            log(f"[SPARSE] Resume tracker: all segments complete",
                 log_level=1, context=ctx)
             d.status = Status.completed
             break
-        
+
         # Hard safety check: ensure we don't exceed expected file size
         if d.size > 0 and d.downloaded >= d.size:
             log(f"[SPARSE] Download reached 100%: {size_format(d.downloaded)}/"
                 f"{size_format(d.size)}", log_level=1, context=ctx)
             d.status = Status.completed
             break
-        
-        time.sleep(0.05)
+
+        time.sleep(0.1)
     
     # Transition: Abort if status is not 'completed' (e.g., cancelled or error)
     if d.status != Status.completed:
@@ -1964,8 +1971,8 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
 
     except Exception as exc:
         log(f"[yt-dlp-exe] Exception during download: {exc}")
-        error_msg = str(e).lower()
-        
+        error_msg = str(exc).lower()
+
         # Transient network errors → keep as "cancelled" for retry
         transient_errors = [
             'timeout', 'connection', 'network', 'temporary failure',
@@ -1973,15 +1980,15 @@ def run_ytdlp_download_exe(d, emitter=None, exe_timeout: float = 3600.0, use_pro
         ]
 
         is_transient = any(err in error_msg for err in transient_errors)
-        
+
         if is_transient:
-            log(f"Transient network error for {d.name}: {e}", log_level=2, context=ctx)
+            log(f"Transient network error for {d.name}: {exc}", log_level=2, context=ctx)
             d.status = Status.cancelled  # Allow clean retry
         else:
             # Fatal errors (extraction failure, unsupported format, etc.)
-            log(f"Fatal yt-dlp error for {d.name}: {e}", log_level=3, context=ctx)
+            log(f"Fatal yt-dlp error for {d.name}: {exc}", log_level=3, context=ctx)
             d.status = Status.error
-            
+
         if emitter:
             emitter.status_changed.emit(d.status)
 
@@ -2128,6 +2135,8 @@ def run_ytdlp_download(d, emitter=None):
     except Exception: pass
 
     # ── 2. The Progress Hook ──
+    _last_progress_emit = [0.0]  # mutable container so the closure can mutate it
+
     def progress_hook(info):
         if not getattr(d, "_title_resolved", False):
             idict = info.get("info_dict") or {}
@@ -2144,7 +2153,7 @@ def run_ytdlp_download(d, emitter=None):
         if info["status"] == "downloading":
             raw_pct = info.get("_percent_str", "0%").strip().replace('%', '')
             clean_pct = re.sub(r'\x1b\[[0-9;]*m', '', raw_pct)
-            
+
             d._progress = float(clean_pct)
             d.downloaded = info.get("downloaded_bytes", 0)
             d.size = info.get("total_bytes") or info.get("total_bytes_estimate", 0)
@@ -2157,8 +2166,12 @@ def run_ytdlp_download(d, emitter=None):
                     stats[0]["downloaded"] = int(d.downloaded or 0)
                     stats[0]["info"] = "Receiving media data..."
             except Exception: pass
-            
-            if emitter:
+
+            # Throttle UI signal emissions to ~5 Hz to avoid flooding the Qt main thread
+            # on fast connections where yt-dlp fires the hook dozens of times per second.
+            now = time.time()
+            if emitter and now - _last_progress_emit[0] > 0.18:
+                _last_progress_emit[0] = now
                 emitter.progress_changed.emit(int(d._progress))
                 emitter.log_updated.emit(
                     f"⬇ {size_format(d._speed, '/s')} | {size_format(d.downloaded)} / {size_format(d.size)}"
