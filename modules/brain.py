@@ -21,6 +21,7 @@ import json
 import mmap
 import sys
 import time
+from urllib.parse import urlparse, parse_qs
 import queue
 import socket
 import yt_dlp
@@ -651,6 +652,13 @@ def brain(d=None, emitter=None):
             return
 
         if has_separate_audio:
+            # Refresh expired YouTube streaming URLs before workers are spawned.
+            # googlevideo.com URLs expire in ~6 hours; a paused resume after that
+            # would silently download 0 bytes and fail verification on every segment.
+            if _googlevideo_url_expired(getattr(d, "eff_url", "") or "") or \
+               _googlevideo_url_expired(getattr(d, "audio_url", "") or ""):
+                log('[DASH] YouTube stream URLs are expired — refreshing before resume', log_level=2, context=ctx)
+                _refresh_dash_urls(d)
             log(f'[DASH] DASH detected: routing to run_curl_download', context=ctx)
             executor.submit(run_curl_download, d, emitter)
             return
@@ -713,6 +721,88 @@ def brain(d=None, emitter=None):
             log(f'[cURL] Static file: routing directly to run_curl_download', context=ctx)
             executor.submit(run_curl_download, d, emitter)
    
+
+
+def _googlevideo_url_expired(url: str) -> bool:
+    """Returns True if a YouTube googlevideo.com streaming URL's expire token is in the past."""
+    if not url or "googlevideo.com" not in url:
+        return False
+    qs = parse_qs(urlparse(url).query)
+    exp = qs.get("expire", [None])[0]
+    return bool(exp and int(exp) < time.time())
+
+
+def _refresh_dash_urls(d) -> bool:
+    """
+    Re-fetches fresh googlevideo.com stream URLs for a DASH download whose URLs have expired.
+
+    YouTube streaming URLs (googlevideo.com) expire in ~6 hours. On resume after a long
+    pause, the saved eff_url / audio_url are dead. This function re-extracts a fresh
+    manifest from the original watch URL and matches formats by their itag (embedded in
+    the expired URL's query string), then updates d.eff_url and d.audio_url in-place and
+    resets d._segments so they regenerate with the fresh URLs.
+
+    Returns True if at least the video URL was successfully refreshed.
+    """
+    ctx = "DASH-URL-REFRESH"
+
+    # d.url is always the YouTube watch URL (never overwritten for curl/DASH)
+    watch_url = getattr(d, "url", None) or getattr(d, "original_url", None)
+    if not watch_url or not any(h in watch_url for h in ("youtube.com", "youtu.be")):
+        log(f"[{ctx}] Not a YouTube URL — skipping refresh", log_level=2, context=ctx)
+        return False
+
+    def _itag_from_url(url: str) -> str | None:
+        qs = parse_qs(urlparse(url).query)
+        return (qs.get("itag") or [None])[0]
+
+    old_video_itag = _itag_from_url(getattr(d, "eff_url", "") or "")
+    old_audio_itag = _itag_from_url(getattr(d, "audio_url", "") or "")
+
+    log(f"[{ctx}] Expired DASH URLs detected (video itag={old_video_itag}, audio itag={old_audio_itag}). "
+        f"Re-extracting from: {watch_url}", log_level=2, context=ctx)
+
+    try:
+        ydl_opts = get_ytdl_options()
+        vid_info = extract_info_blocking(watch_url, ydl_opts)
+    except Exception as e:
+        log(f"[{ctx}] yt-dlp extraction failed: {e}", log_level=3, context=ctx)
+        return False
+
+    if not vid_info:
+        log(f"[{ctx}] Extraction returned no info", log_level=2, context=ctx)
+        return False
+
+    formats = vid_info.get("formats", [])
+    refreshed_video = False
+
+    if old_video_itag:
+        video_fmt = next(
+            (f for f in formats if str(f.get("format_id")) == old_video_itag and f.get("url")),
+            None
+        )
+        if video_fmt:
+            d.eff_url = video_fmt["url"]
+            refreshed_video = True
+            log(f"[{ctx}] Video URL refreshed (itag={old_video_itag})", log_level=1, context=ctx)
+        else:
+            log(f"[{ctx}] Video itag={old_video_itag} not found in fresh manifest", log_level=2, context=ctx)
+
+    if old_audio_itag:
+        audio_fmt = next(
+            (f for f in formats if str(f.get("format_id")) == old_audio_itag and f.get("url")),
+            None
+        )
+        if audio_fmt:
+            d.audio_url = audio_fmt["url"]
+            log(f"[{ctx}] Audio URL refreshed (itag={old_audio_itag})", log_level=1, context=ctx)
+        else:
+            log(f"[{ctx}] Audio itag={old_audio_itag} not found in fresh manifest", log_level=2, context=ctx)
+
+    # Clear cached segments so they regenerate with the fresh URLs on next access
+    d._segments = None
+
+    return refreshed_video
 
 
 def run_curl_download(d, emitter=None):

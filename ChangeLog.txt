@@ -3,10 +3,12 @@
 - Fixed socket resource leak in has_internet_connection where the TCP socket was never closed after a successful connection check
 - Fixed pycurl handle leak in Worker: curl handles were created at construction but never explicitly closed, accumulating across many downloads
 - Fixed pycurl handle leak in Worker_Sparse: same pattern as Worker, now cleaned up via __del__
+- Fixed Youtube stream download expiry on resume via cURL as download engine
 - Fixed unused imports in worker_sparse (Lock, size_format) carried over from an earlier refactor
 - Improved _thread_manager_sparse: replaced 20 Hz busy-poll (sleep(0.05) + t.is_alive() scan) with a queue.Queue completion notification, eliminating ~20 wasted CPU wake-ups per second per active sparse download
 - Improved _file_manager_sparse: reduced polling interval from 0.05s to 0.1s, halving CPU overhead during file completion monitoring
 - Improved run_ytdlp_download (Python API): added 0.18s throttle to progress hook UI signal emissions, preventing Qt main thread saturation on fast connections where yt-dlp fires the hook dozens of times per second
+
 
 
 
