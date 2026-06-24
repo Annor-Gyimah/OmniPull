@@ -892,13 +892,15 @@ class UIManagerMixin:
 
     def open_folder_dialog(self):
         """Open a dialog to select a folder and update the line edit."""
-        # Open a folder selection dialog
-        folder_path = QFileDialog.getExistingDirectory(self, "Select Download Folder")
-    
+        # Parent to ui_add_download so the picker appears above it, not behind it.
+        folder_path = QFileDialog.getExistingDirectory(
+            self.ui_add_download, "Select Download Folder"
+        )
+
         if folder_path:
             self.ui_add_download.save_to_edit.setText(folder_path)
             config.download_folder = os.path.abspath(folder_path)
-        
+
         self.ui_add_download.activateWindow()
         self.ui_add_download.raise_()
 

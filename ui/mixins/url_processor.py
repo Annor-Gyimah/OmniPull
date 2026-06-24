@@ -478,6 +478,8 @@ class URLProcessorMixin:
         """Forces a re-processing of the current URL string."""
         log("Manual extraction retry initiated by user", log_level=1, context="URL-PROC")
         self.d.url = ''
+        # Reset so show_thumbnail() re-fetches even if the URL string is identical.
+        self.current_thumbnail = None
         self._url_processing = True
         self._processing_cancel_requested = False
         self._show_cancel_button()
@@ -739,10 +741,12 @@ class URLProcessorMixin:
         """Displays the granular metadata inspector for the resolved Video object."""
         if not self.d or not isinstance(self.d, Video):
             return
-        
-        log(f"Opening advanced metadata inspector for: {self.d.name}", 
+
+        log(f"Opening advanced metadata inspector for: {self.d.name}",
             log_level=1, context="URL-EXTRACT-FINISH")
-        dlg = AdvancedMetadataDialog(self.d, self)
+        # Parent to the add-download window so the dialog appears above it,
+        # not behind it (which happens when parented to the main QMainWindow).
+        dlg = AdvancedMetadataDialog(self.d, self.ui_add_download)
         dlg.apply_language_advancemetada(config.lang)
         dlg.exec()
 
