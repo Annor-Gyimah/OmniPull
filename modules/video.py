@@ -614,27 +614,32 @@ class Video(DownloadItem):
         # normal streams will overwrite same streams names in dash
         video_streams = {**dash_streams, **normal_streams}
 
-        # sort streams based on quality
-        video_streams = {k: v for k, v in sorted(video_streams.items(), key=lambda item: item[1].quality, reverse=True)}
+        # sort video streams ascending by quality (lowest resolution first)
+        video_streams = {k: v for k, v in sorted(video_streams.items(), key=lambda item: item[1].quality)}
 
-        # sort based on mp4 streams first
+        # split into mp4 and other (webm, etc) — each group is already in ascending order
         mp4_videos = {stream.name: stream for stream in video_streams.values() if stream.extension == 'mp4'}
         other_videos = {stream.name: stream for stream in video_streams.values() if stream.extension != 'mp4'}
-        video_streams = {**mp4_videos, **other_videos}
 
-        audio_streams = {stream.name: stream for stream in all_streams if stream.mediatype == 'audio'}
+        # sort audio ascending by bitrate (lowest first)
+        audio_streams_list = sorted(
+            [stream for stream in all_streams if stream.mediatype == 'audio'],
+            key=lambda s: s.quality
+        )
+        audio_streams = {stream.name: stream for stream in audio_streams_list}
 
-        # collect all in one dictionary of stream.name: stream pairs
-        streams = {**video_streams, **audio_streams}
+        # collect all: audio → other video (webm/etc) → mp4
+        streams = {**audio_streams, **other_videos, **mp4_videos}
 
-        stream_menu = ['● Video streams:                     '] + list(mp4_videos.keys()) + list(other_videos.keys()) \
-                    + ['', '● Audio streams:                 '] + list(audio_streams.keys())
+        stream_menu = ['● Audio streams:                 '] + list(audio_streams.keys()) \
+                    + ['', '● Other video streams:           '] + list(other_videos.keys()) \
+                    + ['', '● MP4 video streams:             '] + list(mp4_videos.keys())
 
         # assign variables
         self.stream_list = list(streams.values())
         self.stream_names = [stream.name for stream in self.stream_list]
         self.raw_stream_names = [stream.raw_name for stream in self.stream_list]
-        self.video_streams = video_streams
+        self.video_streams = {**other_videos, **mp4_videos}
         self.mp4_videos = mp4_videos
         self.other_videos = other_videos
         self.audio_streams = audio_streams
@@ -815,11 +820,15 @@ class Stream:
 
     @property
     def name(self):
-        return f'      ›  {self.extension} - {self.quality} - {size_format(self.size)}'  # ¤ » ›
+        _icons = {'audio': '♫', 'normal': '▶', 'dash': '▶'}
+        icon = _icons.get(self.mediatype, '◆')
+        return f'  {icon}  {self.extension} - {self.quality} - {size_format(self.size)}'
 
     @property
     def raw_name(self):
-        return f'      ›  {self.extension} - {self.quality}'
+        _icons = {'audio': '♫', 'normal': '▶', 'dash': '▶'}
+        icon = _icons.get(self.mediatype, '◆')
+        return f'  {icon}  {self.extension} - {self.quality}'
 
     @property
     def quality(self):

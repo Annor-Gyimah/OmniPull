@@ -790,13 +790,19 @@ class UIManagerMixin:
                 log_level=1, context=self.ctx)
     
             # 1. Stop Table/UI Thread
+            # Guard RuntimeError: PySide6 raises isRunning() on a QThread whose C++ object
+            # was already destroyed by a prior deleteLater() call.
             t = getattr(self, "table_thread", None)
-            if t and t.isRunning():
-                if hasattr(self, "worker") and hasattr(self.worker, "requestInterruption"):
-                    try: self.worker.requestInterruption()
-                    except Exception: pass
-                t.quit()
-                t.wait(3000)
+            if t is not None:
+                try:
+                    if t.isRunning():
+                        if hasattr(self, "worker") and hasattr(self.worker, "requestInterruption"):
+                            try: self.worker.requestInterruption()
+                            except Exception: pass
+                        t.quit()
+                        t.wait(1000)
+                except RuntimeError:
+                    pass  # Already deleted — nothing to stop
     
             
             # 2. Stop Log Recorder (Explicit flush)

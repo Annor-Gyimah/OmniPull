@@ -87,7 +87,7 @@ class FilePropertiesDialog(QDialog):
         add_row(row, "Name:", d.name); row += 1
         add_row(row, "Folder:", d.folder); row += 1
         add_row(row, "Download engine:", d.engine); row += 1
-        add_row(row, "Progress:", f"{d._progress}%"); row += 1
+        add_row(row, "Progress:", f"{d.progress:.1f}%"); row += 1
         add_row(row, "Downloaded:", size_format(d.downloaded)); row += 1
         add_row(row, "Total size:", size_format(d.total_size)); row += 1
         add_row(row, "Status:", d.status); row += 1

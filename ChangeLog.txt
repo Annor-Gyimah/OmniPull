@@ -5,10 +5,26 @@
 - Fixed pycurl handle leak in Worker_Sparse: same pattern as Worker, now cleaned up via __del__
 - Fixed Youtube stream download expiry on resume via cURL as download engine
 - Fixed unused imports in worker_sparse (Lock, size_format) carried over from an earlier refactor
+- Fixed yt-dlp Done vs Size column mismatch in the download table: yt-dlp fires its progress hook separately for each DASH stream (video then audio), resetting downloaded_bytes to 0 for each new stream; the hook now banks bytes from each finished stream and accumulates a cumulative total seeded from d.size + d.audio_size so Done and Size stay consistent throughout the entire download, not just at completion
+- Fixed File Properties dialog always displaying 0% progress: was reading the raw d._progress field (0 at init, not persisted across restarts) instead of the d.progress property which correctly returns 100 for completed items and computes from downloaded/size for active ones
+- Fixed AdvancedMetadataDialog and folder picker appearing behind the Add Download window: both were parented to the main QMainWindow so the window manager placed them behind the already-visible AddDownloadWindow; now parented to ui_add_download directly
+- Fixed Retry button not refreshing the thumbnail when the same YouTube URL is reprocessed: show_thumbnail() skipped the network fetch because the URL string was identical to the cached current_thumbnail; reset current_thumbnail to None on retry
+- Improved resolution combo box ordering: streams are now sorted ascending within each group and arranged audio (♫) first, then other video formats (◆), then MP4 (▶), making quality tiers easier to compare and differentiate at a glance
 - Improved _thread_manager_sparse: replaced 20 Hz busy-poll (sleep(0.05) + t.is_alive() scan) with a queue.Queue completion notification, eliminating ~20 wasted CPU wake-ups per second per active sparse download
 - Improved _file_manager_sparse: reduced polling interval from 0.05s to 0.1s, halving CPU overhead during file completion monitoring
 - Improved run_ytdlp_download (Python API): added 0.18s throttle to progress hook UI signal emissions, preventing Qt main thread saturation on fast connections where yt-dlp fires the hook dozens of times per second
-
+- Fixed PopulateTableWorker never emitting its finished signal after run() completed; the thread's quit() slot was connected to this signal and therefore never called, leaving the thread's event loop running indefinitely — subsequent populate_table() calls always found t.isRunning() == True and skipped, so new downloads never appeared in the table until app restart. (#100)
+- Performance: eliminated UI-blocking t.wait(2000) in populate_table; if the previous worker thread is still running the current cycle is skipped rather than stalling the main thread for up to 2 s; guard added for PySide6 RuntimeError when isRunning() is called on a QThread whose C++ object was already destroyed by deleteLater. (#101)
+- Performance: save_d_list and save_settings are now debounced to ~5 s intervals (20 × 250 ms ticks) instead of running on every GUI tick; on-demand saves for user actions (delete, start, stop, add) are unaffected. (#101)
+- Performance: populate_table_apply no longer calls save_d_list, eliminating a duplicate SQLite write that occurred in addition to the tick-based save. (#101)
+- Performance: replaced O(n) find_download_by_id linear scan in update_table_progress with an O(1) _d_index dict built during populate_table_apply; eliminates O(n²) comparisons per tick for large download lists. (#101)
+- Performance: update_table_progress now refreshes speed, ETA, done, size, and status columns for all active downloads in the same pass. (#101)
+- Performance: added finalization pass in update_table_progress — downloads that just left active_ids receive one final column flush (terminal status, final size) before being marked finalized. (#101)
+- Fixed shutdown cascade failure: RuntimeError from calling isRunning() on a deleteLater-destroyed QThread C++ object inside closeEvent was short-circuiting the entire shutdown try-block, leaving LogRecorderThread and BrowserQueueMonitor running and producing QThread: Destroyed while thread is still running warnings. (#102)
+- Performance: replaced module-level Lock() shared across all DownloadItems with a per-instance self._lock; previously all concurrent downloads contended on a single global lock in the downloaded setter (called thousands of times per second from 64 worker threads per download). (#101)
+- Performance: moved _RE_BYTES_NUM regex from per-instance compilation in __init__ to a module-level constant; eliminates N redundant compiled regex objects for N downloads loaded from history. (#101)
+- Performance: removed unnecessary lock acquisition from the speed property inactive-status early-return path; this path fires for every non-downloading row on every update_table_progress tick and only writes a single float which is GIL-atomic. (#101)
+- Performance: replaced per-download monitor threads in run_curl_download with a single shared daemon thread (_SharedCurlMonitor); previously each concurrent cURL download spawned its own Thread sleeping 0.5 s in a loop — 10 concurrent downloads meant 10 sleeping threads each holding an OS stack and contributing to GIL pressure; the shared monitor handles all downloads in one 0.5 s tick regardless of concurrency. (#102)
 
 
 

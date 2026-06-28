@@ -1389,24 +1389,27 @@ class URLProcessorMixin:
     def update_stream_menu(self):
         """
         Refreshes the resolution/quality combobox for the currently active video.
+        Streams are ordered: audio (♫) → other video (◆) → mp4 (▶), ascending quality.
         """
         try:
             if not self.d or not hasattr(self.d, 'stream_names') or not self.d.stream_names:
-                log("Stream menu update skipped: No streams found for current item.", 
+                log("Stream menu update skipped: No streams found for current item.",
                     log_level=2, context="UI-SELECTION")
                 return
-    
+
             self.ui_add_download.resolution_combo.clear()
             self.ui_add_download.resolution_combo.addItems(self.d.stream_names)
-    
-            # Default to the first available stream (typically highest quality)
-            selected_stream = self.d.stream_names[0]
+
+            # Default to the best mp4 (last mp4 stream = highest quality after ascending sort).
+            # Fall back to the last stream in the list if no mp4 exists.
+            mp4_names = [n for n in self.d.stream_names if '▶' in n and 'mp4' in n]
+            selected_stream = mp4_names[-1] if mp4_names else self.d.stream_names[-1]
             self.ui_add_download.resolution_combo.setCurrentText(selected_stream)
             self.stream_OnChoice(selected_stream)
-    
-            log(f"Resolution menu updated with {len(self.d.stream_names)} options.", 
+
+            log(f"Resolution menu updated with {len(self.d.stream_names)} options.",
                 log_level=1, context="UI-SELECTION")
-    
+
         except Exception as e:
             log(f"Stream menu update failed: {e}", log_level=3, context="UI-SELECTION")
 

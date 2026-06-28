@@ -265,23 +265,29 @@ class TableManagerMixin:
         Spawns a PopulateTableWorker on a dedicated QThread to prevent 
         the UI from freezing when processing large download lists.
         """
-        # Ensure only one population thread runs at a time
+        # If the previous populate thread is still running, skip this cycle rather than
+        # blocking the UI thread for up to 2 s waiting for it to finish.
+        # Guard against RuntimeError: PySide6 raises isRunning() on a QThread whose C++
+        # object was already destroyed by a prior deleteLater() call.
         t = getattr(self, "table_thread", None)
-        if t and t.isRunning():
-            t.quit()
-            t.wait(2000)
-    
+        if t is not None:
+            try:
+                if t.isRunning():
+                    return
+            except RuntimeError:
+                pass  # C++ object deleted; safe to create a new thread
+
         self.table_thread = QThread(self)
         self.worker = PopulateTableWorker(self.d_list)
         self.worker.moveToThread(self.table_thread)
-    
+
         # Lifecycle management
         self.table_thread.started.connect(self.worker.run)
         self.worker.data_ready.connect(self.populate_table_apply)
         self.worker.finished.connect(self.table_thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.table_thread.finished.connect(self.table_thread.deleteLater)
-    
+
         self.table_thread.start()
 
 
@@ -343,8 +349,9 @@ class TableManagerMixin:
             
             last_try = str(data.get('last_try_date', ""))
             self.ui.table.setItem(row_idx, 9, self._create_readonly_item(last_try))
-    
-        self.settings_manager.save_d_list(self.d_list)
+
+        # Rebuild O(1) lookup index for update_table_progress
+        self._d_index = {d.id: d for d in self.d_list}
 
 
     def _create_readonly_item(self, text: str) -> QTableWidgetItem:
@@ -357,52 +364,87 @@ class TableManagerMixin:
 
     def update_table_progress(self):
         """
-        Refreshes the progress column with optimized differential rendering.
-        
-        To maintain 60FPS UI performance, this method only updates rows for 
-        active downloads and skips any whose percentage hasn't shifted since 
-        the last tick. This prevents redundant Qt layout recalculations.
+        Refreshes live columns (progress %, speed, ETA, done, size, status) for active
+        downloads every tick.  Uses _d_index for O(1) lookup instead of O(n) linear scan.
+
+        Three tiers per row:
+        - active: update all live columns every tick
+        - just-finished (in cache but not in active_ids): one final flush of terminal values,
+          then mark as finalized so subsequent ticks skip it without a populate_table call
+        - finalized/never-started: skip
         """
         try:
             active_ids = self.active_downloads
             table = self.ui.table
-    
+            d_index = getattr(self, '_d_index', {})
+            finalized = getattr(self, '_finalized_downloads', set())
+
             for row in range(table.rowCount()):
                 try:
-                    # Retrieve the underlying Download ID from Column 0
                     id_item = table.item(row, 0)
                     if not id_item:
                         continue
-    
+
                     download_id = id_item.data(Qt.UserRole)
-    
-                    # Optimization: Skip inactive rows that have already been cached
-                    if download_id not in active_ids and download_id in self._last_progress_values:
+                    is_active = download_id in active_ids
+
+                    # Fully finalized inactive rows need no further work
+                    if not is_active and download_id in finalized:
                         continue
-    
-                    d = find_download_by_id(self.d_list, download_id)
+
+                    # Skip rows that were never active and have no cached value
+                    if not is_active and download_id not in self._last_progress_values:
+                        continue
+
+                    d = d_index.get(download_id)
                     if not d or d.progress is None:
                         continue
-    
+
                     progress_pct = int(d.progress)
-    
-                    # Optimization: Only touch the widget if the numerical value has changed
-                    if download_id in self._last_progress_values and \
-                       self._last_progress_values[download_id] == progress_pct:
-                        continue
-    
-                    progress_item = table.item(row, 2)
-                    if progress_item:
-                        progress_item.setText(f"{progress_pct}%")
-                        
-                        # Apply status-specific color-coding (e.g., Green for OK, Red for Error)
-                        color_hex = get_progress_bar_color(d.status)
-                        progress_item.setForeground(QColor(color_hex))
-    
-                        # Cache the new value for the next comparison
-                        self._last_progress_values[download_id] = progress_pct
+                    last_pct = self._last_progress_values.get(download_id)
+
+                    # Update progress % whenever the integer value changed
+                    if last_pct != progress_pct:
+                        progress_item = table.item(row, 2)
+                        if progress_item:
+                            progress_item.setText(f"{progress_pct}%")
+                            progress_item.setForeground(QColor(get_progress_bar_color(d.status)))
+                            self._last_progress_values[download_id] = progress_pct
+
+                    # Refresh speed / ETA / done / size / status
+                    speed_item = table.item(row, 3)
+                    if speed_item:
+                        speed_item.setText(size_format(d.speed, '/s') if (is_active and d.speed) else "")
+
+                    eta_item = table.item(row, 4)
+                    if eta_item:
+                        eta_item.setText(time_format(d.time_left) if is_active else "")
+
+                    done_item = table.item(row, 5)
+                    if done_item:
+                        done_item.setText(size_format(d.downloaded))
+
+                    size_item = table.item(row, 6)
+                    if size_item:
+                        size_item.setText(size_format(d.total_size))
+
+                    status_item = table.item(row, 7)
+                    if status_item and status_item.text() != d.status:
+                        status_item.setText(d.status)
+                        status_item.setForeground(QColor(get_progress_bar_color(d.status)))
+
+                    # Once a non-active download has been flushed, mark it finalized
+                    if not is_active:
+                        finalized.add(download_id)
+
+                    # If a download restarts, remove it from finalized so it tracks again
+                    if is_active:
+                        finalized.discard(download_id)
+
                 except Exception:
                     continue
+
+            self._finalized_downloads = finalized
         except Exception as e:
             log(f"High-frequency progress update failed: {e}", log_level=3, context="GUI-TABLE")
 

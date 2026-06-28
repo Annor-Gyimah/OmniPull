@@ -51,6 +51,101 @@ from modules.subtitles import get_advanced_opts, fetch_subtitle_with_retry
 
 lock = Lock()
 
+# ── Shared cURL download monitor ───────────────────────────────────────────
+# Instead of spawning one Thread per cURL download (each sleeping 0.5 s in a
+# loop), a single daemon thread handles all active downloads. Overhead is
+# O(1) threads regardless of concurrent download count.
+_monitor_registry: dict = {}        # {d.id: (d, start_time, max_timeout, emitter)}
+_monitor_registry_lock = threading.Lock()
+_monitor_started = False
+_monitor_start_lock = threading.Lock()
+
+
+def _register_curl_monitor(d, start_time: float, max_timeout: float, emitter):
+    """Register a cURL download for lifecycle monitoring."""
+    global _monitor_started
+    with _monitor_registry_lock:
+        _monitor_registry[d.id] = (d, start_time, max_timeout, emitter)
+    with _monitor_start_lock:
+        if not _monitor_started:
+            _monitor_started = True
+            t = Thread(target=_shared_curl_monitor_loop, daemon=True, name="SharedCurlMonitor")
+            t.start()
+
+
+def _unregister_curl_monitor(d_id):
+    with _monitor_registry_lock:
+        _monitor_registry.pop(d_id, None)
+
+
+def _shared_curl_monitor_loop():
+    """Single daemon thread that polls all registered cURL downloads every 0.5 s."""
+    ctx = "ENGINE-MONITOR"
+    while True:
+        time.sleep(0.5)
+        with _monitor_registry_lock:
+            items = list(_monitor_registry.items())
+        for d_id, entry in items:
+            try:
+                _curl_monitor_tick(d_id, *entry)
+            except Exception as e:
+                log(f"Monitor tick error for id={d_id}: {e}", log_level=2, context=ctx)
+
+
+def _curl_monitor_tick(d_id, d, start_time: float, max_timeout: float, emitter):
+    ctx = "ENGINE-MONITOR"
+    progress_val = float(getattr(d, "_progress", 0) or 0)
+
+    # 1. Stall timeout — no progress after max_timeout seconds
+    if time.time() - start_time > max_timeout and progress_val == 0:
+        d.status = Status.error
+        log(f"Timeout reached for {d.name}. Marking as failed.", context=ctx)
+        if emitter:
+            try:
+                emitter.status_changed.emit("error")
+                emitter.failed.emit(d)
+            except Exception:
+                pass
+        _unregister_curl_monitor(d_id)
+        return
+
+    # 2. User cancellation
+    if d.status == Status.cancelled:
+        log(f"Cancelled manually for: {d.name}", context=ctx)
+        if getattr(d, "in_queue", False):
+            d.status = Status.queued
+        _unregister_curl_monitor(d_id)
+        return
+
+    # 3. Successful completion
+    if d.status == Status.completed:
+        try:
+            config.main_window_q.put(('restore_window', ''))
+        except Exception:
+            pass
+        notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
+        watch_file = os.path.join(d.folder, f"_temp_{d.name}.watch")
+        if os.path.exists(watch_file):
+            try:
+                os.remove(watch_file)
+            except Exception:
+                pass
+        cb = getattr(d, "callback", None)
+        if cb:
+            _execute_callback(cb, d)
+        log(f'Monitor for "{d.name}" exiting (completed).', context=ctx)
+        _unregister_curl_monitor(d_id)
+        return
+
+    # 4. Error state
+    if d.status == Status.error:
+        log(f"Error detected for: {d.name}", context=ctx)
+        _unregister_curl_monitor(d_id)
+
+
+# ── End shared monitor ──────────────────────────────────────────────────────
+
+
 def has_internet_connection(host="8.8.8.8", port=53, timeout=3):
     try:
         socket.setdefaulttimeout(timeout)
@@ -846,74 +941,8 @@ def run_curl_download(d, emitter=None):
     start_time = time.time()
     max_timeout = 180  # 3-minute stall protection
 
-    # =========================================================================
-    # MONITORING THREAD
-    # =========================================================================
-    def monitor_download_sync():
-        """
-        Observes the download lifecycle from a detached thread.
-        Handles timeouts, manual cancellations, and final notification/cleanup.
-        """
-        while True:
-            # Polling interval (0.5s) balanced for UI responsiveness and CPU usage
-            time.sleep(0.5) 
-
-            # Normalize progress attribute access
-            progress_val = getattr(d, "progress", None)
-            if progress_val is None:
-                progress_val = getattr(d, "_progress", 0)
-
-            # 1. Timeout Check: If no progress is made within 3 minutes of start
-            if time.time() - start_time > max_timeout and progress_val == 0:
-                d.status = Status.error
-                log(f"Timeout reached for {d.name}. Marking as failed.", context=ctx)
-                if emitter:
-                    emitter.status_changed.emit("error")
-                    emitter.failed.emit(d)
-                break
-
-            # 2. Manual Cancellation
-            if d.status == Status.cancelled:
-                log(f"Cancelled manually for: {d.name}", context=ctx)
-
-                if getattr(d, "in_queue", False):
-                    d.status = Status.queued
-                break
-
-
-            # 3. Successful Completion
-            if d.status == Status.completed:
-                try:
-                    # Signal main window for potential restoration (e.g., from tray)
-                    config.main_window_q.put(('restore_window', ''))
-                except Exception: pass
-                
-                notify(f"File: {d.name} \nsaved at: {d.folder}", title=f'{APP_NAME} - Download completed')
-                
-                # Cleanup .watch sentinel files used for monitoring
-                watch_file = os.path.join(d.folder, f"_temp_{d.name}.watch")
-                if os.path.exists(watch_file):
-                    try: os.remove(watch_file)
-                    except Exception: pass
-                break
-
-            # 4. Error State
-            if d.status == Status.error:
-                log(f"Error detected for: {d.name}", context=ctx)
-                break
-
-        # Post-Download Callback Dispatcher
-        if d.status == Status.completed:
-            cb = getattr(d, "callback", None)
-            if cb:
-                # Pass both the callback reference and the item itself
-                _execute_callback(cb, d)
-       
-
-        log(f'Brain monitor {getattr(d, "num", "?")} exiting.', context=ctx)
-
-    # Launch monitor thread immediately
-    Thread(target=monitor_download_sync, daemon=True).start()
+    # Register with the shared monitor instead of spawning a dedicated thread
+    _register_curl_monitor(d, start_time, max_timeout, emitter)
 
 
 
@@ -2225,14 +2254,24 @@ def run_ytdlp_download(d, emitter=None):
     except Exception: pass
 
     # ── 2. The Progress Hook ──
-    _last_progress_emit = [0.0]  # mutable container so the closure can mutate it
+    # yt-dlp fires this hook independently for EACH stream it downloads (e.g. video
+    # stream first, then audio stream for DASH). Each stream resets downloaded_bytes
+    # to 0 and total_bytes to just that stream's size. Without compensation, the table
+    # would show Done reset mid-download and Size shrink to the audio-only size.
+    #
+    # Fix: bank bytes from each completed stream and always show cumulative totals.
+    # Pre-seed _total_bytes from d.size + d.audio_size if those are known upfront
+    # (set during URL processing for DASH), so we have the combined denominator from
+    # the very first hook call.
+    _last_progress_emit = [0.0]
+    _completed_stream_bytes = [0]   # bytes from streams that have fully finished
+    _total_bytes = [int(getattr(d, 'size', 0) or 0) + int(getattr(d, 'audio_size', 0) or 0)]
 
     def progress_hook(info):
         if not getattr(d, "_title_resolved", False):
             idict = info.get("info_dict") or {}
             real_title = (idict.get("title") or idict.get("fulltitle") or idict.get("alt_title"))
             if real_title:
-                # Only update name if it currently looks like a URL or ID
                 if d.name.startswith("http") or len(d.name) <= 12:
                     d.name = validate_file_name(real_title)
                 d._title_resolved = True
@@ -2240,15 +2279,37 @@ def run_ytdlp_download(d, emitter=None):
         if d.status in (Status.cancelled, Status.queued):
             raise yt_dlp.utils.DownloadCancelled("Download stopped by user.")
 
-        if info["status"] == "downloading":
-            raw_pct = info.get("_percent_str", "0%").strip().replace('%', '')
-            clean_pct = re.sub(r'\x1b\[[0-9;]*m', '', raw_pct)
+        if info["status"] == "finished":
+            # Bank this stream's bytes so the next stream's counter starts from here.
+            finished_bytes = int(info.get("downloaded_bytes") or 0)
+            _completed_stream_bytes[0] += finished_bytes
+            return
 
-            d._progress = float(clean_pct)
-            d.downloaded = info.get("downloaded_bytes", 0)
-            d.size = info.get("total_bytes") or info.get("total_bytes_estimate", 0)
+        if info["status"] == "downloading":
+            curr_downloaded = int(info.get("downloaded_bytes") or 0)
+            curr_total = int(info.get("total_bytes") or info.get("total_bytes_estimate") or 0)
+
+            # If we didn't have a pre-seeded total, grow it as we see each stream's size.
+            if curr_total > 0:
+                candidate = _completed_stream_bytes[0] + curr_total
+                if candidate > _total_bytes[0]:
+                    _total_bytes[0] = candidate
+
+            combined_downloaded = _completed_stream_bytes[0] + curr_downloaded
+            combined_total = _total_bytes[0]
+
+            d.downloaded = combined_downloaded
             d._speed = info.get("speed", 0)
             d.remaining_time = info.get("eta", 0)
+
+            if combined_total > 0:
+                d.size = combined_total
+                d._progress = round(min(100.0, 100.0 * combined_downloaded / combined_total), 1)
+            else:
+                # No size info yet — fall back to the per-stream percentage string.
+                raw_pct = info.get("_percent_str", "0%").strip().replace('%', '')
+                clean_pct = re.sub(r'\x1b\[[0-9;]*m', '', raw_pct)
+                d._progress = float(clean_pct)
 
             try:
                 stats = getattr(d, "connection_stats", [])
@@ -2257,8 +2318,7 @@ def run_ytdlp_download(d, emitter=None):
                     stats[0]["info"] = "Receiving media data..."
             except Exception: pass
 
-            # Throttle UI signal emissions to ~5 Hz to avoid flooding the Qt main thread
-            # on fast connections where yt-dlp fires the hook dozens of times per second.
+            # Throttle UI signal emissions to ~5 Hz to avoid flooding the Qt main thread.
             now = time.time()
             if emitter and now - _last_progress_emit[0] > 0.18:
                 _last_progress_emit[0] = now
@@ -2371,10 +2431,23 @@ def run_ytdlp_download(d, emitter=None):
 
         d.status = Status.completed
         d._progress = 100
+
+        # Sync the Done and Size columns to the actual merged file on disk.
+        # yt-dlp's progress hook fires separately for each stream (video then audio),
+        # so d.downloaded ends up as the last stream's byte count, not the total.
+        try:
+            final_path = getattr(d, 'target_file', None) or os.path.join(d.folder, d.name)
+            if os.path.isfile(final_path):
+                actual_size = os.path.getsize(final_path)
+                d.downloaded = actual_size
+                d.size = actual_size
+        except Exception:
+            pass
+
         if emitter:
             emitter.progress_changed.emit(100)
             emitter.status_changed.emit("completed")
-        
+
         delete_folder(d.temp_folder)
         notify(f"Download Finished: {d.name}", title="OmniPull - yt-dlp")
 

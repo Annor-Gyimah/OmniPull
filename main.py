@@ -225,6 +225,11 @@ class DownloadManagerWindow(
         self._batch_worker   = None
         self._batch_ui_active = False
 
+        # Table update optimizations
+        self._d_index: dict = {}               # {d.id: d} for O(1) lookup in update_table_progress
+        self._save_countdown: int = 0          # debounce save_d_list: fires every ~5 s
+        self._finalized_downloads: set = set() # ids that received their terminal flush
+
         # ── YouTube & Media State ────────────────────────────────────────────
         self.video = None
         self.yt_id = 0
@@ -649,9 +654,12 @@ class DownloadManagerWindow(
                 elif key == 'on_startup': self.on_startup()
                 elif key == '_handle_version_status': self._handle_version_status()
         
-            # Persistence: Periodic auto-save of the download list state
-            self.settings_manager.save_settings()
-            self.settings_manager.save_d_list(self.d_list)
+            # Persistence: Auto-save every ~5 s (20 × 250 ms ticks) instead of every tick
+            self._save_countdown -= 1
+            if self._save_countdown <= 0:
+                self.settings_manager.save_settings()
+                self.settings_manager.save_d_list(self.d_list)
+                self._save_countdown = 20
 
         except Exception as e:
             log(f"GUI signal processing error: {e}", log_level=3, context="GUI-SYNC")
@@ -676,7 +684,6 @@ class DownloadManagerWindow(
         self.queue_update('total_speed', total_speed)
 
         # Maintenance Flags
-        
         self.queue_update('populate_table', None)
         self.queue_update('check_scheduled', None)
         self.queue_update('_handle_version_status', None)

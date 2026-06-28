@@ -68,3 +68,4 @@ class PopulateTableWorker(QObject):
 
 
         self.data_ready.emit(prepared_rows)
+        self.finished.emit()

@@ -31,8 +31,8 @@ from modules.utils import validate_file_name, get_headers, translate_server_code
     delete_file, delete_folder, save_json, load_json, size_format
 
 
-# lock used with downloaded property
-lock = Lock()
+# Compiled once at module level — not per-instance
+_RE_BYTES_NUM = re.compile(r"([\d\.,]+)\s*([KMGTP]?i?B)?", re.IGNORECASE)
 
 
 class Communication:
@@ -291,8 +291,8 @@ class DownloadItem:
         self.sched = None       # Tuple: (hours, minutes)
         self.schedule_retries = 0
         
-        # --- Internal Regex ---
-        self._RE_BYTES_NUM = re.compile(r"([\d\.,]+)\s*([KMGTP]?i?B)?", re.IGNORECASE)
+        # Per-instance lock so concurrent downloads don't contend on each other
+        self._lock = Lock()
         self.referrer = None
         self.callback = callback
 
@@ -499,7 +499,7 @@ class DownloadItem:
         if not s:
             return None
         s = s.replace("~", "").replace(",", "").strip()
-        m = self._RE_BYTES_NUM.search(s)
+        m = _RE_BYTES_NUM.search(s)
         if not m:
             try:
                 return int(float(s))
@@ -552,7 +552,7 @@ class DownloadItem:
                 else:
                     new_val = maybe
 
-            with lock:
+            with self._lock:
                 # store as int
                 self._downloaded = int(new_val)
         except Exception:
@@ -579,17 +579,17 @@ class DownloadItem:
             self.speed_refresh_rate = 0.5
 
         # If not downloading, keep speed at 0.0 (do not attempt to compute)
+        # Simple float assignment is GIL-atomic; no lock needed on the fast path.
         if getattr(self, "status", None) != config.Status.downloading:
-            with lock:
-                self._speed = float(0.0)
-            return float(self._speed or 0.0)
+            self._speed = 0.0
+            return 0.0
 
         # compute delta only occasionally to reduce noise
         now = time.time()
         time_passed = now - self.speed_timer if hasattr(self, "speed_timer") else 0.0
         if time_passed >= getattr(self, "speed_refresh_rate", 0.5):
             # sample new speed
-            with lock:
+            with self._lock:
                 current_downloaded = int(getattr(self, "_downloaded", getattr(self, "downloaded", 0) or 0))
             # protect prev_downloaded_value initialization
             if not getattr(self, "prev_downloaded_value", None):
@@ -620,7 +620,7 @@ class DownloadItem:
 
             avg_speed = float(sum(self.speed_buffer) / len(self.speed_buffer)) if self.speed_buffer else 0.0
 
-            with lock:
+            with self._lock:
                 self._speed = float(avg_speed or 0.0)
 
         # always return numeric float
@@ -646,7 +646,7 @@ class DownloadItem:
                 v = float(m.group(0)) if m else None
                 if v is None:
                     return
-            with lock:
+            with self._lock:
                 self._speed = float(max(0.0, v))
         except Exception:
             return
@@ -732,7 +732,7 @@ class DownloadItem:
             if p == 0.0:
                 return float(getattr(self, "last_known_progress", 0.0) or 0.0)
 
-            with lock:
+            with self._lock:
                 self.last_known_progress = float(p)
             return float(self.last_known_progress)
 
@@ -757,7 +757,7 @@ class DownloadItem:
                 if v is None:
                     return
             v = max(0.0, min(100.0, v))
-            with lock:
+            with self._lock:
                 self._progress = v
                 if v > 0.0:
                     self.last_known_progress = v
