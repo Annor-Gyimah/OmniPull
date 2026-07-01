@@ -22,11 +22,82 @@ from modules import config
 from modules.utils import  size_format, time_format, log
 
 from PySide6.QtCore import QTimer, Qt, Slot, QCoreApplication, QTranslator
+from PySide6.QtGui import QPainter, QColor
 from PySide6.QtWidgets import (QVBoxLayout, QLabel, QProgressBar, QPushButton,
 QHBoxLayout, QWidget, QFrame, QTableWidget, QTableWidgetItem, QStyledItemDelegate, QStyle, QDialog, QTabWidget, QFormLayout)
 
 from ui.styles import get_stylesheet
 from ui.language_manager import LanguageManager
+
+
+class SegmentMapWidget(QWidget):
+    """
+    IDM-style per-connection progress bar.
+
+    Draws a horizontal bar representing the whole file, with each active
+    connection shown as a coloured block at its byte-range start position,
+    growing rightward as bytes are written.  The user can see at a glance
+    how many connections are active, where in the file each is working, and
+    whether any connection is stalled (its block stops growing).
+    """
+
+    # Distinct colour palette — cycles if connection count > len(COLORS)
+    COLORS = [
+        QColor(33,  150, 243),  # Blue
+        QColor(76,  175,  80),  # Green
+        QColor(255, 152,   0),  # Orange
+        QColor(156,  39, 176),  # Purple
+        QColor(0,   188, 212),  # Cyan
+        QColor(255, 193,   7),  # Amber
+        QColor(233,  30,  99),  # Pink
+        QColor(0,   150, 136),  # Teal
+    ]
+    BG_COLOR  = QColor(45, 45, 45)
+    SEG_COLOR = QColor(80, 80, 80)   # allocated-but-not-yet-started region
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._stats: list = []
+        self._total: int  = 0
+        self.setMinimumHeight(18)
+        self.setMaximumHeight(22)
+
+    def update_data(self, stats: list, total_size: int):
+        self._stats = stats
+        self._total = total_size
+        self.update()
+
+    def paintEvent(self, _event):
+        painter = QPainter(self)
+        w = self.width()
+        h = self.height()
+
+        painter.fillRect(0, 0, w, h, self.BG_COLOR)
+
+        if self._total <= 0 or not self._stats:
+            painter.end()
+            return
+
+        for i, stat in enumerate(self._stats):
+            seg_size = int(stat.get("segment_size", 0) or 0)
+            if seg_size <= 0:
+                continue
+
+            start    = int(stat.get("start_byte",  0) or 0)
+            dl       = min(int(stat.get("downloaded", 0) or 0), seg_size)  # clamp to slot
+
+            x0 = int(start / self._total * w)
+
+            # Draw the allocated-but-pending portion in a muted tone
+            alloc_w = max(1, int(seg_size / self._total * w))
+            painter.fillRect(x0, 0, alloc_w, h, self.SEG_COLOR)
+
+            # Draw the downloaded portion in the connection's assigned colour
+            if dl > 0:
+                dl_w = max(1, int(dl / self._total * w))
+                painter.fillRect(x0, 0, dl_w, h, self.COLORS[i % len(self.COLORS)])
+
+        painter.end()
 
 
 class NoFocusDelegate(QStyledItemDelegate):
@@ -187,6 +258,15 @@ class DownloadProgressDialog(QDialog):
         details_layout.setSpacing(6)
 
         
+        # IDM-style segment map — shows where each connection is in the file
+        seg_map_lbl = QLabel(self.tr("Start positions and download progress by connections"))
+        seg_map_lbl.setAlignment(Qt.AlignCenter)
+        seg_map_lbl.setObjectName("SegmentMapLabel")
+        details_layout.addWidget(seg_map_lbl)
+
+        self.segment_map = SegmentMapWidget()
+        details_layout.addWidget(self.segment_map)
+
         # table for per-connection info
         self.connections_table = QTableWidget(0, 3)
         self.connections_table.setHorizontalHeaderLabels(["N.", "Downloaded", "Info"])
@@ -321,7 +401,18 @@ class DownloadProgressDialog(QDialog):
         self.set_url(url_text)
         self.set_status(status_text)
         
-        # 🔹 NEW: update IDM-style connections table
+        # Update IDM-style segment map and connections table
+        _stats = getattr(self.d, "connection_stats", []) or []
+        _total = int(getattr(self.d, "total_size", 0) or 0)
+        if getattr(self.d, 'protocol', '') == 'm3u8_native':
+            # ALWAYS use the fixed virtual scale (200 KB per segment) regardless of
+            # whether total_size has been estimated by the fragment estimator.
+            # Workers publish start_byte = seg.num × 200 KB; if the widget uses a
+            # different _total (e.g. avg_seg_size × n_segs when avg > 200 KB), all
+            # slot positions shift left and leave a gap at the right end of the bar.
+            _n = len(getattr(self.d, '_segments', None) or []) or 1
+            _total = _n * (200 * 1024)
+        self.segment_map.update_data(_stats, _total)
         self._update_connections_table()
         
         # Auto-close / status styling
@@ -341,24 +432,27 @@ class DownloadProgressDialog(QDialog):
         stats = getattr(self.d, "connection_stats", None)
 
         if isinstance(stats, list) and stats:
-            rows = len(stats)
+            # Only show rows for workers that have an assigned segment
+            active_stats = [(i, st) for i, st in enumerate(stats)
+                            if (st.get("segment_size") or 0) > 0]
+            rows = len(active_stats)
             self.connections_table.setRowCount(rows)
-            for i, st in enumerate(stats):
+            for row, (i, st) in enumerate(active_stats):
                 downloaded = int(st.get("downloaded", 0) or 0)
                 info_text = st.get("info") or "Receiving data..."
 
-                # No.
+                # No. (show the real worker tag + 1 so numbers match the segment map colours)
                 item_no = QTableWidgetItem(str(i + 1))
                 item_no.setTextAlignment(Qt.AlignCenter)
-                self.connections_table.setItem(i, 0, item_no)
+                self.connections_table.setItem(row, 0, item_no)
 
                 # Downloaded
                 item_size = QTableWidgetItem(size_format(downloaded))
                 item_size.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                self.connections_table.setItem(i, 1, item_size)
+                self.connections_table.setItem(row, 1, item_size)
 
                 # Info
-                self.connections_table.setItem(i, 2, QTableWidgetItem(info_text))
+                self.connections_table.setItem(row, 2, QTableWidgetItem(info_text))
             return
 
         # Fallback: single "whole download" row

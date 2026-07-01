@@ -425,16 +425,18 @@ def _thread_manager_sparse(d, emitter=None, workers_done_event=None):
     ctx = "SPARSE-ENGINE"
     from modules.worker_sparse import Worker_Sparse
 
-    MAX_SEG_RETRIES = 3  # Total attempts allowed per segment
+    MAX_SEG_RETRIES = 3   # Total attempts allowed per segment
+    MIN_SPLIT_BYTES = 5 * 1024 * 1024  # 5 MB — minimum bytes per half after a split
     max_conn = int(config.max_connections)
     segment_queue = list(d.segments)
 
     # Track how many times each segment has been attempted: {seg_num: count}
     retry_counts: dict = {}
 
-    # Fixed pool of reusable workers
-    workers = [Worker_Sparse(tag=i, d=d)
-               for i in range(min(max_conn, len(d.segments)))]
+    # Pre-create the full pool of max_conn workers upfront.
+    # Initially only 2-4 get work (matching idm_style_splitter's initial_parts);
+    # the rest stay idle until dynamic splitting assigns them new segment halves.
+    workers = [Worker_Sparse(tag=i, d=d) for i in range(max_conn)]
 
     idle_workers = list(workers)
     active: dict = {}  # {Worker_Sparse: Thread}
@@ -442,6 +444,10 @@ def _thread_manager_sparse(d, emitter=None, workers_done_event=None):
     # Workers put themselves here when their thread exits, replacing the old
     # t.is_alive() poll that required a 0.05s sleep between checks.
     done_q = queue.Queue()
+
+    # Rate-limit find_struggler to once every 2 s so we don't spam it on
+    # every 0.1 s timeout tick.
+    _last_split_check = 0.0
 
     def _run_and_notify(worker):
         try:
@@ -470,7 +476,52 @@ def _thread_manager_sparse(d, emitter=None, workers_done_event=None):
         try:
             done_worker = done_q.get(timeout=0.1)
         except queue.Empty:
-            # No worker finished yet; loop to re-check d.status and assign new work
+            # No worker finished — opportunistically check for a slow segment to split
+            if idle_workers and not segment_queue and active:
+                now = time.time()
+                if now - _last_split_check >= 2.0:
+                    _last_split_check = now
+                    workers_list = list(active.keys())
+                    worker_data = []
+                    for w in workers_list:
+                        remaining = w.segment_size - w.current_downloaded
+                        worker_data.append({
+                            'speed':      float(w.current_speed or 0),
+                            'downloaded': float(w.current_downloaded),
+                            'size':       float(w.segment_size),
+                            'can_split':  remaining > 2 * MIN_SPLIT_BYTES,
+                        })
+                    try:
+                        idx = native_engine.find_struggler(worker_data, 3.0)
+                        if 0 <= idx < len(workers_list) and idle_workers:
+                            struggler = workers_list[idx]
+                            seg = struggler.seg
+                            if seg and seg.can_split(min_split_size=MIN_SPLIT_BYTES):
+                                next_num = max(s.num for s in d._segments) + 1
+                                new_seg = seg.split(next_num)
+                                if new_seg is not None:
+                                    # Shrink the running worker's byte window to
+                                    # the first half; progress() will abort curl
+                                    # cleanly via CURLE_ABORTED_BY_CALLBACK (42)
+                                    # once write() sets _segment_done = True.
+                                    struggler.segment_size = seg.size
+                                    d._segments.append(new_seg)
+                                    idle_worker = idle_workers.pop(0)
+                                    idle_worker.reuse(seg=new_seg, speed_limit=0)
+                                    t_split = Thread(
+                                        target=_run_and_notify, args=(idle_worker,),
+                                        daemon=True,
+                                        name=f"sparse-worker-{idle_worker.tag}")
+                                    active[idle_worker] = t_split
+                                    t_split.start()
+                                    log(
+                                        f"[SPARSE] Dynamic split: seg {seg.num} → "
+                                        f"new seg {new_seg.num} "
+                                        f"({size_format(seg.size)} + {size_format(new_seg.size)})",
+                                        log_level=1, context=ctx)
+                    except Exception as _se:
+                        log(f"[SPARSE] find_struggler error: {_se}",
+                            log_level=2, context=ctx)
             continue
 
         t = active.pop(done_worker, None)
@@ -795,11 +846,21 @@ def brain(d=None, emitter=None):
 
                     _workers_done = threading.Event()
 
-                    fm = threading.Thread(target=_file_manager_sparse, 
+                    # Pre-populate connection_stats for every potential worker slot so
+                    # the segment map widget and connections table always have valid data,
+                    # even for workers that haven't been assigned a segment yet.
+                    _max_conn = int(config.max_connections)
+                    d.connection_stats = [
+                        {"downloaded": 0, "start_byte": 0, "segment_size": 0,
+                         "info": "Idle", "speed": ""}
+                        for _ in range(_max_conn)
+                    ]
+
+                    fm = threading.Thread(target=_file_manager_sparse,
                                         kwargs=dict(d=d, keep_segments=False, emitter=emitter, workers_done_event=_workers_done),
                                         daemon=True, name="sparse-file-mgr")
                     tm = threading.Thread(target=_thread_manager_sparse,
-                                        args=(d, emitter, _workers_done), 
+                                        args=(d, emitter, _workers_done),
                                         daemon=True, name="sparse-thread-mgr")
                     fm.start()
                     tm.start()
@@ -900,6 +961,95 @@ def _refresh_dash_urls(d) -> bool:
     return refreshed_video
 
 
+def _refresh_hls_urls(d) -> bool:
+    """
+    Re-extracts fresh m3u8 stream URLs for an HLS download whose CDN token has expired.
+
+    Called when pre_process_hls() returns False, which typically means the manifest URL
+    returned a non-m3u8 response (expired CDN token or revoked session).  Re-runs yt-dlp
+    on the original platform URL, matches the format by format_id (falling back to height),
+    and updates d.manifest_url, d.eff_url, and optionally d.audio_url so the next
+    pre_process_hls() call can fetch a fresh playlist and rebuild d._segments with valid
+    .ts segment URLs.
+
+    The caller is responsible for re-invoking pre_process_hls() after this returns True.
+    Because pre_process_hls() creates new Segment objects with the same numeric filenames
+    (0.ts, 1.ts, ...), Worker.run()'s existing-file check will automatically skip segments
+    whose .ts files are already complete on disk, so only incomplete segments are
+    re-downloaded with the fresh URLs.
+
+    Returns True if at least the video URL was successfully refreshed.
+    """
+    ctx = "HLS-URL-REFRESH"
+
+    watch_url = getattr(d, 'url', None) or getattr(d, 'original_url', None)
+    if not watch_url:
+        log(f"[{ctx}] No original page URL available — cannot refresh", log_level=2, context=ctx)
+        return False
+
+    log(f"[{ctx}] m3u8 URL appears expired; re-extracting from: {watch_url}", log_level=2, context=ctx)
+
+    try:
+        ydl_opts = get_ytdl_options()
+        vid_info = extract_info_blocking(watch_url, ydl_opts)
+    except Exception as e:
+        log(f"[{ctx}] yt-dlp extraction failed: {e}", log_level=3, context=ctx)
+        return False
+
+    if not vid_info:
+        log(f"[{ctx}] No info returned from extraction", log_level=2, context=ctx)
+        return False
+
+    formats = vid_info.get('formats', [])
+    old_format_id = getattr(d, 'format_id', None)
+
+    # Match by format_id first; fall back to matching height within HLS protocols.
+    target_fmt = None
+    if old_format_id:
+        target_fmt = next(
+            (f for f in formats
+             if str(f.get('format_id')) == str(old_format_id) and f.get('url')),
+            None
+        )
+    if not target_fmt:
+        old_height = getattr(d, 'height', None)
+        if old_height:
+            target_fmt = next(
+                (f for f in formats
+                 if f.get('height') == old_height
+                 and 'm3u8' in (f.get('protocol', '') or '')
+                 and f.get('url')),
+                None
+            )
+
+    if not target_fmt:
+        log(f"[{ctx}] No matching format found (format_id={old_format_id})", log_level=2, context=ctx)
+        return False
+
+    refreshed = False
+    if target_fmt.get('url'):
+        d.eff_url = target_fmt['url']
+        refreshed = True
+        log(f"[{ctx}] Video m3u8 URL refreshed (format_id={target_fmt.get('format_id')})", log_level=1, context=ctx)
+
+    manifest = target_fmt.get('manifest_url') or vid_info.get('manifest_url')
+    if manifest:
+        d.manifest_url = manifest
+
+    old_audio_format_id = getattr(d, 'audio_format_id', None)
+    if old_audio_format_id:
+        audio_fmt = next(
+            (f for f in formats
+             if str(f.get('format_id')) == str(old_audio_format_id) and f.get('url')),
+            None
+        )
+        if audio_fmt:
+            d.audio_url = audio_fmt['url']
+            log(f"[{ctx}] Audio m3u8 URL refreshed (format_id={old_audio_format_id})", log_level=1, context=ctx)
+
+    return refreshed
+
+
 def run_curl_download(d, emitter=None):
     """
     Initiates the native multi-connection download sequence.
@@ -925,6 +1075,11 @@ def run_curl_download(d, emitter=None):
         keep_segments = True
         # Parse the manifest and build the initial segment list
         success = pre_process_hls(d)
+        if not success:
+            # CDN token may have expired — try refreshing URLs and retry once
+            log(f"[{ctx}] HLS pre-processing failed; attempting URL refresh...", log_level=2, context=ctx)
+            if _refresh_hls_urls(d):
+                success = pre_process_hls(d)
         if not success:
             log(f"HLS Pre-processing failed for {d.name}", log_level=2, context=ctx)
             d.status = Status.error
@@ -1008,6 +1163,13 @@ def run_aria2c_download(d, emitter=None):
     is_torrent = url.lower().endswith(".torrent") or d.name.lower().endswith(".torrent")
     is_magnet = url.startswith("magnet:?")
     options = {"dir": d.folder, "out": d.name}
+    if getattr(config, "proxy", ""):
+        _proxy = config.proxy
+        if getattr(config, "proxy_user", None) and getattr(config, "proxy_pass", None):
+            from urllib.parse import urlparse, urlunparse
+            _p = urlparse(_proxy)
+            _proxy = urlunparse(_p._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{_p.hostname}:{_p.port}"))
+        options["all-proxy"] = _proxy
 
     try:
         emit_status("pending")
@@ -1207,6 +1369,15 @@ def run_aria2c_video_audio_download(d, emitter=None):
         except: return None
 
     # Video Task Setup
+    _aria_proxy = {}
+    if getattr(config, "proxy", ""):
+        _px = config.proxy
+        if getattr(config, "proxy_user", None) and getattr(config, "proxy_pass", None):
+            from urllib.parse import urlparse, urlunparse
+            _p = urlparse(_px)
+            _px = urlunparse(_p._replace(netloc=f"{config.proxy_user}:{config.proxy_pass}@{_p.hostname}:{_p.port}"))
+        _aria_proxy = {"all-proxy": _px}
+
     v_dl = _get_dl(getattr(d, "aria_gid", None))
     if not v_dl:
         opts_v = {
@@ -1214,6 +1385,7 @@ def run_aria2c_video_audio_download(d, emitter=None):
             "out": os.path.basename(video_part),
             "continue": "true",
             "max-connection-per-server": str(config.aria2c_config["max_connections"]),
+            **_aria_proxy,
         }
         added_v = aria2.add_uris([d.url], options=opts_v)
         d.aria_gid = added_v.gid
@@ -1229,6 +1401,7 @@ def run_aria2c_video_audio_download(d, emitter=None):
                 "out": os.path.basename(audio_part),
                 "continue": "true",
                 "max-connection-per-server": str(config.aria2c_config["max_connections"]),
+                **_aria_proxy,
             }
             added_a = aria2.add_uris([d.audio_url], options=opts_a)
             d.audio_gid = added_a.gid
@@ -2247,10 +2420,17 @@ def run_ytdlp_download(d, emitter=None):
     try:
         if not hasattr(d, "connection_stats") or not isinstance(d.connection_stats, list):
             d.connection_stats = []
+        _init_entry = {
+            "downloaded": int(d.downloaded or 0),
+            "info": "Initializing...",
+            "start_byte": 0,
+            "segment_size": 0,  # filled in on first progress hook call
+            "speed": "",
+        }
         if not d.connection_stats:
-            d.connection_stats.append({"downloaded": int(d.downloaded or 0), "info": "Initializing..."})
+            d.connection_stats.append(_init_entry)
         else:
-            d.connection_stats[0].update({"downloaded": int(d.downloaded or 0), "info": "Initializing..."})
+            d.connection_stats[0].update(_init_entry)
     except Exception: pass
 
     # ── 2. The Progress Hook ──
@@ -2314,7 +2494,13 @@ def run_ytdlp_download(d, emitter=None):
             try:
                 stats = getattr(d, "connection_stats", [])
                 if stats:
-                    stats[0]["downloaded"] = int(d.downloaded or 0)
+                    # start_byte = offset of the current stream within the combined bar.
+                    # For the video stream _completed_stream_bytes[0] == 0; for the audio
+                    # stream it equals the banked video byte count, placing the audio block
+                    # in the right-hand section of the segment map bar.
+                    stats[0]["start_byte"]    = _completed_stream_bytes[0]
+                    stats[0]["segment_size"]  = curr_total       # current stream's size
+                    stats[0]["downloaded"]    = curr_downloaded  # bytes into this stream
                     stats[0]["info"] = "Receiving media data..."
             except Exception: pass
 
@@ -2523,12 +2709,34 @@ def mmap_append(dest, src):
         dest_map.close()
 
 
+def _seg_byte_order_key(seg):
+    """Sort key: (tempfile_path, range_start_byte).
+
+    Groups segments by their output file, then orders them by byte position so
+    the stitcher appends chunks in the correct sequence even after dynamic splits
+    add new segments that carry higher seg.num values but cover earlier byte ranges
+    than the segments they were split from.
+    """
+    try:
+        r = seg.range
+        if isinstance(r, (tuple, list)):
+            start = int(r[0])
+        elif isinstance(r, str) and '-' in r:
+            start = int(r.split('-')[0])
+        else:
+            start = seg.num  # HLS segments have no byte range — keep insertion order
+    except Exception:
+        start = seg.num
+    return (str(getattr(seg, 'tempfile', '') or ''), start)
+
+
 def file_manager(d, keep_segments=False, emitter=None):
     """
     Coordinates segment stitching and final file assembly.
-    
-    Strictly follows the sequential merging gate: Segment N will not 
-    merge until Segments 0 through N-1 are marked as completed.
+
+    Strictly follows the sequential merging gate: within each output stream
+    a segment will not be appended until all segments that cover earlier byte
+    ranges for the same stream have been completed.
     """
     try:
         import omnipull_url_processor
@@ -2560,7 +2768,11 @@ def file_manager(d, keep_segments=False, emitter=None):
                 if emitter:
                     emitter.status_changed.emit("stitching")
 
-        job_list = [seg for seg in d.segments if not seg.completed]
+        # Sort segments by (output-file, byte-range start) so the stitcher always
+        # appends chunks in the correct sequential order even when dynamic splits
+        # have inserted new segments with higher nums but earlier byte positions.
+        sorted_segs = sorted(d.segments, key=_seg_byte_order_key)
+        job_list = [seg for seg in sorted_segs if not seg.completed]
 
         # 2. Progress Aggregation (Nim-Accelerated every ~0.5s)
         if loop_count_fm % 5 == 0 and d.segments:
@@ -2584,8 +2796,10 @@ def file_manager(d, keep_segments=False, emitter=None):
         for seg in job_list:
             if seg.completed: continue
             
-            # THE SAFETY GATE: Enforce strict numerical order of merging
-            first_unfinished = next((s for s in d.segments if not s.completed), None)
+            # THE SAFETY GATE: Enforce byte-range order within each stream.
+            # Use sorted_segs (built above) so the gate respects byte position
+            # rather than segment insertion order.
+            first_unfinished = next((s for s in sorted_segs if not s.completed), None)
             if first_unfinished and first_unfinished != seg:
                 break 
 
@@ -2767,10 +2981,17 @@ def thread_manager(d, emitter=None):
         busy_workers = []
         live_threads = []
 
+        # Pre-populate connection_stats so the segment map widget and connections table
+        # have valid per-slot entries from the start.
+        d.connection_stats = [
+            {"downloaded": 0, "start_byte": 0, "segment_size": 0, "info": "Idle", "speed": ""}
+            for _ in range(max_conn)
+        ]
+
         # Initial job queue construction
         job_list = [seg for seg in d.segments if not seg.downloaded]
         job_list.reverse() # Prepare for LIFO popping
-        
+
     except Exception as e:
         log(f"Fatal initialization error: {e}", log_level=1, context=ctx)
         return

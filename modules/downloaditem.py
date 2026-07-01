@@ -129,19 +129,55 @@ class Segment:
 
     def split(self, next_num):
         """
-        Splits this segment at its midpoint and returns a new Segment 
-        representing the second half.
+        Splits this segment and returns a new Segment representing the second half.
+
+        The split point is chosen from the UNWRITTEN portion of the range so the
+        running worker's write() size-guard always has a positive remaining count.
+        Splitting at the absolute midpoint of the declared range causes verify()
+        failures whenever the worker has already written past that midpoint by the
+        time the split is applied.
         """
         if not self.can_split():
             return None
 
-        # Calculate midpoint for the byte range
-        start, end = self.range
-        midpoint = start + ((end - start) // 2)
+        # Support both tuple (start, end) and IDM string "start-end" ranges
+        if isinstance(self.range, str):
+            parts = self.range.split('-')
+            start, end = int(parts[0]), int(parts[1])
+        else:
+            start, end = int(self.range[0]), int(self.range[1])
 
-        # Create the new segment for the second half
+        # How many bytes has the running worker already written to its part-file?
+        # The part-file contains bytes starting at stream-position `start`, so the
+        # worker's current write head is at stream byte `start + already_written`.
+        already_written = 0
+        if self.name and os.path.exists(self.name):
+            try:
+                already_written = os.path.getsize(self.name)
+            except OSError:
+                pass
+
+        current_head = start + already_written  # next stream byte the worker will write
+        remaining = end - current_head          # bytes not yet written
+
+        # Require at least 200 KB remaining so both halves are meaningful.
+        if remaining < 204800:
+            return None
+
+        # Place the split at the midpoint of the REMAINING (unwritten) bytes.
+        # This guarantees the new self.size is always > already_written, so the
+        # write() guard fires after the worker writes ~remaining//2 more bytes
+        # rather than immediately (which would leave an oversized part-file).
+        midpoint = current_head + (remaining // 2)
+
+        # Build the new name by swapping just the leading segment-number prefix of the
+        # basename (e.g. "0_audio" → "7_audio").
+        _base_dir = os.path.dirname(self.name)
+        _base_name = os.path.basename(self.name)
+        _suffix = _base_name[len(str(self.num)):]  # e.g. "_audio", "_video", "" or ".ext"
+        _new_name = os.path.join(_base_dir, f"{next_num}{_suffix}")
         new_seg = Segment(
-            name=self.name.replace(f'{self.num}.', f'{next_num}.'),
+            name=_new_name,
             num=next_num,
             range=(midpoint + 1, end),
             size=end - midpoint,
@@ -151,7 +187,9 @@ class Segment:
             merge=self.merge
         )
 
-        # Update current segment to represent only the first half
+        # Update this segment to cover from its start through the midpoint only.
+        # new self.size = already_written + remaining//2 + 1, which is always
+        # greater than already_written so the write() guard has room to work.
         self.range = (start, midpoint)
         self.size = (midpoint - start) + 1
 
@@ -456,11 +494,14 @@ class DownloadItem:
     def total_size(self):
         """
         Calculates the full size of the download.
-        
-        If the size is unknown (HLS/Fragments), it calculates an estimate based 
+
+        If the size is unknown (HLS/Fragments), it calculates an estimate based
         on the average size of segments already downloaded.
         """
-        if self.type == 'dash':
+        if self.type == 'dash' and getattr(self, 'engine', '') != 'yt-dlp':
+            # curl/aria2c DASH: d.size is video-only, add audio separately.
+            # yt-dlp DASH: the progress hook already updates d.size to the combined
+            # (video + audio) total, so adding d.audio_size here would double-count it.
             size = self.size + self.audio_size
         else:
             size = self.size

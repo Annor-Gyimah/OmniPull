@@ -58,6 +58,11 @@ class Worker_Sparse:
         self.last_bytes_check = 0
         self.last_time_check = time.time()
         self.speed_limit = None
+
+        # Set when segment boundary is reached after a dynamic split so the
+        # progress callback can abort pycurl cleanly (error 42) rather than
+        # letting the connection drain bytes that will be thrown away.
+        self._segment_done = False
         
         # pycurl handle — created once, reset between retries
         self.c = pycurl.Curl()
@@ -217,9 +222,10 @@ class Worker_Sparse:
             # Clamp chunk to segment boundary
             remaining_in_seg = self.segment_size - self.current_downloaded
             if remaining_in_seg <= 0:
-                # Segment is full. Return chunk_len (not 0) so curl does NOT treat
-                # this as a write failure (error 23). The progress callback will
-                # abort the transfer cleanly on the next tick via returning -1.
+                # Segment is full (may have been shrunk by a dynamic split).
+                # Signal progress() to abort cleanly via CURLE_ABORTED_BY_CALLBACK
+                # (42) so pycurl stops consuming bandwidth for bytes we'll discard.
+                self._segment_done = True
                 return chunk_len
             to_write = data[:remaining_in_seg] if chunk_len > remaining_in_seg else data
 
@@ -304,13 +310,14 @@ class Worker_Sparse:
             except Exception:
                 pass
 
-            # Throttled connection-stats update (for the UI speed display)
+            # Throttled connection-stats update (drives both the table and the
+            # segment map widget — includes absolute position for the visual bar)
             current_time = time.time()
             if current_time - self.last_stats_update >= self.stats_update_interval:
                 try:
                     stats = getattr(self.d, "connection_stats", None)
                     if isinstance(stats, list) and 0 <= self.tag < len(stats):
-                        stats[self.tag]["downloaded"] += bytes_written
+                        stats[self.tag]["downloaded"] = self.current_downloaded
                         stats[self.tag]["info"] = "Receiving data..."
                     self.last_stats_update = current_time
                 except Exception:
@@ -323,9 +330,9 @@ class Worker_Sparse:
             return 0
 
     def progress(self, *_):
-        """pycurl progress callback — used as a kill switch."""
-        if self.d.status != Status.downloading:
-            return -1  # Abort transfer
+        """pycurl progress callback — kill switch for pause/cancel and segment-done abort."""
+        if self.d.status != Status.downloading or self._segment_done:
+            return -1  # Abort transfer (CURLE_ABORTED_BY_CALLBACK = 42)
         return 0
 
     # def reuse(self, seg=None, speed_limit=0):
@@ -352,7 +359,19 @@ class Worker_Sparse:
         self.last_bytes_check = 0
         self.last_time_check = time.time()
         self.native_writer = None
- 
+        self._segment_done = False
+
+        # Reset per-slot connection stats for this new segment assignment
+        try:
+            stats = getattr(self.d, "connection_stats", None)
+            if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                stats[self.tag]["downloaded"] = 0
+                stats[self.tag]["start_byte"] = 0
+                stats[self.tag]["segment_size"] = 0
+                stats[self.tag]["info"] = "Waiting..."
+        except Exception:
+            pass
+
         # Close any previously open fallback file handle
         if self.file_handle is not None:
             try:
@@ -428,6 +447,9 @@ class Worker_Sparse:
                 if isinstance(stats, list) and 0 <= self.tag < len(stats):
                     stats[self.tag]["info"] = "Complete"
                     stats[self.tag]["speed"] = ""
+                    _slot = stats[self.tag].get("segment_size", 0) or 0
+                    if _slot > 0:
+                        stats[self.tag]["downloaded"] = _slot
             except Exception:
                 pass
             log(f"[Worker {self.tag}] ✓ COMPLETED: segment {self.seg.num} "
@@ -501,6 +523,18 @@ class Worker_Sparse:
                 self.start_byte = 0
                 self.segment_size = self.seg.size or 0
 
+            # Publish this worker's byte-range to connection_stats so the
+            # segment map widget can draw each connection at the right position
+            try:
+                stats = getattr(self.d, "connection_stats", None)
+                if isinstance(stats, list) and 0 <= self.tag < len(stats):
+                    stats[self.tag]["start_byte"] = self.start_byte
+                    stats[self.tag]["segment_size"] = self.segment_size
+                    stats[self.tag]["downloaded"] = self.current_downloaded
+                    stats[self.tag]["info"] = "Connecting..."
+            except Exception:
+                pass
+
             # Ensure temp directory exists
             target_directory = os.path.dirname(self.seg.name)
             if target_directory and not os.path.isdir(target_directory):
@@ -565,6 +599,12 @@ class Worker_Sparse:
                     break  # Success
 
                 except pycurl.error as e:
+                    # 42 = CURLE_ABORTED_BY_CALLBACK — we deliberately aborted
+                    # after a dynamic split shrunk this worker's segment_size.
+                    # Treat it as a clean completion and proceed to verify().
+                    if e.args[0] == 42:
+                        break
+
                     retries += 1
                     # Recoverable: 7=Connect, 18=Partial, 28=Timeout, 56=Reset, 92=HTTP/2
                     if e.args[0] in [7, 18, 28, 56, 92]:

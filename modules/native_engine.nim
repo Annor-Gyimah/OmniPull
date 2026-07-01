@@ -686,3 +686,29 @@ proc compute_sha256*(path: string): string {.exportpy.} =
     discard posix.close(fd)
 
     result = ctx.finish().data.toHex()
+
+
+# =============================================================================
+# PER-DOWNLOAD BYTE COUNTER
+# =============================================================================
+# Workers call counter_add() in place of the Python `d.downloaded += n` setter.
+# pycurl WRITEFUNCTION callbacks are invoked with the GIL held, so a plain
+# int64 field is safe — no OS-level atomics needed.  The GUI tick reads the
+# total once per ~250 ms via counter_get() and writes it to d._downloaded.
+
+type
+  DownloadCounter* = ref object
+    total*: int64
+
+proc new_download_counter*(): DownloadCounter {.exportpy.} =
+  result = DownloadCounter(total: 0)
+
+proc counter_add*(ctr: DownloadCounter, n: int64) {.exportpy.} =
+  if ctr != nil: ctr.total += n
+
+proc counter_get*(ctr: DownloadCounter): int64 {.exportpy.} =
+  if ctr == nil: return 0
+  return ctr.total
+
+proc counter_reset*(ctr: DownloadCounter, value: int64 = 0) {.exportpy.} =
+  if ctr != nil: ctr.total = value

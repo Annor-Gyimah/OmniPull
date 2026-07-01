@@ -91,6 +91,8 @@ class Worker:
 
         range_ = self.resume_range or self.seg.range
         if range_:
+            if isinstance(range_, (tuple, list)):
+                range_ = f"{int(range_[0])}-{int(range_[1])}"
             self.c.setopt(pycurl.RANGE, range_)
 
         # --- HEADER INJECTION FOR YOUTUBE/403s ---
@@ -189,13 +191,14 @@ class Worker:
                     pass
                 self.current_filesize = before_pos + written
 
-                # Update stats throttled
+                # Update stats throttled — push the absolute running total rather than
+                # a per-call delta; this captures all bytes written between throttle ticks.
                 current_time = time.time()
                 if current_time - self.last_stats_update >= self.stats_update_interval:
                     try:
                         stats = getattr(self.d, "connection_stats", None)
                         if isinstance(stats, list) and 0 <= self.tag < len(stats):
-                            stats[self.tag]["downloaded"] += written
+                            stats[self.tag]["downloaded"] = self.downloaded
                             stats[self.tag]["info"] = "Receiving data..."
                         self.last_stats_update = current_time
                     except Exception:
@@ -214,13 +217,14 @@ class Worker:
 
         self.current_filesize = self.file.tell()
 
-        # Update stats throttled
+        # Update stats throttled — push the absolute running total rather than
+        # a per-call delta; this captures all bytes written between throttle ticks.
         current_time = time.time()
         if current_time - self.last_stats_update >= self.stats_update_interval:
             try:
                 stats = getattr(self.d, "connection_stats", None)
                 if isinstance(stats, list) and 0 <= self.tag < len(stats):
-                    stats[self.tag]["downloaded"] += written
+                    stats[self.tag]["downloaded"] = self.downloaded
                     stats[self.tag]["info"] = "Receiving data..."
                 self.last_stats_update = current_time
             except Exception:
@@ -281,6 +285,12 @@ class Worker:
                 if isinstance(stats, list) and 0 <= self.tag < len(stats):
                     stats[self.tag]["info"] = "Complete"
                     stats[self.tag]["speed"] = ""
+                    # Fill the slot to 100% so the segment map shows the block as
+                    # fully downloaded even when the virtual slot size (HLS) differs
+                    # from the actual bytes written.
+                    _slot = stats[self.tag].get("segment_size", 0) or 0
+                    if _slot > 0:
+                        stats[self.tag]["downloaded"] = _slot
             except Exception:
                 pass
             log(f"[Worker {self.tag}] ✓ COMPLETED: downloaded segment {os.path.basename(self.seg.name)} ({self.current_filesize} bytes)", log_level=1)
@@ -314,50 +324,83 @@ class Worker:
         self.mode = 'wb'
         self.resume_range = None
         self.current_filesize = 0
-        
+
+        # Parse segment range once, handling both "start-end" strings and (start, end) tuples
+        # produced by Segment.split().
+        seg_start_byte = 0
+        seg_end_byte = ""
+        if self.seg.range:
+            try:
+                if isinstance(self.seg.range, (tuple, list)):
+                    seg_start_byte = int(self.seg.range[0])
+                    seg_end_byte = str(int(self.seg.range[1]))
+                else:
+                    _parts = self.seg.range.split('-')
+                    if _parts and _parts[0]:
+                        seg_start_byte = int(_parts[0])
+                    if len(_parts) > 1:
+                        seg_end_byte = _parts[1]
+            except Exception as e:
+                log(f"[Worker {self.tag}] Error parsing range '{self.seg.range}': {e}", log_level=2)
+
+        # Publish byte-range to connection_stats so the segment map widget can draw this
+        # connection even before the first byte is written.
+        try:
+            _stats = getattr(self.d, "connection_stats", None)
+            if isinstance(_stats, list) and 0 <= self.tag < len(_stats):
+                if self.seg.range is None:
+                    # HLS/m3u8: independent .ts files with no byte range.
+                    # Tile the bar evenly using 200 KB virtual slots so the widget can
+                    # show each connection's position without knowing the real file size.
+                    _HLS_VIRT = 200 * 1024
+                    _stats[self.tag]["start_byte"] = self.seg.num * _HLS_VIRT
+                    _stats[self.tag]["segment_size"] = _HLS_VIRT
+                else:
+                    # DASH/static: use actual byte range.
+                    # Audio segments have byte positions relative to their own stream
+                    # (starting at 0); add d.size (video size) as an offset so audio
+                    # blocks appear in the right-hand portion of the bar.
+                    _seg_size = ((int(seg_end_byte) - seg_start_byte + 1)
+                                 if seg_end_byte else (self.seg.size or 0))
+                    _is_audio = self.seg.name and '_audio' in os.path.basename(self.seg.name)
+                    _audio_offset = int(getattr(self.d, 'size', 0) or 0) if _is_audio else 0
+                    _stats[self.tag]["start_byte"] = seg_start_byte + _audio_offset
+                    _stats[self.tag]["segment_size"] = _seg_size
+                _stats[self.tag]["downloaded"] = 0
+                _stats[self.tag]["info"] = "Connecting..."
+        except Exception:
+            pass
+
         if os.path.exists(self.seg.name):
             try:
                 current_size = os.path.getsize(self.seg.name)
                 seg_size = getattr(self.seg, 'size', 0) or 0
-                
-                # If we have data, try to resume
+
                 if current_size > 0:
                     if seg_size > 0 and current_size >= seg_size:
                         self.report_completed()
                         return
-                    
-                    # Extract start and end bytes from the segment's range
-                    # Range format: "start-end" (e.g., "0-459005232")
-                    start_byte = 0
-                    end_byte = ""
-                    if self.seg.range:
-                        try:
-                            parts = self.seg.range.split('-')
-                            if len(parts) >= 1:
-                                try:
-                                    start_byte = int(parts[0])
-                                except (ValueError, TypeError):
-                                    start_byte = 0
-                                    log(f"[Worker {self.tag}] Warning: Could not parse start byte from range '{self.seg.range}'", log_level=2)
-                            if len(parts) > 1:
-                                end_byte = parts[1]
-                        except Exception as e:
-                            log(f"[Worker {self.tag}] Error parsing range '{self.seg.range}': {e}", log_level=2)
-                    
-                    # Calculate resume range: from current position to end byte
-                    # Resume position = start_byte + current_size (absolute position in file)
-                    resume_start = start_byte + current_size
-                    self.resume_range = f"{resume_start}-{end_byte}"
-                    
+
+                    # Build resume range using the already-parsed start byte
+                    resume_start = seg_start_byte + current_size
+                    self.resume_range = f"{resume_start}-{seg_end_byte}"
+
                     self.mode = 'ab'
                     self.downloaded = current_size
-                    log(f"[Worker {self.tag}] Resuming segment {self.seg.num}: file has {current_size} bytes, resuming from {resume_start}, range: {self.resume_range}", log_level=3)
+                    log(f"[Worker {self.tag}] Resuming segment {self.seg.num}: file has {current_size} bytes, "
+                        f"resuming from {resume_start}, range: {self.resume_range}", log_level=3)
+
+                    try:
+                        _stats = getattr(self.d, "connection_stats", None)
+                        if isinstance(_stats, list) and 0 <= self.tag < len(_stats):
+                            _stats[self.tag]["downloaded"] = current_size
+                    except Exception:
+                        pass
             except Exception as e:
-                log(f"[Worker {self.tag}] Exception during resume logic for {self.seg.name}: {e} (will truncate and restart)", log_level=2)
+                log(f"[Worker {self.tag}] Exception during resume logic for {self.seg.name}: "
+                    f"{e} (will truncate and restart)", log_level=2)
                 import traceback
                 traceback.print_exc()
-                # On exception, we intentionally stay in 'wb' mode (truncate) rather than silently fail
-                # This ensures we don't get corrupted partial files
                 self.mode = 'wb'
 
         self.set_options()
@@ -366,30 +409,38 @@ class Worker:
         if not os.path.isdir(target_directory):
             os.makedirs(target_directory, exist_ok=True)
 
-        
         # 2. NETWORK RETRY LOOP
         max_retries = 5
         retries = 0
-        
+
         while retries < max_retries:
             t_start = time.perf_counter()
             try:
-
                 with open(self.seg.name, self.mode) as self.file:
                     self.c.perform()
-                
+
                 t_end = time.perf_counter()
                 log(f"[Benchmark] Worker {self.tag} | Engine: PYTHON | Time: {(t_end-t_start):.3f}s", log_level=1)
-                break 
+                break
 
+            except pycurl.error as e:
+                # Error 23 = CURLE_WRITE_ERROR: our write() returned -1 intentionally
+                # when the segment reached its size limit.  This is a clean completion,
+                # not a network fault — break immediately instead of retrying and
+                # appending more data in 'ab' mode.
+                if e.args[0] == 23:
+                    break
+                retries += 1
+                log(f"[Worker {self.tag}] Error: {e}. Retrying {retries}...", log_level=2)
+                time.sleep(1 * retries)
+                self.mode = 'ab'
+                continue
             except Exception as e:
                 retries += 1
                 log(f"[Worker {self.tag}] Error: {e}. Retrying {retries}...", log_level=2)
                 time.sleep(1 * retries)
-                self.mode = 'ab' 
+                self.mode = 'ab'
                 continue
-
-            
 
         # 3. VERIFY & REPORT
         if self.verify():
